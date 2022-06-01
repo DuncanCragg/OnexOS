@@ -42,10 +42,12 @@ extern VkRenderPass render_pass;
 bool ont_vk_memory_type_from_properties(uint32_t type_bits, VkFlags requirements_mask, uint32_t *typeIndex);
 
 typedef struct iostate {
-  float  time;
-  double xpos;
-  double ypos;
-  bool   left_pressed;
+  uint32_t mouse_x;
+  uint32_t mouse_y;
+  char     key;
+  bool     left_pressed;
+  bool     middle_pressed;
+  bool     right_pressed;
 } iostate;
 
 iostate ont_vk_get_iostate();
@@ -66,6 +68,6 @@ void onx_prepare_framebuffers();
 void onx_render_pass();
 void onx_render_frame();
 void onx_destroy_objects();
-void onx_handle_event(char key, double scrollx, double scrolly);
+void onx_handle_event(iostate io);
 
 #endif

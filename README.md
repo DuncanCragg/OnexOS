@@ -1,3 +1,3 @@
 # OnexOS
-An app-free OS building a trap-free Web (in 3D)
+An app-free OS building a trap-free 3D Web
 

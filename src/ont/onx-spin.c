@@ -1871,8 +1871,8 @@ void onx_render_frame() {
   }
 }
 
-void onx_handle_event(char key, double scrollx, double scrolly) {
-  printf("onx_handle_event %d %f %f\n", key, scrollx, scrolly);
+void onx_handle_event(iostate io) {
+  printf("onx_handle_event (%d %d) %d (%d %d %d)\n", io.mouse_x, io.mouse_y, io.key, io.left_pressed, io.middle_pressed, io.right_pressed);
 }
 
 // ---------------------------------

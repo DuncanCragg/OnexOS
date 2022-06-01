@@ -900,10 +900,26 @@ void ont_vk_loop()
   onx_render_frame();
 }
 
-void ont_vk_handle_event(char key, int w, int h)
-{
-  if(key){
-    onx_handle_event(key, 0,0);
+static iostate io;
+
+void ont_vk_handle_event(char key_pressed, char key_released,
+                         int32_t mouse_x, int32_t mouse_y,
+                         bool left_pressed, bool middle_pressed, bool right_pressed,
+                         bool left_released, bool middle_released, bool right_released,
+                         int w, int h) {
+
+  if(mouse_x || mouse_y || key_pressed || key_released || left_pressed || middle_pressed || right_pressed || left_released || middle_released || right_released){
+    if(mouse_x)         io.mouse_x=mouse_x;
+    if(mouse_y)         io.mouse_y=mouse_y;
+    if(key_pressed)     io.key=key_pressed;
+    if(key_released)    io.key=0;
+    if(left_pressed)    io.left_pressed=true;
+    if(middle_pressed)  io.middle_pressed=true;
+    if(right_pressed)   io.right_pressed=true;
+    if(left_released)   io.left_pressed=false;
+    if(middle_released) io.middle_pressed=false;
+    if(right_released)  io.right_pressed=false;
+    onx_handle_event(io);
   }
   if(w||h){
     if ((width != w) || (height != h)) {
@@ -914,14 +930,6 @@ void ont_vk_handle_event(char key, int w, int h)
 }
 
 iostate ont_vk_get_iostate(){
-
-  iostate io;
-
-  io.time = ((double)getTimeInNanoseconds())/BILLION;
-  io.xpos = 0;
-  io.ypos = 0;
-  io.left_pressed = false;
-
   return io;
 }
 

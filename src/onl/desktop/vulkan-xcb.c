@@ -10,6 +10,12 @@
 
 #include "onl/onl.h"
 
+extern void ont_vk_loop();
+extern void ont_vk_handle_event(char key_pressed, char key_released,
+                                int32_t mouse_x, int32_t mouse_y,
+                                bool left_pressed, bool middle_pressed, bool right_pressed,
+                                bool left_released, bool middle_released, bool right_released,
+                                int w, int h);
 xcb_connection_t *connection;
 xcb_screen_t *    screen;
 xcb_window_t      window;
@@ -91,46 +97,74 @@ void onl_create_surface(VkInstance inst, VkSurfaceKHR* surface) {
     assert(!err);
 }
 
-extern void ont_vk_handle_event(char key, int w, int h);
-
 bool quit = false;
 bool pause =false;
 
 static void handle_xcb_event(const xcb_generic_event_t *event) {
-    uint8_t event_code = event->response_type & 0x7f;
-    switch (event_code) {
-        case XCB_EXPOSE:
-            // TODO: Resize window
-            break;
-        case XCB_CLIENT_MESSAGE:
-            if ((*(xcb_client_message_event_t *)event).data.data32[0] == (*atom_wm_delete_window).atom) {
-                quit = true;
+
+    switch(event->response_type & 0x7f) {
+
+        case XCB_MOTION_NOTIFY: {
+          xcb_motion_notify_event_t *motion = (xcb_motion_notify_event_t *)event;
+          ont_vk_handle_event(0,0, (int32_t)motion->event_x, (int32_t)motion->event_y, false,false,false, false,false,false, 0,0);
+          break;
+        }
+        case XCB_BUTTON_PRESS: {
+          xcb_button_press_event_t *press = (xcb_button_press_event_t *)event;
+          if(press->detail == XCB_BUTTON_INDEX_1) ont_vk_handle_event(0,0, 0,0, true,false,false, false,false,false, 0,0);
+          if(press->detail == XCB_BUTTON_INDEX_2) ont_vk_handle_event(0,0, 0,0, false,true,false, false,false,false, 0,0);
+          if(press->detail == XCB_BUTTON_INDEX_3) ont_vk_handle_event(0,0, 0,0, false,false,true, false,false,false, 0,0);
+          break;
+        }
+        case XCB_BUTTON_RELEASE: {
+          xcb_button_press_event_t *press = (xcb_button_press_event_t *)event;
+          if(press->detail == XCB_BUTTON_INDEX_1) ont_vk_handle_event(0,0, 0,0, false,false,false, true,false,false, 0,0);
+          if(press->detail == XCB_BUTTON_INDEX_2) ont_vk_handle_event(0,0, 0,0, false,false,false, false,true,false, 0,0);
+          if(press->detail == XCB_BUTTON_INDEX_3) ont_vk_handle_event(0,0, 0,0, false,false,false, false,false,true, 0,0);
+          break;
+        }
+        case XCB_KEY_PRESS: {
+            const xcb_key_press_event_t *key = (const xcb_key_press_event_t *)event;
+            switch (key->detail) {
+                case 0x9:  // Escape
+                    break;
+                default:
+                    ont_vk_handle_event(key->detail,0, 0,0, false,false,false, false,false,false, 0,0);
+                    break;
             }
             break;
+        }
         case XCB_KEY_RELEASE: {
             const xcb_key_release_event_t *key = (const xcb_key_release_event_t *)event;
             switch (key->detail) {
                 case 0x9:  // Escape
                     quit = true;
                     break;
-                case 0x41:  // space bar
-                    pause = !pause;
-                    break;
                 default:
-                    ont_vk_handle_event(key->detail, 0,0);
+                    ont_vk_handle_event(0,key->detail, 0,0, false,false,false, false,false,false, 0,0);
                     break;
             }
-        } break;
+            break;
+        }
         case XCB_CONFIGURE_NOTIFY: {
             const xcb_configure_notify_event_t *cfg = (const xcb_configure_notify_event_t *)event;
-            ont_vk_handle_event(0, cfg->width, cfg->height);
-        } break;
-        default:
+            ont_vk_handle_event(0,0, 0,0, false,false,false, false,false,false, cfg->width, cfg->height);
             break;
+        }
+        case XCB_CLIENT_MESSAGE:{
+            if ((*(xcb_client_message_event_t *)event).data.data32[0] == (*atom_wm_delete_window).atom) {
+                quit = true;
+            }
+            break;
+        }
+        case XCB_EXPOSE: {
+            break;
+        }
+        default: {
+            break;
+        }
     }
 }
-
-extern void ont_vk_loop();
 
 void onl_run() {
 
@@ -140,15 +174,10 @@ void onl_run() {
 
         xcb_generic_event_t *event;
 
-        if (pause) {
-            event = xcb_wait_for_event(connection);
-        } else {
-            event = xcb_poll_for_event(connection);
-        }
-        while (event) {
+        while((event = xcb_poll_for_event(connection))) {
+
             handle_xcb_event(event);
             free(event);
-            event = xcb_poll_for_event(connection);
         }
         ont_vk_loop();
     }

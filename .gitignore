@@ -1,0 +1,8 @@
+.*.sw?
+*.o
+*.inc
+*.spv
+,*
+onx/
+onx-spin-x86
+onx-spin-arm

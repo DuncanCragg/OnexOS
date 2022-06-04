@@ -81,10 +81,10 @@ void main() {
     gl_Position = uniforms.mvp
                        * mat4(-2.0,  0.0, 0.0, 0.0,
                               0.0, -1.0, 0.0, 0.0,
-                              0.0,  0.0, 0.0, 0.0,
+                              0.0,  0.0, 1.0, 0.0,
                               0.0,  0.0, 0.0, 1.0
                              )
-                       * vec4(rect_verts[gl_VertexIndex], 0.0, 1.0);
+                       * vec4(rect_verts[gl_VertexIndex], -0.001, 1.0);
 
   }else{
 

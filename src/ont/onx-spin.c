@@ -975,10 +975,10 @@ static void append_text(float x, float y, float scale, const char *text) {
         fd_HostGlyphInfo *gi   = &glyph_infos[glyph_index];
         fd_GlyphInstance *inst = &glyph_instances[glyph_instance_count];
 
-        inst->rect.min_x = (x + gi->bbox.min_x * scale) / (swapchain_extent.width / 4.0f) - 1.0f;
-        inst->rect.min_y = (y - gi->bbox.min_y * scale) / (swapchain_extent.height / 4.0f) - 1.0f;
-        inst->rect.max_x = (x + gi->bbox.max_x * scale) / (swapchain_extent.width / 4.0f) - 1.0f;
-        inst->rect.max_y = (y - gi->bbox.max_y * scale) / (swapchain_extent.height / 4.0f) - 1.0f;
+        inst->rect.min_x = (x + gi->bbox.min_x * scale) / 500 - 1.0f;
+        inst->rect.min_y = (y - gi->bbox.min_y * scale) / 250 - 1.0f;
+        inst->rect.max_x = (x + gi->bbox.max_x * scale) / 500 - 1.0f;
+        inst->rect.max_y = (y - gi->bbox.max_y * scale) / 250 - 1.0f;
 
         if (inst->rect.min_x <= 1 && inst->rect.max_x >= -1 &&
             inst->rect.max_y <= 1 && inst->rect.min_y >= -1) {

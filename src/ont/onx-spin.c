@@ -185,7 +185,11 @@ uint32_t glyph_points_size;
 // ---------------------------------
 
 float spin_angle;
-float spin_increment;
+
+vec3 eye = { 0.0f, 0.5, 6.0 };
+vec3 looking_at_body = { 0.0, 0.0, 0.0 };
+vec3 looking_at_head = { 0.0, 0.0, 0.0 };
+vec3 up = { 0.0f, 1.0, 0.0 };
 
 mat4x4 projection_matrix;
 mat4x4 view_matrix;
@@ -1075,14 +1079,24 @@ static void do_render_pass() {
 // ---------------------------------
 
 static bool update_data_buffer() {
-    mat4x4 MVP, Model, VP;
 
-    mat4x4_mul(VP, projection_matrix, view_matrix);
+    iostate io=ont_vk_get_iostate();
 
-    mat4x4_dup(Model, model_matrix);
-    mat4x4_rotate_Y(model_matrix, Model, (float)degreesToRadians(spin_angle));
+    if(io.left_pressed) {  eye[0] -= 0.1f; looking_at_body[0] -= 0.1f; }
+    if(io.right_pressed){  eye[0] += 0.1f; looking_at_body[0] += 0.1f; }
+
+    mat4x4 la;
+    mat4x4_add(la, looking_at_body, looking_at_head);
+    mat4x4_look_at(view_matrix, eye, la, up);
+
+    mat4x4 mm;
+    mat4x4_dup(mm, model_matrix);
+    mat4x4_rotate_Y(model_matrix, mm, (float)degreesToRadians(spin_angle));
     mat4x4_orthonormalize(model_matrix, model_matrix);
 
+    mat4x4 VP;
+    mat4x4 MVP;
+    mat4x4_mul(VP, projection_matrix, view_matrix);
     mat4x4_mul(MVP, VP, model_matrix);
 
     memcpy(uniform_mem[image_index].uniform_memory_ptr, (const void*)&MVP[0][0], sizeof(MVP));
@@ -1090,20 +1104,20 @@ static bool update_data_buffer() {
 }
 
 static void init_3d() {
-    vec3 eye = {0.0f, 3.0f, 5.0f};
-    vec3 origin = {0, 0, 0};
-    vec3 up = {0.0f, 1.0f, 0.0};
 
-    spin_angle = -0.2f;
-    spin_increment = 0.2f;
+    spin_angle = -0.0f;
 
-    Mat4x4_perspective(projection_matrix, (float)degreesToRadians(45.0f), 1.0f, 0.1f, 100.0f);
-    mat4x4_look_at(view_matrix, eye, origin, up);
+    Mat4x4_perspective(projection_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
+
     mat4x4_identity(model_matrix);
 
-    mat4x4 Model;
-    mat4x4_dup(Model, model_matrix);
-    mat4x4_rotate_Y(model_matrix, Model, (float)degreesToRadians(180));
+    mat4x4 la;
+    mat4x4_add(la, looking_at_body, looking_at_head);
+    mat4x4_look_at(view_matrix, eye, la, up);
+
+    mat4x4 mm;
+    mat4x4_dup(mm, model_matrix);
+    mat4x4_rotate_Y(model_matrix, mm, (float)degreesToRadians(180));
     mat4x4_orthonormalize(model_matrix, model_matrix);
 
     canvas_scale = 3.0f;
@@ -1335,13 +1349,8 @@ void onx_prepare_render_data() {
 
 void onx_prepare_uniform_buffers() {
 
-  mat4x4 MVP, VP;
-  mat4x4_mul(VP, projection_matrix, view_matrix);
-  mat4x4_mul(MVP, VP, model_matrix);
-
   struct uniforms uniforms;
-
-  memcpy(uniforms.mvp, MVP, sizeof(MVP));
+  memset(&uniforms, 0, sizeof(struct uniforms));
 
   for (unsigned int i = 0; i < 12 * 3; i++) {
       uniforms.vertices[i][0] = g_vertex_buffer_data[i * 3];
@@ -1612,8 +1621,8 @@ void onx_prepare_pipeline() {
   VkViewport viewport = {
       .x = 0.0f,
       .y = 0.0f,
-      .width = (float)min(width,height),  // ?!
-      .height = (float)min(width,height),  // ?!
+      .width = width,
+      .height = height,
       .minDepth = 0.0f,
       .maxDepth = 1.0f,
   };
@@ -1872,7 +1881,11 @@ void onx_render_frame() {
 }
 
 void onx_handle_event(iostate io) {
+
   printf("onx_handle_event (%d %d) %d (%d %d %d)\n", io.mouse_x, io.mouse_y, io.key, io.left_pressed, io.middle_pressed, io.right_pressed);
+
+  looking_at_head[0] = -4.0f * (1.0f - 2.0f * io.mouse_x/width);
+  looking_at_head[1] =  4.0f * (1.0f - 2.0f * io.mouse_y/height);
 }
 
 // ---------------------------------

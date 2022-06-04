@@ -494,10 +494,6 @@ static inline void mat4x4_ortho(mat4x4 m, float w, float h, float n, float f)
 }
 static inline void Mat4x4_perspective(mat4x4 m, float y_fov, float aspect, float n, float f)
 {
-    // projection_matrix[1][1] *= -1;  // Flip projection matrix from GL to Vulkan orientation. Needed by cube
-
-    /* NOTE: Degrees are an unhandy unit to work with.
-     * linmath.h uses radians for everything! */
     float const a = 1.f / tanf(y_fov / 2.f);
 
     mat4x4_set(m,
@@ -505,6 +501,8 @@ static inline void Mat4x4_perspective(mat4x4 m, float y_fov, float aspect, float
         0.0f,         -a,      0.0f,           0.0f,
         0.0f,       0.0f, f / (n-f), -(f*n) / (f-n),
         0.0f,       0.0f,     -1.0f,           0.0f);
+
+    // projection_matrix[1][1] *= -1;  // Flip projection matrix from GL to Vulkan orientation
 }
 static inline void mat4x4_look_at(mat4x4 m, vec3 eye, vec3 center, vec3 up)
 {
@@ -885,8 +883,7 @@ static inline void Mat4x4_ortho(mat4x4 M, float l, float r, float b, float t, fl
     M[3][3] = 1.f;
 }
 static inline void mat4x4_perspective(mat4x4 m, float y_fov, float aspect, float n, float f) {
-    /* NOTE: Degrees are an unhandy unit to work with.
-     * linmath.h uses radians for everything! */
+
     float const a = (float)(1.f / tan(y_fov / 2.f));
 
     m[0][0] = a / aspect;

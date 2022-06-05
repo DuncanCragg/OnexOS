@@ -186,7 +186,7 @@ uint32_t glyph_points_size;
 
 float spin_angle;
 
-vec3 eye = { 0.0f, 0.5, 6.0 };
+vec3 eye = { 0.0f, 0.5, 4.0 };
 vec3 looking_at_body = { 0.0, 0.0, 0.0 };
 vec3 looking_at_head = { 0.0, 0.0, 0.0 };
 vec3 up = { 0.0f, 1.0, 0.0 };
@@ -1066,6 +1066,10 @@ static void do_render_pass() {
 
   struct push_constants pc;
 
+  pc.phase = 0, // ground plane
+  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
+  vkCmdDraw(cmd_buf, 6, 1, 0, 0);
+
   pc.phase = 1, // panel
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 12 * 3, 1, 0, 0);
@@ -1084,8 +1088,8 @@ static bool update_data_buffer() {
 
     iostate io=ont_vk_get_iostate();
 
-    if(io.left_pressed) {  eye[0] -= 0.1f; looking_at_body[0] -= 0.1f; }
-    if(io.right_pressed){  eye[0] += 0.1f; looking_at_body[0] += 0.1f; }
+    if(io.left_pressed) {  eye[0] -= 0.05f; looking_at_body[0] -= 0.05f; }
+    if(io.right_pressed){  eye[0] += 0.05f; looking_at_body[0] += 0.05f; }
 
     mat4x4 la;
     mat4x4_add(la, looking_at_body, looking_at_head);
@@ -1093,7 +1097,7 @@ static bool update_data_buffer() {
 
     mat4x4 mm;
     mat4x4_dup(mm, model_matrix);
-    mat4x4_rotate_Y(model_matrix, mm, (float)degreesToRadians(spin_angle));
+    mat4x4_rotate_X(model_matrix, mm, (float)degreesToRadians(spin_angle));
     mat4x4_orthonormalize(model_matrix, model_matrix);
 
     memcpy(uniform_mem[image_index].uniform_memory_ptr,                                         (const void*)&proj_matrix,  sizeof(proj_matrix));
@@ -1105,7 +1109,7 @@ static bool update_data_buffer() {
 
 static void init_3d() {
 
-    spin_angle = -0.0f;
+    spin_angle = -0.6f;
 
     Mat4x4_perspective(proj_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
 
@@ -1118,6 +1122,7 @@ static void init_3d() {
     mat4x4 mm;
     mat4x4_dup(mm, model_matrix);
     mat4x4_rotate_Y(model_matrix, mm, (float)degreesToRadians(180));
+    Mat4x4_translate_in_place(model_matrix, 0.0f, 0.97f, 0.0f);
     mat4x4_orthonormalize(model_matrix, model_matrix);
 
     canvas_scale = 3.0f;

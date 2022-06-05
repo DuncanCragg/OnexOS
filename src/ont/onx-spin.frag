@@ -17,10 +17,31 @@ layout(location = 1) flat in uvec4 in_cell_info;
 layout(location = 2)      in float in_sharpness;
 layout(location = 3)      in vec2  in_cell_coord;
 layout(location = 4)      in vec4  in_texture_coord;
-layout(location = 5)      in vec3  in_frag_pos;
+layout(location = 5)      in vec4  in_frag_pos;
 layout(location = 6) flat in uint  in_phase;
+layout(location = 7)      in float near;
+layout(location = 8)      in float far;
+layout(location = 9)      in vec3  nearPoint;
+layout(location = 10)     in vec3  farPoint;
+layout(location = 11)     in mat4  view;
+layout(location = 15)     in mat4  proj;
 
 layout(location = 0) out vec4 out_color;
+
+vec4 grid_colour(vec3 pos, float scale) {
+    vec2 coord = pos.xz * scale;
+    vec2 derivative = fwidth(coord);
+    vec2 grid = abs(fract(coord - 0.5) - 0.5) / derivative;
+    float line = min(grid.x, grid.y);
+    float rgb=clamp(1-line, 0, 1)/20;
+    vec4 color = vec4(rgb, rgb, rgb, 1.0) + vec4(0, 0.3, 0, 1.0);
+    return color;
+}
+
+float linear_depth(vec4 ppos) {
+    float d = (ppos.z / ppos.w) * 2.0 - 1.0;
+    return (2.0 * near * far) / (far + near - d * (far - near)) / far;
+}
 
 float calc_t(vec2 a, vec2 b, vec2 p) {
   vec2 dir = b - a;
@@ -95,14 +116,28 @@ float cell_signed_dist(uint point_offset, uint cell, vec2 p) {
 
 void main() {
 
+  if(in_phase == 0){ // ground plane
+
+    float t = nearPoint.y / (nearPoint.y - farPoint.y);
+    vec3 pos = nearPoint + t * (farPoint - nearPoint);
+    vec4 ppos = proj * view * vec4(pos.xyz, 1.0);
+
+    gl_FragDepth = ppos.z / ppos.w;
+
+    out_color = grid_colour(pos, 17) * float(t > 0);
+
+    //out_color.a *= 0.4 + 0.6 * max(0, (0.5 - linear_depth(ppos)));
+  }
+  else
   if(in_phase == 1){ // panel
 
     const vec3 lightDir= vec3(-0.4, 0.6, 0.9);
-    vec3 dX = dFdx(in_frag_pos);
-    vec3 dY = dFdy(in_frag_pos);
+    vec3 dX = dFdx(in_frag_pos.xyz);
+    vec3 dY = dFdy(in_frag_pos.xyz);
     vec3 normal = normalize(cross(dX,dY));
     float light = max(0.0, dot(lightDir, normal));
     out_color = light * texture(tex, in_texture_coord.xy) + vec4(0.4, 0.4, 0.4, 1.0);
+    gl_FragDepth = in_frag_pos.z / in_frag_pos.w;
   }
   else
   if(in_phase == 2){ // text
@@ -115,6 +150,7 @@ void main() {
     float alpha = clamp(v * in_sharpness + 0.5, 0.0, 1.0);
 
     out_color = vec4(0.0, 0.0, 0.0, 0.8*alpha);
+    gl_FragDepth = in_frag_pos.z / in_frag_pos.w;
   }
 }
 

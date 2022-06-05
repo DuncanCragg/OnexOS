@@ -150,9 +150,9 @@ typedef struct fd_CellInfo {
 } fd_CellInfo;
 
 typedef struct fd_GlyphInstance {
-    fd_Rect rect;
-    uint32_t glyph_index;
-    float sharpness;
+  fd_Rect  rect;
+  uint32_t glyph_index;
+  float    sharpness;
 } fd_GlyphInstance;
 
 typedef struct fd_HostGlyphInfo {
@@ -694,15 +694,13 @@ static void prepare_textures(){
             /* Device can texture using linear textures */
             prepare_texture_image(texture_files[i], &textures[i], VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-            // Nothing in the pipeline needs to be complete to start, and don't allow fragment
-            // shader to run until layout transition completes
+
             set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
                                     textures[i].image_layout, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 /*
             staging_texture.image = 0;
         } else if (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
-            // Must use staging buffer to copy linear texture to optimized
 
             memset(&staging_texture, 0, sizeof(staging_texture));
             prepare_texture_buffer(texture_files[i], &staging_texture);
@@ -1197,14 +1195,6 @@ void onx_prepare_semaphores_and_fences() {
 }
 
 void onx_prepare_render_pass() {
-    // The initial layout for the color and depth attachments will be LAYOUT_UNDEFINED
-    // because at the start of the renderpass, we don't care about their contents.
-    // At the start of the subpass, the color attachment's layout will be transitioned
-    // to LAYOUT_COLOR_ATTACHMENT_OPTIMAL and the depth stencil attachment's layout
-    // will be transitioned to LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL.  At the end of
-    // the renderpass, the color attachment's layout will be transitioned to
-    // LAYOUT_PRESENT_SRC_KHR to be ready to present.  This is all done as part of
-    // the renderpass, no barriers are necessary.
     const VkAttachmentDescription attachments[2] = {
         [0] =
             {
@@ -1255,7 +1245,6 @@ void onx_prepare_render_pass() {
     VkSubpassDependency attachmentDependencies[2] = {
         [0] =
             {
-                // Depth buffer is shared between swapchain images
                 .srcSubpass = VK_SUBPASS_EXTERNAL,
                 .dstSubpass = 0,
                 .srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
@@ -1266,7 +1255,6 @@ void onx_prepare_render_pass() {
             },
         [1] =
             {
-                // Image Layout Transition
                 .srcSubpass = VK_SUBPASS_EXTERNAL,
                 .dstSubpass = 0,
                 .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,

@@ -1,4 +1,4 @@
-/* Spinning cube with Onex written on it! */
+/* Spinning panel with Onex written on it! */
 
 #include "ont/linmath-plus.h"
 #include "ont/outline.h"
@@ -191,7 +191,7 @@ vec3 looking_at_body = { 0.0, 0.0, 0.0 };
 vec3 looking_at_head = { 0.0, 0.0, 0.0 };
 vec3 up = { 0.0f, 1.0, 0.0 };
 
-mat4x4 projection_matrix;
+mat4x4 proj_matrix;
 mat4x4 view_matrix;
 mat4x4 model_matrix;
 
@@ -200,13 +200,15 @@ float canvas_scale;
 float target_canvas_scale;
 
 struct uniforms {
-    float mvp[4][4];
+    float proj[4][4];
+    float view[4][4];
+    float model[4][4];
     float vertices[12*3][4];
     float uvs[12*3][4];
 };
 
 struct push_constants {
-  uint32_t do_cube;
+  uint32_t phase;
 };
 
 // ---------------------------------
@@ -1064,11 +1066,11 @@ static void do_render_pass() {
 
   struct push_constants pc;
 
-  pc.do_cube = 1,
+  pc.phase = 1, // panel
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 12 * 3, 1, 0, 0);
 
-  pc.do_cube = 0,
+  pc.phase = 2, // text
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 6, glyph_instance_count, 0, 0);
 
@@ -1094,12 +1096,10 @@ static bool update_data_buffer() {
     mat4x4_rotate_Y(model_matrix, mm, (float)degreesToRadians(spin_angle));
     mat4x4_orthonormalize(model_matrix, model_matrix);
 
-    mat4x4 VP;
-    mat4x4 MVP;
-    mat4x4_mul(VP, projection_matrix, view_matrix);
-    mat4x4_mul(MVP, VP, model_matrix);
+    memcpy(uniform_mem[image_index].uniform_memory_ptr,                                         (const void*)&proj_matrix,  sizeof(proj_matrix));
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),                     (const void*)&view_matrix,  sizeof(view_matrix));
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix), (const void*)&model_matrix, sizeof(model_matrix));
 
-    memcpy(uniform_mem[image_index].uniform_memory_ptr, (const void*)&MVP[0][0], sizeof(MVP));
     return false;
 }
 
@@ -1107,7 +1107,7 @@ static void init_3d() {
 
     spin_angle = -0.0f;
 
-    Mat4x4_perspective(projection_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
+    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
 
     mat4x4_identity(model_matrix);
 

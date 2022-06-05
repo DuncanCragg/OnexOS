@@ -8,11 +8,13 @@ struct GlyphInfo {
 };
 
 layout(push_constant) uniform constants {
-  uint do_cube;
+  uint phase;
 } push_constants;
 
 layout(std140, binding = 0) uniform buf0 {
-  mat4 mvp;
+  mat4 proj;
+  mat4 view;
+  mat4 model;
   vec4 vertices[12*3];
   vec4 uvs[12*3];
 } uniforms;
@@ -31,7 +33,7 @@ layout(location = 2) out float out_sharpness;
 layout(location = 3) out vec2  out_cell_coord;
 layout(location = 4) out vec4  out_texture_coord;
 layout(location = 5) out vec3  out_frag_pos;
-layout(location = 6) out uint  out_do_cube;
+layout(location = 6) out uint  out_phase;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -39,7 +41,16 @@ out gl_PerVertex {
 
 void main() {
 
-  if(push_constants.do_cube == 0){
+  if(push_constants.phase == 1){ // panel
+
+    out_texture_coord = uniforms.uvs[gl_VertexIndex];
+    gl_Position = uniforms.proj *
+                  uniforms.view *
+                  uniforms.model *
+                  uniforms.vertices[gl_VertexIndex];
+  }
+  else
+  if(push_constants.phase == 2){ // text
 
     GlyphInfo gi = glyph_buffer.glyphs[in_glyph_index];
 
@@ -78,22 +89,19 @@ void main() {
     out_sharpness = in_sharpness;
     out_cell_coord = cell_coord[gl_VertexIndex];
 
-    gl_Position = uniforms.mvp
-                       * mat4(-2.0,  0.0, 0.0, 0.0,
-                              0.0, -1.0, 0.0, 0.0,
-                              0.0,  0.0, 1.0, 0.0,
-                              0.0,  0.0, 0.0, 1.0
-                             )
-                       * vec4(rect_verts[gl_VertexIndex], -0.001, 1.0);
+    gl_Position = uniforms.proj *
+                  uniforms.view *
+                  uniforms.model *
+                  mat4(-2.0,  0.0, 0.0, 0.0,
+                       0.0, -1.0, 0.0, 0.0,
+                       0.0,  0.0, 1.0, 0.0,
+                       0.0,  0.0, 0.0, 1.0
+                  ) *
+                  vec4(rect_verts[gl_VertexIndex], -0.001, 1.0);
 
-  }else{
-
-    out_texture_coord = uniforms.uvs[gl_VertexIndex];
-    gl_Position = uniforms.mvp * uniforms.vertices[gl_VertexIndex];
   }
-
   out_frag_pos = gl_Position.xyz;
-  out_do_cube = push_constants.do_cube;
+  out_phase = push_constants.phase;
 }
 
 

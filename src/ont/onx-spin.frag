@@ -18,7 +18,7 @@ layout(location = 2)      in float in_sharpness;
 layout(location = 3)      in vec2  in_cell_coord;
 layout(location = 4)      in vec4  in_texture_coord;
 layout(location = 5)      in vec3  in_frag_pos;
-layout(location = 6) flat in uint  in_do_cube;
+layout(location = 6) flat in uint  in_phase;
 
 layout(location = 0) out vec4 out_color;
 
@@ -95,7 +95,17 @@ float cell_signed_dist(uint point_offset, uint cell, vec2 p) {
 
 void main() {
 
-  if(in_do_cube == 0){
+  if(in_phase == 1){ // panel
+
+    const vec3 lightDir= vec3(-0.4, 0.6, 0.9);
+    vec3 dX = dFdx(in_frag_pos);
+    vec3 dY = dFdy(in_frag_pos);
+    vec3 normal = normalize(cross(dX,dY));
+    float light = max(0.0, dot(lightDir, normal));
+    out_color = light * texture(tex, in_texture_coord.xy) + vec4(0.4, 0.4, 0.4, 1.0);
+  }
+  else
+  if(in_phase == 2){ // text
 
     uvec2 c = min(uvec2(in_cell_coord), in_cell_info.zw - 1);
     uint cell_index = in_cell_info.y + in_cell_info.z * c.y + c.x;
@@ -105,15 +115,6 @@ void main() {
     float alpha = clamp(v * in_sharpness + 0.5, 0.0, 1.0);
 
     out_color = vec4(0.0, 0.0, 0.0, 0.8*alpha);
-
-  }else{
-
-    const vec3 lightDir= vec3(-0.4, 0.6, 0.9);
-    vec3 dX = dFdx(in_frag_pos);
-    vec3 dY = dFdy(in_frag_pos);
-    vec3 normal = normalize(cross(dX,dY));
-    float light = max(0.0, dot(lightDir, normal));
-    out_color = light * texture(tex, in_texture_coord.xy) + vec4(0.4, 0.4, 0.4, 1.0);
   }
 }
 

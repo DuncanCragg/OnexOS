@@ -1075,7 +1075,7 @@ static void do_render_pass() {
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 6, 1, 0, 0);
 
-  pc.phase = 1, // panel
+  pc.phase = 1, // panels
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 12*3, 8, 0, 0);
 

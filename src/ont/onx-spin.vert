@@ -71,7 +71,7 @@ void main() {
     gl_Position = vec4(p, 1.0);
   }
   else
-  if(push_constants.phase == 1){ // panel
+  if(push_constants.phase == 1){ // panels
 
     out_texture_coord = vec4(in_uv, 0, 0);
 

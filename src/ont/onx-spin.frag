@@ -129,7 +129,7 @@ void main() {
     //out_color.a *= 0.4 + 0.6 * max(0, (0.5 - linear_depth(ppos)));
   }
   else
-  if(in_phase == 1){ // panel
+  if(in_phase == 1){ // panels
 
     const vec3 lightDir= vec3(-0.4, 0.6, 0.9);
     vec3 dX = dFdx(in_frag_pos.xyz);

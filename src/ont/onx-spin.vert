@@ -83,8 +83,6 @@ void main() {
   else
   if(push_constants.phase == 2){ // text
 
-    glyph_info gi = glyph_buffer.glyphs[in_glyph_index];
-
     vec2 rv;
     if(gl_VertexIndex==0) rv = vec2(in_rect.x, in_rect.y);
     if(gl_VertexIndex==1) rv = vec2(in_rect.z, in_rect.y);
@@ -93,30 +91,24 @@ void main() {
     if(gl_VertexIndex==4) rv = vec2(in_rect.z, in_rect.y);
     if(gl_VertexIndex==5) rv = vec2(in_rect.z, in_rect.w);
 
-    vec2 glyph_pos[6] = vec2[](
-        vec2(gi.bbox.x, gi.bbox.y),
-        vec2(gi.bbox.z, gi.bbox.y),
-        vec2(gi.bbox.x, gi.bbox.w),
+    glyph_info gi = glyph_buffer.glyphs[in_glyph_index];
 
-        vec2(gi.bbox.x, gi.bbox.w),
-        vec2(gi.bbox.z, gi.bbox.y),
-        vec2(gi.bbox.z, gi.bbox.w)
-    );
+    if(gl_VertexIndex==0) out_glyph_pos = vec2(gi.bbox.x, gi.bbox.y);
+    if(gl_VertexIndex==1) out_glyph_pos = vec2(gi.bbox.z, gi.bbox.y);
+    if(gl_VertexIndex==2) out_glyph_pos = vec2(gi.bbox.x, gi.bbox.w);
+    if(gl_VertexIndex==3) out_glyph_pos = vec2(gi.bbox.x, gi.bbox.w);
+    if(gl_VertexIndex==4) out_glyph_pos = vec2(gi.bbox.z, gi.bbox.y);
+    if(gl_VertexIndex==5) out_glyph_pos = vec2(gi.bbox.z, gi.bbox.w);
 
-    vec2 cell_coord[6] = vec2[](
-        vec2(0,              0),
-        vec2(gi.cell_info.z, 0),
-        vec2(0,              gi.cell_info.w),
+    if(gl_VertexIndex==0) out_cell_coord = vec2(0,              0);
+    if(gl_VertexIndex==1) out_cell_coord = vec2(gi.cell_info.z, 0);
+    if(gl_VertexIndex==2) out_cell_coord = vec2(0,              gi.cell_info.w);
+    if(gl_VertexIndex==3) out_cell_coord = vec2(0,              gi.cell_info.w);
+    if(gl_VertexIndex==4) out_cell_coord = vec2(gi.cell_info.z, 0);
+    if(gl_VertexIndex==5) out_cell_coord = vec2(gi.cell_info.z, gi.cell_info.w);
 
-        vec2(0,              gi.cell_info.w),
-        vec2(gi.cell_info.z, 0),
-        vec2(gi.cell_info.z, gi.cell_info.w)
-    );
-
-    out_glyph_pos = glyph_pos[gl_VertexIndex];
     out_cell_info = gi.cell_info;
     out_sharpness = in_sharpness;
-    out_cell_coord = cell_coord[gl_VertexIndex];
 
     gl_Position = uniforms.proj *
                   uniforms.view *

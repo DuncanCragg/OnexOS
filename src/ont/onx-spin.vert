@@ -83,13 +83,14 @@ void main() {
   else
   if(push_constants.phase == 2){ // text
 
+    vec2 origin = vec2(1.0, 0.0);
     vec2 rv;
-    if(gl_VertexIndex==0) rv = vec2(in_rect.x, in_rect.y);
-    if(gl_VertexIndex==1) rv = vec2(in_rect.z, in_rect.y);
-    if(gl_VertexIndex==2) rv = vec2(in_rect.x, in_rect.w);
-    if(gl_VertexIndex==3) rv = vec2(in_rect.x, in_rect.w);
-    if(gl_VertexIndex==4) rv = vec2(in_rect.z, in_rect.y);
-    if(gl_VertexIndex==5) rv = vec2(in_rect.z, in_rect.w);
+    if(gl_VertexIndex==0) rv = origin-vec2(in_rect.x, in_rect.y);
+    if(gl_VertexIndex==1) rv = origin-vec2(in_rect.z, in_rect.y);
+    if(gl_VertexIndex==2) rv = origin-vec2(in_rect.x, in_rect.w);
+    if(gl_VertexIndex==3) rv = origin-vec2(in_rect.x, in_rect.w);
+    if(gl_VertexIndex==4) rv = origin-vec2(in_rect.z, in_rect.y);
+    if(gl_VertexIndex==5) rv = origin-vec2(in_rect.z, in_rect.w);
 
     glyph_info gi = glyph_buffer.glyphs[in_glyph_index];
 
@@ -113,11 +114,6 @@ void main() {
     gl_Position = uniforms.proj *
                   uniforms.view *
                   uniforms.model[4] *
-                  mat4(-2.0,  0.0, 0.0, 0.0,
-                       0.0, -1.0, 0.0, 0.0,
-                       0.0,  0.0, 1.0, 0.0,
-                       0.0,  0.0, 0.0, 1.0
-                  ) *
                   vec4(rv, -0.001, 1.0);
 
   }

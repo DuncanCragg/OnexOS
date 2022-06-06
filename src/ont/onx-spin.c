@@ -983,9 +983,8 @@ static void append_text(float x, float y, float scale, const char *text) {
         inst->rect.max_x = (x + gi->bbox.max_x * scale) / 500 - 1.0f;
         inst->rect.max_y = (y - gi->bbox.max_y * scale) / 250 - 1.0f;
 
-        if (inst->rect.min_x <= 1 && inst->rect.max_x >= -1 &&
-            inst->rect.max_y <= 1 && inst->rect.min_y >= -1) {
-
+        if (inst->rect.min_x <= 1.8 && inst->rect.max_x >= -1 &&
+            inst->rect.max_y <= 0.7 && inst->rect.min_y >= -1) {
             inst->glyph_index = glyph_index;
             inst->sharpness = scale;
 
@@ -1016,6 +1015,11 @@ static void do_render_pass() {
       "OnexOS:",
       "Welcome to the",
       "Object Network",
+      "The Home of Freedom on the big internet!",
+      "OnexOS:",
+      "Welcome to the",
+      "Object Network",
+      "The Home of Freedom on the big internet!",
   };
 
   uint32_t num_of_lines = ARRAY_SIZE(lines);
@@ -1120,7 +1124,7 @@ static void copy_vec(float* m, float* v){
 
 static void init_3d() {
 
-    spin_angle = -0.6f;
+    spin_angle = -0.0f;
 
     Mat4x4_perspective(proj_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
 

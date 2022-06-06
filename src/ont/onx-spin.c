@@ -1008,26 +1008,31 @@ static void do_render_pass() {
 
   begin_text();
 
-  const char *lines[] = {
-      "OnexOS:",
-      "Welcome to the",
-      "Object Network",
-      "The Home of Freedom on the big internet!",
-      "OnexOS:",
-      "Welcome to the",
-      "Object Network",
-      "The Home of Freedom on the big internet!",
+  const char *lines[8][3] = {
+    { "0 OnexOS:", "Welcome to the", "Object Network", },
+    { "1 The Object Network:", "The Home of Freedom", " on the big internet!", },
+    { "2 OnexOS:", "Welcome to the", "Object Network", },
+    { "3 The Object Network:", "The Home of Freedom", " on the big internet!", },
+    { "4 OnexOS:", "Welcome to the", "Object Network", },
+    { "5 The Object Network:", "The Home of Freedom", " on the big internet!", },
+    { "6 OnexOS:", "Welcome to the", "Object Network", },
+    { "7 The Object Network:", "The Home of Freedom", " on the big internet!", },
   };
 
-  uint32_t num_of_lines = ARRAY_SIZE(lines);
+  for(int o=0; o<8; o++){
 
-  for (uint32_t i = 0; i < num_of_lines; i++) {
-    append_text(
-       canvas_scale * (10.0f - canvas_offset[0]),
-       canvas_scale * (30.0f - canvas_offset[1] + i * 30.0f),
-       0.02f * canvas_scale,
-       lines[i]
-    );
+    uint32_t num_of_lines = ARRAY_SIZE(lines[o]);
+
+    for (uint32_t i = 0; i < num_of_lines; i++) {
+      append_text(
+         canvas_scale * (10.0f - canvas_offset[0]),
+         canvas_scale * (30.0f - canvas_offset[1] + i * 30.0f),
+         0.02f * canvas_scale,
+         lines[o][i]
+      );
+    }
+
+    text_ends[o]=glyph_instance_count-1;
   }
 
   end_text();
@@ -1147,15 +1152,6 @@ static void init_3d() {
       copy_vec(model_matrix[i][2], v2);
       copy_vec(model_matrix[i][3], v3);
     }
-
-    text_ends[0]=10;
-    text_ends[1]=20;
-    text_ends[2]=30;
-    text_ends[3]=40;
-    text_ends[4]=50;
-    text_ends[5]=60;
-    text_ends[6]=70;
-    text_ends[7]=80;
 
     canvas_scale = 3.0f;
     target_canvas_scale = 3.0f;

@@ -191,18 +191,20 @@ vec3 looking_at_body = { 0.0, 0.0, 0.0 };
 vec3 looking_at_head = { 0.0, 0.0, 0.0 };
 vec3 up = { 0.0f, 1.0, 0.0 };
 
-mat4x4 proj_matrix;
-mat4x4 view_matrix;
-mat4x4 model_matrix[8];
+mat4x4   proj_matrix;
+mat4x4   view_matrix;
+mat4x4   model_matrix[8];
+uint32_t text_ends[8];
 
 vec2 canvas_offset;
 float canvas_scale;
 float target_canvas_scale;
 
 struct uniforms {
-    float proj[4][4];
-    float view[4][4];
-    float model[8][4][4];
+    float    proj[4][4];
+    float    view[4][4];
+    float    model[8][4][4];
+    uint32_t text_ends[8];
 };
 
 struct push_constants {
@@ -1111,9 +1113,17 @@ static bool update_data_buffer() {
     mat4x4_rotate_X(model_matrix[4], mm, (float)degreesToRadians(spin_angle));
     mat4x4_orthonormalize(model_matrix[4], model_matrix[4]);
 
-    memcpy(uniform_mem[image_index].uniform_memory_ptr,                                         (const void*)&proj_matrix,  sizeof(proj_matrix));
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),                     (const void*)&view_matrix,  sizeof(view_matrix));
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix), (const void*)&model_matrix, sizeof(model_matrix));
+    memcpy(uniform_mem[image_index].uniform_memory_ptr,
+           (const void*)&proj_matrix,  sizeof(proj_matrix));
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
+           (const void*)&view_matrix,  sizeof(view_matrix));
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
+           (const void*)&model_matrix, sizeof(model_matrix));
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
+           (const void*)&text_ends, sizeof(text_ends));
 
     return false;
 }
@@ -1142,6 +1152,15 @@ static void init_3d() {
       copy_vec(model_matrix[i][2], v2);
       copy_vec(model_matrix[i][3], v3);
     }
+
+    text_ends[0]=10;
+    text_ends[1]=20;
+    text_ends[2]=30;
+    text_ends[3]=40;
+    text_ends[4]=50;
+    text_ends[5]=60;
+    text_ends[6]=70;
+    text_ends[7]=80;
 
     canvas_scale = 3.0f;
     target_canvas_scale = 3.0f;

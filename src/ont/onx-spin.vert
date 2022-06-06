@@ -84,15 +84,13 @@ void main() {
 
     glyph_info gi = glyph_buffer.glyphs[in_glyph_index];
 
-    vec2 rect_verts[6] = vec2[](
-        vec2(in_rect.x, in_rect.y),
-        vec2(in_rect.z, in_rect.y),
-        vec2(in_rect.x, in_rect.w),
-
-        vec2(in_rect.x, in_rect.w),
-        vec2(in_rect.z, in_rect.y),
-        vec2(in_rect.z, in_rect.w)
-    );
+    vec2 rv;
+    if(gl_VertexIndex==0) rv = vec2(in_rect.x, in_rect.y);
+    if(gl_VertexIndex==1) rv = vec2(in_rect.z, in_rect.y);
+    if(gl_VertexIndex==2) rv = vec2(in_rect.x, in_rect.w);
+    if(gl_VertexIndex==3) rv = vec2(in_rect.x, in_rect.w);
+    if(gl_VertexIndex==4) rv = vec2(in_rect.z, in_rect.y);
+    if(gl_VertexIndex==5) rv = vec2(in_rect.z, in_rect.w);
 
     vec2 glyph_pos[6] = vec2[](
         vec2(gi.bbox.x, gi.bbox.y),
@@ -127,7 +125,7 @@ void main() {
                        0.0,  0.0, 1.0, 0.0,
                        0.0,  0.0, 0.0, 1.0
                   ) *
-                  vec4(rect_verts[gl_VertexIndex], -0.001, 1.0);
+                  vec4(rv, -0.001, 1.0);
 
   }
   out_frag_pos = gl_Position;

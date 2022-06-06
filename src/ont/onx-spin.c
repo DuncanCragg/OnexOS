@@ -878,7 +878,6 @@ static void prepare_glyph_buffers() {
 
   vkCmdCopyBuffer(initcmd, staging_buffer, storage_buffer, 1, &copy);
 
-
   free(glyph_data);
   glyph_data = NULL;
 
@@ -924,11 +923,10 @@ static void begin_text() {
 
 static void end_text() {
 
-    VkCommandBuffer cmd_buf = swapchain_image_resources[image_index].command_buffer;
+    vkUnmapMemory(device, instance_staging_buffer_memory);
+
     uint32_t size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
     uint32_t offset = 0;
-
-    vkUnmapMemory(device, instance_staging_buffer_memory);
 
     VkBufferMemoryBarrier barrier = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -939,6 +937,7 @@ static void end_text() {
         .size = size,
     };
 
+    VkCommandBuffer cmd_buf = swapchain_image_resources[image_index].command_buffer;
     vkCmdPipelineBarrier(
         cmd_buf,
         VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
@@ -1070,7 +1069,7 @@ static void do_render_pass() {
 
   pc.phase = 1, // panel
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 12 * 3, 1, 0, 0);
+  vkCmdDraw(cmd_buf, 12*3, 1, 0, 0);
 
   pc.phase = 2, // text
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
@@ -1345,7 +1344,7 @@ void onx_prepare_uniform_buffers() {
   struct uniforms uniforms;
   memset(&uniforms, 0, sizeof(struct uniforms));
 
-  for (unsigned int i = 0; i < 12 * 3; i++) {
+  for (unsigned int i = 0; i < 12*3; i++) {
       uniforms.vertices[i][0] = g_vertex_buffer_data[i * 3];
       uniforms.vertices[i][1] = g_vertex_buffer_data[i * 3 + 1];
       uniforms.vertices[i][2] = g_vertex_buffer_data[i * 3 + 2];

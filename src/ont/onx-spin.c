@@ -1073,7 +1073,7 @@ static void do_render_pass() {
 
   pc.phase = 1, // panel
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 12*3, 1, 0, 0);
+  vkCmdDraw(cmd_buf, 12*3, 8, 0, 0);
 
   pc.phase = 2, // text
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
@@ -1084,6 +1084,12 @@ static void do_render_pass() {
 }
 
 // ---------------------------------
+
+static void show_matrix(mat4x4 m){
+  printf("/---------------------\\\n");
+  for(uint32_t i=0; i<4; i++) printf("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
+  printf("\\---------------------/\n");
+}
 
 static bool update_data_buffer() {
 

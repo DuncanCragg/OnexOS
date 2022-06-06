@@ -203,7 +203,6 @@ struct uniforms {
     float proj[4][4];
     float view[4][4];
     float model[4][4];
-    float vertices[12*3][4];
     float uvs[12*3][4];
 };
 
@@ -241,11 +240,13 @@ VkPipelineCache  pipeline_cache;
 VkDescriptorSetLayout descriptor_layout;
 VkDescriptorPool      descriptor_pool;
 
+VkBuffer vertex_buffer;
 VkBuffer staging_buffer;
 VkBuffer storage_buffer;
 VkBuffer instance_buffer;
 VkBuffer instance_staging_buffer;
 
+VkDeviceMemory vertex_buffer_memory;
 VkDeviceMemory staging_buffer_memory;
 VkDeviceMemory storage_buffer_memory;
 VkDeviceMemory instance_buffer_memory;
@@ -1049,8 +1050,12 @@ static void do_render_pass() {
 
   vkCmdBeginRenderPass(cmd_buf, &render_pass_bi, VK_SUBPASS_CONTENTS_INLINE);
 
-  VkDeviceSize offsets[] = { 0 };
-  vkCmdBindVertexBuffers(cmd_buf, 0, 1, &instance_buffer, offsets);
+  VkBuffer vertex_buffers[] = {
+    vertex_buffer,
+    instance_buffer,
+  };
+  VkDeviceSize offsets[] = { 0, 0 };
+  vkCmdBindVertexBuffers(cmd_buf, 0, 2, vertex_buffers, offsets);
 
   vkCmdBindDescriptorSets(cmd_buf,
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -1339,16 +1344,42 @@ void onx_prepare_render_data() {
   prepare_textures();
 }
 
+static void prepare_vertex_buffers(){
+
+  VkBufferCreateInfo buffer_ci = {
+    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+    .size = sizeof(g_vertex_buffer_data[0]) * 4 * 12*3,
+    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+  };
+
+  create_buffer_with_memory(&buffer_ci,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                            &vertex_buffer,
+                            &vertex_buffer_memory);
+
+  float* vertices;
+  VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, buffer_ci.size, 0, &vertices));
+
+  for (unsigned int i = 0; i < 12*3; i++) {
+      *(vertices+i*4+0) = g_vertex_buffer_data[i*3+0];
+      *(vertices+i*4+1) = g_vertex_buffer_data[i*3+1];
+      *(vertices+i*4+2) = g_vertex_buffer_data[i*3+2];
+      *(vertices+i*4+3) = 1.0f;
+  }
+
+  vkUnmapMemory(device, vertex_buffer_memory);
+}
+
 void onx_prepare_uniform_buffers() {
+
+  prepare_vertex_buffers();
 
   struct uniforms uniforms;
   memset(&uniforms, 0, sizeof(struct uniforms));
 
   for (unsigned int i = 0; i < 12*3; i++) {
-      uniforms.vertices[i][0] = g_vertex_buffer_data[i * 3];
-      uniforms.vertices[i][1] = g_vertex_buffer_data[i * 3 + 1];
-      uniforms.vertices[i][2] = g_vertex_buffer_data[i * 3 + 2];
-      uniforms.vertices[i][3] = 1.0f;
       uniforms.uvs[i][0] = g_uv_buffer_data[2 * i];
       uniforms.uvs[i][1] = g_uv_buffer_data[2 * i + 1];
       uniforms.uvs[i][2] = 0;
@@ -1584,23 +1615,35 @@ void onx_prepare_pipeline() {
     }
   };
 
-  VkVertexInputBindingDescription vertex_input_binding = {
+  VkVertexInputBindingDescription vertices_input_binding = {
     .binding = 0,
+    .stride = sizeof(g_vertex_buffer_data[0]) * 4,
+    .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+  };
+
+  VkVertexInputBindingDescription vertex_input_binding = {
+    .binding = 1,
     .stride = sizeof(fd_GlyphInstance),
     .inputRate = VK_VERTEX_INPUT_RATE_INSTANCE,
   };
 
   VkVertexInputAttributeDescription vertex_input_attributes[] = {
     { 0, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },
-    { 1, 0, VK_FORMAT_R32_UINT, 16 },
-    { 2, 0, VK_FORMAT_R32_SFLOAT, 20 },
+    { 1, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },
+    { 2, 1, VK_FORMAT_R32_UINT, 16 },
+    { 3, 1, VK_FORMAT_R32_SFLOAT, 20 },
+  };
+
+  VkVertexInputBindingDescription vibds[] = {
+    vertices_input_binding,
+    vertex_input_binding,
   };
 
   VkPipelineVertexInputStateCreateInfo vertex_input_state = {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-      .vertexBindingDescriptionCount = 1,
-      .pVertexBindingDescriptions = &vertex_input_binding,
-      .vertexAttributeDescriptionCount = 3,
+      .vertexBindingDescriptionCount = 2,
+      .pVertexBindingDescriptions = vibds,
+      .vertexAttributeDescriptionCount = 4,
       .pVertexAttributeDescriptions = vertex_input_attributes,
   };
 
@@ -1734,11 +1777,13 @@ void onx_destroy_objects() {
 
   // ---------------------------------
 
+  vkFreeMemory(device, vertex_buffer_memory, NULL);
   vkFreeMemory(device, staging_buffer_memory, NULL);
   vkFreeMemory(device, storage_buffer_memory, NULL);
   vkFreeMemory(device, instance_buffer_memory, NULL);
   vkFreeMemory(device, instance_staging_buffer_memory, NULL);
 
+  vkDestroyBuffer(device, vertex_buffer, NULL);
   vkDestroyBuffer(device, staging_buffer, NULL);
   vkDestroyBuffer(device, storage_buffer, NULL);
   vkDestroyBuffer(device, instance_buffer, NULL);

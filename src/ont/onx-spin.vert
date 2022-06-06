@@ -15,7 +15,6 @@ layout(std140, binding = 0) uniform buf0 {
   mat4 proj;
   mat4 view;
   mat4 model;
-  vec4 vertices[12*3];
   vec4 uvs[12*3];
 } uniforms;
 
@@ -23,9 +22,10 @@ layout (set = 0, binding = 1) buffer buf1 {
   glyph_info glyphs[];
 } glyph_buffer;
 
-layout(location = 0) in vec4  in_rect;
-layout(location = 1) in uint  in_glyph_index;
-layout(location = 2) in float in_sharpness;
+layout(location = 0) in vec4  in_vertex;
+layout(location = 1) in vec4  in_rect;
+layout(location = 2) in uint  in_glyph_index;
+layout(location = 3) in float in_sharpness;
 
 layout(location = 0)  out vec2  out_glyph_pos;
 layout(location = 1)  out uvec4 out_cell_info;
@@ -74,10 +74,11 @@ void main() {
   if(push_constants.phase == 1){ // panel
 
     out_texture_coord = uniforms.uvs[gl_VertexIndex];
+
     gl_Position = uniforms.proj *
                   uniforms.view *
                   uniforms.model *
-                  uniforms.vertices[gl_VertexIndex];
+                  in_vertex;
   }
   else
   if(push_constants.phase == 2){ // text

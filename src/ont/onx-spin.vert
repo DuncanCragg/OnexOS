@@ -14,7 +14,7 @@ layout(push_constant) uniform constants {
 layout(std140, binding = 0) uniform buf0 {
   mat4 proj;
   mat4 view;
-  mat4 model;
+  mat4 model[8];
 } uniforms;
 
 layout (set = 0, binding = 1) buffer buf1 {
@@ -71,29 +71,13 @@ void main() {
     gl_Position = vec4(p, 1.0);
   }
   else
-  if(push_constants.phase == 1 && gl_InstanceIndex == 0){ // panel
+  if(push_constants.phase == 1){ // panel
 
     out_texture_coord = vec4(in_uv, 0, 0);
 
     gl_Position = uniforms.proj *
                   uniforms.view *
-                  uniforms.model *
-                  vec4(in_vertex, 1.0);
-  }
-  else
-  if(push_constants.phase == 1 && gl_InstanceIndex >= 1){ // panel
-
-    out_texture_coord = vec4(in_uv, 0, 0);
-
-    mat4 mm;
-    mm[0] = vec4(-1.0000, 0.0000, -0.0000, 0.0000);
-    mm[1] = vec4(-0.0000, 0.9999,  0.0105, 0.0000);
-    mm[2] = vec4( 0.0000, 0.0105, -0.9999, 0.0000);
-    mm[3] = vec4( 4*(gl_InstanceIndex-4), 0.9700,  -1.0000, 1.0000);
-
-    gl_Position = uniforms.proj *
-                  uniforms.view *
-                  mm *
+                  uniforms.model[gl_InstanceIndex] *
                   vec4(in_vertex, 1.0);
   }
   else
@@ -128,7 +112,7 @@ void main() {
 
     gl_Position = uniforms.proj *
                   uniforms.view *
-                  uniforms.model *
+                  uniforms.model[4] *
                   mat4(-2.0,  0.0, 0.0, 0.0,
                        0.0, -1.0, 0.0, 0.0,
                        0.0,  0.0, 1.0, 0.0,

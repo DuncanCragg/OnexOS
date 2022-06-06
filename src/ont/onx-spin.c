@@ -193,7 +193,7 @@ vec3 up = { 0.0f, 1.0, 0.0 };
 
 mat4x4 proj_matrix;
 mat4x4 view_matrix;
-mat4x4 model_matrix;
+mat4x4 model_matrix[8];
 
 vec2 canvas_offset;
 float canvas_scale;
@@ -202,7 +202,7 @@ float target_canvas_scale;
 struct uniforms {
     float proj[4][4];
     float view[4][4];
-    float model[4][4];
+    float model[8][4][4];
 };
 
 struct push_constants {
@@ -1103,9 +1103,9 @@ static bool update_data_buffer() {
     mat4x4_look_at(view_matrix, eye, la, up);
 
     mat4x4 mm;
-    mat4x4_dup(mm, model_matrix);
-    mat4x4_rotate_X(model_matrix, mm, (float)degreesToRadians(spin_angle));
-    mat4x4_orthonormalize(model_matrix, model_matrix);
+    mat4x4_dup(mm, model_matrix[4]);
+    mat4x4_rotate_X(model_matrix[4], mm, (float)degreesToRadians(spin_angle));
+    mat4x4_orthonormalize(model_matrix[4], model_matrix[4]);
 
     memcpy(uniform_mem[image_index].uniform_memory_ptr,                                         (const void*)&proj_matrix,  sizeof(proj_matrix));
     memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),                     (const void*)&view_matrix,  sizeof(view_matrix));
@@ -1114,23 +1114,30 @@ static bool update_data_buffer() {
     return false;
 }
 
+static void copy_vec(float* m, float* v){
+  for(uint32_t i=0; i<4; i++) m[i]=v[i];
+}
+
 static void init_3d() {
 
     spin_angle = -0.6f;
 
     Mat4x4_perspective(proj_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
 
-    mat4x4_identity(model_matrix);
-
     mat4x4 la;
     mat4x4_add(la, looking_at_body, looking_at_head);
     mat4x4_look_at(view_matrix, eye, la, up);
 
-    mat4x4 mm;
-    mat4x4_dup(mm, model_matrix);
-    mat4x4_rotate_Y(model_matrix, mm, (float)degreesToRadians(180));
-    Mat4x4_translate_in_place(model_matrix, 0.0f, 0.97f, 0.0f);
-    mat4x4_orthonormalize(model_matrix, model_matrix);
+    for(int i=0; i<8; i++){
+      vec4 v0 = { -1.0000, 0.0000,  -0.0000, 0.0000 };
+      vec4 v1 = { -0.0000, 0.9999,   0.0105, 0.0000 };
+      vec4 v2 = {  0.0000, 0.0105,  -0.9999, 0.0000 };
+      vec4 v3 = { 3.2*(i-4), 0.9700,  -1.0000, 1.0000 };
+      copy_vec(model_matrix[i][0], v0);
+      copy_vec(model_matrix[i][1], v1);
+      copy_vec(model_matrix[i][2], v2);
+      copy_vec(model_matrix[i][3], v3);
+    }
 
     canvas_scale = 3.0f;
     target_canvas_scale = 3.0f;

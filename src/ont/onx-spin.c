@@ -978,19 +978,19 @@ static void append_text(float x, float y, float scale, const char *text) {
         fd_HostGlyphInfo *gi   = &glyph_infos[glyph_index];
         fd_GlyphInstance *inst = &glyph_instances[glyph_instance_count];
 
-        inst->rect.min_x = (x + gi->bbox.min_x * scale) / 500 - 1.0f;
-        inst->rect.min_y = (y - gi->bbox.min_y * scale) / 250 - 1.0f;
-        inst->rect.max_x = (x + gi->bbox.max_x * scale) / 500 - 1.0f;
-        inst->rect.max_y = (y - gi->bbox.max_y * scale) / 250 - 1.0f;
+        inst->rect.min_x = 2.0f - (x + gi->bbox.min_x * scale) / 500;
+        inst->rect.min_y = 1.0f - (y - gi->bbox.min_y * scale) / 250;
+        inst->rect.max_x = 2.0f - (x + gi->bbox.max_x * scale) / 500;
+        inst->rect.max_y = 1.0f - (y - gi->bbox.max_y * scale) / 250;
 
-        if (inst->rect.min_x <= 1.8 && inst->rect.max_x >= -1 &&
-            inst->rect.max_y <= 0.7 && inst->rect.min_y >= -1) {
+        if (inst->rect.min_x > -0.8 && inst->rect.max_x < 2 &&
+            inst->rect.max_y > -0.7 && inst->rect.min_y < 1) {
+
             inst->glyph_index = glyph_index;
             inst->sharpness = scale;
 
             glyph_instance_count++;
         }
-
         text++;
         x += gi->advance * scale;
     }

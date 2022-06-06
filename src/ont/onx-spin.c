@@ -326,7 +326,6 @@ static uint32_t create_image_with_memory(VkImageCreateInfo*    image_ci,
 
 static void create_uniform_buffer_with_memory(VkBufferCreateInfo* buffer_ci,
                                               VkMemoryPropertyFlags prop_flags,
-                                              struct uniforms* uniforms,
                                               uint32_t ii){
     VK_CHECK(vkCreateBuffer(device,
                             buffer_ci,
@@ -355,12 +354,8 @@ static void create_uniform_buffer_with_memory(VkBufferCreateInfo* buffer_ci,
 
     VK_CHECK(vkMapMemory(device,
                          uniform_mem[ii].uniform_memory,
-                         0, VK_WHOLE_SIZE, 0,
+                         0, sizeof(struct uniforms), 0,
                         &uniform_mem[ii].uniform_memory_ptr));
-
-    memcpy(uniform_mem[ii].uniform_memory_ptr,
-           uniforms,
-           sizeof *uniforms);
 
     VK_CHECK(vkBindBufferMemory(device,
                                 uniform_mem[ii].uniform_buffer,
@@ -1412,22 +1407,18 @@ void onx_prepare_uniform_buffers() {
 
   prepare_vertex_buffers();
 
-  struct uniforms uniforms;
-  memset(&uniforms, 0, sizeof(struct uniforms));
-
   uniform_mem = (uniform_mem_t*)malloc(sizeof(uniform_mem_t) * image_count);
 
   VkBufferCreateInfo buffer_ci = {
      .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
      .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-     .size = sizeof(uniforms),
+     .size = sizeof(struct uniforms),
   };
   for (uint32_t i = 0; i < image_count; i++) {
 
     create_uniform_buffer_with_memory(&buffer_ci,
                                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT  |
                                       VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                      &uniforms,
                                       i);
   }
 }

@@ -203,7 +203,6 @@ struct uniforms {
     float proj[4][4];
     float view[4][4];
     float model[4][4];
-    float uvs[12*3][4];
 };
 
 struct push_constants {
@@ -1348,7 +1347,7 @@ static void prepare_vertex_buffers(){
 
   VkBufferCreateInfo buffer_ci = {
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = sizeof(g_vertex_buffer_data[0]) * 4 * 12*3,
+    .size = sizeof(g_vertex_buffer_data[0]) * 5 * 12*3,
     .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
@@ -1363,10 +1362,11 @@ static void prepare_vertex_buffers(){
   VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, buffer_ci.size, 0, &vertices));
 
   for (unsigned int i = 0; i < 12*3; i++) {
-      *(vertices+i*4+0) = g_vertex_buffer_data[i*3+0];
-      *(vertices+i*4+1) = g_vertex_buffer_data[i*3+1];
-      *(vertices+i*4+2) = g_vertex_buffer_data[i*3+2];
-      *(vertices+i*4+3) = 1.0f;
+      *(vertices+i*5+0) = g_vertex_buffer_data[i*3+0];
+      *(vertices+i*5+1) = g_vertex_buffer_data[i*3+1];
+      *(vertices+i*5+2) = g_vertex_buffer_data[i*3+2];
+      *(vertices+i*5+3) = g_uv_buffer_data    [i*2+0];
+      *(vertices+i*5+4) = g_uv_buffer_data    [i*2+1];
   }
 
   vkUnmapMemory(device, vertex_buffer_memory);
@@ -1378,13 +1378,6 @@ void onx_prepare_uniform_buffers() {
 
   struct uniforms uniforms;
   memset(&uniforms, 0, sizeof(struct uniforms));
-
-  for (unsigned int i = 0; i < 12*3; i++) {
-      uniforms.uvs[i][0] = g_uv_buffer_data[2 * i];
-      uniforms.uvs[i][1] = g_uv_buffer_data[2 * i + 1];
-      uniforms.uvs[i][2] = 0;
-      uniforms.uvs[i][3] = 0;
-  }
 
   uniform_mem = (uniform_mem_t*)malloc(sizeof(uniform_mem_t) * image_count);
 
@@ -1617,7 +1610,7 @@ void onx_prepare_pipeline() {
 
   VkVertexInputBindingDescription vertices_input_binding = {
     .binding = 0,
-    .stride = sizeof(g_vertex_buffer_data[0]) * 4,
+    .stride = sizeof(g_vertex_buffer_data[0]) * 5,
     .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
   };
 
@@ -1628,10 +1621,11 @@ void onx_prepare_pipeline() {
   };
 
   VkVertexInputAttributeDescription vertex_input_attributes[] = {
-    { 0, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },
-    { 1, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },
-    { 2, 1, VK_FORMAT_R32_UINT, 16 },
-    { 3, 1, VK_FORMAT_R32_SFLOAT, 20 },
+    { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 },
+    { 1, 0, VK_FORMAT_R32G32_SFLOAT, 12 },
+    { 2, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },
+    { 3, 1, VK_FORMAT_R32_UINT, 16 },
+    { 4, 1, VK_FORMAT_R32_SFLOAT, 20 },
   };
 
   VkVertexInputBindingDescription vibds[] = {
@@ -1643,7 +1637,7 @@ void onx_prepare_pipeline() {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
       .vertexBindingDescriptionCount = 2,
       .pVertexBindingDescriptions = vibds,
-      .vertexAttributeDescriptionCount = 4,
+      .vertexAttributeDescriptionCount = 5,
       .pVertexAttributeDescriptions = vertex_input_attributes,
   };
 

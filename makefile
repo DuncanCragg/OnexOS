@@ -89,12 +89,14 @@ LIBS_ONX_SPIN_X86 = -lvulkan -lxcb -lm -lfreetype
 all:
 	@echo "==== "${TARGETS} | sed 's: :\nmake -j6 :g'
 
-onx-spin-arm: CONFIGFLAGS=-DVK_USE_PLATFORM_ANDROID_KHR -DUSE_HWCOMPOSER=1 -DHAS_HWCOMPOSER2_HEADERS=1
+src/onl/mobile/hwc.o: ${HEADERS_ONX_SPIN_ARM}
+
+onx-spin-arm: CONFIGFLAGS=-DVK_USE_PLATFORM_ANDROID_KHR
 onx-spin-arm: INC_DIR=${INC_DIR_ARM}
 onx-spin-arm: CC=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-gcc
 onx-spin-arm: CXX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
 onx-spin-arm: LDX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
-onx-spin-arm: ${SOURCES_ONX_SPIN_ARM:.c=.o} ${SOURCES_ONX_SPIN_ARM_CPP:.cpp=.o} ${HEADERS_ONX_SPIN_ARM} ${SHADERS} ${FONTS}
+onx-spin-arm: ${SOURCES_ONX_SPIN_ARM:.c=.o} ${SOURCES_ONX_SPIN_ARM_CPP:.cpp=.o} ${SHADERS} ${FONTS}
 	@echo ================
 	@echo $@ '<=' ${SOURCES_ONX_SPIN_ARM:.c=.o} ${SOURCES_ONX_SPIN_ARM_CPP:.cpp=.o}
 	@echo -----

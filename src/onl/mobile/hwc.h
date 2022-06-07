@@ -20,81 +20,24 @@
 #define __LIBHYBRIS_TEST_COMMON_H
 
 #include <EGL/egl.h>
-
-#ifdef GL_ES_VERSION_3_0
-#include <GLES3/gl3.h>
-#include <GLES2/gl2ext.h>
-#else
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#endif
-
-#if USE_HWCOMPOSER
-
 #include <hwcomposer_window.h>
-
-#if HAS_HWCOMPOSER2_HEADERS
 #include <hybris/hwc2/hwc2_compatibility_layer.h>
-#endif
 
-#ifdef __cplusplus
-
-class HWComposer : public HWComposerNativeWindow
+class HWComposer2 : public HWComposerNativeWindow
 {
 public:
-	HWComposer(unsigned int width, unsigned int height, unsigned int format)
-		: HWComposerNativeWindow(width, height, format)
-	{
-	}
-
+  HWComposer2(unsigned int width, unsigned int height,
+              unsigned int format,
+              hwc2_compat_display_t *display,
+              hwc2_compat_layer_t *layer);
 protected:
-	virtual void present(HWComposerNativeWindowBuffer *buffer) = 0;
-};
-
-#if HAS_HWCOMPOSER2_HEADERS
-
-// Hwcomposer 2
-class HWComposer2 : public HWComposer
-{
+  void present(HWComposerNativeWindowBuffer *buffer);
 private:
-	hwc2_compat_layer_t *layer;
-	hwc2_compat_display_t *hwcDisplay;
-	int lastPresentFence = -1;
-protected:
-	void present(HWComposerNativeWindowBuffer *buffer);
-
-public:
-	HWComposer2(unsigned int width, unsigned int height, unsigned int format,
-	            hwc2_compat_display_t *display, hwc2_compat_layer_t *layer);
+  hwc2_compat_layer_t *layer;
+  hwc2_compat_display_t *hwcDisplay;
+  int lastPresentFence = -1;
 };
 
-#endif
-
-#include <hwcomposer_window.h>
-#include <hardware/hardware.h>
-#include <hardware/hwcomposer.h>
-
-// Hwcomposer 1
-class HWComposer1 : public HWComposer
-{
-private:
-	hwc_layer_1_t *fblayer;
-	hwc_composer_device_1_t *hwcdevice;
-	hwc_display_contents_1_t **mlist;
-protected:
-	void present(HWComposerNativeWindowBuffer *buffer);
-
-public:
-	HWComposer1(unsigned int width, unsigned int height, unsigned int format,
-	            hwc_composer_device_1_t *device, hwc_display_contents_1_t **mList, hwc_layer_1_t *layer);
-};
-
-HWComposer *create_hwcomposer_window();
-
-#endif
-
-#endif // USE_HWCOMPOSER
-
-GLuint create_program(const char* pVertexSource, const char* pFragmentSource);
+HWComposer2 *create_hwcomposer_window();
 
 #endif

@@ -67,6 +67,7 @@ static const float g_uv_buffer_data[] = {
     0.0f, 1.0f,  // -X side
     1.0f, 1.0f,
     1.0f, 0.0f,
+
     1.0f, 0.0f,
     0.0f, 0.0f,
     0.0f, 1.0f,
@@ -74,6 +75,7 @@ static const float g_uv_buffer_data[] = {
     1.0f, 1.0f,  // -Z side
     0.0f, 0.0f,
     0.0f, 1.0f,
+
     1.0f, 1.0f,
     1.0f, 0.0f,
     0.0f, 0.0f,
@@ -81,6 +83,7 @@ static const float g_uv_buffer_data[] = {
     1.0f, 0.0f,  // -Y side
     1.0f, 1.0f,
     0.0f, 1.0f,
+
     1.0f, 0.0f,
     0.0f, 1.0f,
     0.0f, 0.0f,
@@ -88,6 +91,7 @@ static const float g_uv_buffer_data[] = {
     1.0f, 0.0f,  // +Y side
     0.0f, 0.0f,
     0.0f, 1.0f,
+
     1.0f, 0.0f,
     0.0f, 1.0f,
     1.0f, 1.0f,
@@ -95,6 +99,7 @@ static const float g_uv_buffer_data[] = {
     1.0f, 0.0f,  // +X side
     0.0f, 0.0f,
     0.0f, 1.0f,
+
     0.0f, 1.0f,
     1.0f, 1.0f,
     1.0f, 0.0f,
@@ -102,6 +107,7 @@ static const float g_uv_buffer_data[] = {
     0.0f, 0.0f,  // +Z side
     0.0f, 1.0f,
     1.0f, 0.0f,
+
     0.0f, 1.0f,
     1.0f, 1.0f,
     1.0f, 0.0f,
@@ -1388,7 +1394,7 @@ static void prepare_vertex_buffers(){
 
   VkBufferCreateInfo buffer_ci = {
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = sizeof(g_vertex_buffer_data[0]) * 5 * 12*3,
+    .size = (sizeof(g_vertex_buffer_data[0]) * 3 + sizeof(g_uv_buffer_data[0]) * 2) * 12*3,
     .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
@@ -1647,7 +1653,7 @@ void onx_prepare_pipeline() {
 
   VkVertexInputBindingDescription vertices_input_binding = {
     .binding = 0,
-    .stride = sizeof(g_vertex_buffer_data[0]) * 5,
+    .stride = sizeof(g_vertex_buffer_data[0]) * 3 + sizeof(g_uv_buffer_data[0]) * 2,
     .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
   };
 

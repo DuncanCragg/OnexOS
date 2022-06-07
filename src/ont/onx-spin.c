@@ -7,6 +7,12 @@
 
 // ---------------------------------
 
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+bool rotate_proj = false;
+#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
+bool rotate_proj = true;
+#endif
+
 static const float g_vertex_buffer_data[] = {
     -1.0f,-1.0f, 0.0f,  // -X side
     -1.0f,-1.0f, 0.1f,
@@ -1137,6 +1143,11 @@ static void init_3d() {
     spin_angle = -0.9f;
 
     Mat4x4_perspective(proj_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
+    if(rotate_proj){
+      mat4x4 pm;
+      mat4x4_dup(pm, proj_matrix);
+      mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(90));
+    }
 
     mat4x4 la;
     mat4x4_add(la, looking_at_body, looking_at_head);

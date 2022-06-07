@@ -1022,13 +1022,13 @@ static void do_render_pass() {
 
   const char *lines[8][3] = {
     { "0 OnexOS:", "Welcome to the", "Object Network", },
-    { "1 The Object Network:", "The Home of Freedom", " on the big internet!", },
+    { "1 The Object Network:", "The Home of Freedom", "on the big internet!", },
     { "2 OnexOS:", "Welcome to the", "Object Network", },
-    { "3 The Object Network:", "The Home of Freedom", " on the big internet!", },
+    { "3 The Object Network:", "The Home of Freedom", "on the big internet!", },
     { "4 OnexOS:", "Welcome to the", "Object Network", },
-    { "5 The Object Network:", "The Home of Freedom", " on the big internet!", },
+    { "5 The Object Network:", "The Home of Freedom", "on the big internet!", },
     { "6 OnexOS:", "Welcome to the", "Object Network", },
-    { "7 The Object Network:", "The Home of Freedom", " on the big internet!", },
+    { "7 The Object Network:", "The Home of Freedom", "on the big internet!", },
   };
 
   for(int o=0; o<8; o++){

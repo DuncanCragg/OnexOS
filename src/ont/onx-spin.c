@@ -1134,7 +1134,7 @@ static void copy_vec(float* m, float* v){
 
 static void init_3d() {
 
-    spin_angle = -0.0f;
+    spin_angle = -0.9f;
 
     Mat4x4_perspective(proj_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
 
@@ -1143,10 +1143,13 @@ static void init_3d() {
     mat4x4_look_at(view_matrix, eye, la, up);
 
     for(int i=0; i<8; i++){
-      vec4 v0 = { -1.0000, 0.0000,  -0.0000, 0.0000 };
-      vec4 v1 = { -0.0000, 0.9999,   0.0105, 0.0000 };
-      vec4 v2 = {  0.0000, 0.0105,  -0.9999, 0.0000 };
-      vec4 v3 = { 3.2*(i-4), 0.9700,  -1.0000, 1.0000 };
+      float x_offs = 3.2 * (i - 4);
+      float y_offs = 0.97;
+      float z_offs = -3.0;
+      vec4 v0 = { -1.0000, 0.0000,  0.0000, 0.0000 };
+      vec4 v1 = {  0.0000, 1.0000,  0.0000, 0.0000 };
+      vec4 v2 = {  0.0000, 0.0000, -1.0000, 0.0000 };
+      vec4 v3 = {  x_offs, y_offs,  z_offs, 1.0000 };
       copy_vec(model_matrix[i][0], v0);
       copy_vec(model_matrix[i][1], v1);
       copy_vec(model_matrix[i][2], v2);

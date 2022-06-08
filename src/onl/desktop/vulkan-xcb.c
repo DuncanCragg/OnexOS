@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+#include <signal.h>
 #include <assert.h>
 
 #include <xcb/xcb.h>
@@ -19,8 +21,19 @@ xcb_intern_atom_reply_t *atom_wm_delete_window;
 
 bool quit = false;
 
-void onl_init()
-{
+static void sighandler(int signal, siginfo_t *siginfo, void *userdata) {
+  printf("\nEnd\n");
+  quit = true;
+}
+
+void onl_init() {
+
+  struct sigaction act;
+  memset(&act, 0, sizeof(act));
+  act.sa_sigaction = sighandler;
+  act.sa_flags = SA_SIGINFO;
+  sigaction(SIGINT, &act, 0);
+
   const xcb_setup_t *setup;
   xcb_screen_iterator_t iter;
   int scr;

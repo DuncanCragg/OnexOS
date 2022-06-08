@@ -162,6 +162,7 @@ static void handle_libinput_event(struct libinput_event* event) {
       break;
     }
     case LIBINPUT_EVENT_TOUCH_UP: {
+
       struct libinput_event_touch *t = libinput_event_get_touch_event(event);
 
       int32_t s = libinput_event_touch_get_slot(t);

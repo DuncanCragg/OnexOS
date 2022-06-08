@@ -1972,8 +1972,8 @@ void onx_iostate_changed(iostate io) {
   else
   if(io.left_pressed && head_moving){
 
-    looking_at_head[0] = looking_at_head_last[0] + 16.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / width ;
-    looking_at_head[1] = looking_at_head_last[1] -  8.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / height;
+    looking_at_head[0] = looking_at_head_last[0] + 32.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / height;
+    looking_at_head[1] = looking_at_head_last[1] -  8.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / width;
   }
   else
   if(!io.left_pressed && head_moving){

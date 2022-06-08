@@ -1111,10 +1111,7 @@ static void show_matrix(mat4x4 m){
 
 static bool update_data_buffer() {
 
-    iostate io=ont_vk_get_iostate();
 
-    if(io.left_pressed) {  eye[0] -= 0.05f; looking_at_body[0] -= 0.05f; }
-    if(io.right_pressed){  eye[0] += 0.05f; looking_at_body[0] += 0.05f; }
 
     mat4x4 la;
     mat4x4_add(la, looking_at_body, looking_at_head);
@@ -1954,12 +1951,34 @@ void onx_render_frame() {
   }
 }
 
+bool     head_moving=false;
+uint32_t x_on_press;
+uint32_t y_on_press;
+vec3     looking_at_head_last;
 
 void onx_iostate_changed(iostate io) {
 
   printf("onx_iostate_changed (%d %d) %d (%d %d %d)\n", io.mouse_x, io.mouse_y, io.key, io.left_pressed, io.middle_pressed, io.right_pressed);
-  looking_at_head[0] = -4.0f * (1.0f - 2.0f * io.mouse_x/width);
-  looking_at_head[1] =  4.0f * (1.0f - 2.0f * io.mouse_y/height);
+
+  if(io.left_pressed && !head_moving && io.mouse_x > width/2){
+    head_moving=true;
+
+    looking_at_head_last[0]=looking_at_head[0];
+    looking_at_head_last[1]=looking_at_head[1];
+
+    x_on_press = io.mouse_x;
+    y_on_press = io.mouse_y;
+  }
+  else
+  if(io.left_pressed && head_moving){
+
+    looking_at_head[0] = looking_at_head_last[0] + 16.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / width ;
+    looking_at_head[1] = looking_at_head_last[1] -  8.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / height;
+  }
+  else
+  if(!io.left_pressed && head_moving){
+    head_moving=false;
+  }
 }
 
 // ---------------------------------

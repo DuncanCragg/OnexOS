@@ -9,11 +9,14 @@
 #include <EGL/egl.h>
 #include <android/native_window.h>
 
+extern void ont_vk_loop();
 #include "onl/onl.h"
 
 #include "hwc_c.h"
 
 ANativeWindow* window;
+
+bool quit = false;
 
 void onl_init(){
 }
@@ -21,6 +24,8 @@ void onl_init(){
 void onl_create_window(){
 
   window = hwc_create_hwcomposer_window();
+
+  hwc_display_on();
 
   EGLDisplay display = eglGetDisplay(NULL);
 
@@ -42,9 +47,7 @@ void onl_create_surface(VkInstance inst, VkSurfaceKHR* surface){
   assert(!err);
 }
 
-bool quit = false;
 
-extern void ont_vk_loop();
 
 void onl_run(){
   while (!quit) {
@@ -53,7 +56,6 @@ void onl_run(){
 }
 
 void onl_finish(){
-  printf("onl_finish\n");
   hwc_display_off();
 }
 

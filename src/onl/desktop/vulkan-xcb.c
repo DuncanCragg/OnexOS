@@ -22,6 +22,8 @@ xcb_window_t      window;
 
 xcb_intern_atom_reply_t *atom_wm_delete_window;
 
+bool quit = false;
+
 void onl_init()
 {
   const xcb_setup_t *setup;
@@ -96,9 +98,6 @@ void onl_create_surface(VkInstance inst, VkSurfaceKHR* surface) {
     err = vkCreateXcbSurfaceKHR(inst, &xcb_surface_ci, 0, surface);
     assert(!err);
 }
-
-bool quit = false;
-bool pause =false;
 
 static void handle_xcb_event(const xcb_generic_event_t *event) {
 

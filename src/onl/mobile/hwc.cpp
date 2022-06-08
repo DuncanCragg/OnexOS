@@ -155,8 +155,6 @@ HWComposer2 *create_hwcomposer_window()
 
   assert(hwcDisplay);
 
-  hwc_display_on();
-
   HWC2DisplayConfig* config = hwc2_compat_display_get_active_config(hwcDisplay);
 
   printf("HWC: width: %i height: %i\n", config->width, config->height);

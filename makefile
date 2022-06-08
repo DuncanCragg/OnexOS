@@ -117,7 +117,7 @@ onx-spin-x86: ${SOURCES_ONX_SPIN_X86:.c=.o} ${HEADERS_ONX_SPIN_X86} ${SHADERS} $
 
 # ------------------------------------
 
-CCFLAGS  = -std=gnu17 -g -O2 -pthread -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result
+CCFLAGS  = -std=gnu17 -g -O2 -pthread -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-switch
 CPPFLAGS = -std=gnu++17 -g -O2 -pthread
 
 .c.o:

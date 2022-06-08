@@ -20,7 +20,7 @@ void onl_init(){
 
 void onl_create_window(){
 
-  window = create_hwcomposer_window_c();
+  window = hwc_create_hwcomposer_window();
 
   EGLDisplay display = eglGetDisplay(NULL);
 
@@ -54,6 +54,7 @@ void onl_run(){
 
 void onl_finish(){
   printf("onl_finish\n");
+  hwc_display_off();
 }
 
 

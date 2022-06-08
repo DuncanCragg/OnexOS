@@ -4,7 +4,9 @@
 #include <android/native_window.h>
 #include <EGL/egl.h>
 
-ANativeWindow* create_hwcomposer_window_c();
+ANativeWindow* hwc_create_hwcomposer_window();
+void           hwc_display_on();
+void           hwc_display_off();
 
 #endif
 

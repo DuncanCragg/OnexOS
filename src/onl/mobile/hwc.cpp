@@ -27,18 +27,22 @@
 
 #include "hwc.h"
 #include "logging.h"
+extern "C" {
+#include "hwc_c.h"
+}
 
-hwc2_compat_device_t* hwcDevice;
+hwc2_compat_device_t*  hwcDevice;
+hwc2_compat_display_t* hwcDisplay;
 
 HWComposer2::HWComposer2(unsigned int width, unsigned int height,
                          unsigned int format,
                          hwc2_compat_display_t* display,
-                         hwc2_compat_layer_t *layer):
+                         hwc2_compat_layer_t*   layer    ):
 
              HWComposerNativeWindow(width, height, format) {
 
-  this->layer = layer;
   this->hwcDisplay = display;
+  this->layer      = layer;
 }
 
 void HWComposer2::present(HWComposerNativeWindowBuffer *buffer)
@@ -46,18 +50,19 @@ void HWComposer2::present(HWComposerNativeWindowBuffer *buffer)
   uint32_t numTypes = 0;
   uint32_t numRequests = 0;
 
-  hwc2_error_t error = hwc2_compat_display_validate(hwcDisplay, &numTypes,
-                                                      &numRequests);
+  hwc2_error_t error = hwc2_compat_display_validate(hwcDisplay,
+                                                    &numTypes,
+                                                    &numRequests);
 
   if (error != HWC2_ERROR_NONE && error != HWC2_ERROR_HAS_CHANGES) {
-    HYBRIS_ERROR("prepare: validate failed for display %lu: %s (%d)", displayId,
-      to_string(static_cast<HWC2::Error>(error)).c_str(), error);
+    HYBRIS_ERROR("prepare: validate failed for display %lu: %s (%d)",
+                  displayId, to_string(static_cast<HWC2::Error>(error)).c_str(), error);
     return;
   }
 
   if (numTypes || numRequests) {
     HYBRIS_ERROR("prepare: validate required changes for display %lu: %s (%d)",
-      displayId, to_string(static_cast<HWC2::Error>(error)).c_str(),
+                  displayId, to_string(static_cast<HWC2::Error>(error)).c_str(),
       error);
     return;
   }
@@ -65,7 +70,7 @@ void HWComposer2::present(HWComposerNativeWindowBuffer *buffer)
   error = hwc2_compat_display_accept_changes(hwcDisplay);
   if (error != HWC2_ERROR_NONE) {
     HYBRIS_ERROR("prepare: acceptChanges failed: %s",
-      to_string(static_cast<HWC2::Error>(error)).c_str());
+                  to_string(static_cast<HWC2::Error>(error)).c_str());
     return;
   }
 
@@ -78,26 +83,21 @@ void HWComposer2::present(HWComposerNativeWindowBuffer *buffer)
 
   if (error != HWC2_ERROR_NONE) {
     HYBRIS_ERROR("presentAndGetReleaseFences: failed for display %lu: %s (%d)",
-      displayId,
-      to_string(static_cast<HWC2::Error>(error)).c_str(), error);
+                  displayId, to_string(static_cast<HWC2::Error>(error)).c_str(), error);
     return;
   }
 
   hwc2_compat_out_fences_t* fences;
-  error = hwc2_compat_display_get_release_fences(
-    hwcDisplay, &fences);
+  error = hwc2_compat_display_get_release_fences(hwcDisplay, &fences);
 
   if (error != HWC2_ERROR_NONE) {
-    HYBRIS_ERROR("presentAndGetReleaseFences: Failed to get release fences "
-      "for display %lu: %s (%d)",
-      displayId, to_string(static_cast<HWC2::Error>(error)).c_str(),
-      error);
+    HYBRIS_ERROR("presentAndGetReleaseFences: Failed to get release fences for display %lu: %s (%d)",
+                  displayId, to_string(static_cast<HWC2::Error>(error)).c_str(), error);
     return;
   }
 
   int fenceFd = hwc2_compat_out_fences_get_fence(fences, layer);
-  if (fenceFd != -1)
-    setFenceBufferFd(buffer, fenceFd);
+  if (fenceFd != -1) setFenceBufferFd(buffer, fenceFd);
 
   hwc2_compat_out_fences_destroy(fences);
 
@@ -119,9 +119,9 @@ void onHotplugReceived(HWC2EventListener* listener, int32_t sequenceId,
                        bool primaryDisplay)
 {
   HYBRIS_INFO("onHotplugReceived(%d, %" PRIu64 ", %s, %s)",
-    sequenceId, display,
-    connected ? "connected" : "disconnected",
-    primaryDisplay ? "primary" : "external");
+               sequenceId, display,
+               connected ? "connected" : "disconnected",
+               primaryDisplay ? "primary" : "external");
 
   hwc2_compat_device_on_hotplug(hwcDevice, display, connected);
 }
@@ -146,16 +146,16 @@ HWComposer2 *create_hwcomposer_window()
 
   hwc2_compat_device_register_callback(hwcDevice, &eventListener, composerSequenceId);
 
-  hwc2_compat_display_t* hwcDisplay;
   for (int i = 0; i < 5 * 1000; ++i) {
-    /* Wait at most 5s for hotplug events */
-    if ((hwcDisplay = hwc2_compat_device_get_display_by_id(hwcDevice, 0)))
+    if ((hwcDisplay = hwc2_compat_device_get_display_by_id(hwcDevice, 0))){
       break;
+    }
     usleep(1000);
   }
+
   assert(hwcDisplay);
 
-  hwc2_compat_display_set_power_mode(hwcDisplay, HWC2_POWER_MODE_ON);
+  hwc_display_on();
 
   HWC2DisplayConfig* config = hwc2_compat_display_get_active_config(hwcDisplay);
 
@@ -165,12 +165,12 @@ HWComposer2 *create_hwcomposer_window()
 
   hwc2_compat_layer_set_composition_type(layer, HWC2_COMPOSITION_CLIENT);
   hwc2_compat_layer_set_blend_mode(layer, HWC2_BLEND_MODE_NONE);
-  hwc2_compat_layer_set_source_crop(layer, 0.0f, 0.0f, config->width,
-                                    config->height);
-  hwc2_compat_layer_set_display_frame(layer, 0, 0, config->width,
-                                      config->height);
-  hwc2_compat_layer_set_visible_region(layer, 0, 0, config->width,
-                                       config->height);
+  hwc2_compat_layer_set_source_crop(layer, 0.0f, 0.0f,
+                                    config->width, config->height);
+  hwc2_compat_layer_set_display_frame(layer, 0, 0,
+                                      config->width, config->height);
+  hwc2_compat_layer_set_visible_region(layer, 0, 0,
+                                       config->width, config->height);
 
   HWComposer2 *win = new HWComposer2(config->width, config->height,
                                      HAL_PIXEL_FORMAT_RGBA_8888,
@@ -180,10 +180,16 @@ HWComposer2 *create_hwcomposer_window()
 
 extern "C" {
 
-#include <android/native_window.h>
-
-ANativeWindow* create_hwcomposer_window_c(){
+ANativeWindow* hwc_create_hwcomposer_window(){
   return create_hwcomposer_window();
+}
+
+void hwc_display_on(){
+  hwc2_compat_display_set_power_mode(hwcDisplay, HWC2_POWER_MODE_ON);
+}
+
+void hwc_display_off(){
+  hwc2_compat_display_set_power_mode(hwcDisplay, HWC2_POWER_MODE_OFF);
 }
 
 }

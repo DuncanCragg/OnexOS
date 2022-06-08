@@ -51,6 +51,7 @@ INC_DIR_ARM = \
  -I/opt/libhybris/include/hybris/hwcomposerwindow \
  -I/opt/libhybris/include/hybris/eglplatformcommon \
  -I/opt/libhybris/include/hybris/platformcommon \
+ -I./include \
  -I./include/libhybris \
  -I./include/vulkan \
  -I./include/android-headers \
@@ -81,6 +82,16 @@ LIBS_ONX_SPIN_ARM = \
  -l:libfreetype.so.6 \
  -l:libpng12.so.0 \
  -l:libz.so.1 \
+ -l:libudev.so.1 \
+ -l:libinput.so.10 \
+ -l:libmtdev.so.1 \
+ -l:libevdev.so.2 \
+ -l:libwacom.so.2 \
+ -l:libgudev-1.0.so.0 \
+ -l:libgobject-2.0.so.0 \
+ -l:libglib-2.0.so.0 \
+ -l:libffi.so.6 \
+ -l:libpcre.so.3 \
 
 LIBS_ONX_SPIN_X86 = -lvulkan -lxcb -lm -lfreetype
 

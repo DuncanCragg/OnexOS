@@ -1954,10 +1954,10 @@ void onx_render_frame() {
   }
 }
 
-void onx_handle_event(iostate io) {
 
-  printf("onx_handle_event (%d %d) %d (%d %d %d)\n", io.mouse_x, io.mouse_y, io.key, io.left_pressed, io.middle_pressed, io.right_pressed);
+void onx_iostate_changed(iostate io) {
 
+  printf("onx_iostate_changed (%d %d) %d (%d %d %d)\n", io.mouse_x, io.mouse_y, io.key, io.left_pressed, io.middle_pressed, io.right_pressed);
   looking_at_head[0] = -4.0f * (1.0f - 2.0f * io.mouse_x/width);
   looking_at_head[1] =  4.0f * (1.0f - 2.0f * io.mouse_y/height);
 }

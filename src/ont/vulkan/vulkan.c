@@ -48,7 +48,7 @@ uint32_t enabled_extension_count;
 uint32_t enabled_layer_count;
 char *extension_names[64];
 char *enabled_layers[64];
-int width, height;
+uint32_t width, height;
 VkFormat surface_format;
 VkColorSpaceKHR color_space;
 
@@ -900,10 +900,10 @@ void ont_vk_loop()
 static iostate io;
 
 void ont_vk_handle_event(char key_pressed, char key_released,
-                         int32_t mouse_x, int32_t mouse_y,
+                         uint32_t mouse_x, uint32_t mouse_y,
                          bool left_pressed, bool middle_pressed, bool right_pressed,
                          bool left_released, bool middle_released, bool right_released,
-                         int w, int h) {
+                         uint32_t w, uint32_t h) {
 
   if(mouse_x || mouse_y || key_pressed || key_released || left_pressed || middle_pressed || right_pressed || left_released || middle_released || right_released){
     if(mouse_x)         io.mouse_x=mouse_x;
@@ -916,7 +916,8 @@ void ont_vk_handle_event(char key_pressed, char key_released,
     if(left_released)   io.left_pressed=false;
     if(middle_released) io.middle_pressed=false;
     if(right_released)  io.right_pressed=false;
-    onx_handle_event(io);
+
+    onx_iostate_changed(io);
   }
   if(w||h){
     if ((width != w) || (height != h)) {

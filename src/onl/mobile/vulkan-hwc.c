@@ -18,16 +18,10 @@
 #include <libudev.h>
 #include <libinput.h>
 
-extern void ont_vk_loop();
-extern void ont_vk_handle_event(char key_pressed, char key_released,
-                                int32_t mouse_x, int32_t mouse_y,
-                                bool left_pressed, bool middle_pressed, bool right_pressed,
-                                bool left_released, bool middle_released, bool right_released,
-                                int w, int h);
-
-#include "onl/onl.h"
-
 #include "hwc_c.h"
+
+#include "ont/vulkan/vulkan_up.h"
+#include "onl/onl.h"
 
 ANativeWindow* window;
 

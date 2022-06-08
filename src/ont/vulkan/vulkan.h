@@ -39,8 +39,6 @@ extern VkSwapchainKHR swapchain;
 extern VkExtent2D swapchain_extent;
 extern VkRenderPass render_pass;
 
-bool ont_vk_memory_type_from_properties(uint32_t type_bits, VkFlags requirements_mask, uint32_t *typeIndex);
-
 typedef struct iostate {
   uint32_t mouse_x;
   uint32_t mouse_y;

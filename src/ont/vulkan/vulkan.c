@@ -417,25 +417,23 @@ static void cleanup(bool restart) {
 
   vkDestroyRenderPass(device, render_pass, NULL);
 
-  if(!restart){
-     fpDestroySwapchainKHR(device, swapchain, NULL);
+  if(restart) return;
+
+  fpDestroySwapchainKHR(device, swapchain, NULL);
+
+  free(queue_props);
+  vkDestroyCommandPool(device, command_pool, NULL);
+
+  vkDeviceWaitIdle(device);
+  vkDestroyDevice(device, NULL);
+  if (validate) {
+      DestroyDebugUtilsMessengerEXT(inst, dbg_messenger, NULL);
   }
-
-  if(!restart){
-
-    free(queue_props);
-    vkDestroyCommandPool(device, command_pool, NULL);
-
-    vkDeviceWaitIdle(device);
-    vkDestroyDevice(device, NULL);
-    if (validate) {
-        DestroyDebugUtilsMessengerEXT(inst, dbg_messenger, NULL);
-    }
-    vkDestroySurfaceKHR(inst, surface, NULL);
+  vkDestroySurfaceKHR(inst, surface, NULL);
 
     onl_finish();
 
-    vkDestroyInstance(inst, NULL);
+  vkDestroyInstance(inst, NULL);
   }
 }
 

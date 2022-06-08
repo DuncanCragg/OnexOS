@@ -1971,8 +1971,8 @@ void onx_iostate_changed(iostate io) {
   }
   else
   if(io.left_pressed && body_moving){
-    float delta_x = 0.5f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / (int32_t)height;
-    float delta_y = 0.5f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / (int32_t)height;
+    float delta_x = 0.5f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / height;
+    float delta_y = 0.5f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / width;
     eye[0]             += delta_x;
     looking_at_body[0] += delta_x;
     eye[2]             += delta_y;

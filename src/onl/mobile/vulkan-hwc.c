@@ -103,6 +103,8 @@ void onl_create_window(){
   }
 }
 
+extern uint32_t height; // !! really need to sort these out
+
 void onl_create_surface(VkInstance inst, VkSurfaceKHR* surface){
 
   VkAndroidSurfaceCreateInfoKHR android_surface_ci = {
@@ -131,8 +133,11 @@ static void handle_libinput_event(struct libinput_event* event) {
       touch_positions[s][0]=x;
       touch_positions[s][1]=y;
 
-      if(s==0) ont_vk_handle_event(0,0, x,y, false,false,false, false,false,false, 0,0);
-      if(s==1) ont_vk_handle_event(0,0, 0,0, true,false,false, false,false,false, 0,0);
+      int32_t px = height-y;
+      int32_t py = x;
+
+      if(s==0) ont_vk_handle_event(0,0, px,py, false,false,false, false,false,false, 0,0);
+      if(s==1) ont_vk_handle_event(0,0, 0,0,   true,false,false,  false,false,false, 0,0);
 
       break;
     }
@@ -144,14 +149,17 @@ static void handle_libinput_event(struct libinput_event* event) {
       int32_t x = (int32_t)libinput_event_touch_get_x(t);
       int32_t y = (int32_t)libinput_event_touch_get_y(t);
 
-      if(touch_positions[s][0] != x ||
-         touch_positions[s][1] != y   ){
+      if(touch_positions[s][0] == x &&
+         touch_positions[s][1] == y   ) break;
 
-        touch_positions[s][0]=x;
-        touch_positions[s][1]=y;
+      touch_positions[s][0]=x;
+      touch_positions[s][1]=y;
 
-        if(s==0) ont_vk_handle_event(0,0, x,y, false,false,false, false,false,false, 0,0);
-      }
+      int32_t px = height-y;
+      int32_t py = x;
+
+      if(s==0) ont_vk_handle_event(0,0, px,py, false,false,false, false,false,false, 0,0);
+
       break;
     }
     case LIBINPUT_EVENT_TOUCH_UP: {

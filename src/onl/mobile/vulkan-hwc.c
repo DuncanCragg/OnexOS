@@ -171,6 +171,10 @@ static void handle_libinput_event(struct libinput_event* event) {
 
       break;
     }
+    default: {
+      uint32_t e = libinput_event_get_type(event);
+      if(e == 300) hwc_display_off();
+    }
   }
 }
 
@@ -203,6 +207,8 @@ void onl_finish(){
 
   libinput_unref(libin);
   udev_unref(udev);
+
+  hwc_display_off();
 }
 
 

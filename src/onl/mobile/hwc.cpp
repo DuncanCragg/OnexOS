@@ -31,8 +31,8 @@ extern "C" {
 #include "hwc_c.h"
 }
 
-hwc2_compat_device_t*  hwcDevice;
-hwc2_compat_display_t* hwcDisplay;
+static hwc2_compat_device_t*  hwcDevice;
+static hwc2_compat_display_t* hwcDisplay;
 
 HWComposer2::HWComposer2(unsigned int width, unsigned int height,
                          unsigned int format,
@@ -152,7 +152,6 @@ HWComposer2 *create_hwcomposer_window()
     }
     usleep(1000);
   }
-
   assert(hwcDisplay);
 
   HWC2DisplayConfig* config = hwc2_compat_display_get_active_config(hwcDisplay);
@@ -183,11 +182,13 @@ ANativeWindow* hwc_create_hwcomposer_window(){
 }
 
 void hwc_display_on(){
-  hwc2_compat_display_set_power_mode(hwcDisplay, HWC2_POWER_MODE_ON);
+  if(!hwcDisplay) printf("No display to turn on!?\n");
+  else hwc2_compat_display_set_power_mode(hwcDisplay, HWC2_POWER_MODE_ON);
 }
 
 void hwc_display_off(){
-  hwc2_compat_display_set_power_mode(hwcDisplay, HWC2_POWER_MODE_OFF);
+  if(!hwcDisplay) printf("No display to turn off!?\n");
+  else hwc2_compat_display_set_power_mode(hwcDisplay, HWC2_POWER_MODE_OFF);
 }
 
 }

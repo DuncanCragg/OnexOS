@@ -1952,6 +1952,7 @@ void onx_render_frame() {
 }
 
 bool     head_moving=false;
+bool     body_moving=false;
 uint32_t x_on_press;
 uint32_t y_on_press;
 vec3     looking_at_head_last;
@@ -1960,6 +1961,28 @@ void onx_iostate_changed(iostate io) {
 
   printf("onx_iostate_changed (%d %d) %d (%d %d %d)\n", io.mouse_x, io.mouse_y, io.key, io.left_pressed, io.middle_pressed, io.right_pressed);
 
+  bool bottom_left = io.mouse_x < height/3 && io.mouse_y > width/2;
+
+  if(io.left_pressed && !body_moving && bottom_left){
+    body_moving=true;
+
+    x_on_press = io.mouse_x;
+    y_on_press = io.mouse_y;
+  }
+  else
+  if(io.left_pressed && body_moving){
+    float delta_x = 0.5f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / (int32_t)height;
+    float delta_y = 0.5f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / (int32_t)height;
+    eye[0]             += delta_x;
+    looking_at_body[0] += delta_x;
+    eye[2]             += delta_y;
+    looking_at_body[2] += delta_y;
+  }
+  else
+  if(!io.left_pressed && body_moving){
+    body_moving=false;
+  }
+  else
   if(io.left_pressed && !head_moving){
     head_moving=true;
 

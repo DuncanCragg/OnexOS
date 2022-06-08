@@ -431,10 +431,9 @@ static void cleanup(bool restart) {
   }
   vkDestroySurfaceKHR(inst, surface, NULL);
 
-    onl_finish();
-
   vkDestroyInstance(inst, NULL);
-  }
+
+  onl_finish();
 }
 
 /*

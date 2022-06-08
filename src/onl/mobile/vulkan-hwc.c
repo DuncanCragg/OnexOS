@@ -195,8 +195,6 @@ void onl_finish(){
 
   libinput_unref(libin);
   udev_unref(udev);
-
-  hwc_display_off();
 }
 
 

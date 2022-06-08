@@ -65,7 +65,7 @@ INC_DIR_X86 = \
 
 # ------------------------------------
 
-LIB_DIR_ARM = -L/opt/libhybris/lib -L/opt/armlibs
+LIB_DIR_ARM = -L/opt/libhybris/lib -L./lib
 LIB_DIR_X86 = -L/usr/lib
 
 LIBS_ONX_SPIN_ARM = \

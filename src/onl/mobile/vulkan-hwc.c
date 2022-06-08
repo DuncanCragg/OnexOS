@@ -136,8 +136,7 @@ static void handle_libinput_event(struct libinput_event* event) {
       int32_t px = height-y;
       int32_t py = x;
 
-      if(s==0) ont_vk_handle_event(0,0, px,py, false,false,false, false,false,false, 0,0);
-      if(s==1) ont_vk_handle_event(0,0, 0,0,   true,false,false,  false,false,false, 0,0);
+      ont_vk_handle_event(0,0, px,py,  true,false,false, false,false,false, 0,0);
 
       break;
     }
@@ -158,7 +157,7 @@ static void handle_libinput_event(struct libinput_event* event) {
       int32_t px = height-y;
       int32_t py = x;
 
-      if(s==0) ont_vk_handle_event(0,0, px,py, false,false,false, false,false,false, 0,0);
+      ont_vk_handle_event(0,0, px,py, false,false,false, false,false,false, 0,0);
 
       break;
     }
@@ -167,7 +166,7 @@ static void handle_libinput_event(struct libinput_event* event) {
 
       int32_t s = libinput_event_touch_get_slot(t);
 
-      if(s==1) ont_vk_handle_event(0,0, 0,0, false,false,false, true,false,false, 0,0);
+      ont_vk_handle_event(0,0, 0,0,   false,false,false,  true,false,false, 0,0);
 
       break;
     }

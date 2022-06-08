@@ -1960,7 +1960,7 @@ void onx_iostate_changed(iostate io) {
 
   printf("onx_iostate_changed (%d %d) %d (%d %d %d)\n", io.mouse_x, io.mouse_y, io.key, io.left_pressed, io.middle_pressed, io.right_pressed);
 
-  if(io.left_pressed && !head_moving && io.mouse_x > width/2){
+  if(io.left_pressed && !head_moving){
     head_moving=true;
 
     looking_at_head_last[0]=looking_at_head[0];

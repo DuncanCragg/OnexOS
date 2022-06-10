@@ -28,13 +28,14 @@ class HWComposer2 : public HWComposerNativeWindow
 public:
   HWComposer2(unsigned int width, unsigned int height,
               unsigned int format,
-              hwc2_compat_display_t *display,
-              hwc2_compat_layer_t *layer);
+              hwc2_compat_display_t* display,
+              hwc2_compat_layer_t*   layer);
+
+  hwc2_compat_display_t* hwcDisplay;
+  hwc2_compat_layer_t*   hwcLayer;
 protected:
   void present(HWComposerNativeWindowBuffer *buffer);
 private:
-  hwc2_compat_layer_t *layer;
-  hwc2_compat_display_t *hwcDisplay;
   int lastPresentFence = -1;
 };
 

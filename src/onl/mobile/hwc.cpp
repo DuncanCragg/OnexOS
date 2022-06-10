@@ -31,8 +31,9 @@ extern "C" {
 #include "hwc_c.h"
 }
 
+HWComposer2* the_hwc2=0;
+
 static hwc2_compat_device_t*  hwcDevice;
-static hwc2_compat_display_t* hwcDisplay;
 
 HWComposer2::HWComposer2(unsigned int width, unsigned int height,
                          unsigned int format,
@@ -42,7 +43,7 @@ HWComposer2::HWComposer2(unsigned int width, unsigned int height,
              HWComposerNativeWindow(width, height, format) {
 
   this->hwcDisplay = display;
-  this->layer      = layer;
+  this->hwcLayer   = layer;
 }
 
 void HWComposer2::present(HWComposerNativeWindowBuffer *buffer)
@@ -96,7 +97,7 @@ void HWComposer2::present(HWComposerNativeWindowBuffer *buffer)
     return;
   }
 
-  int fenceFd = hwc2_compat_out_fences_get_fence(fences, layer);
+  int fenceFd = hwc2_compat_out_fences_get_fence(fences, hwcLayer);
   if (fenceFd != -1) setFenceBufferFd(buffer, fenceFd);
 
   hwc2_compat_out_fences_destroy(fences);
@@ -137,8 +138,15 @@ HWC2EventListener eventListener = {
     &onRefreshReceived
 };
 
-HWComposer2 *create_hwcomposer_window()
-{
+// } --------------------------------------------------------- {
+
+HWComposer2 *create_hwcomposer_window() {
+
+  if(the_hwc2) {
+    printf("already created an hwc window\n");
+    return the_hwc2;
+  }
+
   int composerSequenceId = 0;
 
   hwcDevice = hwc2_compat_device_new(false);
@@ -146,19 +154,20 @@ HWComposer2 *create_hwcomposer_window()
 
   hwc2_compat_device_register_callback(hwcDevice, &eventListener, composerSequenceId);
 
+  hwc2_compat_display_t* display;
   for (int i = 0; i < 5 * 1000; ++i) {
-    if ((hwcDisplay = hwc2_compat_device_get_display_by_id(hwcDevice, 0))){
+    if ((display = hwc2_compat_device_get_display_by_id(hwcDevice, 0))){
       break;
     }
     usleep(1000);
   }
-  assert(hwcDisplay);
+  assert(display);
 
-  HWC2DisplayConfig* config = hwc2_compat_display_get_active_config(hwcDisplay);
+  HWC2DisplayConfig* config = hwc2_compat_display_get_active_config(display);
 
   printf("HWC: width: %i height: %i\n", config->width, config->height);
 
-  hwc2_compat_layer_t* layer = hwc2_compat_display_create_layer(hwcDisplay);
+  hwc2_compat_layer_t* layer = hwc2_compat_display_create_layer(display);
 
   hwc2_compat_layer_set_composition_type(layer, HWC2_COMPOSITION_CLIENT);
   hwc2_compat_layer_set_blend_mode(layer, HWC2_BLEND_MODE_NONE);
@@ -169,10 +178,26 @@ HWComposer2 *create_hwcomposer_window()
   hwc2_compat_layer_set_visible_region(layer, 0, 0,
                                        config->width, config->height);
 
-  HWComposer2 *win = new HWComposer2(config->width, config->height,
-                                     HAL_PIXEL_FORMAT_RGBA_8888,
-                                     hwcDisplay, layer);
-  return win;
+  the_hwc2 = new HWComposer2(config->width, config->height,
+                             HAL_PIXEL_FORMAT_RGBA_8888,
+                             display, layer);
+  return the_hwc2;
+}
+
+static hwc2_compat_display_t* get_display(){
+  if(!the_hwc2){
+    printf("the_hwc2 has vanished!\n");
+    return 0;
+  }
+  return the_hwc2->hwcDisplay;
+}
+
+static hwc2_compat_layer_t* get_layer(){
+  if(!the_hwc2){
+    printf("the_hwc2 has vanished!\n");
+    return 0;
+  }
+  return the_hwc2->hwcLayer;
 }
 
 extern "C" {
@@ -182,13 +207,11 @@ ANativeWindow* hwc_create_hwcomposer_window(){
 }
 
 void hwc_display_on(){
-  if(!hwcDisplay) printf("No display to turn on!?\n");
-  else hwc2_compat_display_set_power_mode(hwcDisplay, HWC2_POWER_MODE_ON);
+  if(get_display()) hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_ON);
 }
 
 void hwc_display_off(){
-  if(!hwcDisplay) printf("No display to turn off!?\n");
-  else hwc2_compat_display_set_power_mode(hwcDisplay, HWC2_POWER_MODE_OFF);
+  if(get_display()) hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_OFF);
 }
 
 }

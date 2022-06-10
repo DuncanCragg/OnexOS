@@ -412,29 +412,6 @@ static void end_command_buffer() {
     initcmd = VK_NULL_HANDLE;
 }
 
-static void cleanup(bool restart) {
-
-  vkDestroyRenderPass(device, render_pass, NULL);
-
-  if(restart) return;
-
-  fpDestroySwapchainKHR(device, swapchain, NULL);
-
-  free(queue_props);
-  vkDestroyCommandPool(device, command_pool, NULL);
-
-  vkDeviceWaitIdle(device);
-  vkDestroyDevice(device, NULL);
-  if (validate) {
-      DestroyDebugUtilsMessengerEXT(inst, dbg_messenger, NULL);
-  }
-  vkDestroySurfaceKHR(inst, surface, NULL);
-
-  vkDestroyInstance(inst, NULL);
-
-  onl_finish();
-}
-
 /*
  * Return 1 (true) if all layer names specified in check_names
  * can be found in given layer properties.
@@ -886,6 +863,29 @@ void prepare(bool restart) {
   end_command_buffer();
 
   prepared = true;
+}
+
+static void cleanup(bool restart) {
+
+  vkDestroyRenderPass(device, render_pass, NULL);
+
+  if(restart) return;
+
+  fpDestroySwapchainKHR(device, swapchain, NULL);
+
+  free(queue_props);
+  vkDestroyCommandPool(device, command_pool, NULL);
+
+  vkDeviceWaitIdle(device);
+  vkDestroyDevice(device, NULL);
+  if (validate) {
+      DestroyDebugUtilsMessengerEXT(inst, dbg_messenger, NULL);
+  }
+  vkDestroySurfaceKHR(inst, surface, NULL);
+
+  vkDestroyInstance(inst, NULL);
+
+  onl_finish();
 }
 
 void ont_vk_loop()

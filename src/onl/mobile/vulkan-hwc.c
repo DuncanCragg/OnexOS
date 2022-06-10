@@ -51,6 +51,9 @@ struct udev* udev;
 struct libinput* libin;
 
 void onl_init(){
+}
+
+static void init_libinput(){
 
   struct sigaction act;
   memset(&act, 0, sizeof(act));
@@ -109,6 +112,8 @@ void onl_create_window(){
 
   hwc_display_on();
   hwc_display_brightness(255);
+
+  init_libinput();
 }
 
 extern uint32_t height; // !! really need to sort these out

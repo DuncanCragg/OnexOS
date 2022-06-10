@@ -88,13 +88,15 @@ void onl_init(){
   }
 }
 
+static EGLDisplay display;
+
 void onl_create_window(){
 
   window = hwc_create_hwcomposer_window();
 
   hwc_display_on();
 
-  EGLDisplay display = eglGetDisplay(NULL);
+  display = eglGetDisplay(NULL);
 
   int r = eglInitialize(display, 0, 0);
 
@@ -205,10 +207,12 @@ void onl_run(){
 
 void onl_finish(){
 
-  libinput_unref(libin);
-  udev_unref(udev);
+  eglTerminate(display);
 
   hwc_display_off();
+
+  libinput_unref(libin);
+  udev_unref(udev);
 }
 
 

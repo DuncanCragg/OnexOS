@@ -82,6 +82,10 @@ void onl_init(){
         }
         break;
       }
+      default: {
+        printf("event that isn't device added!\n");
+        break;
+      }
     }
     libinput_event_destroy(event);
     libinput_dispatch(libin);
@@ -94,8 +98,6 @@ void onl_create_window(){
 
   window = hwc_create_hwcomposer_window();
 
-  hwc_display_on();
-
   display = eglGetDisplay(NULL);
 
   int r = eglInitialize(display, 0, 0);
@@ -103,6 +105,8 @@ void onl_create_window(){
   if(!window || r!=EGL_TRUE || eglGetError() != EGL_SUCCESS){
     printf("eglInitialize didn't work\n"); exit(-1);
   }
+
+  hwc_display_on();
 }
 
 extern uint32_t height; // !! really need to sort these out

@@ -214,6 +214,10 @@ void hwc_display_off(){
   if(get_display()) hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_OFF);
 }
 
+void hwc_destroy_hwcomposer_window(){
+  if(get_display()) hwc2_compat_display_destroy_layer(get_display(), get_layer());
+}
+
 }
 
 

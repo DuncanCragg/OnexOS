@@ -7,6 +7,7 @@
 ANativeWindow* hwc_create_hwcomposer_window();
 void           hwc_display_on();
 void           hwc_display_off();
+void           hwc_destroy_hwcomposer_window();
 
 #endif
 

@@ -211,6 +211,8 @@ void onl_finish(){
 
   hwc_display_off();
 
+  hwc_destroy_hwcomposer_window();
+
   libinput_unref(libin);
   udev_unref(udev);
 }

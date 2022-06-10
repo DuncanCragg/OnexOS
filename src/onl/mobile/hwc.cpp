@@ -35,6 +35,8 @@ HWComposer2* the_hwc2=0;
 
 static hwc2_compat_device_t*  hwcDevice;
 
+// --------------------------------------------------------- {
+
 HWComposer2::HWComposer2(unsigned int width, unsigned int height,
                          unsigned int format,
                          hwc2_compat_display_t* display,
@@ -108,6 +110,8 @@ void HWComposer2::present(HWComposerNativeWindowBuffer *buffer)
   }
   lastPresentFence = presentFence;
 }
+
+// } --------------------------------------------------------- {
 
 void onVsyncReceived(HWC2EventListener* listener, int32_t sequenceId,
                      hwc2_display_t display, int64_t timestamp)
@@ -199,6 +203,8 @@ static hwc2_compat_layer_t* get_layer(){
   }
   return the_hwc2->hwcLayer;
 }
+
+// } ---------------------------------------------------------
 
 extern "C" {
 

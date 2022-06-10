@@ -56,6 +56,7 @@ INC_DIR_ARM = \
  -I./include/vulkan \
  -I./include/android-headers \
  -I./include/freetype2 \
+ -I./include/libevdev-1.0 \
  -I./src \
 
 INC_DIR_X86 = \

@@ -17,6 +17,7 @@
 
 #include <libudev.h>
 #include <libinput.h>
+#include <libevdev/libevdev.h>
 
 #include "hwc_c.h"
 
@@ -125,11 +126,19 @@ void onl_create_surface(VkInstance inst, VkSurfaceKHR* surface){
 
 static int32_t touch_positions[8][2];
 
+static uint32_t screen_on = 2;
+
 static void handle_libinput_event(struct libinput_event* event) {
 
   switch (libinput_event_get_type(event)) {
 
     case LIBINPUT_EVENT_TOUCH_DOWN: {
+
+      if(!screen_on) break;
+      if(screen_on == 1){
+        screen_on = 2;
+        hwc_display_brightness(255);
+      }
 
       struct libinput_event_touch *t = libinput_event_get_touch_event(event);
 
@@ -148,6 +157,8 @@ static void handle_libinput_event(struct libinput_event* event) {
       break;
     }
     case LIBINPUT_EVENT_TOUCH_MOTION: {
+
+      if(!screen_on) break;
 
       struct libinput_event_touch *t = libinput_event_get_touch_event(event);
 
@@ -170,6 +181,8 @@ static void handle_libinput_event(struct libinput_event* event) {
     }
     case LIBINPUT_EVENT_TOUCH_UP: {
 
+      if(!screen_on) break;
+
       struct libinput_event_touch *t = libinput_event_get_touch_event(event);
 
       int32_t s = libinput_event_touch_get_slot(t);
@@ -178,9 +191,45 @@ static void handle_libinput_event(struct libinput_event* event) {
 
       break;
     }
+    case LIBINPUT_EVENT_KEYBOARD_KEY: {
+
+      struct libinput_event_keyboard* k       = libinput_event_get_keyboard_event(event);
+      uint32_t                        key     = libinput_event_keyboard_get_key(k);
+      enum libinput_key_state         state   = libinput_event_keyboard_get_key_state(k);
+      const char*                     keyname = libevdev_event_code_get_name(EV_KEY, key);
+
+      if(key == KEY_POWER && state == LIBINPUT_KEY_STATE_PRESSED){
+        if(!screen_on){
+          hwc_display_on(); // if not already on, crashes libinput
+          screen_on = 2;
+          hwc_display_brightness(255);
+        }
+        else{
+          screen_on = 0;
+          hwc_display_brightness(0);
+        }
+      }
+      else
+      if(key == KEY_HOME && state == LIBINPUT_KEY_STATE_PRESSED){
+        screen_on = 1;
+        hwc_display_brightness(32);
+      }
+      else
+      if(key == KEY_VOLUMEUP && state == LIBINPUT_KEY_STATE_PRESSED){
+        screen_on = 0;
+        hwc_display_off(); // for testing
+      }
+      else{
+        printf("%s (%d) %s\n", keyname, key, state == LIBINPUT_KEY_STATE_PRESSED? "pressed": "released");
+      }
+      break;
+    }
+    case LIBINPUT_EVENT_TOUCH_FRAME: {
+      break;
+    }
     default: {
       uint32_t e = libinput_event_get_type(event);
-      if(e == 300) hwc_display_off();
+      printf("other event: %d\n", e);
     }
   }
 }

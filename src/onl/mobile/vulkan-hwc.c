@@ -294,14 +294,14 @@ void onl_run(){
 
 void onl_finish(){
 
+  libinput_unref(libin);
+  udev_unref(udev);
+
   eglTerminate(display);
 
   hwc_display_brightness(0);
 
   hwc_destroy_hwcomposer_window();
-
-  libinput_unref(libin);
-  udev_unref(udev);
 }
 
 

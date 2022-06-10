@@ -31,10 +31,10 @@ extern "C" {
 #include "hwc_c.h"
 }
 
-static HWComposer2*           the_hwc2=0;
-static HWComposer2*           the_other_hwc2=0;
-static HWComposer2*           the_third_hwc2=0;
-static hwc2_compat_device_t*  hwcDevice;
+static HWComposer2*          the_hwc2=0;
+static HWComposer2*          the_other_hwc2=0;
+static HWComposer2*          the_third_hwc2=0;
+static hwc2_compat_device_t* hwcDevice;
 
 // --------------------------------------------------------- {
 
@@ -220,7 +220,7 @@ uint32_t hwc_get_swap_height(){
 }
 
 void hwc_display_on(){
-  if(get_display()) hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_ON);
+  hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_ON);
 }
 
 void hwc_display_brightness(uint8_t brightness){
@@ -231,11 +231,11 @@ void hwc_display_brightness(uint8_t brightness){
 
 void hwc_display_off(){
   the_third_hwc2=the_hwc2;
-  if(get_display()) hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_OFF);
+  hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_OFF);
 }
 
 void hwc_destroy_hwcomposer_window(){
-  if(get_display()) hwc2_compat_display_destroy_layer(get_display(), get_layer());
+  hwc2_compat_display_destroy_layer(get_display(), get_layer());
 }
 
 }

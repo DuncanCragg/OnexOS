@@ -107,6 +107,7 @@ void onl_create_window(){
   }
 
   hwc_display_on();
+  hwc_display_brightness(255);
 }
 
 extern uint32_t height; // !! really need to sort these out
@@ -213,7 +214,7 @@ void onl_finish(){
 
   eglTerminate(display);
 
-  hwc_display_off();
+  hwc_display_brightness(0);
 
   hwc_destroy_hwcomposer_window();
 

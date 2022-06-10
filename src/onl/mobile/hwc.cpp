@@ -216,6 +216,12 @@ void hwc_display_on(){
   if(get_display()) hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_ON);
 }
 
+void hwc_display_brightness(uint8_t brightness){
+  char cmdbuf[128];
+  snprintf(cmdbuf, 128, "echo %d > /sys/class/leds/lcd-backlight/brightness", brightness);
+  system(cmdbuf);
+}
+
 void hwc_display_off(){
   if(get_display()) hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_OFF);
 }

@@ -48,7 +48,6 @@ uint32_t enabled_extension_count;
 uint32_t enabled_layer_count;
 char *extension_names[64];
 char *enabled_layers[64];
-uint32_t width, height;
 VkFormat surface_format;
 VkColorSpaceKHR color_space;
 
@@ -198,8 +197,8 @@ static void prepare_swapchain() {
         // If the surface size is undefined, the size is set to the size
         // of the images requested, which must fit within the minimum and
         // maximum values.
-        swapchain_extent.width = width;
-        swapchain_extent.height = height;
+        swapchain_extent.width = swap_width;
+        swapchain_extent.height = swap_height;
 
         if (swapchain_extent.width < surfCapabilities.minImageExtent.width) {
             swapchain_extent.width = surfCapabilities.minImageExtent.width;
@@ -215,8 +214,8 @@ static void prepare_swapchain() {
     } else {
         // If the surface size is defined, the swapchain size must match
         swapchain_extent = surfCapabilities.currentExtent;
-        width = surfCapabilities.currentExtent.width;
-        height = surfCapabilities.currentExtent.height;
+        swap_width = surfCapabilities.currentExtent.width;
+        swap_height = surfCapabilities.currentExtent.height;
     }
 
     // The FIFO present mode is guaranteed by the spec to be supported
@@ -848,9 +847,6 @@ void prepare(bool restart) {
 
   if(!restart){
 
-    width = 1920;
-    height = 1024;
-
     onl_init();
     onl_create_window();
 
@@ -902,29 +898,20 @@ static iostate io;
 void ont_vk_handle_event(char key_pressed, char key_released,
                          uint32_t mouse_x, uint32_t mouse_y,
                          bool left_pressed, bool middle_pressed, bool right_pressed,
-                         bool left_released, bool middle_released, bool right_released,
-                         uint32_t w, uint32_t h) {
+                         bool left_released, bool middle_released, bool right_released) {
 
-  if(mouse_x || mouse_y || key_pressed || key_released || left_pressed || middle_pressed || right_pressed || left_released || middle_released || right_released){
-    if(mouse_x)         io.mouse_x=mouse_x;
-    if(mouse_y)         io.mouse_y=mouse_y;
-    if(key_pressed)     io.key=key_pressed;
-    if(key_released)    io.key=0;
-    if(left_pressed)    io.left_pressed=true;
-    if(middle_pressed)  io.middle_pressed=true;
-    if(right_pressed)   io.right_pressed=true;
-    if(left_released)   io.left_pressed=false;
-    if(middle_released) io.middle_pressed=false;
-    if(right_released)  io.right_pressed=false;
+  if(mouse_x)         io.mouse_x=mouse_x;
+  if(mouse_y)         io.mouse_y=mouse_y;
+  if(key_pressed)     io.key=key_pressed;
+  if(key_released)    io.key=0;
+  if(left_pressed)    io.left_pressed=true;
+  if(middle_pressed)  io.middle_pressed=true;
+  if(right_pressed)   io.right_pressed=true;
+  if(left_released)   io.left_pressed=false;
+  if(middle_released) io.middle_pressed=false;
+  if(right_released)  io.right_pressed=false;
 
-    onx_iostate_changed(io);
-  }
-  if(w||h){
-    if ((width != w) || (height != h)) {
-        width = w;
-        height = h;
-    }
-  }
+  onx_iostate_changed(io);
 }
 
 iostate ont_vk_get_iostate(){

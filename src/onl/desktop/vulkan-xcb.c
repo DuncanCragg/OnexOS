@@ -13,6 +13,10 @@
 #include "ont/vulkan/vulkan_up.h"
 #include "onl/onl.h"
 
+uint32_t view_width, view_height;
+uint32_t swap_width, swap_height;
+bool rotate_proj;
+
 xcb_connection_t *connection;
 xcb_screen_t *    screen;
 xcb_window_t      window;
@@ -27,6 +31,12 @@ static void sighandler(int signal, siginfo_t *siginfo, void *userdata) {
 }
 
 void onl_init() {
+
+  swap_width =1000;
+  swap_height= 500;
+  view_width =swap_width;
+  view_height=swap_height;
+  rotate_proj = false;
 
   struct sigaction act;
   memset(&act, 0, sizeof(act));
@@ -51,8 +61,6 @@ void onl_init() {
   screen = iter.data;
 }
 
-#define WIDTH 1920
-#define HEIGHT 1024
 void onl_create_window()
 {
   uint32_t value_mask, value_list[32];
@@ -73,7 +81,7 @@ void onl_create_window()
   xcb_create_window(connection,
     XCB_COPY_FROM_PARENT,
     window, screen->root,
-    0, 0, WIDTH, HEIGHT, 0,
+    0, 0, swap_width, swap_height, 0,
     XCB_WINDOW_CLASS_INPUT_OUTPUT,
     screen->root_visual,
     value_mask, value_list);
@@ -113,21 +121,21 @@ static void handle_xcb_event(const xcb_generic_event_t *event) {
 
         case XCB_MOTION_NOTIFY: {
           xcb_motion_notify_event_t *motion = (xcb_motion_notify_event_t *)event;
-          ont_vk_handle_event(0,0, (int32_t)motion->event_x, (int32_t)motion->event_y, false,false,false, false,false,false, 0,0);
+          ont_vk_handle_event(0,0, (int32_t)motion->event_x, (int32_t)motion->event_y, false,false,false, false,false,false);
           break;
         }
         case XCB_BUTTON_PRESS: {
           xcb_button_press_event_t *press = (xcb_button_press_event_t *)event;
-          if(press->detail == XCB_BUTTON_INDEX_1) ont_vk_handle_event(0,0, 0,0, true,false,false, false,false,false, 0,0);
-          if(press->detail == XCB_BUTTON_INDEX_2) ont_vk_handle_event(0,0, 0,0, false,true,false, false,false,false, 0,0);
-          if(press->detail == XCB_BUTTON_INDEX_3) ont_vk_handle_event(0,0, 0,0, false,false,true, false,false,false, 0,0);
+          if(press->detail == XCB_BUTTON_INDEX_1) ont_vk_handle_event(0,0, 0,0, true,false,false, false,false,false);
+          if(press->detail == XCB_BUTTON_INDEX_2) ont_vk_handle_event(0,0, 0,0, false,true,false, false,false,false);
+          if(press->detail == XCB_BUTTON_INDEX_3) ont_vk_handle_event(0,0, 0,0, false,false,true, false,false,false);
           break;
         }
         case XCB_BUTTON_RELEASE: {
           xcb_button_press_event_t *press = (xcb_button_press_event_t *)event;
-          if(press->detail == XCB_BUTTON_INDEX_1) ont_vk_handle_event(0,0, 0,0, false,false,false, true,false,false, 0,0);
-          if(press->detail == XCB_BUTTON_INDEX_2) ont_vk_handle_event(0,0, 0,0, false,false,false, false,true,false, 0,0);
-          if(press->detail == XCB_BUTTON_INDEX_3) ont_vk_handle_event(0,0, 0,0, false,false,false, false,false,true, 0,0);
+          if(press->detail == XCB_BUTTON_INDEX_1) ont_vk_handle_event(0,0, 0,0, false,false,false, true,false,false);
+          if(press->detail == XCB_BUTTON_INDEX_2) ont_vk_handle_event(0,0, 0,0, false,false,false, false,true,false);
+          if(press->detail == XCB_BUTTON_INDEX_3) ont_vk_handle_event(0,0, 0,0, false,false,false, false,false,true);
           break;
         }
         case XCB_KEY_PRESS: {
@@ -136,7 +144,7 @@ static void handle_xcb_event(const xcb_generic_event_t *event) {
                 case 0x9:  // Escape
                     break;
                 default:
-                    ont_vk_handle_event(key->detail,0, 0,0, false,false,false, false,false,false, 0,0);
+                    ont_vk_handle_event(key->detail,0, 0,0, false,false,false, false,false,false);
                     break;
             }
             break;
@@ -148,14 +156,21 @@ static void handle_xcb_event(const xcb_generic_event_t *event) {
                     quit = true;
                     break;
                 default:
-                    ont_vk_handle_event(0,key->detail, 0,0, false,false,false, false,false,false, 0,0);
+                    ont_vk_handle_event(0,key->detail, 0,0, false,false,false, false,false,false);
                     break;
             }
             break;
         }
         case XCB_CONFIGURE_NOTIFY: {
             const xcb_configure_notify_event_t *cfg = (const xcb_configure_notify_event_t *)event;
-            ont_vk_handle_event(0,0, 0,0, false,false,false, false,false,false, cfg->width, cfg->height);
+            uint32_t w=cfg->width;
+            uint32_t h=cfg->height;
+            if ((view_width != w) || (view_height != h)) {
+                view_width = w;
+                view_height = h;
+                swap_width = w;
+                swap_height = h;
+            }
             break;
         }
         case XCB_CLIENT_MESSAGE:{

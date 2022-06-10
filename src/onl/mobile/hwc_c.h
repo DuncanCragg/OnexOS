@@ -5,6 +5,8 @@
 #include <EGL/egl.h>
 
 ANativeWindow* hwc_create_hwcomposer_window();
+uint32_t       hwc_get_swap_width();
+uint32_t       hwc_get_swap_height();
 void           hwc_display_on();
 void           hwc_display_brightness(uint8_t brightness);
 void           hwc_display_off();

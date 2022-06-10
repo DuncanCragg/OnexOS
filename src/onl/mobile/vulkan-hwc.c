@@ -24,6 +24,10 @@
 #include "ont/vulkan/vulkan_up.h"
 #include "onl/onl.h"
 
+uint32_t view_width, view_height;
+uint32_t swap_width, swap_height;
+bool rotate_proj;
+
 ANativeWindow* window;
 
 bool quit = false;
@@ -102,6 +106,20 @@ void onl_create_window(){
 
   window = hwc_create_hwcomposer_window();
 
+  swap_width =hwc_get_swap_width();
+  swap_height=hwc_get_swap_height();
+
+  rotate_proj = true;
+
+  if(rotate_proj){
+    view_width =swap_height;
+    view_height=swap_width;
+  }
+  else{
+    view_width =swap_width;
+    view_height=swap_height;
+  }
+
   display = eglGetDisplay(NULL);
 
   int r = eglInitialize(display, 0, 0);
@@ -115,8 +133,6 @@ void onl_create_window(){
 
   init_libinput();
 }
-
-extern uint32_t height; // !! really need to sort these out
 
 void onl_create_surface(VkInstance inst, VkSurfaceKHR* surface){
 
@@ -154,10 +170,16 @@ static void handle_libinput_event(struct libinput_event* event) {
       touch_positions[s][0]=x;
       touch_positions[s][1]=y;
 
-      int32_t px = height-y;
-      int32_t py = x;
-
-      ont_vk_handle_event(0,0, px,py,  true,false,false, false,false,false, 0,0);
+      int32_t px, py;
+      if(rotate_proj){
+        px = swap_height-y;
+        py = x;
+      }
+      else{
+        px = x;
+        py = y;
+      }
+      ont_vk_handle_event(0,0, px,py,  true,false,false, false,false,false);
 
       break;
     }
@@ -177,10 +199,16 @@ static void handle_libinput_event(struct libinput_event* event) {
       touch_positions[s][0]=x;
       touch_positions[s][1]=y;
 
-      int32_t px = height-y;
-      int32_t py = x;
-
-      ont_vk_handle_event(0,0, px,py, false,false,false, false,false,false, 0,0);
+      int32_t px, py;
+      if(rotate_proj){
+        px = swap_height-y;
+        py = x;
+      }
+      else{
+        px = x;
+        py = y;
+      }
+      ont_vk_handle_event(0,0, px,py, false,false,false, false,false,false);
 
       break;
     }
@@ -192,7 +220,7 @@ static void handle_libinput_event(struct libinput_event* event) {
 
       int32_t s = libinput_event_touch_get_slot(t);
 
-      ont_vk_handle_event(0,0, 0,0,   false,false,false,  true,false,false, 0,0);
+      ont_vk_handle_event(0,0, 0,0,   false,false,false,  true,false,false);
 
       break;
     }

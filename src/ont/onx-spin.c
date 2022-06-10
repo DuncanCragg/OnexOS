@@ -7,12 +7,6 @@
 
 // ---------------------------------
 
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-bool rotate_proj = false;
-#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
-bool rotate_proj = true;
-#endif
-
 static const float g_vertex_buffer_data[] = {
     -1.0f,-1.0f, 0.0f,  // -X side
     -1.0f,-1.0f, 0.1f,
@@ -377,7 +371,7 @@ static void create_uniform_buffer_with_memory(VkBufferCreateInfo* buffer_ci,
 
 // ---------------------------------
 
-static bool load_texture(const char *filename, uint8_t *rgba_data, VkSubresourceLayout *layout, int32_t *width, int32_t *height) {
+static bool load_texture(const char *filename, uint8_t *rgba_data, VkSubresourceLayout *layout, int32_t *w, int32_t *h) {
     (void)filename;
     char *cPtr;
     cPtr = (char *)texture_array;
@@ -386,7 +380,7 @@ static bool load_texture(const char *filename, uint8_t *rgba_data, VkSubresource
     }
     while (strncmp(cPtr++, "\n", 1))
         ;
-    sscanf(cPtr, "%u %u", width, height);
+    sscanf(cPtr, "%u %u", w, h);
     if (rgba_data == NULL) {
         return true;
     }
@@ -397,9 +391,9 @@ static bool load_texture(const char *filename, uint8_t *rgba_data, VkSubresource
     }
     while (strncmp(cPtr++, "\n", 1))
         ;
-    for (int y = 0; y < *height; y++) {
+    for (int y = 0; y < *h; y++) {
         uint8_t *rowPtr = rgba_data;
-        for (int x = 0; x < *width; x++) {
+        for (int x = 0; x < *w; x++) {
             memcpy(rowPtr, cPtr, 3);
             rowPtr[3] = 255; /* Alpha of 1 */
             rowPtr += 4;
@@ -801,7 +795,7 @@ static void prepare_depth() {
         .pNext = NULL,
         .imageType = VK_IMAGE_TYPE_2D,
         .format = depth_format,
-        .extent = {width, height, 1},
+        .extent = { swap_width,  swap_height, 1},
         .mipLevels = 1,
         .arrayLayers = 1,
         .samples = VK_SAMPLE_COUNT_1_BIT,
@@ -1339,8 +1333,8 @@ void onx_prepare_framebuffers() {
         .renderPass = render_pass,
         .attachmentCount = 2,
         .pAttachments = attachments,
-        .width = width,
-        .height = height,
+        .width =  swap_width,
+        .height = swap_height,
         .layers = 1,
     };
     VkResult err;
@@ -1690,8 +1684,8 @@ void onx_prepare_pipeline() {
   VkViewport viewport = {
       .x = 0.0f,
       .y = 0.0f,
-      .width = width,
-      .height = height,
+      .width  = swap_width,
+      .height = swap_height,
       .minDepth = 0.0f,
       .maxDepth = 1.0f,
   };
@@ -1961,7 +1955,7 @@ void onx_iostate_changed(iostate io) {
 
   printf("onx_iostate_changed (%d %d) %d (%d %d %d)\n", io.mouse_x, io.mouse_y, io.key, io.left_pressed, io.middle_pressed, io.right_pressed);
 
-  bool bottom_left = io.mouse_x < height/3 && io.mouse_y > width/2;
+  bool bottom_left = io.mouse_x < view_width / 3 && io.mouse_y > view_height / 2;
 
   if(io.left_pressed && !body_moving && bottom_left){
     body_moving=true;
@@ -1971,8 +1965,8 @@ void onx_iostate_changed(iostate io) {
   }
   else
   if(io.left_pressed && body_moving){
-    float delta_x = 0.5f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / height;
-    float delta_y = 0.5f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / width;
+    float delta_x = 0.5f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / view_width;
+    float delta_y = 0.5f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / view_height;
     eye[0]             += delta_x;
     looking_at_body[0] += delta_x;
     eye[2]             += delta_y;
@@ -1995,8 +1989,8 @@ void onx_iostate_changed(iostate io) {
   else
   if(io.left_pressed && head_moving){
 
-    looking_at_head[0] = looking_at_head_last[0] + 32.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / height;
-    looking_at_head[1] = looking_at_head_last[1] -  8.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / width;
+    looking_at_head[0] = looking_at_head_last[0] + 32.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / view_width;
+    looking_at_head[1] = looking_at_head_last[1] -  8.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / view_height;
   }
   else
   if(!io.left_pressed && head_moving){

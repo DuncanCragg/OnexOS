@@ -31,6 +31,8 @@ public:
               hwc2_compat_display_t* display,
               hwc2_compat_layer_t*   layer);
 
+  unsigned int width;
+  unsigned int height;
   hwc2_compat_display_t* hwcDisplay;
   hwc2_compat_layer_t*   hwcLayer;
 protected:

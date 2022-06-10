@@ -45,6 +45,8 @@ HWComposer2::HWComposer2(unsigned int width, unsigned int height,
 
              HWComposerNativeWindow(width, height, format) {
 
+  this->width      = width;
+  this->height     = height;
   this->hwcDisplay = display;
   this->hwcLayer   = layer;
 }
@@ -165,7 +167,7 @@ HWComposer2 *create_hwcomposer_window() {
 
   HWC2DisplayConfig* config = hwc2_compat_display_get_active_config(display);
 
-  printf("HWC: width: %i height: %i\n", config->width, config->height);
+  printf("HWC: swap_width: %i swap_height: %i\n", config->width, config->height);
 
   hwc2_compat_layer_t* layer = hwc2_compat_display_create_layer(display);
 
@@ -193,12 +195,28 @@ static hwc2_compat_layer_t* get_layer(){
   return the_other_hwc2->hwcLayer;
 }
 
+static uint32_t get_swap_width(){
+  return the_other_hwc2->width;
+}
+
+static uint32_t get_swap_height(){
+  return the_other_hwc2->height;
+}
+
 // } ---------------------------------------------------------
 
 extern "C" {
 
 ANativeWindow* hwc_create_hwcomposer_window(){
   return create_hwcomposer_window();
+}
+
+uint32_t hwc_get_swap_width(){
+  return get_swap_width();
+}
+
+uint32_t hwc_get_swap_height(){
+  return get_swap_height();
 }
 
 void hwc_display_on(){

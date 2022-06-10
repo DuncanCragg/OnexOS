@@ -24,7 +24,9 @@
 #define VK_DESTROY(func, dev, obj) func(dev, obj, NULL), obj = NULL
 #define VK_CHECK(r) do { VkResult res = (r); if (res != VK_SUCCESS){ printf("r=%d @ line %d\n", r, __LINE__); exit(1); } } while (0)
 
-extern uint32_t width, height;
+extern uint32_t view_width, view_height;
+extern uint32_t swap_width, swap_height;
+extern bool rotate_proj;
 
 extern uint32_t image_count;
 extern uint32_t image_index;

@@ -31,8 +31,9 @@ extern "C" {
 #include "hwc_c.h"
 }
 
-HWComposer2* the_hwc2=0;
-
+static HWComposer2*           the_hwc2=0;
+static HWComposer2*           the_other_hwc2=0;
+static HWComposer2*           the_third_hwc2=0;
 static hwc2_compat_device_t*  hwcDevice;
 
 // --------------------------------------------------------- {
@@ -146,11 +147,6 @@ HWC2EventListener eventListener = {
 
 HWComposer2 *create_hwcomposer_window() {
 
-  if(the_hwc2) {
-    printf("already created an hwc window\n");
-    return the_hwc2;
-  }
-
   int composerSequenceId = 0;
 
   hwcDevice = hwc2_compat_device_new(false);
@@ -185,23 +181,16 @@ HWComposer2 *create_hwcomposer_window() {
   the_hwc2 = new HWComposer2(config->width, config->height,
                              HAL_PIXEL_FORMAT_RGBA_8888,
                              display, layer);
+  the_other_hwc2 = the_hwc2;
   return the_hwc2;
 }
 
 static hwc2_compat_display_t* get_display(){
-  if(!the_hwc2){
-    printf("the_hwc2 has vanished!\n");
-    return 0;
-  }
-  return the_hwc2->hwcDisplay;
+  return the_other_hwc2->hwcDisplay;
 }
 
 static hwc2_compat_layer_t* get_layer(){
-  if(!the_hwc2){
-    printf("the_hwc2 has vanished!\n");
-    return 0;
-  }
-  return the_hwc2->hwcLayer;
+  return the_other_hwc2->hwcLayer;
 }
 
 // } ---------------------------------------------------------
@@ -223,6 +212,7 @@ void hwc_display_brightness(uint8_t brightness){
 }
 
 void hwc_display_off(){
+  the_third_hwc2=the_hwc2;
   if(get_display()) hwc2_compat_display_set_power_mode(get_display(), HWC2_POWER_MODE_OFF);
 }
 

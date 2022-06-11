@@ -2,7 +2,6 @@
 /* Platform-independent Vulkan common code */
 
 #include "ont/vulkan/vulkan.h"
-#include "onl/onl.h"
 
 #include "ont/vulkan/object_type_string_helper.h"
 #include "ont/vulkan/gettime.h"
@@ -197,8 +196,8 @@ static void prepare_swapchain() {
         // If the surface size is undefined, the size is set to the size
         // of the images requested, which must fit within the minimum and
         // maximum values.
-        swapchain_extent.width = swap_width;
-        swapchain_extent.height = swap_height;
+        swapchain_extent.width  = io.swap_width;
+        swapchain_extent.height = io.swap_height;
 
         if (swapchain_extent.width < surfCapabilities.minImageExtent.width) {
             swapchain_extent.width = surfCapabilities.minImageExtent.width;
@@ -214,8 +213,8 @@ static void prepare_swapchain() {
     } else {
         // If the surface size is defined, the swapchain size must match
         swapchain_extent = surfCapabilities.currentExtent;
-        swap_width = surfCapabilities.currentExtent.width;
-        swap_height = surfCapabilities.currentExtent.height;
+        io.swap_width = surfCapabilities.currentExtent.width;
+        io.swap_height = surfCapabilities.currentExtent.height;
     }
 
     // The FIFO present mode is guaranteed by the spec to be supported
@@ -888,34 +887,14 @@ static void cleanup(bool restart) {
   onl_finish();
 }
 
-void ont_vk_loop()
-{
+void ont_vk_loop() {
+
   onx_render_frame();
 }
 
-static iostate io;
+void ont_vk_iostate_changed() {
 
-void ont_vk_handle_event(char key_pressed, char key_released,
-                         uint32_t mouse_x, uint32_t mouse_y,
-                         bool left_pressed, bool middle_pressed, bool right_pressed,
-                         bool left_released, bool middle_released, bool right_released) {
-
-  if(mouse_x)         io.mouse_x=mouse_x;
-  if(mouse_y)         io.mouse_y=mouse_y;
-  if(key_pressed)     io.key=key_pressed;
-  if(key_released)    io.key=0;
-  if(left_pressed)    io.left_pressed=true;
-  if(middle_pressed)  io.middle_pressed=true;
-  if(right_pressed)   io.right_pressed=true;
-  if(left_released)   io.left_pressed=false;
-  if(middle_released) io.middle_pressed=false;
-  if(right_released)  io.right_pressed=false;
-
-  onx_iostate_changed(io);
-}
-
-iostate ont_vk_get_iostate(){
-  return io;
+  onx_iostate_changed();
 }
 
 void finish(bool restart)

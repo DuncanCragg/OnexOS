@@ -795,7 +795,7 @@ static void prepare_depth() {
         .pNext = NULL,
         .imageType = VK_IMAGE_TYPE_2D,
         .format = depth_format,
-        .extent = { swap_width,  swap_height, 1},
+        .extent = { io.swap_width, io.swap_height, 1},
         .mipLevels = 1,
         .arrayLayers = 1,
         .samples = VK_SAMPLE_COUNT_1_BIT,
@@ -1105,7 +1105,13 @@ static void show_matrix(mat4x4 m){
 
 static bool update_data_buffer() {
 
-
+    mat4x4 pm;
+    if(io.rotation_angle){
+      mat4x4_rotate_Z(pm, proj_matrix, (float)degreesToRadians(io.rotation_angle));
+    }
+    else{
+      mat4x4_dup(pm, proj_matrix);
+    }
 
     mat4x4 la;
     mat4x4_add(la, looking_at_body, looking_at_head);
@@ -1117,15 +1123,15 @@ static bool update_data_buffer() {
     mat4x4_orthonormalize(model_matrix[4], model_matrix[4]);
 
     memcpy(uniform_mem[image_index].uniform_memory_ptr,
-           (const void*)&proj_matrix,  sizeof(proj_matrix));
+           (const void*)&pm,  sizeof(pm));
 
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(pm),
            (const void*)&view_matrix,  sizeof(view_matrix));
 
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(pm)+sizeof(view_matrix),
            (const void*)&model_matrix, sizeof(model_matrix));
 
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(pm)+sizeof(view_matrix)+sizeof(model_matrix),
            (const void*)&text_ends, sizeof(text_ends));
 
     return false;
@@ -1140,11 +1146,6 @@ static void init_3d() {
     spin_angle = -0.9f;
 
     Mat4x4_perspective(proj_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
-    if(rotate_proj){
-      mat4x4 pm;
-      mat4x4_dup(pm, proj_matrix);
-      mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(90));
-    }
 
     mat4x4 la;
     mat4x4_add(la, looking_at_body, looking_at_head);
@@ -1333,8 +1334,8 @@ void onx_prepare_framebuffers() {
         .renderPass = render_pass,
         .attachmentCount = 2,
         .pAttachments = attachments,
-        .width =  swap_width,
-        .height = swap_height,
+        .width =  io.swap_width,
+        .height = io.swap_height,
         .layers = 1,
     };
     VkResult err;
@@ -1684,8 +1685,8 @@ void onx_prepare_pipeline() {
   VkViewport viewport = {
       .x = 0.0f,
       .y = 0.0f,
-      .width  = swap_width,
-      .height = swap_height,
+      .width  = io.swap_width,
+      .height = io.swap_height,
       .minDepth = 0.0f,
       .maxDepth = 1.0f,
   };
@@ -1951,11 +1952,16 @@ uint32_t x_on_press;
 uint32_t y_on_press;
 vec3     looking_at_head_last;
 
-void onx_iostate_changed(iostate io) {
+void onx_iostate_changed() {
 
-  printf("onx_iostate_changed (%d %d) %d (%d %d %d)\n", io.mouse_x, io.mouse_y, io.key, io.left_pressed, io.middle_pressed, io.right_pressed);
+  printf("onx_iostate_changed %d' [%d,%d][%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
+           io.rotation_angle,
+           io.view_width, io.view_height, io.swap_width, io.swap_height,
+           io.mouse_x, io.mouse_y,
+           io.left_pressed, io.middle_pressed, io.right_pressed,
+           io.key);
 
-  bool bottom_left = io.mouse_x < view_width / 3 && io.mouse_y > view_height / 2;
+  bool bottom_left = io.mouse_x < io.view_width / 3 && io.mouse_y > io.view_height / 2;
 
   if(io.left_pressed && !body_moving && bottom_left){
     body_moving=true;
@@ -1965,8 +1971,8 @@ void onx_iostate_changed(iostate io) {
   }
   else
   if(io.left_pressed && body_moving){
-    float delta_x = 0.5f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / view_width;
-    float delta_y = 0.5f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / view_height;
+    float delta_x = 0.5f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / io.view_width;
+    float delta_y = 0.5f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / io.view_height;
     eye[0]             += delta_x;
     looking_at_body[0] += delta_x;
     eye[2]             += delta_y;
@@ -1989,8 +1995,8 @@ void onx_iostate_changed(iostate io) {
   else
   if(io.left_pressed && head_moving){
 
-    looking_at_head[0] = looking_at_head_last[0] + 32.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / view_width;
-    looking_at_head[1] = looking_at_head_last[1] -  8.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / view_height;
+    looking_at_head[0] = looking_at_head_last[0] + 32.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / io.view_width;
+    looking_at_head[1] = looking_at_head_last[1] -  8.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / io.view_height;
   }
   else
   if(!io.left_pressed && head_moving){

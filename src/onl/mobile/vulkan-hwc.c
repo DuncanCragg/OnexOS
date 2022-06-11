@@ -24,9 +24,7 @@
 #include "ont/vulkan/vulkan_up.h"
 #include "onl/onl.h"
 
-uint32_t view_width, view_height;
-uint32_t swap_width, swap_height;
-bool rotate_proj;
+iostate io;
 
 ANativeWindow* window;
 
@@ -102,23 +100,28 @@ static void init_libinput(){
 
 static EGLDisplay display;
 
+static void set_rotation(int16_t a){
+
+    io.rotation_angle = a;
+
+    if(io.rotation_angle){  // currently only 0 or 90' allowed!
+      io.view_width =io.swap_height;
+      io.view_height=io.swap_width;
+    }
+    else{
+      io.view_width =io.swap_width;
+      io.view_height=io.swap_height;
+    }
+}
+
 void onl_create_window(){
 
   window = hwc_create_hwcomposer_window();
 
-  swap_width =hwc_get_swap_width();
-  swap_height=hwc_get_swap_height();
+  io.swap_width =hwc_get_swap_width();
+  io.swap_height=hwc_get_swap_height();
 
-  rotate_proj = true;
-
-  if(rotate_proj){
-    view_width =swap_height;
-    view_height=swap_width;
-  }
-  else{
-    view_width =swap_width;
-    view_height=swap_height;
-  }
+  set_rotation(90);
 
   display = eglGetDisplay(NULL);
 
@@ -170,16 +173,17 @@ static void handle_libinput_event(struct libinput_event* event) {
       touch_positions[s][0]=x;
       touch_positions[s][1]=y;
 
-      int32_t px, py;
-      if(rotate_proj){
-        px = swap_height-y;
-        py = x;
+      if(io.rotation_angle){ // == 90
+        io.mouse_x = io.swap_height-y;
+        io.mouse_y = x;
       }
       else{
-        px = x;
-        py = y;
+        io.mouse_x = x;
+        io.mouse_y = y;
       }
-      ont_vk_handle_event(0,0, px,py,  true,false,false, false,false,false);
+      io.left_pressed=true;
+
+      ont_vk_iostate_changed();
 
       break;
     }
@@ -199,16 +203,15 @@ static void handle_libinput_event(struct libinput_event* event) {
       touch_positions[s][0]=x;
       touch_positions[s][1]=y;
 
-      int32_t px, py;
-      if(rotate_proj){
-        px = swap_height-y;
-        py = x;
+      if(io.rotation_angle){ // == 90
+        io.mouse_x = io.swap_height-y;
+        io.mouse_y = x;
       }
       else{
-        px = x;
-        py = y;
+        io.mouse_x = x;
+        io.mouse_y = y;
       }
-      ont_vk_handle_event(0,0, px,py, false,false,false, false,false,false);
+      ont_vk_iostate_changed();
 
       break;
     }
@@ -220,7 +223,9 @@ static void handle_libinput_event(struct libinput_event* event) {
 
       int32_t s = libinput_event_touch_get_slot(t);
 
-      ont_vk_handle_event(0,0, 0,0,   false,false,false,  true,false,false);
+      io.left_pressed=false;
+
+      ont_vk_iostate_changed();
 
       break;
     }
@@ -240,6 +245,11 @@ static void handle_libinput_event(struct libinput_event* event) {
         else{
           screen_on = 0;
           hwc_display_brightness(0);
+
+          if(io.left_pressed){
+            io.left_pressed=false;
+            ont_vk_iostate_changed();
+          }
         }
       }
       else
@@ -251,6 +261,16 @@ static void handle_libinput_event(struct libinput_event* event) {
       if(key == KEY_VOLUMEUP && state == LIBINPUT_KEY_STATE_PRESSED){
         screen_on = 0;
         hwc_display_off(); // for testing
+
+        if(io.left_pressed){
+          io.left_pressed=false;
+          ont_vk_iostate_changed();
+        }
+      }
+      else
+      if(key == KEY_VOLUMEDOWN && state == LIBINPUT_KEY_STATE_PRESSED){
+        set_rotation(io.rotation_angle? 0: 90);
+        ont_vk_iostate_changed();
       }
       else{
         printf("%s (%d) %s\n", keyname, key, state == LIBINPUT_KEY_STATE_PRESSED? "pressed": "released");

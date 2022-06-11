@@ -3,9 +3,21 @@
 
 #include <vulkan/vulkan.h>
 
-extern uint32_t view_width, view_height;
-extern uint32_t swap_width, swap_height;
-extern bool rotate_proj;
+typedef struct iostate {
+  uint32_t view_width;
+  uint32_t view_height;
+  uint32_t swap_width;
+  uint32_t swap_height;
+  int16_t  rotation_angle;
+  uint32_t mouse_x;
+  uint32_t mouse_y;
+  bool     left_pressed;
+  bool     middle_pressed;
+  bool     right_pressed;
+  char     key;
+} iostate;
+
+extern iostate io;
 
 void onl_init();
 void onl_create_window();

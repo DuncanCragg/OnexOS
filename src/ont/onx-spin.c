@@ -7,13 +7,6 @@
 
 // ---------------------------------
 
-#define VIEWPORT_WIDTH         2048
-#define VIEWPORT_HEIGHT        2048
-#define VIEWPORT_FOV           70.0f
-#define VIEWPORT_ASPECT_RATIO   1.0f
-#define VIEWPORT_NEAR           0.1f
-#define VIEWPORT_FAR          100.0f
-
 static const float g_vertex_buffer_data[] = {
     -1.0f,-1.0f, 0.0f,  // -X side
     -1.0f,-1.0f, 0.1f,
@@ -1110,12 +1103,19 @@ static void show_matrix(mat4x4 m){
 
 static bool update_data_buffer() {
 
-    mat4x4 pm;
+    float swap_aspect_ratio = 1.0f * io.swap_width / io.swap_height;
+
+    float viewport_aspect_ratio = io.view_width > io.view_height? 1.0f: swap_aspect_ratio * swap_aspect_ratio;
+
+    #define VIEWPORT_FOV   70.0f
+    #define VIEWPORT_NEAR   0.1f
+    #define VIEWPORT_FAR  100.0f
+
+    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), viewport_aspect_ratio, VIEWPORT_NEAR, VIEWPORT_FAR);
     if(io.rotation_angle){
-      mat4x4_rotate_Z(pm, proj_matrix, (float)degreesToRadians(io.rotation_angle));
-    }
-    else{
+      mat4x4 pm;
       mat4x4_dup(pm, proj_matrix);
+      mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(io.rotation_angle));
     }
 
     mat4x4 la;
@@ -1128,15 +1128,15 @@ static bool update_data_buffer() {
     mat4x4_orthonormalize(model_matrix[4], model_matrix[4]);
 
     memcpy(uniform_mem[image_index].uniform_memory_ptr,
-           (const void*)&pm,  sizeof(pm));
+           (const void*)&proj_matrix,  sizeof(proj_matrix));
 
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(pm),
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
            (const void*)&view_matrix,  sizeof(view_matrix));
 
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(pm)+sizeof(view_matrix),
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
            (const void*)&model_matrix, sizeof(model_matrix));
 
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(pm)+sizeof(view_matrix)+sizeof(model_matrix),
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
            (const void*)&text_ends, sizeof(text_ends));
 
     return false;
@@ -1147,12 +1147,6 @@ static void copy_vec(float* m, float* v){
 }
 
 static void init_3d() {
-
-    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), VIEWPORT_ASPECT_RATIO, VIEWPORT_NEAR, VIEWPORT_FAR);
-
-    mat4x4 la;
-    mat4x4_add(la, looking_at_body, looking_at_head);
-    mat4x4_look_at(view_matrix, eye, la, up);
 
     for(int i=0; i<8; i++){
       float x_offs = 3.2 * (i - 4);
@@ -1688,8 +1682,8 @@ void onx_prepare_pipeline() {
   VkViewport viewport = {
       .x = 0.0f,
       .y = 0.0f,
-      .width  = VIEWPORT_WIDTH,
-      .height = VIEWPORT_HEIGHT,
+      .width  = io.swap_width,
+      .height = io.swap_height,
       .minDepth = 0.0f,
       .maxDepth = 1.0f,
   };
@@ -1998,8 +1992,8 @@ void onx_iostate_changed() {
   else
   if(io.left_pressed && head_moving){
 
-    looking_at_head[0] = looking_at_head_last[0] + 32.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / io.view_width;
-    looking_at_head[1] = looking_at_head_last[1] -  8.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / io.view_height;
+    looking_at_head[0] = looking_at_head_last[0] + 16.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / io.view_width;
+    looking_at_head[1] = looking_at_head_last[1] -  4.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / io.view_height;
   }
   else
   if(!io.left_pressed && head_moving){

@@ -100,20 +100,6 @@ static void init_libinput(){
 
 static EGLDisplay display;
 
-static void set_rotation(int16_t a){
-
-    io.rotation_angle = a;
-
-    if(io.rotation_angle){  // currently only 0 or 90' allowed!
-      io.view_width =io.swap_height;
-      io.view_height=io.swap_width;
-    }
-    else{
-      io.view_width =io.swap_width;
-      io.view_height=io.swap_height;
-    }
-}
-
 void onl_create_window(){
 
   window = hwc_create_hwcomposer_window();
@@ -121,7 +107,7 @@ void onl_create_window(){
   io.swap_width =hwc_get_swap_width();
   io.swap_height=hwc_get_swap_height();
 
-  set_rotation(90);
+  set_io_rotation(90);
 
   display = eglGetDisplay(NULL);
 
@@ -173,14 +159,8 @@ static void handle_libinput_event(struct libinput_event* event) {
       touch_positions[s][0]=x;
       touch_positions[s][1]=y;
 
-      if(io.rotation_angle){ // == 90
-        io.mouse_x = io.swap_height-y;
-        io.mouse_y = x;
-      }
-      else{
-        io.mouse_x = x;
-        io.mouse_y = y;
-      }
+      set_io_mouse(x, y);
+
       io.left_pressed=true;
 
       ont_vk_iostate_changed();
@@ -203,14 +183,8 @@ static void handle_libinput_event(struct libinput_event* event) {
       touch_positions[s][0]=x;
       touch_positions[s][1]=y;
 
-      if(io.rotation_angle){ // == 90
-        io.mouse_x = io.swap_height-y;
-        io.mouse_y = x;
-      }
-      else{
-        io.mouse_x = x;
-        io.mouse_y = y;
-      }
+      set_io_mouse(x, y);
+
       ont_vk_iostate_changed();
 
       break;
@@ -269,7 +243,7 @@ static void handle_libinput_event(struct libinput_event* event) {
       }
       else
       if(key == KEY_VOLUMEDOWN && state == LIBINPUT_KEY_STATE_PRESSED){
-        set_rotation(io.rotation_angle? 0: 90);
+        set_io_rotation(io.rotation_angle? 0: 90);
         ont_vk_iostate_changed();
       }
       else{

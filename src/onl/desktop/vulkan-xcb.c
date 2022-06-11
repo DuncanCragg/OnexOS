@@ -53,26 +53,12 @@ void onl_init() {
   screen = iter.data;
 }
 
-static void set_rotation(int16_t a){
-
-    io.rotation_angle = a;
-
-    if(io.rotation_angle){  // currently only 0 or 90' allowed!
-      io.view_width =io.swap_height;
-      io.view_height=io.swap_width;
-    }
-    else{
-      io.view_width =io.swap_width;
-      io.view_height=io.swap_height;
-    }
-}
-
 void onl_create_window()
 {
   io.swap_width =1920/2;
   io.swap_height= 1080/2;
 
-  set_rotation(0);
+  set_io_rotation(0);
 
   uint32_t value_mask, value_list[32];
 
@@ -132,8 +118,7 @@ static void handle_xcb_event(const xcb_generic_event_t *event) {
 
         case XCB_MOTION_NOTIFY: {
           xcb_motion_notify_event_t *motion = (xcb_motion_notify_event_t *)event;
-          io.mouse_x=(int32_t)motion->event_x;
-          io.mouse_y=(int32_t)motion->event_y;
+          set_io_mouse((int32_t)motion->event_x, (int32_t)motion->event_y);
           ont_vk_iostate_changed();
           break;
         }
@@ -187,7 +172,7 @@ static void handle_xcb_event(const xcb_generic_event_t *event) {
                 io.swap_width = w;
                 io.swap_height = h;
 
-                set_rotation(io.rotation_angle);
+                set_io_rotation(io.rotation_angle);
 
                 ont_vk_iostate_changed();
             }

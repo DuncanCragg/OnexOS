@@ -1105,7 +1105,7 @@ static bool update_data_buffer() {
 
     float swap_aspect_ratio = 1.0f * io.swap_width / io.swap_height;
 
-    float viewport_aspect_ratio = io.view_width > io.view_height? 1.0f: swap_aspect_ratio * swap_aspect_ratio;
+    float viewport_aspect_ratio = io.rotation_angle==0? swap_aspect_ratio / 1.77777: swap_aspect_ratio * 1.77777;
 
     #define VIEWPORT_FOV   70.0f
     #define VIEWPORT_NEAR   0.1f

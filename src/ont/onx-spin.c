@@ -1659,11 +1659,11 @@ void onx_prepare_pipeline() {
   };
 
   VkVertexInputAttributeDescription vertex_input_attributes[] = {
-    { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 },
-    { 1, 0, VK_FORMAT_R32G32_SFLOAT, 12 },
-    { 2, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },
-    { 3, 1, VK_FORMAT_R32_UINT, 16 },
-    { 4, 1, VK_FORMAT_R32_SFLOAT, 20 },
+    { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 },     // vertex
+    { 1, 0, VK_FORMAT_R32G32_SFLOAT, 12 },       // uv
+    { 2, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },  // fd_GlyphInstance.rect
+    { 3, 1, VK_FORMAT_R32_UINT, 16 },            // fd_GlyphInstance.glyph_index
+    { 4, 1, VK_FORMAT_R32_SFLOAT, 20 },          // fd_GlyphInstance.sharpness
   };
 
   VkVertexInputBindingDescription vibds[] = {

@@ -30,12 +30,6 @@ static void sighandler(int signal, siginfo_t *siginfo, void *userdata) {
 
 void onl_init() {
 
-  io.swap_width =1000;
-  io.swap_height= 500;
-  io.view_width =io.swap_width;
-  io.view_height=io.swap_height;
-  io.rotation_angle = 0;
-
   struct sigaction act;
   memset(&act, 0, sizeof(act));
   act.sa_sigaction = sighandler;
@@ -59,8 +53,27 @@ void onl_init() {
   screen = iter.data;
 }
 
+static void set_rotation(int16_t a){
+
+    io.rotation_angle = a;
+
+    if(io.rotation_angle){  // currently only 0 or 90' allowed!
+      io.view_width =io.swap_height;
+      io.view_height=io.swap_width;
+    }
+    else{
+      io.view_width =io.swap_width;
+      io.view_height=io.swap_height;
+    }
+}
+
 void onl_create_window()
 {
+  io.swap_width =1920/2;
+  io.swap_height= 1080/2;
+
+  set_rotation(0);
+
   uint32_t value_mask, value_list[32];
 
   window = xcb_generate_id(connection);
@@ -171,10 +184,10 @@ static void handle_xcb_event(const xcb_generic_event_t *event) {
             uint32_t h=cfg->height;
             if ((io.view_width != w) || (io.view_height != h)) {
 
-                io.view_width = w;
-                io.view_height = h;
                 io.swap_width = w;
                 io.swap_height = h;
+
+                set_rotation(io.rotation_angle);
 
                 ont_vk_iostate_changed();
             }

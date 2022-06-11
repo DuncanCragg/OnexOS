@@ -7,6 +7,13 @@
 
 // ---------------------------------
 
+#define VIEWPORT_WIDTH         2048
+#define VIEWPORT_HEIGHT        2048
+#define VIEWPORT_FOV           70.0f
+#define VIEWPORT_ASPECT_RATIO   1.0f
+#define VIEWPORT_NEAR           0.1f
+#define VIEWPORT_FAR          100.0f
+
 static const float g_vertex_buffer_data[] = {
     -1.0f,-1.0f, 0.0f,  // -X side
     -1.0f,-1.0f, 0.1f,
@@ -189,8 +196,6 @@ uint32_t glyph_points_offset;
 uint32_t glyph_points_size;
 
 // ---------------------------------
-
-float spin_angle;
 
 vec3 eye = { 0.0f, 0.5, 4.0 };
 vec3 looking_at_body = { 0.0, 0.0, 0.0 };
@@ -1119,7 +1124,7 @@ static bool update_data_buffer() {
 
     mat4x4 mm;
     mat4x4_dup(mm, model_matrix[4]);
-    mat4x4_rotate_X(model_matrix[4], mm, (float)degreesToRadians(spin_angle));
+    mat4x4_rotate_X(model_matrix[4], mm, (float)degreesToRadians(-0.9f));
     mat4x4_orthonormalize(model_matrix[4], model_matrix[4]);
 
     memcpy(uniform_mem[image_index].uniform_memory_ptr,
@@ -1143,9 +1148,7 @@ static void copy_vec(float* m, float* v){
 
 static void init_3d() {
 
-    spin_angle = -0.9f;
-
-    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(60.0f), 1.0f, 0.1f, 100.0f);
+    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), VIEWPORT_ASPECT_RATIO, VIEWPORT_NEAR, VIEWPORT_FAR);
 
     mat4x4 la;
     mat4x4_add(la, looking_at_body, looking_at_head);
@@ -1685,8 +1688,8 @@ void onx_prepare_pipeline() {
   VkViewport viewport = {
       .x = 0.0f,
       .y = 0.0f,
-      .width  = io.swap_width,
-      .height = io.swap_height,
+      .width  = VIEWPORT_WIDTH,
+      .height = VIEWPORT_HEIGHT,
       .minDepth = 0.0f,
       .maxDepth = 1.0f,
   };

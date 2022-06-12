@@ -1950,6 +1950,11 @@ uint32_t y_on_press;
 vec3     looking_at_head_last;
 float    direction=0;
 
+float dwell(float delta, float width){
+  return delta > 0? max(delta - width, 0.0f):
+                    min(delta + width, 0.0f);
+}
+
 void onx_iostate_changed() {
 
   printf("onx_iostate_changed %d' [%d,%d][%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
@@ -1969,13 +1974,20 @@ void onx_iostate_changed() {
   }
   else
   if(io.left_pressed && body_moving){
-    float delta_x = 0.2f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / io.view_width;
-    float delta_y = 0.5f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / io.view_height;
-    direction -= delta_x;
-    looking_at_body[0]=eye[0]-4.5f*sin(direction);
-    looking_at_body[2]=eye[2]-4.5f*cos(direction);
-    eye[0] += delta_y * sin(direction);
-    eye[2] += delta_y * cos(direction);
+
+    float delta_x = 0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
+    float delta_y = 0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
+
+    delta_x = dwell(delta_x, 0.0015f);
+    delta_y = dwell(delta_y, 0.0015f);
+
+    direction -= 0.5f* delta_x;
+
+    looking_at_body[0] = eye[0] - 100.0f * sin(direction);
+    looking_at_body[2] = eye[2] - 100.0f * cos(direction);
+
+    eye[0] += 10.0f * delta_y * sin(direction);
+    eye[2] += 10.0f * delta_y * cos(direction);
   }
   else
   if(!io.left_pressed && body_moving){

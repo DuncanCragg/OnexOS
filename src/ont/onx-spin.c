@@ -190,10 +190,11 @@ uint32_t glyph_points_size;
 
 // ---------------------------------
 
-vec3 eye = { 0.0f, 0.5, 4.0 };
-vec3 looking_at_body = { 0.0, 0.0, 0.0 };
-vec3 looking_at_head = { 0.0, 0.0, 0.0 };
 vec3 up = { 0.0f, 1.0, 0.0 };
+
+vec3 eye             = { 0.0,   0.5,   4.0 };
+vec3 looking_at_body = { 0.0,   0.5, -96.0 };
+vec3 looking_at_head = { 0.0, -10.0,   0.0 };
 
 mat4x4   proj_matrix;
 mat4x4   view_matrix;
@@ -1947,7 +1948,6 @@ bool     head_moving=false;
 bool     body_moving=false;
 uint32_t x_on_press;
 uint32_t y_on_press;
-vec3     looking_at_head_last;
 float    direction=0;
 
 float dwell(float delta, float width){
@@ -1997,23 +1997,27 @@ void onx_iostate_changed() {
   if(io.left_pressed && !head_moving){
     head_moving=true;
 
-    looking_at_head_last[0]=looking_at_head[0];
-    looking_at_head_last[1]=looking_at_head[1];
-
     x_on_press = io.mouse_x;
     y_on_press = io.mouse_y;
   }
   else
   if(io.left_pressed && head_moving){
 
-    looking_at_head[0] = looking_at_head_last[0] + 16.0f * ((int32_t)io.mouse_x - (int32_t)x_on_press) / io.view_width;
-    looking_at_head[1] = looking_at_head_last[1] -  4.0f * ((int32_t)io.mouse_y - (int32_t)y_on_press) / io.view_height;
+    float delta_x = 0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
+    float delta_y = 0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
+
+    float dir_x = 35.0f*dwell(delta_x, 0.0015f);
+    float dir_y = 35.0f*dwell(delta_y, 0.0015f);
+
+    looking_at_head[0] =  100.0f * sin(dir_x);
+    looking_at_head[1] = -200.0f * sin(dir_y) - 10.0f;
   }
   else
   if(!io.left_pressed && head_moving){
     head_moving=false;
-    looking_at_head[0] = looking_at_head_last[0];
-    looking_at_head[1] = looking_at_head_last[1];
+    looking_at_head[0] =   0.0f;
+    looking_at_head[1] = -10.0f;
+    looking_at_head[2] =   0.0f;
   }
 }
 

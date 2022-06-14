@@ -192,9 +192,11 @@ uint32_t glyph_points_size;
 
 vec3 up = { 0.0f, 1.0, 0.0 };
 
-vec3 eye             = { 0.0,   0.5,   4.0 };
-vec3 looking_at_body = { 0.0,   0.5, -96.0 };
-vec3 looking_at_head = { 0.0, -10.0,   0.0 };
+vec3  eye = { 0.0, 0.5, 4.0 };
+
+float eye_dir=0;
+float head_hor_dir=0;
+float head_ver_dir=0;
 
 mat4x4   proj_matrix;
 mat4x4   view_matrix;
@@ -1119,9 +1121,13 @@ static bool update_data_buffer() {
       mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(io.rotation_angle));
     }
 
-    mat4x4 la;
-    mat4x4_add(la, looking_at_body, looking_at_head);
-    mat4x4_look_at(view_matrix, eye, la, up);
+    vec3 looking_at;
+
+    looking_at[0] = eye[0] + 100.0f * sin(eye_dir + head_hor_dir);
+    looking_at[1] = eye[1] - 100.0f * sin(          head_ver_dir);
+    looking_at[2] = eye[2] - 100.0f * cos(eye_dir + head_hor_dir);
+
+    mat4x4_look_at(view_matrix, eye, looking_at, up);
 
     mat4x4 mm;
     mat4x4_dup(mm, model_matrix[4]);
@@ -1948,7 +1954,6 @@ bool     head_moving=false;
 bool     body_moving=false;
 uint32_t x_on_press;
 uint32_t y_on_press;
-float    direction=0;
 
 float dwell(float delta, float width){
   return delta > 0? max(delta - width, 0.0f):
@@ -1981,13 +1986,10 @@ void onx_iostate_changed() {
     delta_x = dwell(delta_x, 0.0015f);
     delta_y = dwell(delta_y, 0.0015f);
 
-    direction -= 0.5f* delta_x;
+    eye_dir += 0.5f* delta_x;
 
-    looking_at_body[0] = eye[0] - 100.0f * sin(direction);
-    looking_at_body[2] = eye[2] - 100.0f * cos(direction);
-
-    eye[0] += 10.0f * delta_y * sin(direction);
-    eye[2] += 10.0f * delta_y * cos(direction);
+    eye[0] -= 10.0f * delta_y * sin(eye_dir);
+    eye[2] += 10.0f * delta_y * cos(eye_dir);
   }
   else
   if(!io.left_pressed && body_moving){
@@ -1995,6 +1997,7 @@ void onx_iostate_changed() {
   }
   else
   if(io.left_pressed && !head_moving){
+
     head_moving=true;
 
     x_on_press = io.mouse_x;
@@ -2006,18 +2009,16 @@ void onx_iostate_changed() {
     float delta_x = 0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
     float delta_y = 0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
 
-    float dir_x = 35.0f*dwell(delta_x, 0.0015f);
-    float dir_y = 35.0f*dwell(delta_y, 0.0015f);
-
-    looking_at_head[0] =  100.0f * sin(dir_x);
-    looking_at_head[1] = -200.0f * sin(dir_y) - 10.0f;
+    head_hor_dir = 35.0f*dwell(delta_x, 0.0015f);
+    head_ver_dir = 35.0f*dwell(delta_y, 0.0015f);
   }
   else
   if(!io.left_pressed && head_moving){
+
     head_moving=false;
-    looking_at_head[0] =   0.0f;
-    looking_at_head[1] = -10.0f;
-    looking_at_head[2] =   0.0f;
+
+    head_hor_dir=0;
+    head_ver_dir=0;
   }
 }
 

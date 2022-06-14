@@ -1130,9 +1130,11 @@ static bool update_data_buffer() {
     mat4x4_look_at(view_matrix, eye, looking_at, up);
 
     mat4x4 mm;
-    mat4x4_dup(mm, model_matrix[4]);
-    mat4x4_rotate_X(model_matrix[4], mm, (float)degreesToRadians(-0.9f));
-    mat4x4_orthonormalize(model_matrix[4], model_matrix[4]);
+    mat4x4_rotate_X(mm, model_matrix[3], (float)degreesToRadians(-0.4f));
+    mat4x4_orthonormalize(model_matrix[3], mm);
+
+    mat4x4_rotate_Y(mm, model_matrix[4], (float)degreesToRadians(-0.4f));
+    mat4x4_orthonormalize(model_matrix[4], mm);
 
     memcpy(uniform_mem[image_index].uniform_memory_ptr,
            (const void*)&proj_matrix,  sizeof(proj_matrix));
@@ -1988,8 +1990,8 @@ void onx_iostate_changed() {
 
     eye_dir += 0.5f* delta_x;
 
-    eye[0] -= 10.0f * delta_y * sin(eye_dir);
-    eye[2] += 10.0f * delta_y * cos(eye_dir);
+    eye[0] -= 4.0f * delta_y * sin(eye_dir);
+    eye[2] += 4.0f * delta_y * cos(eye_dir);
   }
   else
   if(!io.left_pressed && body_moving){

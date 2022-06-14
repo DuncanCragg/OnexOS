@@ -34,14 +34,15 @@ layout(location = 1)  out uvec4 out_cell_info;
 layout(location = 2)  out float out_sharpness;
 layout(location = 3)  out vec2  out_cell_coord;
 layout(location = 4)  out vec4  out_texture_coord;
-layout(location = 5)  out vec4  out_frag_pos;
-layout(location = 6)  out uint  out_phase;
-layout(location = 7)  out float near;
-layout(location = 8)  out float far;
-layout(location = 9)  out vec3  nearPoint;
-layout(location = 10) out vec3  farPoint;
-layout(location = 11) out mat4  view;
-layout(location = 15) out mat4  proj;
+layout(location = 5)  out vec4  model_pos;
+layout(location = 6)  out vec4  proj_pos;
+layout(location = 7)  out uint  out_phase;
+layout(location = 8)  out float near;
+layout(location = 9)  out float far;
+layout(location = 10) out vec3  nearPoint;
+layout(location = 11) out vec3  farPoint;
+layout(location = 12) out mat4  view;
+layout(location = 16) out mat4  proj;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -81,6 +82,9 @@ void main() {
                   uniforms.view *
                   uniforms.model[gl_InstanceIndex] *
                   vec4(in_vertex, 1.0);
+
+    model_pos = uniforms.model[gl_InstanceIndex] *
+                vec4(in_vertex, 1.0);
   }
   else
   if(push_constants.phase == 2){ // text
@@ -119,7 +123,9 @@ void main() {
                   uniforms.model[i] *
                   vec4(rv, -0.001, 1.0);
 
+    model_pos = uniforms.model[i] *
+                vec4(rv, -0.001, 1.0);
   }
-  out_frag_pos = gl_Position;
+  proj_pos = gl_Position;
   out_phase = push_constants.phase;
 }

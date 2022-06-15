@@ -913,6 +913,7 @@ void ont_vk_restart(){
 }
 
 int main() {
+  printf("--------------------------\nStarting onx (OnexOS)\n--------------------------\n");
   prepare(false);
   onl_run();
   finish(false);

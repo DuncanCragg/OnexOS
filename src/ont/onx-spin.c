@@ -472,6 +472,7 @@ static void load_font(const char * font_face) {
       total_points += o->num_of_points;
       total_cells += o->cell_count_x * o->cell_count_y;
   }
+  printf("\n");
 
   glyph_info_size = sizeof(fd_DeviceGlyphInfo) * NUMBER_OF_GLYPHS;
   glyph_cells_size = sizeof(uint32_t) * total_cells;
@@ -526,11 +527,6 @@ static void load_font(const char * font_face) {
 
   FT_CHECK(FT_Done_Face(face));
   FT_CHECK(FT_Done_FreeType(library));
-
-  printf("\n");
-  printf(" glyph size: %d bytes\n", glyph_data_size);
-  printf("points size: %d bytes\n", glyph_points_size);
-  printf(" cells size: %d bytes\n", glyph_cells_size);
 }
 
 // ---------------------------------

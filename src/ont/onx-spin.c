@@ -7,9 +7,80 @@
 
 // ---------------------------------
 
+typedef struct panel {
+
+  vec3  dimensions;
+  vec3  position;
+  vec3  rotation;
+  char* text;
+
+} panel;
+
+panel welcome_banner ={
+ .dimensions = { 1.5f, 1.0f, 0.03f },
+ .position = { 0.0f, 0.97f, 3.0f },
+ .rotation = { 0.0f, 0.0f, 0.0f },
+ .text = "Hello, and welcome to OnexOS and the Object Network!",
+};
+
+panel info_board ={
+ .dimensions = { 1.5f, 1.0f, 0.03f },
+ .position = { -5.0f, 0.97f, -1.0f },
+ .rotation = { 0.0f, 45.0f, 0.0f },
+ .text = "There is plenty to get started with",
+};
+
+panel info_board_2 ={
+ .dimensions = { 1.5f, 1.0f, 0.03f },
+ .position = { 5.0f, 0.97f, -1.0f },
+ .rotation = { 0.0f, -45.0f, 0.0f },
+ .text = "OnexOS is an OS with no apps!",
+};
+
+panel room_floor ={
+ .dimensions = { 3.0f, 3.0f, 0.03f },
+ .position = { 0.0f, 0.0f, -4.0f },
+ .rotation = { 90.0f, 0.0f, 0.0f },
+ .text = "v",
+};
+
+panel room_ceiling ={
+ .dimensions = { 3.0f, 3.0f, 0.03f },
+ .position = { 0.0f, 3.0f, -4.0f },
+ .rotation = { -90.0f, 0.0f, 0.0f },
+ .text = "^",
+};
+
+panel room_wall_1 ={
+ .dimensions = { 3.0f, 3.0f, 0.03f },
+ .position = { -3.0f, 0.0f, -4.0f },
+ .rotation = { 0.0f, 90.0f, 0.0f },
+ .text = "wall 1",
+};
+
+panel room_wall_2 ={
+ .dimensions = { 3.0f, 3.0f, 0.03f },
+ .position = { 3.0f, 0.0f, -4.0f },
+ .rotation = { 0.0f, -90.0f, 0.0f },
+ .text = "wall 2",
+};
+
+panel room_wall_3 ={
+ .dimensions = { 3.0f, 3.0f, 0.03f },
+ .position = { 0.0f, 0.0f, -7.0f },
+ .rotation = { 0.0f, 180.0f, 0.0f },
+ .text = "wall 3",
+};
+
+// ---------------------------------
+
 static float g_vertex_buffer_data[6*6*3];
 
-static void make_box(float w, float h, float d){
+static void make_box(vec3 dimensions){
+
+  float w=dimensions[0];
+  float h=dimensions[1];
+  float d=dimensions[2];
 
   float verts[6*6*3] = {
 
@@ -212,7 +283,7 @@ mat4x4 model_matrix[8];
 vec4   text_ends[8];
 
 vec2 canvas_offset;
-float canvas_scale;
+float canvas_scale = 3.0f;
 
 struct uniforms {
     float proj[4][4];
@@ -975,7 +1046,26 @@ static void end_text() {
         0, NULL);
 }
 
-static void append_text(float x, float y, float scale, const char *text) {
+static void add_panel(panel* panel, int o){
+    make_box(panel->dimensions);
+
+    mat4x4_translation(model_matrix[o], panel->position[0],
+                                        panel->position[1],
+                                        panel->position[2]);
+    mat4x4 mm;
+    mat4x4_rotate_X(mm, model_matrix[o], (float)degreesToRadians(panel->rotation[0]));
+    mat4x4_rotate_Y(model_matrix[o], mm, (float)degreesToRadians(panel->rotation[1]));
+    mat4x4_rotate_Z(mm, model_matrix[o], (float)degreesToRadians(panel->rotation[2]));
+    mat4x4_orthonormalize(model_matrix[o], mm);
+}
+
+static void append_text(panel* panel, int o) {
+
+    float x = canvas_scale * (10.0f - canvas_offset[0]);
+    float y = canvas_scale * (30.0f - canvas_offset[1]);
+    float scale = 0.01f * canvas_scale;
+
+    const char *text = panel->text;
 
     while (*text) {
         if (glyph_instance_count >= MAX_VISIBLE_GLYPHS) break;
@@ -1001,6 +1091,7 @@ static void append_text(float x, float y, float scale, const char *text) {
         text++;
         x += gi->advance * scale;
     }
+    text_ends[o][0]=glyph_instance_count-1;
 }
 
 static void do_render_pass() {
@@ -1018,32 +1109,14 @@ static void do_render_pass() {
 
   begin_text();
 
-  const char *lines[8][3] = {
-    { "0 OnexOS:", "Welcome to the", "Object Network", },
-    { "1 The Object Network:", "The Home of Freedom", "on the big internet!", },
-    { "2 OnexOS:", "Welcome to the", "Object Network", },
-    { "3 The Object Network:", "The Home of Freedom", "on the big internet!", },
-    { "4 OnexOS:", "Welcome to the", "Object Network", },
-    { "5 The Object Network:", "The Home of Freedom", "on the big internet!", },
-    { "6 OnexOS:", "Welcome to the", "Object Network", },
-    { "7 The Object Network:", "The Home of Freedom", "on the big internet!", },
-  };
-
-  for(int o=0; o<8; o++){
-
-    uint32_t num_of_lines = ARRAY_SIZE(lines[o]);
-
-    for (uint32_t i = 0; i < num_of_lines; i++) {
-      append_text(
-         canvas_scale * (10.0f - canvas_offset[0]),
-         canvas_scale * (30.0f - canvas_offset[1] + i * 30.0f),
-         0.02f * canvas_scale,
-         lines[o][i]
-      );
-    }
-
-    text_ends[o][0]=glyph_instance_count-1;
-  }
+  append_text(&welcome_banner, 0);
+  append_text(&info_board,     1);
+  append_text(&info_board_2,   2);
+  append_text(&room_floor,     3);
+  append_text(&room_ceiling,   4);
+  append_text(&room_wall_1,    5);
+  append_text(&room_wall_2,    6);
+  append_text(&room_wall_3,    7);
 
   end_text();
 
@@ -1132,14 +1205,14 @@ static bool update_data_buffer() {
     looking_at[2] = eye[2] + 100.0f * cos(eye_dir + head_hor_dir);
 
     mat4x4_look_at(view_matrix, eye, looking_at, up);
-
+/*
     mat4x4 mm;
     mat4x4_rotate_X(mm, model_matrix[3], (float)degreesToRadians(-0.4f));
     mat4x4_orthonormalize(model_matrix[3], mm);
 
     mat4x4_rotate_Y(mm, model_matrix[4], (float)degreesToRadians(-0.4f));
     mat4x4_orthonormalize(model_matrix[4], mm);
-
+*/
     memcpy(uniform_mem[image_index].uniform_memory_ptr,
            (const void*)&proj_matrix,  sizeof(proj_matrix));
 
@@ -1161,15 +1234,14 @@ static void copy_vec(float* m, float* v){
 
 static void init_3d() {
 
-    make_box(1.5, 1.0, 0.03);
-
-    for(int i=0; i<8; i++){
-      float x_offs = 3.2 * (i - 4);
-      float y_offs = 0.97;
-      float z_offs = 3.0;
-      mat4x4_translation(model_matrix[i], x_offs, y_offs, z_offs);
-    }
-    canvas_scale = 3.0f;
+  add_panel(&welcome_banner, 0);
+  add_panel(&info_board,     1);
+  add_panel(&info_board_2,   2);
+  add_panel(&room_floor,     3);
+  add_panel(&room_ceiling,   4);
+  add_panel(&room_wall_1,    5);
+  add_panel(&room_wall_2,    6);
+  add_panel(&room_wall_3,    7);
 }
 
 // ---------------------------------

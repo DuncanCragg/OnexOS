@@ -7,11 +7,12 @@
 
 // ---------------------------------
 
-#define w 1.5f
-#define h 1.0f
-#define d 0.03f
+static float g_vertex_buffer_data[6*6*3];
 
-static const float g_vertex_buffer_data[] = {
+static void make_box(float w, float h, float d){
+
+  float verts[6*6*3] = {
+
     -w, -h,  d,  // -X side
     -w, -h, -d,
     -w,  h, -d,
@@ -59,11 +60,9 @@ static const float g_vertex_buffer_data[] = {
     -w, -h, -d,
      w, -h, -d,
      w,  h, -d,
-};
-
-#undef w
-#undef h
-#undef d
+  };
+  memcpy((void*)g_vertex_buffer_data, (const void*)verts, sizeof(verts));
+}
 
 static const float g_uv_buffer_data[] = {
     0.0f, 1.0f,  // -X side
@@ -1089,7 +1088,7 @@ static void do_render_pass() {
 
   pc.phase = 1, // panels
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 12*3, 8, 0, 0);
+  vkCmdDraw(cmd_buf, 6*6, 8, 0, 0);
 
   pc.phase = 2, // text
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
@@ -1160,6 +1159,8 @@ static void copy_vec(float* m, float* v){
 }
 
 static void init_3d() {
+
+    make_box(1.5, 1.0, 0.03);
 
     for(int i=0; i<8; i++){
       float x_offs = 3.2 * (i - 4);
@@ -1387,7 +1388,7 @@ static void prepare_vertex_buffers(){
 
   VkBufferCreateInfo buffer_ci = {
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = (sizeof(g_vertex_buffer_data[0]) * 3 + sizeof(g_uv_buffer_data[0]) * 2) * 12*3,
+    .size = (sizeof(g_vertex_buffer_data[0]) * 3 + sizeof(g_uv_buffer_data[0]) * 2) * 6*6,
     .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
@@ -1401,7 +1402,7 @@ static void prepare_vertex_buffers(){
   float* vertices;
   VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, buffer_ci.size, 0, &vertices));
 
-  for (unsigned int i = 0; i < 12*3; i++) {
+  for (unsigned int i = 0; i < 6*6; i++) {
       *(vertices+i*5+0) = g_vertex_buffer_data[i*3+0];
       *(vertices+i*5+1) = g_vertex_buffer_data[i*3+1];
       *(vertices+i*5+2) = g_vertex_buffer_data[i*3+2];

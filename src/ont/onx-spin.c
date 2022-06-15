@@ -1121,7 +1121,7 @@ static bool update_data_buffer() {
     if(io.rotation_angle){
       mat4x4 pm;
       mat4x4_dup(pm, proj_matrix);
-      mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(io.rotation_angle));
+      mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(-io.rotation_angle));
     }
 
     vec3 looking_at;

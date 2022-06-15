@@ -199,8 +199,9 @@ uint32_t glyph_points_size;
 
 vec3 up = { 0.0f, -1.0, 0.0 };
 
-vec3  eye = { 0.0, 0.5, -4.0 };
-
+// 1.75m height
+// standing back 4m from origin
+vec3  eye = { 0.0, 1.75, -4.0 };
 float eye_dir=0;
 float head_hor_dir=0;
 float head_ver_dir=0;

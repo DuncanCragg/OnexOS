@@ -28,18 +28,18 @@ layout(location = 2) in vec4  in_rect;
 layout(location = 3) in uint  in_glyph_index;
 layout(location = 4) in float in_sharpness;
 
-layout(location = 0)  out vec2  out_glyph_pos;
-layout(location = 1)  out uvec4 out_cell_info;
-layout(location = 2)  out float out_sharpness;
-layout(location = 3)  out vec2  out_cell_coord;
-layout(location = 4)  out vec4  out_texture_coord;
+layout(location = 0)  out vec2  glyph_pos;
+layout(location = 1)  out uvec4 cell_info;
+layout(location = 2)  out float sharpness;
+layout(location = 3)  out vec2  cell_coord;
+layout(location = 4)  out vec4  texture_coord;
 layout(location = 5)  out vec4  model_pos;
 layout(location = 6)  out vec4  proj_pos;
-layout(location = 7)  out uint  out_phase;
+layout(location = 7)  out uint  phase;
 layout(location = 8)  out float near;
 layout(location = 9)  out float far;
-layout(location = 10) out vec3  nearPoint;
-layout(location = 11) out vec3  farPoint;
+layout(location = 10) out vec3  near_point;
+layout(location = 11) out vec3  far_point;
 layout(location = 12) out mat4  view;
 layout(location = 16) out mat4  proj;
 
@@ -47,16 +47,16 @@ out gl_PerVertex {
     vec4 gl_Position;
 };
 
-vec3 gridPlane[6] = vec3[] (
+vec3 grid_plane[6] = vec3[] (
     vec3( 1,  1, 0), vec3(-1, -1, 0), vec3(-1,  1, 0),
     vec3(-1, -1, 0), vec3( 1,  1, 0), vec3( 1, -1, 0)
 );
 
 vec3 unproject(float x, float y, float z, mat4 view, mat4 proj) {
-    mat4 viewInv = inverse(view);
-    mat4 projInv = inverse(proj);
-    vec4 unprojectedPoint =  viewInv * projInv * vec4(x, y, z, 1.0);
-    return unprojectedPoint.xyz / unprojectedPoint.w;
+    mat4 view_inv = inverse(view);
+    mat4 proj_inv = inverse(proj);
+    vec4 unprojected_point =  view_inv * proj_inv * vec4(x, y, z, 1.0);
+    return unprojected_point.xyz / unprojected_point.w;
 }
 
 void main() {
@@ -65,9 +65,9 @@ void main() {
 
     near = 0.004;
     far = 0.17;
-    vec3 p = gridPlane[gl_VertexIndex].xyz;
-    nearPoint = unproject(p.x, p.y, 0.0, uniforms.view, uniforms.proj).xyz;
-    farPoint = unproject(p.x, p.y, 1.0, uniforms.view, uniforms.proj).xyz;
+    vec3 p = grid_plane[gl_VertexIndex].xyz;
+    near_point = unproject(p.x, p.y, 0.0, uniforms.view, uniforms.proj).xyz;
+    far_point = unproject(p.x, p.y, 1.0, uniforms.view, uniforms.proj).xyz;
     view = uniforms.view;
     proj = uniforms.proj;
     gl_Position = vec4(p, 1.0);
@@ -75,7 +75,7 @@ void main() {
   else
   if(push_constants.phase == 1){ // panels
 
-    out_texture_coord = vec4(in_uv, 0, 0);
+    texture_coord = vec4(in_uv, 0, 0);
 
     gl_Position = uniforms.proj *
                   uniforms.view *
@@ -98,22 +98,22 @@ void main() {
 
     glyph_info gi = glyph_buffer.glyphs[in_glyph_index];
 
-    if(gl_VertexIndex==0) out_glyph_pos = vec2(gi.bbox.x, gi.bbox.y);
-    if(gl_VertexIndex==1) out_glyph_pos = vec2(gi.bbox.z, gi.bbox.y);
-    if(gl_VertexIndex==2) out_glyph_pos = vec2(gi.bbox.x, gi.bbox.w);
-    if(gl_VertexIndex==3) out_glyph_pos = vec2(gi.bbox.x, gi.bbox.w);
-    if(gl_VertexIndex==4) out_glyph_pos = vec2(gi.bbox.z, gi.bbox.y);
-    if(gl_VertexIndex==5) out_glyph_pos = vec2(gi.bbox.z, gi.bbox.w);
+    if(gl_VertexIndex==0) glyph_pos = vec2(gi.bbox.x, gi.bbox.y);
+    if(gl_VertexIndex==1) glyph_pos = vec2(gi.bbox.z, gi.bbox.y);
+    if(gl_VertexIndex==2) glyph_pos = vec2(gi.bbox.x, gi.bbox.w);
+    if(gl_VertexIndex==3) glyph_pos = vec2(gi.bbox.x, gi.bbox.w);
+    if(gl_VertexIndex==4) glyph_pos = vec2(gi.bbox.z, gi.bbox.y);
+    if(gl_VertexIndex==5) glyph_pos = vec2(gi.bbox.z, gi.bbox.w);
 
-    if(gl_VertexIndex==0) out_cell_coord = vec2(0,              0);
-    if(gl_VertexIndex==1) out_cell_coord = vec2(gi.cell_info.z, 0);
-    if(gl_VertexIndex==2) out_cell_coord = vec2(0,              gi.cell_info.w);
-    if(gl_VertexIndex==3) out_cell_coord = vec2(0,              gi.cell_info.w);
-    if(gl_VertexIndex==4) out_cell_coord = vec2(gi.cell_info.z, 0);
-    if(gl_VertexIndex==5) out_cell_coord = vec2(gi.cell_info.z, gi.cell_info.w);
+    if(gl_VertexIndex==0) cell_coord = vec2(0,              0);
+    if(gl_VertexIndex==1) cell_coord = vec2(gi.cell_info.z, 0);
+    if(gl_VertexIndex==2) cell_coord = vec2(0,              gi.cell_info.w);
+    if(gl_VertexIndex==3) cell_coord = vec2(0,              gi.cell_info.w);
+    if(gl_VertexIndex==4) cell_coord = vec2(gi.cell_info.z, 0);
+    if(gl_VertexIndex==5) cell_coord = vec2(gi.cell_info.z, gi.cell_info.w);
 
-    out_cell_info = gi.cell_info;
-    out_sharpness = in_sharpness;
+    cell_info = gi.cell_info;
+    sharpness = in_sharpness;
 
     int o; for(o=0; o<8 && gl_InstanceIndex > uniforms.text_ends[o][0]; o++);
 
@@ -125,5 +125,5 @@ void main() {
                   vec4(rv, text_lift, 1.0);
   }
   proj_pos = gl_Position;
-  out_phase = push_constants.phase;
+  phase = push_constants.phase;
 }

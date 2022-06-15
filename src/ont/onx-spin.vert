@@ -1,5 +1,4 @@
 #version 450
-#extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 #extension GL_EXT_scalar_block_layout : enable
 
@@ -16,7 +15,7 @@ layout(std430, binding = 0) uniform buf0 {
   mat4 proj;
   mat4 view;
   mat4 model[8];
-  int  text_ends[8];
+  vec4 text_ends[8];
 } uniforms;
 
 layout (set = 0, binding = 1) buffer buf1 {
@@ -116,14 +115,14 @@ void main() {
     out_cell_info = gi.cell_info;
     out_sharpness = in_sharpness;
 
-    int i; for(i=0; i<8 && gl_InstanceIndex > uniforms.text_ends[i]; i++);
+    int o; for(o=0; o<8 && gl_InstanceIndex > uniforms.text_ends[o][0]; o++);
 
     gl_Position = uniforms.proj *
                   uniforms.view *
-                  uniforms.model[i] *
+                  uniforms.model[o] *
                   vec4(rv, -0.001, 1.0);
 
-    model_pos = uniforms.model[i] *
+    model_pos = uniforms.model[o] *
                 vec4(rv, -0.001, 1.0);
   }
   proj_pos = gl_Position;

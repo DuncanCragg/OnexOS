@@ -198,20 +198,20 @@ float eye_dir=0;
 float head_hor_dir=0;
 float head_ver_dir=0;
 
-mat4x4   proj_matrix;
-mat4x4   view_matrix;
-mat4x4   model_matrix[8];
-uint32_t text_ends[8];
+mat4x4 proj_matrix;
+mat4x4 view_matrix;
+mat4x4 model_matrix[8];
+vec4   text_ends[8];
 
 vec2 canvas_offset;
 float canvas_scale;
 float target_canvas_scale;
 
 struct uniforms {
-    float    proj[4][4];
-    float    view[4][4];
-    float    model[8][4][4];
-    uint32_t text_ends[8];
+    float proj[4][4];
+    float view[4][4];
+    float model[8][4][4];
+    vec4  text_ends[8];
 };
 
 struct push_constants {
@@ -1035,7 +1035,7 @@ static void do_render_pass() {
       );
     }
 
-    text_ends[o]=glyph_instance_count-1;
+    text_ends[o][0]=glyph_instance_count-1;
   }
 
   end_text();

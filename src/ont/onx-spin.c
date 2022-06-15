@@ -7,55 +7,63 @@
 
 // ---------------------------------
 
+#define w 1.5f
+#define h 1.0f
+#define d 0.03f
+
 static const float g_vertex_buffer_data[] = {
-    -1.0f,-1.0f, 0.0f,  // -X side
-    -1.0f,-1.0f, 0.1f,
-    -1.0f, 1.0f, 0.1f,
+    -w, -h,  d,  // -X side
+    -w, -h, -d,
+    -w,  h, -d,
 
-    -1.0f, 1.0f, 0.1f,
-    -1.0f, 1.0f, 0.0f,
-    -1.0f,-1.0f, 0.0f,
+    -w,  h, -d,
+    -w,  h,  d,
+    -w, -h,  d,
 
-    -1.0f,-1.0f, 0.0f,  // -Z side
-     2.0f, 1.0f, 0.0f,
-     2.0f,-1.0f, 0.0f,
+    -w, -h,  d,  // -Z side
+     w,  h,  d,
+     w, -h,  d,
 
-    -1.0f,-1.0f, 0.0f,
-    -1.0f, 1.0f, 0.0f,
-     2.0f, 1.0f, 0.0f,
+    -w, -h,  d,
+    -w,  h,  d,
+     w,  h,  d,
 
-    -1.0f,-1.0f, 0.0f,  // -Y side
-     2.0f,-1.0f, 0.0f,
-     2.0f,-1.0f, 0.1f,
+    -w, -h,  d,  // -Y side
+     w, -h,  d,
+     w, -h, -d,
 
-    -1.0f,-1.0f, 0.0f,
-     2.0f,-1.0f, 0.1f,
-    -1.0f,-1.0f, 0.1f,
+    -w, -h,  d,
+     w, -h, -d,
+    -w, -h, -d,
 
-    -1.0f, 1.0f, 0.0f,  // +Y side
-    -1.0f, 1.0f, 0.1f,
-     2.0f, 1.0f, 0.1f,
+    -w,  h,  d,  // +Y side
+    -w,  h, -d,
+     w,  h, -d,
 
-    -1.0f, 1.0f, 0.0f,
-     2.0f, 1.0f, 0.1f,
-     2.0f, 1.0f, 0.0f,
+    -w,  h,  d,
+     w,  h, -d,
+     w,  h,  d,
 
-     2.0f, 1.0f, 0.0f,  // +X side
-     2.0f, 1.0f, 0.1f,
-     2.0f,-1.0f, 0.1f,
+     w,  h,  d,  // +X side
+     w,  h, -d,
+     w, -h, -d,
 
-     2.0f,-1.0f, 0.1f,
-     2.0f,-1.0f, 0.0f,
-     2.0f, 1.0f, 0.0f,
+     w, -h, -d,
+     w, -h,  d,
+     w,  h,  d,
 
-    -1.0f, 1.0f, 0.1f,  // +Z side
-    -1.0f,-1.0f, 0.1f,
-     2.0f, 1.0f, 0.1f,
+    -w,  h, -d,  // +Z side
+    -w, -h, -d,
+     w,  h, -d,
 
-    -1.0f,-1.0f, 0.1f,
-     2.0f,-1.0f, 0.1f,
-     2.0f, 1.0f, 0.1f,
+    -w, -h, -d,
+     w, -h, -d,
+     w,  h, -d,
 };
+
+#undef w
+#undef h
+#undef d
 
 static const float g_uv_buffer_data[] = {
     0.0f, 1.0f,  // -X side
@@ -190,9 +198,9 @@ uint32_t glyph_points_size;
 
 // ---------------------------------
 
-vec3 up = { 0.0f, 1.0, 0.0 };
+vec3 up = { 0.0f, -1.0, 0.0 };
 
-vec3  eye = { 0.0, 0.5, 4.0 };
+vec3  eye = { 0.0, 0.5, -4.0 };
 
 float eye_dir=0;
 float head_hor_dir=0;
@@ -205,7 +213,6 @@ vec4   text_ends[8];
 
 vec2 canvas_offset;
 float canvas_scale;
-float target_canvas_scale;
 
 struct uniforms {
     float proj[4][4];
@@ -978,13 +985,13 @@ static void append_text(float x, float y, float scale, const char *text) {
         fd_HostGlyphInfo *gi   = &glyph_infos[glyph_index];
         fd_GlyphInstance *inst = &glyph_instances[glyph_instance_count];
 
-        inst->rect.min_x = 2.0f - (x + gi->bbox.min_x * scale) / 500;
-        inst->rect.min_y = 1.0f - (y - gi->bbox.min_y * scale) / 250;
-        inst->rect.max_x = 2.0f - (x + gi->bbox.max_x * scale) / 500;
-        inst->rect.max_y = 1.0f - (y - gi->bbox.max_y * scale) / 250;
+        inst->rect.min_x = -1.0f + (x + gi->bbox.min_x * scale) / 500;
+        inst->rect.min_y =  1.0f - (y - gi->bbox.min_y * scale) / 250;
+        inst->rect.max_x = -1.0f + (x + gi->bbox.max_x * scale) / 500;
+        inst->rect.max_y =  1.0f - (y - gi->bbox.max_y * scale) / 250;
 
-        if (inst->rect.min_x > -0.8 && inst->rect.max_x < 2 &&
-            inst->rect.max_y > -0.7 && inst->rect.min_y < 1) {
+        if (inst->rect.min_x > -1.0 && inst->rect.max_x < 1.0 &&
+            inst->rect.min_y > -1.0 && inst->rect.max_y < 1.0   ) {
 
             inst->glyph_index = glyph_index;
             inst->sharpness = scale;
@@ -1111,6 +1118,7 @@ static bool update_data_buffer() {
     #define VIEWPORT_FAR  100.0f
 
     Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), viewport_aspect_ratio, VIEWPORT_NEAR, VIEWPORT_FAR);
+    proj_matrix[1][1] *= -1;
     if(io.rotation_angle){
       mat4x4 pm;
       mat4x4_dup(pm, proj_matrix);
@@ -1121,7 +1129,7 @@ static bool update_data_buffer() {
 
     looking_at[0] = eye[0] + 100.0f * sin(eye_dir + head_hor_dir);
     looking_at[1] = eye[1] - 100.0f * sin(          head_ver_dir);
-    looking_at[2] = eye[2] - 100.0f * cos(eye_dir + head_hor_dir);
+    looking_at[2] = eye[2] + 100.0f * cos(eye_dir + head_hor_dir);
 
     mat4x4_look_at(view_matrix, eye, looking_at, up);
 
@@ -1156,13 +1164,10 @@ static void init_3d() {
     for(int i=0; i<8; i++){
       float x_offs = 3.2 * (i - 4);
       float y_offs = 0.97;
-      float z_offs = -3.0;
+      float z_offs = 3.0;
       mat4x4_translation(model_matrix[i], x_offs, y_offs, z_offs);
-      model_matrix[i][0][0] *= -1; // yeah, I think my coordinate system is
-      model_matrix[i][2][2] *= -1; // a bit funky here
     }
     canvas_scale = 3.0f;
-    target_canvas_scale = 3.0f;
 }
 
 // ---------------------------------
@@ -1972,15 +1977,15 @@ void onx_iostate_changed() {
   else
   if(io.left_pressed && body_moving){
 
-    float delta_x = 0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
-    float delta_y = 0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
+    float delta_x =  0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
+    float delta_y = -0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
 
     delta_x = dwell(delta_x, 0.0015f);
     delta_y = dwell(delta_y, 0.0015f);
 
     eye_dir += 0.5f* delta_x;
 
-    eye[0] -= 4.0f * delta_y * sin(eye_dir);
+    eye[0] += 4.0f * delta_y * sin(eye_dir);
     eye[2] += 4.0f * delta_y * cos(eye_dir);
   }
   else

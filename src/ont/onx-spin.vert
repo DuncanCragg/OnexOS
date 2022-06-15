@@ -117,13 +117,12 @@ void main() {
 
     int o; for(o=0; o<8 && gl_InstanceIndex > uniforms.text_ends[o][0]; o++);
 
+    float text_lift = -0.03 - 0.001;
+
     gl_Position = uniforms.proj *
                   uniforms.view *
                   uniforms.model[o] *
-                  vec4(rv, -0.001, 1.0);
-
-    model_pos = uniforms.model[o] *
-                vec4(rv, -0.001, 1.0);
+                  vec4(rv, text_lift, 1.0);
   }
   proj_pos = gl_Position;
   out_phase = push_constants.phase;

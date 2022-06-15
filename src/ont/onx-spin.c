@@ -1157,16 +1157,10 @@ static void init_3d() {
       float x_offs = 3.2 * (i - 4);
       float y_offs = 0.97;
       float z_offs = -3.0;
-      vec4 v0 = { -1.0000, 0.0000,  0.0000, 0.0000 };
-      vec4 v1 = {  0.0000, 1.0000,  0.0000, 0.0000 };
-      vec4 v2 = {  0.0000, 0.0000, -1.0000, 0.0000 };
-      vec4 v3 = {  x_offs, y_offs,  z_offs, 1.0000 };
-      copy_vec(model_matrix[i][0], v0);
-      copy_vec(model_matrix[i][1], v1);
-      copy_vec(model_matrix[i][2], v2);
-      copy_vec(model_matrix[i][3], v3);
+      mat4x4_translation(model_matrix[i], x_offs, y_offs, z_offs);
+      model_matrix[i][0][0] *= -1; // yeah, I think my coordinate system is
+      model_matrix[i][2][2] *= -1; // a bit funky here
     }
-
     canvas_scale = 3.0f;
     target_canvas_scale = 3.0f;
 }

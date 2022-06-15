@@ -131,7 +131,7 @@ void main() {
   else
   if(in_phase == 1){ // panels
 
-    const vec3 lightDir= vec3( -1.0,  -1.0, -1.0);
+    const vec3 lightDir= vec3(-1.0,  -1.0, -1.0);
     float light = max(0.0, dot(lightDir, normalize(cross(dFdx(model_pos.xyz),dFdy(model_pos.xyz)))));
     out_color = light * 0.5 * texture(tex, in_texture_coord.xy) + vec4(0.5, 0.5, 0.5, 1.0);
     gl_FragDepth = proj_pos.z / proj_pos.w;

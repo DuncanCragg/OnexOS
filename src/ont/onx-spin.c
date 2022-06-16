@@ -85,10 +85,10 @@ static void make_box(vec3 dimensions){
   float verts[6*6*3] = {
 
     -w, -h,  d,  // -X side
-    -w, -h, -d,
-    -w,  h, -d,
+    -w, -h,  0,
+    -w,  h,  0,
 
-    -w,  h, -d,
+    -w,  h,  0,
     -w,  h,  d,
     -w, -h,  d,
 
@@ -102,35 +102,35 @@ static void make_box(vec3 dimensions){
 
     -w, -h,  d,  // -Y side
      w, -h,  d,
-     w, -h, -d,
+     w, -h,  0,
 
     -w, -h,  d,
-     w, -h, -d,
-    -w, -h, -d,
+     w, -h,  0,
+    -w, -h,  0,
 
     -w,  h,  d,  // +Y side
-    -w,  h, -d,
-     w,  h, -d,
+    -w,  h,  0,
+     w,  h,  0,
 
     -w,  h,  d,
-     w,  h, -d,
+     w,  h,  0,
      w,  h,  d,
 
      w,  h,  d,  // +X side
-     w,  h, -d,
-     w, -h, -d,
+     w,  h,  0,
+     w, -h,  0,
 
-     w, -h, -d,
+     w, -h,  0,
      w, -h,  d,
      w,  h,  d,
 
-    -w,  h, -d,  // +Z side
-    -w, -h, -d,
-     w,  h, -d,
+    -w,  h,  0,  // +Z side
+    -w, -h,  0,
+     w,  h,  0,
 
-    -w, -h, -d,
-     w, -h, -d,
-     w,  h, -d,
+    -w, -h,  0,
+     w, -h,  0,
+     w,  h,  0,
   };
   memcpy((void*)g_vertex_buffer_data, (const void*)verts, sizeof(verts));
 }

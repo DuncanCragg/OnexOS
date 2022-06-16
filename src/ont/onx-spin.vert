@@ -117,7 +117,7 @@ void main() {
 
     int o; for(o=0; o<8 && gl_InstanceIndex > uniforms.text_ends[o][0]; o++);
 
-    float text_lift = -0.03 - 0.001;
+    float text_lift = -0.001;
 
     gl_Position = uniforms.proj *
                   uniforms.view *

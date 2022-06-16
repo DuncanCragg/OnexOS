@@ -17,58 +17,58 @@ typedef struct panel {
 } panel;
 
 panel welcome_banner ={
- .dimensions = { 1.5f, 1.0f, 0.03f },
- .position = { 0.0f, 0.97f, 3.0f },
- .rotation = { 0.0f, 0.0f, 0.0f },
+ .dimensions = { 3.0f, 2.0f, 0.03f },
+ .position   = { 0.0f, 1.0f, 3.0f },
+ .rotation   = { 0.0f, 0.0f, 0.0f },
  .text = "Hello, and welcome to OnexOS and the Object Network!",
 };
 
 panel info_board ={
- .dimensions = { 1.5f, 1.0f, 0.03f },
- .position = { -5.0f, 0.97f, -1.0f },
- .rotation = { 0.0f, 45.0f, 0.0f },
+ .dimensions = {  3.0f, 2.0f,  0.03f },
+ .position   = { -5.0f, 1.0f, -1.0f },
+ .rotation   = {  0.0f, 45.0f, 0.0f },
  .text = "There is plenty to get started with",
 };
 
 panel info_board_2 ={
- .dimensions = { 1.5f, 1.0f, 0.03f },
- .position = { 5.0f, 0.97f, -1.0f },
- .rotation = { 0.0f, -45.0f, 0.0f },
+ .dimensions = { 3.0f,   2.0f,  0.03f },
+ .position   = { 5.0f,   1.0f, -1.0f },
+ .rotation   = { 0.0f, -45.0f,  0.0f },
  .text = "OnexOS is an OS with no apps!",
 };
 
 panel room_floor ={
- .dimensions = { 3.0f, 3.0f, 0.03f },
- .position = { 0.0f, 0.0f, -4.0f },
- .rotation = { 90.0f, 0.0f, 0.0f },
+ .dimensions = {  6.0f, 6.0f,   0.03f },
+ .position   = {  0.0f, 0.01f, -14.0f },
+ .rotation   = { 90.0f, 0.0f,   0.0f },
  .text = "v",
 };
 
 panel room_ceiling ={
- .dimensions = { 3.0f, 3.0f, 0.03f },
- .position = { 0.0f, 3.0f, -4.0f },
- .rotation = { -90.0f, 0.0f, 0.0f },
+ .dimensions = {   6.0f, 6.0f,  0.03f },
+ .position   = {   0.0f, 6.0f, -14.0f },
+ .rotation   = { -90.0f, 0.0f,  0.0f },
  .text = "^",
 };
 
 panel room_wall_1 ={
- .dimensions = { 3.0f, 3.0f, 0.03f },
- .position = { -3.0f, 0.0f, -4.0f },
- .rotation = { 0.0f, 90.0f, 0.0f },
+ .dimensions = {  6.0f,  6.0f,  0.03f },
+ .position   = { -3.0f,  3.0f, -14.0f },
+ .rotation   = {  0.0f, 90.0f,  0.0f },
  .text = "wall 1",
 };
 
 panel room_wall_2 ={
- .dimensions = { 3.0f, 3.0f, 0.03f },
- .position = { 3.0f, 0.0f, -4.0f },
- .rotation = { 0.0f, -90.0f, 0.0f },
+ .dimensions = { 6.0f,   6.0f,  0.03f },
+ .position   = { 3.0f,   3.0f, -14.0f },
+ .rotation   = { 0.0f, -90.0f,  0.0f },
  .text = "wall 2",
 };
 
 panel room_wall_3 ={
- .dimensions = { 3.0f, 3.0f, 0.03f },
- .position = { 0.0f, 0.0f, -7.0f },
- .rotation = { 0.0f, 180.0f, 0.0f },
+ .dimensions = { 6.0f,   6.0f,  0.03f },
+ .position   = { 0.0f,   3.0f, -17.0f },
+ .rotation   = { 0.0f, 180.0f,  0.0f },
  .text = "wall 3",
 };
 

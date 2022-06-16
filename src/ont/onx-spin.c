@@ -282,8 +282,8 @@ mat4x4 view_matrix;
 mat4x4 model_matrix[8];
 vec4   text_ends[8];
 
-vec2 canvas_offset;
-float canvas_scale = 3.0f;
+vec2 canvas_offset = { 100, 100 };
+float canvas_scale = 10.0f;
 
 struct uniforms {
     float proj[4][4];
@@ -1076,12 +1076,12 @@ static void append_text(panel* panel, int o) {
         fd_GlyphInstance *inst = &glyph_instances[glyph_instance_count];
 
         inst->rect.min_x = -1.0f + (x + gi->bbox.min_x * scale) / 500;
-        inst->rect.min_y =  1.0f - (y - gi->bbox.min_y * scale) / 250;
+        inst->rect.min_y =  1.0f - (y - gi->bbox.min_y * scale) / 500;
         inst->rect.max_x = -1.0f + (x + gi->bbox.max_x * scale) / 500;
-        inst->rect.max_y =  1.0f - (y - gi->bbox.max_y * scale) / 250;
+        inst->rect.max_y =  1.0f - (y - gi->bbox.max_y * scale) / 500;
 
-        if (inst->rect.min_x > -1.0 && inst->rect.max_x < 1.0 &&
-            inst->rect.min_y > -1.0 && inst->rect.max_y < 1.0   ) {
+        if (inst->rect.min_x > -8.0 && inst->rect.max_x < 8.0 &&
+            inst->rect.min_y > -8.0 && inst->rect.max_y < 8.0   ) {
 
             inst->glyph_index = glyph_index;
             inst->sharpness = scale;

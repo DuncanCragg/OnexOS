@@ -22,11 +22,11 @@ layout (set = 0, binding = 1) buffer buf1 {
   glyph_info glyphs[];
 } glyph_buffer;
 
-layout(location = 0) in vec3  in_vertex;
-layout(location = 1) in vec2  in_uv;
-layout(location = 2) in vec4  in_rect;
-layout(location = 3) in uint  in_glyph_index;
-layout(location = 4) in float in_sharpness;
+layout(location = 0)  in  vec3  vertex;
+layout(location = 1)  in  vec2  uv;
+layout(location = 2)  in  vec4  rect;
+layout(location = 3)  in  uint  glyph_index;
+layout(location = 4)  in  float sharpness_i;
 
 layout(location = 0)  out vec2  glyph_pos;
 layout(location = 1)  out uvec4 cell_info;
@@ -75,28 +75,28 @@ void main() {
   else
   if(push_constants.phase == 1){ // panels
 
-    texture_coord = vec4(in_uv, 0, 0);
+    texture_coord = vec4(uv, 0, 0);
 
     gl_Position = uniforms.proj *
                   uniforms.view *
                   uniforms.model[gl_InstanceIndex] *
-                  vec4(in_vertex, 1.0);
+                  vec4(vertex, 1.0);
 
     model_pos = uniforms.model[gl_InstanceIndex] *
-                vec4(in_vertex, 1.0);
+                vec4(vertex, 1.0);
   }
   else
   if(push_constants.phase == 2){ // text
 
     vec2 rv;
-    if(gl_VertexIndex==0) rv = vec2(in_rect.x, in_rect.y);
-    if(gl_VertexIndex==1) rv = vec2(in_rect.z, in_rect.y);
-    if(gl_VertexIndex==2) rv = vec2(in_rect.x, in_rect.w);
-    if(gl_VertexIndex==3) rv = vec2(in_rect.x, in_rect.w);
-    if(gl_VertexIndex==4) rv = vec2(in_rect.z, in_rect.y);
-    if(gl_VertexIndex==5) rv = vec2(in_rect.z, in_rect.w);
+    if(gl_VertexIndex==0) rv = vec2(rect.x, rect.y);
+    if(gl_VertexIndex==1) rv = vec2(rect.z, rect.y);
+    if(gl_VertexIndex==2) rv = vec2(rect.x, rect.w);
+    if(gl_VertexIndex==3) rv = vec2(rect.x, rect.w);
+    if(gl_VertexIndex==4) rv = vec2(rect.z, rect.y);
+    if(gl_VertexIndex==5) rv = vec2(rect.z, rect.w);
 
-    glyph_info gi = glyph_buffer.glyphs[in_glyph_index];
+    glyph_info gi = glyph_buffer.glyphs[glyph_index];
 
     if(gl_VertexIndex==0) glyph_pos = vec2(gi.bbox.x, gi.bbox.y);
     if(gl_VertexIndex==1) glyph_pos = vec2(gi.bbox.z, gi.bbox.y);
@@ -113,7 +113,7 @@ void main() {
     if(gl_VertexIndex==5) cell_coord = vec2(gi.cell_info.z, gi.cell_info.w);
 
     cell_info = gi.cell_info;
-    sharpness = in_sharpness;
+    sharpness = sharpness_i;
 
     int o; for(o=0; o<8 && gl_InstanceIndex > uniforms.text_ends[o][0]; o++);
 

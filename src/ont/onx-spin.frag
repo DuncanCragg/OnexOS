@@ -11,22 +11,22 @@ layout (set = 0, binding = 3) buffer buf3 {
 
 layout (set = 0, binding = 4) uniform sampler2D tex;
 
-layout(location = 0)      in vec2  glyph_pos;
-layout(location = 1) flat in uvec4 cell_info;
-layout(location = 2)      in float sharpness;
-layout(location = 3)      in vec2  cell_coord;
-layout(location = 4)      in vec4  texture_coord;
-layout(location = 5)      in vec4  model_pos;
-layout(location = 6)      in vec4  proj_pos;
-layout(location = 7) flat in uint  phase;
-layout(location = 8)      in float near;
-layout(location = 9)      in float far;
-layout(location = 10)     in vec3  near_point;
-layout(location = 11)     in vec3  far_point;
-layout(location = 12)     in mat4  view;
-layout(location = 16)     in mat4  proj;
+layout(location = 0)      in  vec2  glyph_pos;
+layout(location = 1) flat in  uvec4 cell_info;
+layout(location = 2)      in  float sharpness;
+layout(location = 3)      in  vec2  cell_coord;
+layout(location = 4)      in  vec4  texture_coord;
+layout(location = 5)      in  vec4  model_pos;
+layout(location = 6)      in  vec4  proj_pos;
+layout(location = 7) flat in  uint  phase;
+layout(location = 8)      in  float near;
+layout(location = 9)      in  float far;
+layout(location = 10)     in  vec3  near_point;
+layout(location = 11)     in  vec3  far_point;
+layout(location = 12)     in  mat4  view;
+layout(location = 16)     in  mat4  proj;
 
-layout(location = 0) out vec4 out_color;
+layout(location = 0)      out vec4  color;
 
 vec4 grid_colour(vec3 pos, float scale) {
     vec2 coord = pos.xz * scale;
@@ -124,16 +124,16 @@ void main() {
 
     gl_FragDepth = ppos.z / ppos.w;
 
-    out_color = grid_colour(pos, 17) * float(t > 0);
+    color = grid_colour(pos, 17) * float(t > 0);
 
-    //out_color.a *= 0.4 + 0.6 * max(0, (0.5 - linear_depth(ppos)));
+    //color.a *= 0.4 + 0.6 * max(0, (0.5 - linear_depth(ppos)));
   }
   else
   if(phase == 1){ // panels
 
     const vec3 light_dir= vec3(1.0,  1.0, -1.0);
     float light = max(0.8, dot(light_dir, normalize(cross(dFdx(model_pos.xyz),dFdy(model_pos.xyz)))));
-    out_color = light * 0.5 * texture(tex, texture_coord.xy) + vec4(0.5, 0.5, 0.5, 1.0);
+    color = light * 0.5 * texture(tex, texture_coord.xy) + vec4(0.5, 0.5, 0.5, 1.0);
     gl_FragDepth = proj_pos.z / proj_pos.w;
   }
   else
@@ -146,7 +146,7 @@ void main() {
     float v = cell_signed_dist(cell_info.x, cell, glyph_pos);
     float alpha = clamp(v * sharpness + 0.5, 0.0, 1.0);
 
-    out_color = vec4(0.0, 0.0, 0.0, 0.8*alpha);
+    color = vec4(0.0, 0.0, 0.0, 0.8*alpha);
     gl_FragDepth = proj_pos.z / proj_pos.w;
   }
 }

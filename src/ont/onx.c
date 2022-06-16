@@ -18,24 +18,24 @@ typedef struct panel {
 } panel;
 
 panel welcome_banner ={
- .dimensions = { 2.0f, 1.0f, 0.03f },
- .position   = { 0.0f, 1.0f, 3.0f },
- .rotation   = { 0.0f, 0.0f, 0.0f },
- .text = "Hello, and welcome to OnexOS and the Object Network!",
+ .dimensions = { 2.0f, 0.5f, 0.03f },
+ .position   = { -5.0f, 2.0f, -1.0f },
+ .rotation   = { 0.0f, 45.0f, 0.0f },
+ .text = "Hello, and welcome to OnexOS and the Object Network! This is your place to hang out with friends and family and chill without surveillance or censorship. Big Tech has had their way for decades, now it's time to bring the power of our technology back to ourselves! OnexOS is a freeing and empowering operating system. We hope you enjoy using it! Hello, and welcome to OnexOS and the Object Network! This is your place to hang out with friends and family and chill without surveillance or censorship. Big Tech has had their way for decades, now it's time to bring the power of our technology back to ourselves! OnexOS is a freeing and empowering operating system. We hope you enjoy using it! ",
+};
+
+panel document ={
+ .dimensions = {  0.5f, 0.7f,  0.01f },
+ .position   = {  0.0f, 1.5f, -14.0f },
+ .rotation   = {  0.0f, 180.0f, 0.0f },
+ .text = "There is plenty to do here and this document is here to get you started! First thing is to play with the movement controls. There is plenty to do here and this document is here to get you started! First thing is to play with the movement controls. There is plenty to do here and this document is here to get you started! First thing is to play with the movement controls. There is plenty to do here and this document is here to get you started! First thing is to play with the movement controls. There is plenty to do here and this document is here to get you started! First thing is to play with the movement controls. There is plenty to do here and this document is here to get you started! First thing is to play with the movement controls. There is plenty to do here and this document is here to get you started! First thing is to play with the movement controls. There is plenty to do here and this document is here to get you started! First thing is to play with the movement controls. ",
 };
 
 panel info_board ={
- .dimensions = {  0.5f, 0.7f,  0.01f },
- .position   = { -5.0f, 2.0f, -1.0f },
- .rotation   = {  0.0f, 45.0f, 0.0f },
- .text = "There is plenty to do here and this document is here to get you started!",
-};
-
-panel info_board_2 ={
  .dimensions = { 8.0f,   4.0f,  0.03f },
  .position   = { 5.0f,   2.0f, -1.0f },
  .rotation   = { 0.0f, -45.0f,  0.0f },
- .text = "OnexOS is an OS with no apps!",
+ .text = "OnexOS is an OS with no apps! Instead of apps, there are just things! Your stuff, and you yourselves, exist in this shared space. OnexOS is an OS with no apps! Instead of apps, there are just things! Your stuff, and you yourselves, exist in this shared space. OnexOS is an OS with no apps! Instead of apps, there are just things! Your stuff, and you yourselves, exist in this shared space. ",
 };
 
 panel room_floor ={
@@ -1075,8 +1075,11 @@ static void append_text(panel* panel, int o) {
     float w = panel->dimensions[0];
     float h = panel->dimensions[1];
 
-    float x = 500.0f-250.0f*w;
-    float y = 500.0f-190.0f*h;
+    float left = 500.0f-230.0f*w;
+    float top  = 500.0f-190.0f*h;
+
+    float x = left;
+    float y = top;
 
     float scale = w/60.0f;
 
@@ -1096,11 +1099,25 @@ static void append_text(panel* panel, int o) {
         inst->rect.max_x = -1.0f + (x + gi->bbox.max_x * scale) / 500;
         inst->rect.max_y =  1.0f - (y - gi->bbox.max_y * scale) / 500;
 
-        if (inst->rect.min_x > -8.0 && inst->rect.max_x < 8.0 &&
-            inst->rect.min_y > -8.0 && inst->rect.max_y < 8.0   ) {
+        if (inst->rect.max_x < w/2.2f) {
 
             inst->glyph_index = glyph_index;
-            inst->sharpness = scale;
+            inst->sharpness = scale *5;
+
+            glyph_instance_count++;
+        }
+        else
+        if(inst->rect.min_y > -0.30) {
+            x = left;
+            y += 230*w/6.0f;
+
+            inst->rect.min_x = -1.0f + (x + gi->bbox.min_x * scale) / 500;
+            inst->rect.min_y =  1.0f - (y - gi->bbox.min_y * scale) / 500;
+            inst->rect.max_x = -1.0f + (x + gi->bbox.max_x * scale) / 500;
+            inst->rect.max_y =  1.0f - (y - gi->bbox.max_y * scale) / 500;
+
+            inst->glyph_index = glyph_index;
+            inst->sharpness = scale *5;
 
             glyph_instance_count++;
         }
@@ -1126,8 +1143,8 @@ static void do_render_pass() {
   begin_text();
 
   append_text(&welcome_banner, 0);
-  append_text(&info_board,     1);
-  append_text(&info_board_2,   2);
+  append_text(&document,       1);
+  append_text(&info_board,     2);
   append_text(&room_floor,     3);
   append_text(&room_ceiling,   4);
   append_text(&room_wall_1,    5);
@@ -1250,8 +1267,8 @@ static void copy_vec(float* m, float* v){
 
 static void init_3d() {
   add_panel(&welcome_banner, 0);
-  add_panel(&info_board,     1);
-  add_panel(&info_board_2,   2);
+  add_panel(&document,       1);
+  add_panel(&info_board,     2);
   add_panel(&room_floor,     3);
   add_panel(&room_ceiling,   4);
   add_panel(&room_wall_1,    5);

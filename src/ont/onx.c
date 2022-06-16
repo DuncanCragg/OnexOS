@@ -18,8 +18,8 @@ typedef struct panel {
 } panel;
 
 panel welcome_banner ={
- .dimensions = { 3.0f, 2.0f, 0.03f },
- .position   = { 0.0f, 1.0f, 3.0f },
+ .dimensions = { 6.0f, 4.0f, 0.03f },
+ .position   = { 0.0f, 2.0f, 3.0f },
  .rotation   = { 0.0f, 0.0f, 0.0f },
  .text = "Hello, and welcome to OnexOS and the Object Network!",
 };
@@ -32,42 +32,42 @@ panel info_board ={
 };
 
 panel info_board_2 ={
- .dimensions = { 3.0f,   2.0f,  0.03f },
- .position   = { 5.0f,   1.0f, -1.0f },
+ .dimensions = { 6.0f,   4.0f,  0.03f },
+ .position   = { 5.0f,   2.0f, -1.0f },
  .rotation   = { 0.0f, -45.0f,  0.0f },
  .text = "OnexOS is an OS with no apps!",
 };
 
 panel room_floor ={
- .dimensions = {  6.0f, 6.0f,   0.03f },
+ .dimensions = {  6.0f, 6.0f,   0.2f },
  .position   = {  0.0f, 0.01f, -14.0f },
  .rotation   = { 90.0f, 0.0f,   0.0f },
  .text = "v",
 };
 
 panel room_ceiling ={
- .dimensions = {   6.0f, 6.0f,  0.03f },
+ .dimensions = {   6.0f, 6.0f,  0.2f },
  .position   = {   0.0f, 6.0f, -14.0f },
  .rotation   = { -90.0f, 0.0f,  0.0f },
  .text = "^",
 };
 
 panel room_wall_1 ={
- .dimensions = {  6.0f,  6.0f,  0.03f },
+ .dimensions = {  6.0f,  6.0f,  0.2f },
  .position   = { -3.0f,  3.0f, -14.0f },
  .rotation   = {  0.0f, 90.0f,  0.0f },
  .text = "wall 1",
 };
 
 panel room_wall_2 ={
- .dimensions = { 6.0f,   6.0f,  0.03f },
+ .dimensions = { 6.0f,   6.0f,  0.2f },
  .position   = { 3.0f,   3.0f, -14.0f },
  .rotation   = { 0.0f, -90.0f,  0.0f },
  .text = "wall 2",
 };
 
 panel room_wall_3 ={
- .dimensions = { 6.0f,   6.0f,  0.03f },
+ .dimensions = { 6.0f,   6.0f,  0.2f },
  .position   = { 0.0f,   3.0f, -17.0f },
  .rotation   = { 0.0f, 180.0f,  0.0f },
  .text = "wall 3",
@@ -295,7 +295,7 @@ mat4x4 view_matrix;
 mat4x4 model_matrix[MAX_PANELS];
 vec4   text_ends[MAX_PANELS];
 
-vec2 canvas_offset = { 100, 100 };
+vec2 canvas_offset = { 80, 0 };
 float canvas_scale = 10.0f;
 
 struct uniforms {

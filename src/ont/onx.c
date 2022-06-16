@@ -18,21 +18,21 @@ typedef struct panel {
 } panel;
 
 panel welcome_banner ={
- .dimensions = { 6.0f, 4.0f, 0.03f },
- .position   = { 0.0f, 2.0f, 3.0f },
+ .dimensions = { 2.0f, 1.0f, 0.03f },
+ .position   = { 0.0f, 1.0f, 3.0f },
  .rotation   = { 0.0f, 0.0f, 0.0f },
  .text = "Hello, and welcome to OnexOS and the Object Network!",
 };
 
 panel info_board ={
- .dimensions = {  3.0f, 2.0f,  0.03f },
- .position   = { -5.0f, 1.0f, -1.0f },
+ .dimensions = {  0.5f, 0.7f,  0.01f },
+ .position   = { -5.0f, 2.0f, -1.0f },
  .rotation   = {  0.0f, 45.0f, 0.0f },
- .text = "There is plenty to get started with",
+ .text = "There is plenty to do here and this document is here to get you started!",
 };
 
 panel info_board_2 ={
- .dimensions = { 6.0f,   4.0f,  0.03f },
+ .dimensions = { 8.0f,   4.0f,  0.03f },
  .position   = { 5.0f,   2.0f, -1.0f },
  .rotation   = { 0.0f, -45.0f,  0.0f },
  .text = "OnexOS is an OS with no apps!",
@@ -294,9 +294,6 @@ mat4x4 proj_matrix;
 mat4x4 view_matrix;
 mat4x4 model_matrix[MAX_PANELS];
 vec4   text_ends[MAX_PANELS];
-
-vec2 canvas_offset = { 80, 0 };
-float canvas_scale = 10.0f;
 
 struct uniforms {
     float proj[4][4];
@@ -1075,13 +1072,18 @@ static void add_panel(panel* panel, int o){
 
 static void append_text(panel* panel, int o) {
 
-    float x = canvas_scale * (10.0f - canvas_offset[0]);
-    float y = canvas_scale * (30.0f - canvas_offset[1]);
-    float scale = 0.01f * canvas_scale;
+    float w = panel->dimensions[0];
+    float h = panel->dimensions[1];
+
+    float x = 500.0f-250.0f*w;
+    float y = 500.0f-190.0f*h;
+
+    float scale = w/60.0f;
 
     const char *text = panel->text;
 
     while (*text) {
+
         if (glyph_instance_count >= MAX_VISIBLE_GLYPHS) break;
 
         uint32_t glyph_index = *text - 32;

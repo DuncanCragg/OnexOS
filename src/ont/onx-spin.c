@@ -78,8 +78,8 @@ static float g_vertex_buffer_data[6*6*3];
 
 static void make_box(vec3 dimensions){
 
-  float w=dimensions[0];
-  float h=dimensions[1];
+  float w=dimensions[0]/2;
+  float h=dimensions[1]/2;
   float d=dimensions[2];
 
   float verts[6*6*3] = {

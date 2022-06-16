@@ -1,4 +1,3 @@
-/* Spinning panel with Onex written on it! */
 
 #include "ont/linmath-plus.h"
 #include "ont/outline.h"
@@ -1698,8 +1697,8 @@ void onx_prepare_descriptor_set() {
 
 void onx_prepare_pipeline() {
 
-  VkShaderModule vert_shader_module = load_shader_module("./shaders/onx-spin.vert.spv");
-  VkShaderModule frag_shader_module = load_shader_module("./shaders/onx-spin.frag.spv");
+  VkShaderModule vert_shader_module = load_shader_module("./shaders/onx.vert.spv");
+  VkShaderModule frag_shader_module = load_shader_module("./shaders/onx.frag.spv");
 
   VkPipelineShaderStageCreateInfo shader_stages[] = {
     {

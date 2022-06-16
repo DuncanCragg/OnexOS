@@ -42,17 +42,18 @@ extern VkRenderPass render_pass;
 
 void ont_vk_restart();
 
-void onx_prepare_swapchain_images();
-void onx_prepare_semaphores_and_fences();
-void onx_prepare_command_buffers();
-void onx_prepare_render_data();
-void onx_prepare_uniform_buffers();
-void onx_prepare_descriptor_layout();
-void onx_prepare_descriptor_pool();
-void onx_prepare_descriptor_set();
-void onx_prepare_render_pass();
-void onx_prepare_pipeline();
-void onx_prepare_framebuffers();
+void onx_prepare_swapchain_images(bool restart);
+void onx_prepare_semaphores_and_fences(bool restart);
+void onx_prepare_command_buffers(bool restart);
+void onx_prepare_render_data(bool restart);
+void onx_prepare_uniform_buffers(bool restart);
+void onx_prepare_descriptor_layout(bool restart);
+void onx_prepare_descriptor_pool(bool restart);
+void onx_prepare_descriptor_set(bool restart);
+void onx_prepare_render_pass(bool restart);
+void onx_prepare_pipeline(bool restart);
+void onx_prepare_framebuffers(bool restart);
+
 void onx_render_pass();
 void onx_render_frame();
 void onx_destroy_objects();

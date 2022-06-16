@@ -1245,7 +1245,6 @@ static void copy_vec(float* m, float* v){
 }
 
 static void init_3d() {
-
   add_panel(&welcome_banner, 0);
   add_panel(&info_board,     1);
   add_panel(&info_board_2,   2);
@@ -1261,7 +1260,7 @@ static void init_3d() {
 
 // ---------------------------------
 
-void onx_prepare_swapchain_images() {
+void onx_prepare_swapchain_images(bool restart) {
     VkResult err;
     err = vkGetSwapchainImagesKHR(device, swapchain, &image_count, NULL);
     assert(!err);
@@ -1300,7 +1299,7 @@ void onx_prepare_swapchain_images() {
     }
 }
 
-void onx_prepare_semaphores_and_fences() {
+void onx_prepare_semaphores_and_fences(bool restart) {
 
   command_buffer_fences = malloc(sizeof(VkFence) * image_count);
 
@@ -1323,7 +1322,7 @@ void onx_prepare_semaphores_and_fences() {
   VK_CHECK(vkCreateSemaphore(device, &semaphore_ci, 0, &render_complete_semaphore));
 }
 
-void onx_prepare_render_pass() {
+void onx_prepare_render_pass(bool restart) {
     const VkAttachmentDescription attachments[2] = {
         [0] =
             {
@@ -1411,7 +1410,7 @@ void onx_prepare_render_pass() {
     assert(!err);
 }
 
-void onx_prepare_framebuffers() {
+void onx_prepare_framebuffers(bool restart) {
     VkImageView attachments[2];
     attachments[1] = depth.image_view;
 
@@ -1435,7 +1434,7 @@ void onx_prepare_framebuffers() {
     }
 }
 
-void onx_prepare_command_buffers(){
+void onx_prepare_command_buffers(bool restart){
 
   VkCommandBufferAllocateInfo command_buffer_ai = {
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -1454,9 +1453,9 @@ void onx_prepare_command_buffers(){
   }
 }
 
-void onx_prepare_render_data() {
+void onx_prepare_render_data(bool restart) {
 
-  init_3d();
+  if(!restart) init_3d();
 
   const char* font_face = "./fonts/Roboto-Medium.ttf";
   load_font(font_face);
@@ -1499,7 +1498,7 @@ static void prepare_vertex_buffers(){
   vkUnmapMemory(device, vertex_buffer_memory);
 }
 
-void onx_prepare_uniform_buffers() {
+void onx_prepare_uniform_buffers(bool restart) {
 
   prepare_vertex_buffers();
 
@@ -1519,7 +1518,7 @@ void onx_prepare_uniform_buffers() {
   }
 }
 
-void onx_prepare_descriptor_layout() {
+void onx_prepare_descriptor_layout(bool restart) {
 
   VkDescriptorSetLayoutBinding bindings[] = {
       {
@@ -1588,7 +1587,7 @@ void onx_prepare_descriptor_layout() {
                                   &pipeline_layout));
 }
 
-void onx_prepare_descriptor_pool() {
+void onx_prepare_descriptor_pool(bool restart) {
 
   VkDescriptorPoolSize pool_sizes[] = {
       { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -1610,7 +1609,7 @@ void onx_prepare_descriptor_pool() {
   VK_CHECK(vkCreateDescriptorPool(device, &descriptor_pool_ci, NULL, &descriptor_pool));
 }
 
-void onx_prepare_descriptor_set() {
+void onx_prepare_descriptor_set(bool restart) {
 
   VkDescriptorSetAllocateInfo descriptor_set_ai = {
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
@@ -1711,7 +1710,7 @@ void onx_prepare_descriptor_set() {
   }
 }
 
-void onx_prepare_pipeline() {
+void onx_prepare_pipeline(bool restart) {
 
   VkShaderModule vert_shader_module = load_shader_module("./shaders/onx.vert.spv");
   VkShaderModule frag_shader_module = load_shader_module("./shaders/onx.frag.spv");

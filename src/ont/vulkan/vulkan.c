@@ -846,17 +846,18 @@ void prepare(bool restart) {
 
   begin_command_buffer();
   {
-    onx_prepare_swapchain_images();
-    onx_prepare_semaphores_and_fences();
-    onx_prepare_command_buffers();
-    onx_prepare_render_data();
-    onx_prepare_uniform_buffers();
-    onx_prepare_descriptor_layout();
-    onx_prepare_descriptor_pool();
-    onx_prepare_descriptor_set();
-    onx_prepare_render_pass();
-    onx_prepare_pipeline();
-    onx_prepare_framebuffers();
+    onx_prepare_swapchain_images(restart);
+    onx_prepare_semaphores_and_fences(restart);
+    onx_prepare_command_buffers(restart);
+    onx_prepare_render_data(restart);
+    onx_prepare_uniform_buffers(restart);
+    onx_prepare_descriptor_layout(restart);
+    onx_prepare_descriptor_pool(restart);
+    onx_prepare_descriptor_set(restart);
+    onx_prepare_render_pass(restart);
+    onx_prepare_pipeline(restart);
+    onx_prepare_framebuffers(restart);
+
     onx_render_pass();
   }
   end_command_buffer();

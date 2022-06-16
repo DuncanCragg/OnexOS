@@ -1182,15 +1182,13 @@ static void show_matrix(mat4x4 m){
 
 static bool update_data_buffer() {
 
-    float swap_aspect_ratio = 1.0f * io.swap_width / io.swap_height;
-
-    float viewport_aspect_ratio = io.rotation_angle==0? swap_aspect_ratio / 1.77777: swap_aspect_ratio * 1.77777;
-
     #define VIEWPORT_FOV   70.0f
     #define VIEWPORT_NEAR   0.1f
     #define VIEWPORT_FAR  100.0f
 
-    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), viewport_aspect_ratio, VIEWPORT_NEAR, VIEWPORT_FAR);
+    float swap_aspect_ratio = 1.0f * io.swap_width / io.swap_height;
+
+    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), swap_aspect_ratio, VIEWPORT_NEAR, VIEWPORT_FAR);
     proj_matrix[1][1] *= -1;
     if(io.rotation_angle){
       mat4x4 pm;

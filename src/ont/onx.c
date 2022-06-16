@@ -6,6 +6,8 @@
 
 // ---------------------------------
 
+#define MAX_PANELS 8
+
 typedef struct panel {
 
   vec3  dimensions;
@@ -73,7 +75,11 @@ panel room_wall_3 ={
 
 // ---------------------------------
 
-static float g_vertex_buffer_data[6*6*3];
+static float    vertex_buffer_data[MAX_PANELS*6*6*3];
+static uint32_t vertex_buffer_end=0;
+
+static float    uv_buffer_data[MAX_PANELS*6*6*2];
+static uint32_t uv_buffer_end=0;
 
 static void make_box(vec3 dimensions){
 
@@ -131,10 +137,13 @@ static void make_box(vec3 dimensions){
      w, -h,  0,
      w,  h,  0,
   };
-  memcpy((void*)g_vertex_buffer_data, (const void*)verts, sizeof(verts));
-}
 
-static const float g_uv_buffer_data[] = {
+  memcpy((void*)vertex_buffer_data + vertex_buffer_end, (const void*)verts, sizeof(verts));
+
+  vertex_buffer_end += sizeof(verts);
+
+  float uvs[6*6*2] = {
+
     0.0f, 1.0f,  // -X side
     1.0f, 1.0f,
     1.0f, 0.0f,
@@ -182,7 +191,12 @@ static const float g_uv_buffer_data[] = {
     0.0f, 1.0f,
     1.0f, 1.0f,
     1.0f, 0.0f,
-};
+  };
+
+  memcpy((void*)uv_buffer_data + uv_buffer_end, (const void*)uvs, sizeof(uvs));
+
+  uv_buffer_end += sizeof(uvs);
+}
 
 VkFormat texture_format = VK_FORMAT_R8G8B8A8_UNORM;
 
@@ -278,8 +292,8 @@ float head_ver_dir=0;
 
 mat4x4 proj_matrix;
 mat4x4 view_matrix;
-mat4x4 model_matrix[8];
-vec4   text_ends[8];
+mat4x4 model_matrix[MAX_PANELS];
+vec4   text_ends[MAX_PANELS];
 
 vec2 canvas_offset = { 100, 100 };
 float canvas_scale = 10.0f;
@@ -287,8 +301,8 @@ float canvas_scale = 10.0f;
 struct uniforms {
     float proj[4][4];
     float view[4][4];
-    float model[8][4][4];
-    vec4  text_ends[8];
+    float model[MAX_PANELS][4][4];
+    vec4  text_ends[MAX_PANELS];
 };
 
 struct push_constants {
@@ -1046,6 +1060,7 @@ static void end_text() {
 }
 
 static void add_panel(panel* panel, int o){
+
     make_box(panel->dimensions);
 
     mat4x4_translation(model_matrix[o], panel->position[0],
@@ -1161,7 +1176,7 @@ static void do_render_pass() {
 
   pc.phase = 1, // panels
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 6*6, 8, 0, 0);
+  vkCmdDraw(cmd_buf, 8*6*6, MAX_PANELS, 0, 0);
 
   pc.phase = 2, // text
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
@@ -1458,7 +1473,8 @@ static void prepare_vertex_buffers(){
 
   VkBufferCreateInfo buffer_ci = {
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = (sizeof(g_vertex_buffer_data[0]) * 3 + sizeof(g_uv_buffer_data[0]) * 2) * 6*6,
+    .size = MAX_PANELS * 6*6 * (3 * sizeof(vertex_buffer_data[0]) +
+                                2 * sizeof(uv_buffer_data[0])),
     .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
@@ -1472,12 +1488,12 @@ static void prepare_vertex_buffers(){
   float* vertices;
   VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, buffer_ci.size, 0, &vertices));
 
-  for (unsigned int i = 0; i < 6*6; i++) {
-      *(vertices+i*5+0) = g_vertex_buffer_data[i*3+0];
-      *(vertices+i*5+1) = g_vertex_buffer_data[i*3+1];
-      *(vertices+i*5+2) = g_vertex_buffer_data[i*3+2];
-      *(vertices+i*5+3) = g_uv_buffer_data    [i*2+0];
-      *(vertices+i*5+4) = g_uv_buffer_data    [i*2+1];
+  for (unsigned int i = 0; i < MAX_PANELS * 6*6; i++) {
+      *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
+      *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
+      *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
+      *(vertices+i*5+3) = uv_buffer_data[i*2+0];
+      *(vertices+i*5+4) = uv_buffer_data[i*2+1];
   }
 
   vkUnmapMemory(device, vertex_buffer_memory);
@@ -1717,7 +1733,8 @@ void onx_prepare_pipeline() {
 
   VkVertexInputBindingDescription vertices_input_binding = {
     .binding = 0,
-    .stride = sizeof(g_vertex_buffer_data[0]) * 3 + sizeof(g_uv_buffer_data[0]) * 2,
+    .stride = 3 * sizeof(vertex_buffer_data[0]) +
+              2 * sizeof(    uv_buffer_data[0]),
     .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
   };
 

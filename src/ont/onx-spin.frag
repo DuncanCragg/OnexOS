@@ -124,7 +124,7 @@ void main() {
 
     gl_FragDepth = ppos.z / ppos.w;
 
-    color = grid_colour(pos, 17) * float(t > 0);
+    color = grid_colour(pos, 1) * float(t > 0);
 
     //color.a *= 0.4 + 0.6 * max(0, (0.5 - linear_depth(ppos)));
   }

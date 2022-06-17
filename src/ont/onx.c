@@ -1075,13 +1075,13 @@ static void append_text(panel* panel, int o) {
     float w = panel->dimensions[0];
     float h = panel->dimensions[1];
 
-    float left = 500.0f-230.0f*w;
-    float top  = 500.0f-190.0f*h;
+    float left = -w/2.17f;
+    float top  = -h/2.63f;
 
     float x = left;
     float y = top;
 
-    float scale = w/60.0f;
+    float scale = w/30000.0f;
 
     const char *text = panel->text;
 
@@ -1094,33 +1094,32 @@ static void append_text(panel* panel, int o) {
         fd_HostGlyphInfo *gi   = &glyph_infos[glyph_index];
         fd_GlyphInstance *inst = &glyph_instances[glyph_instance_count];
 
-        inst->rect.min_x = -1.0f + (x + gi->bbox.min_x * scale) / 500;
-        inst->rect.min_y =  1.0f - (y - gi->bbox.min_y * scale) / 500;
-        inst->rect.max_x = -1.0f + (x + gi->bbox.max_x * scale) / 500;
-        inst->rect.max_y =  1.0f - (y - gi->bbox.max_y * scale) / 500;
+        inst->rect.min_x =  x + gi->bbox.min_x * scale;
+        inst->rect.min_y = -y + gi->bbox.min_y * scale;
+        inst->rect.max_x =  x + gi->bbox.max_x * scale;
+        inst->rect.max_y = -y + gi->bbox.max_y * scale;
+
+        inst->glyph_index = glyph_index;
+        inst->sharpness = scale * 2500;
 
         if (inst->rect.max_x < w/2.2f) {
-
-            inst->glyph_index = glyph_index;
-            inst->sharpness = scale *5;
 
             glyph_instance_count++;
         }
         else
         if(inst->rect.min_y > -0.30) {
             x = left;
-            y += 230*w/6.0f;
+            y += scale*2000.0f;
 
-            inst->rect.min_x = -1.0f + (x + gi->bbox.min_x * scale) / 500;
-            inst->rect.min_y =  1.0f - (y - gi->bbox.min_y * scale) / 500;
-            inst->rect.max_x = -1.0f + (x + gi->bbox.max_x * scale) / 500;
-            inst->rect.max_y =  1.0f - (y - gi->bbox.max_y * scale) / 500;
-
-            inst->glyph_index = glyph_index;
-            inst->sharpness = scale *5;
+            inst->rect.min_x =  x + gi->bbox.min_x * scale;
+            inst->rect.min_y = -y + gi->bbox.min_y * scale;
+            inst->rect.max_x =  x + gi->bbox.max_x * scale;
+            inst->rect.max_y = -y + gi->bbox.max_y * scale;
 
             glyph_instance_count++;
         }
+        else break;
+
         text++;
         x += gi->advance * scale;
     }

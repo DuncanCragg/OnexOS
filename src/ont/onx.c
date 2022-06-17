@@ -1103,11 +1103,10 @@ static void append_text(panel* panel, int o) {
         inst->sharpness = scale * 2500;
 
         if (inst->rect.max_x < w/2.2f) {
-
-            glyph_instance_count++;
         }
         else
-        if(inst->rect.min_y > -0.30) {
+        if(inst->rect.min_y > top) {
+
             x = left;
             y += scale*2000.0f;
 
@@ -1115,11 +1114,10 @@ static void append_text(panel* panel, int o) {
             inst->rect.min_y = -y + gi->bbox.min_y * scale;
             inst->rect.max_x =  x + gi->bbox.max_x * scale;
             inst->rect.max_y = -y + gi->bbox.max_y * scale;
-
-            glyph_instance_count++;
         }
         else break;
 
+        glyph_instance_count++;
         text++;
         x += gi->advance * scale;
     }

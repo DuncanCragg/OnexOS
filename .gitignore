@@ -1,7 +1,14 @@
 .*.sw?
 *.o
+*.d
 *.inc
 *.spv
+dfu.zip
+*.hex
+*.bin
+*.map
+*.out
+sdk
 ,*
 onx/
 onx-x86

@@ -1,9 +1,15 @@
-# ------------------------------------
+#-------------------------------------------------------------------------------
+# Ubuntu + Ubuntu Touch Makefile
+
+targets:
+	@grep '^[a-zA-Z0-9\.#-]\+:' Makefile | grep -v '^\.' | grep -v targets | sed 's/:.*//' | uniq | sed 's/\.elf/.hex/' | sed 's/^/Make clean \&\& Make /'
+
+#-------------------------------------------------------------------------------
 
 TARGETS = onx-arm \
           onx-x86 \
 
-# ------------------------------------
+#-------------------------------------------------------------------------------
 
 SOURCES_ONX_ARM = \
   ./src/ont/onx.c \
@@ -22,7 +28,7 @@ SOURCES_ONX_X86 = \
   ./src/ont/vulkan/vulkan.c \
   ./src/onl/desktop/vulkan-xcb.c \
 
-# ------------------------------------
+#-------------------------------------------------------------------------------
 
 HEADERS_ONX_ARM = \
   ./src/ont/outline.h \
@@ -35,7 +41,7 @@ HEADERS_ONX_X86 = \
   ./src/ont/geometry.h \
   ./src/ont/vulkan/vulkan.h \
 
-# ------------------------------------
+#-------------------------------------------------------------------------------
 
 SHADERS = \
   src/ont/onx.vert.spv \
@@ -44,7 +50,7 @@ SHADERS = \
 FONTS = \
   onx/fonts/Roboto-Medium.ttf
 
-# ------------------------------------
+#-------------------------------------------------------------------------------
 
 INC_DIR_ARM = \
  -I/opt/libhybris/include/ \
@@ -65,7 +71,7 @@ INC_DIR_X86 = \
  -I/usr/include/freetype2 \
  -I./src \
 
-# ------------------------------------
+#-------------------------------------------------------------------------------
 
 LIB_DIR_ARM = -L/opt/libhybris/lib -L./lib
 LIB_DIR_X86 = -L/usr/lib
@@ -96,10 +102,7 @@ LIBS_ONX_ARM = \
 
 LIBS_ONX_X86 = -lvulkan -lxcb -lm -lfreetype
 
-# ------------------------------------
-
-all:
-	@echo "==== "${TARGETS} | sed 's: :\nmake -j6 :g'
+#-------------------------------------------------------------------------------
 
 src/onl/mobile/hwc.o: ${HEADERS_ONX_ARM}
 
@@ -127,7 +130,7 @@ onx-x86: ${SOURCES_ONX_X86:.c=.o} ${HEADERS_ONX_X86} ${SHADERS} ${FONTS}
 	mkdir -p onx
 	cp $@ onx
 
-# ------------------------------------
+#-------------------------------------------------------------------------------
 
 CCFLAGS  = -std=gnu17 -g -O2 -pthread -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-switch
 CPPFLAGS = -std=gnu++17 -g -O2 -pthread
@@ -168,20 +171,18 @@ onx/fonts/%.ttf: assets/fonts/%.ttf
 	cp -a $< $@
 
 clean:
-	find . -name '*.o' | xargs rm -f; rm -rf ${TARGETS} src/ont/*.{inc,spv} onx/
+	find . -name '*.o' | xargs rm -f
+	find . -name onex.ondb | xargs rm -f
+	rm -rf ${TARGETS} src/ont/*.{inc,spv} onx/
+	rm -f ,* core
+	rm -rf *.arm *.x86 onx
+	@echo "------------------------------"
+	@echo "files not cleaned:"
+	@git ls-files --others --exclude-from=.git/info/exclude | xargs -r ls -Fla
 
 copy:
 	rsync -ruav --stats --progress --delete onx/ phablet@dorold:onx
 
 SHELL=/usr/bin/bash
 
-# ------------------------------------
-
-
-
-
-
-
-
-
-# ------------------------------------
+#-------------------------------------------------------------------------------

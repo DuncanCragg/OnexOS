@@ -13,6 +13,8 @@
 #include "ont/vulkan/vulkan_up.h"
 #include "onl/onl.h"
 
+// -----------------------------------------
+
 iostate io;
 
 xcb_connection_t *connection;
@@ -23,19 +25,20 @@ xcb_intern_atom_reply_t *atom_wm_delete_window;
 
 bool quit = false;
 
-static void sighandler(int signal, siginfo_t *siginfo, void *userdata) {
+static void sigint_handler(int signal, siginfo_t *siginfo, void *userdata) {
   printf("\nEnd\n");
   quit = true;
 }
 
-void onl_init() {
-
+static void set_signal(int sig, void (*h)(int, siginfo_t*, void*)){
   struct sigaction act;
   memset(&act, 0, sizeof(act));
-  act.sa_sigaction = sighandler;
+  act.sa_sigaction = h;
   act.sa_flags = SA_SIGINFO;
-  sigaction(SIGINT, &act, 0);
+  sigaction(sig, &act, 0);
+}
 
+static void xcb_init(){
   const xcb_setup_t *setup;
   xcb_screen_iterator_t iter;
   int scr;
@@ -51,6 +54,13 @@ void onl_init() {
   iter = xcb_setup_roots_iterator(setup);
   while(scr--) xcb_screen_next(&iter);
   screen = iter.data;
+}
+
+void onl_init() {
+
+  set_signal(SIGINT, sigint_handler);
+
+  xcb_init();
 }
 
 void onl_create_window()
@@ -210,8 +220,8 @@ void onl_run() {
     }
 }
 
-void onl_finish()
-{
+void onl_finish() {
+
   xcb_destroy_window(connection, window);
   xcb_disconnect(connection);
   free(atom_wm_delete_window);

@@ -64,17 +64,21 @@ INC_DIR_ARM = \
  -I./include/freetype2 \
  -I./include/libevdev-1.0 \
  -I./src \
+ -I../OnexLang/include \
+ -I../OnexKernel/include \
 
 INC_DIR_X86 = \
  -I/home/duncan/Sources/vulkan-1.3.211.0/x86_64/include \
  -I/usr/include \
  -I/usr/include/freetype2 \
  -I./src \
+ -I../OnexLang/include \
+ -I../OnexKernel/include \
 
 #-------------------------------------------------------------------------------
 
-LIB_DIR_ARM = -L/opt/libhybris/lib -L./lib
-LIB_DIR_X86 = -L/usr/lib
+LIB_DIR_ARM = -L/opt/libhybris/lib -L./lib -L../OnexLang -L../OnexKernel
+LIB_DIR_X86 = -L/usr/lib -L../OnexLang -L../OnexKernel
 
 LIBS_ONX_ARM = \
  -l:libvulkan.so.1.2.183 \
@@ -99,8 +103,12 @@ LIBS_ONX_ARM = \
  -l:libglib-2.0.so.0 \
  -l:libffi.so.6 \
  -l:libpcre.so.3 \
+ -l:libpthread-2.23.so \
+ -lonex-lang-arm \
+ -lonex-kernel-arm \
 
-LIBS_ONX_X86 = -lvulkan -lxcb -lm -lfreetype
+
+LIBS_ONX_X86 = -lonex-lang-x86 -lonex-kernel-x86 -lvulkan -lxcb -lm -lfreetype
 
 #-------------------------------------------------------------------------------
 

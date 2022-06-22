@@ -40,7 +40,11 @@ extern VkExtent2D swapchain_extent;
 extern VkRenderPass render_pass;
 
 
+extern bool prepared;
+
 void ont_vk_restart();
+
+void onx_init();
 
 void onx_prepare_swapchain_images(bool restart);
 void onx_prepare_semaphores_and_fences(bool restart);

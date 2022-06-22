@@ -840,6 +840,8 @@ void prepare(bool restart) {
 
     prepare_command_pools();
     choose_surface_format();
+
+    onx_init();
   }
 
   prepare_swapchain();

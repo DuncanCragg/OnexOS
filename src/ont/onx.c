@@ -1323,14 +1323,14 @@ static bool update_data_buffer() {
     looking_at[2] = eye[2] + 100.0f * cos(eye_dir + head_hor_dir);
 
     mat4x4_look_at(view_matrix, eye, looking_at, up);
-/*
-    mat4x4 mm;
-    mat4x4_rotate_X(mm, model_matrix[3], (float)degreesToRadians(-0.4f));
-    mat4x4_orthonormalize(model_matrix[3], mm);
 
-    mat4x4_rotate_Y(mm, model_matrix[4], (float)degreesToRadians(-0.4f));
-    mat4x4_orthonormalize(model_matrix[4], mm);
-*/
+    mat4x4 mm;
+    mat4x4_rotate_X(mm, model_matrix[0], (float)degreesToRadians(-0.4f));
+    mat4x4_orthonormalize(model_matrix[0], mm);
+
+    mat4x4_rotate_Y(mm, model_matrix[2], (float)degreesToRadians(-0.4f));
+    mat4x4_orthonormalize(model_matrix[2], mm);
+
     memcpy(uniform_mem[image_index].uniform_memory_ptr,
            (const void*)&proj_matrix,  sizeof(proj_matrix));
 

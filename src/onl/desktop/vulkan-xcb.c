@@ -207,13 +207,14 @@ void onl_run() {
 
     xcb_flush(connection);
 
-    while (!quit) {
+    while (!quit){
 
         xcb_generic_event_t *event;
 
         while((event = xcb_poll_for_event(connection))) {
 
             handle_xcb_event(event);
+
             free(event);
         }
         ont_vk_loop();

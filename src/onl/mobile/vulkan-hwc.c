@@ -262,13 +262,13 @@ static void handle_libinput_event(struct libinput_event* event) {
 }
 
 void onl_run(){
-
+/*
   struct pollfd fds;
   fds.fd = libinput_get_fd(libin);
   fds.events = POLLIN;
   fds.revents = 0;
-
-  while(!quit && poll(&fds, 1, -1) > -1){
+*/
+  while(!quit/* && poll(&fds, 1, -1) > -1*/){
 
     struct libinput_event* event;
 
@@ -281,7 +281,6 @@ void onl_run(){
       libinput_event_destroy(event);
       libinput_dispatch(libin);
     }
-
     ont_vk_loop();
   }
 }

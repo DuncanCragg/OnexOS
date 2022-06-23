@@ -169,123 +169,6 @@ static uint32_t vertex_buffer_end=0;
 static float    uv_buffer_data[MAX_PANELS*6*6*2];
 static uint32_t uv_buffer_end=0;
 
-static void make_box(vec3 dimensions){
-
-  float w=dimensions[0]/2;
-  float h=dimensions[1]/2;
-  float d=dimensions[2];
-
-  float verts[6*6*3] = {
-
-    -w, -h,  d,  // -X side
-    -w, -h,  0,
-    -w,  h,  0,
-
-    -w,  h,  0,
-    -w,  h,  d,
-    -w, -h,  d,
-
-    -w, -h,  d,  // -Z side
-     w,  h,  d,
-     w, -h,  d,
-
-    -w, -h,  d,
-    -w,  h,  d,
-     w,  h,  d,
-
-    -w, -h,  d,  // -Y side
-     w, -h,  d,
-     w, -h,  0,
-
-    -w, -h,  d,
-     w, -h,  0,
-    -w, -h,  0,
-
-    -w,  h,  d,  // +Y side
-    -w,  h,  0,
-     w,  h,  0,
-
-    -w,  h,  d,
-     w,  h,  0,
-     w,  h,  d,
-
-     w,  h,  d,  // +X side
-     w,  h,  0,
-     w, -h,  0,
-
-     w, -h,  0,
-     w, -h,  d,
-     w,  h,  d,
-
-    -w,  h,  0,  // +Z side
-    -w, -h,  0,
-     w,  h,  0,
-
-    -w, -h,  0,
-     w, -h,  0,
-     w,  h,  0,
-  };
-
-  memcpy((void*)vertex_buffer_data + vertex_buffer_end, (const void*)verts, sizeof(verts));
-
-  vertex_buffer_end += sizeof(verts);
-
-  float uvs[6*6*2] = {
-
-    0.0f, 1.0f,  // -X side
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-
-    1.0f, 0.0f,
-    0.0f, 0.0f,
-    0.0f, 1.0f,
-
-    1.0f, 1.0f,  // -Z side
-    0.0f, 0.0f,
-    0.0f, 1.0f,
-
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-    0.0f, 0.0f,
-
-    1.0f, 0.0f,  // -Y side
-    1.0f, 1.0f,
-    0.0f, 1.0f,
-
-    1.0f, 0.0f,
-    0.0f, 1.0f,
-    0.0f, 0.0f,
-
-    1.0f, 0.0f,  // +Y side
-    0.0f, 0.0f,
-    0.0f, 1.0f,
-
-    1.0f, 0.0f,
-    0.0f, 1.0f,
-    1.0f, 1.0f,
-
-    1.0f, 0.0f,  // +X side
-    0.0f, 0.0f,
-    0.0f, 1.0f,
-
-    0.0f, 1.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-
-    0.0f, 0.0f,  // +Z side
-    0.0f, 1.0f,
-    1.0f, 0.0f,
-
-    0.0f, 1.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-  };
-
-  memcpy((void*)uv_buffer_data + uv_buffer_end, (const void*)uvs, sizeof(uvs));
-
-  uv_buffer_end += sizeof(uvs);
-}
-
 VkFormat texture_format = VK_FORMAT_R8G8B8A8_UNORM;
 
 struct texture_object {
@@ -445,6 +328,123 @@ VkFormatProperties               format_properties;
 VkPhysicalDeviceMemoryProperties memory_properties;
 
 // ---------------------------------
+
+static void make_box(vec3 dimensions){
+
+  float w=dimensions[0]/2;
+  float h=dimensions[1]/2;
+  float d=dimensions[2];
+
+  float verts[6*6*3] = {
+
+    -w, -h,  d,  // -X side
+    -w, -h,  0,
+    -w,  h,  0,
+
+    -w,  h,  0,
+    -w,  h,  d,
+    -w, -h,  d,
+
+    -w, -h,  d,  // -Z side
+     w,  h,  d,
+     w, -h,  d,
+
+    -w, -h,  d,
+    -w,  h,  d,
+     w,  h,  d,
+
+    -w, -h,  d,  // -Y side
+     w, -h,  d,
+     w, -h,  0,
+
+    -w, -h,  d,
+     w, -h,  0,
+    -w, -h,  0,
+
+    -w,  h,  d,  // +Y side
+    -w,  h,  0,
+     w,  h,  0,
+
+    -w,  h,  d,
+     w,  h,  0,
+     w,  h,  d,
+
+     w,  h,  d,  // +X side
+     w,  h,  0,
+     w, -h,  0,
+
+     w, -h,  0,
+     w, -h,  d,
+     w,  h,  d,
+
+    -w,  h,  0,  // +Z side
+    -w, -h,  0,
+     w,  h,  0,
+
+    -w, -h,  0,
+     w, -h,  0,
+     w,  h,  0,
+  };
+
+  memcpy((void*)vertex_buffer_data + vertex_buffer_end, (const void*)verts, sizeof(verts));
+
+  vertex_buffer_end += sizeof(verts);
+
+  float uvs[6*6*2] = {
+
+    0.0f, 1.0f,  // -X side
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+
+    1.0f, 1.0f,  // -Z side
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+
+    1.0f, 0.0f,  // -Y side
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+
+    1.0f, 0.0f,  // +Y side
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+
+    1.0f, 0.0f,  // +X side
+    0.0f, 0.0f,
+    0.0f, 1.0f,
+
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+
+    0.0f, 0.0f,  // +Z side
+    0.0f, 1.0f,
+    1.0f, 0.0f,
+
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+  };
+
+  memcpy((void*)uv_buffer_data + uv_buffer_end, (const void*)uvs, sizeof(uvs));
+
+  uv_buffer_end += sizeof(uvs);
+}
 
 static bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
     for (uint32_t i = 0; i < VK_MAX_MEMORY_TYPES; i++) {

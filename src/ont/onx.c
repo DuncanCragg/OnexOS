@@ -1358,17 +1358,6 @@ static bool update_data_buffer() {
     return false;
 }
 
-static void init_3d() {
-  add_panel(&welcome_banner, 0);
-  add_panel(&document,       1);
-  add_panel(&info_board,     2);
-  add_panel(&room_floor,     3);
-  add_panel(&room_ceiling,   4);
-  add_panel(&room_wall_1,    5);
-  add_panel(&room_wall_2,    6);
-  add_panel(&room_wall_3,    7);
-}
-
 void onx_prepare_swapchain_images(bool restart) {
     VkResult err;
     err = vkGetSwapchainImagesKHR(device, swapchain, &image_count, NULL);
@@ -1564,8 +1553,6 @@ void onx_prepare_command_buffers(bool restart){
 
 void onx_prepare_render_data(bool restart) {
 
-  if(!restart) init_3d();
-
   const char* font_face = "./fonts/Roboto-Medium.ttf";
   load_font(font_face);
 
@@ -1592,19 +1579,6 @@ static void prepare_vertex_buffers(){
                              VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                             &vertex_buffer,
                             &vertex_buffer_memory);
-
-  float* vertices;
-  VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, buffer_ci.size, 0, &vertices));
-
-  for (unsigned int i = 0; i < MAX_PANELS * 6*6; i++) {
-      *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
-      *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
-      *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
-      *(vertices+i*5+3) = uv_buffer_data[i*2+0];
-      *(vertices+i*5+4) = uv_buffer_data[i*2+1];
-  }
-
-  vkUnmapMemory(device, vertex_buffer_memory);
 }
 
 void onx_prepare_uniform_buffers(bool restart) {
@@ -2077,6 +2051,32 @@ void onx_render_pass() {
 
   // -------------------------------------------------
 
+  vertex_buffer_end=0;
+  uv_buffer_end=0;
+
+  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(vertex_buffer_data[0]) +
+                                           2 * sizeof(uv_buffer_data[0])      );
+  float* vertices;
+
+  VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, vertex_size, 0, &vertices));
+
+  add_panel(&welcome_banner, 0);
+  add_panel(&document,       1);
+  add_panel(&info_board,     2);
+  add_panel(&room_floor,     3);
+  add_panel(&room_ceiling,   4);
+  add_panel(&room_wall_1,    5);
+  add_panel(&room_wall_2,    6);
+  add_panel(&room_wall_3,    7);
+
+  for (unsigned int i = 0; i < MAX_PANELS * 6*6; i++) {
+      *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
+      *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
+      *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
+      *(vertices+i*5+3) = uv_buffer_data[i*2+0];
+      *(vertices+i*5+4) = uv_buffer_data[i*2+1];
+  }
+  vkUnmapMemory(device, vertex_buffer_memory);
   // -------------------------------------------------
 
   for (uint32_t i = 0; i < image_count; i++) {

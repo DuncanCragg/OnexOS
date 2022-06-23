@@ -294,6 +294,9 @@ typedef struct {
     VkCommandBuffer command_buffer;
 } SwapchainImageResources;
 
+uint32_t image_count;
+uint32_t image_index;
+
 SwapchainImageResources *swapchain_image_resources;
 
 VkRenderPass render_pass;

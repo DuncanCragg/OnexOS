@@ -52,8 +52,6 @@ VkColorSpaceKHR color_space;
 
 VkSwapchainKHR swapchain;
 VkExtent2D swapchain_extent;
-uint32_t image_count;
-uint32_t image_index;
 VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
 VkCommandPool command_pool;
 VkCommandBuffer initcmd;

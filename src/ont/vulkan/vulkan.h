@@ -26,9 +26,6 @@
 #define VK_DESTROY(func, dev, obj) func(dev, obj, NULL), obj = NULL
 #define VK_CHECK(r) do { VkResult res = (r); if (res != VK_SUCCESS){ printf("r=%d @ line %d\n", r, __LINE__); exit(1); } } while (0)
 
-extern uint32_t image_count;
-extern uint32_t image_index;
-
 extern VkFormat surface_format;
 extern VkDevice device;
 extern VkPhysicalDevice gpu;

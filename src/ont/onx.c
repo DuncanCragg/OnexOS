@@ -106,7 +106,7 @@ typedef struct panel {
 } panel;
 
 panel welcome_banner ={
- .dimensions = { 2.0f, 0.5f, 0.03f },
+ .dimensions = { 2.0f, 0.8f, 0.03f },
  .position   = { -5.0f, 2.0f, -1.0f },
  .rotation   = { 0.0f, 45.0f, 0.0f },
  .text = "Hello, and welcome to OnexOS and the Object Network! This is your place to hang out with friends and family and chill without surveillance or censorship. Big Tech has had their way for decades, now it's time to bring the power of our technology back to ourselves! OnexOS is a freeing and empowering operating system. We hope you enjoy using it! Hello, and welcome to OnexOS and the Object Network! This is your place to hang out with friends and family and chill without surveillance or censorship. Big Tech has had their way for decades, now it's time to bring the power of our technology back to ourselves! OnexOS is a freeing and empowering operating system. We hope you enjoy using it! ",

@@ -413,6 +413,8 @@ typedef struct {
 
 SwapchainImageResources *swapchain_image_resources;
 
+VkRenderPass render_pass;
+
 VkSemaphore image_acquired_semaphore;
 VkSemaphore render_complete_semaphore;
 VkFence*    command_buffer_fences;
@@ -2062,6 +2064,8 @@ void onx_destroy_objects() {
     vkWaitForFences(device, 1, &command_buffer_fences[i], VK_TRUE, UINT64_MAX);
     vkDestroyFence(device, command_buffer_fences[i], NULL);
   }
+
+  vkDestroyRenderPass(device, render_pass, NULL);
 }
 
 // ---------------------------------

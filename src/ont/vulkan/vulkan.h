@@ -37,8 +37,6 @@ extern VkQueue queue;
 extern VkCommandPool command_pool;
 extern VkSwapchainKHR swapchain;
 extern VkExtent2D swapchain_extent;
-extern VkRenderPass render_pass;
-
 
 extern bool prepared;
 

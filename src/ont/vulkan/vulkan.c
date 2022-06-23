@@ -57,7 +57,6 @@ uint32_t image_index;
 VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
 VkCommandPool command_pool;
 VkCommandBuffer initcmd;
-VkRenderPass render_pass;
 uint32_t queue_family_count;
 
 PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR;
@@ -859,7 +858,6 @@ void prepare(bool restart) {
     onx_prepare_render_pass(restart);
     onx_prepare_pipeline(restart);
     onx_prepare_framebuffers(restart);
-
     onx_render_pass();
   }
   end_command_buffer();
@@ -868,8 +866,6 @@ void prepare(bool restart) {
 }
 
 static void cleanup(bool restart) {
-
-  vkDestroyRenderPass(device, render_pass, NULL);
 
   if(restart) return;
 

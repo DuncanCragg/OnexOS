@@ -1230,6 +1230,7 @@ static void do_render_pass() {
 
   VK_CHECK(vkBeginCommandBuffer(cmd_buf, &command_buffer_bi));
 
+  // --------------------------------------------
   begin_text();
 
   append_text(&welcome_banner, 0);
@@ -1242,6 +1243,7 @@ static void do_render_pass() {
   append_text(&room_wall_3,    7);
 
   end_text();
+  // --------------------------------------------
 
   const VkClearValue clear_values[] = {
     { .color.float32 = { 0.2f, 0.8f, 1.0f, 0.0f } },
@@ -1261,6 +1263,8 @@ static void do_render_pass() {
 
   vkCmdBeginRenderPass(cmd_buf, &render_pass_bi, VK_SUBPASS_CONTENTS_INLINE);
 
+  // --------------------------------------------
+
   VkBuffer vertex_buffers[] = {
     vertex_buffer,
     instance_buffer,
@@ -1276,6 +1280,8 @@ static void do_render_pass() {
                           0, NULL);
 
   vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+  // --------------------------------------------
 
   struct push_constants pc;
 
@@ -1294,6 +1300,7 @@ static void do_render_pass() {
   vkCmdDraw(cmd_buf, 6, glyph_instance_count, 0, 0);
 
   vkCmdEndRenderPass(cmd_buf);
+
   VK_CHECK(vkEndCommandBuffer(cmd_buf));
 }
 
@@ -1351,10 +1358,6 @@ static bool update_data_buffer() {
     return false;
 }
 
-static void copy_vec(float* m, float* v){
-  for(uint32_t i=0; i<4; i++) m[i]=v[i];
-}
-
 static void init_3d() {
   add_panel(&welcome_banner, 0);
   add_panel(&document,       1);
@@ -1365,11 +1368,6 @@ static void init_3d() {
   add_panel(&room_wall_2,    6);
   add_panel(&room_wall_3,    7);
 }
-
-// ---------------------------------
-
-
-// ---------------------------------
 
 void onx_prepare_swapchain_images(bool restart) {
     VkResult err;
@@ -2077,6 +2075,10 @@ void onx_render_pass() {
 
   printf("onx_render_pass\n");
 
+  // -------------------------------------------------
+
+  // -------------------------------------------------
+
   for (uint32_t i = 0; i < image_count; i++) {
       image_index = i;
       do_render_pass();
@@ -2085,7 +2087,8 @@ void onx_render_pass() {
 }
 
 void onx_render_frame() {
-  VkFence current_fence = command_buffer_fences[image_index];
+
+  VkFence current_fence = command_buffer_fences[image_index];  // wrong image_index really
   vkWaitForFences(device, 1, &current_fence, VK_TRUE, UINT64_MAX);
   vkResetFences(device, 1, &current_fence);
 
@@ -2097,6 +2100,7 @@ void onx_render_frame() {
                                   image_acquired_semaphore,
                                   VK_NULL_HANDLE,
                                   &image_index);
+
       if (err == VK_SUCCESS || err == VK_SUBOPTIMAL_KHR){
         break;
       }

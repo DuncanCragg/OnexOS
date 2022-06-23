@@ -237,7 +237,6 @@ typedef struct fd_DeviceGlyphInfo {
 fd_Outline       outlines[NUMBER_OF_GLYPHS];
 fd_HostGlyphInfo glyph_infos[NUMBER_OF_GLYPHS];
 
-fd_GlyphInstance *glyph_instances;
 uint32_t glyph_instance_count;
 
 void*    glyph_data;
@@ -1092,63 +1091,6 @@ static void prepare_glyph_buffers() {
                             &instance_staging_buffer_memory);
 }
 
-static void begin_text() {
-
-    glyph_instance_count = 0;
-
-    uint32_t size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
-    uint32_t offset = 0;
-
-    VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, offset, size, 0, &glyph_instances));
-}
-
-static void end_text() {
-
-    vkUnmapMemory(device, instance_staging_buffer_memory);
-
-    uint32_t size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
-    uint32_t offset = 0;
-
-    VkBufferMemoryBarrier barrier = {
-        .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-        .srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
-        .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-        .buffer = instance_buffer,
-        .offset = 0,
-        .size = size,
-    };
-
-    VkCommandBuffer cmd_buf = swapchain_image_resources[image_index].command_buffer;
-    vkCmdPipelineBarrier(
-        cmd_buf,
-        VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-        VK_PIPELINE_STAGE_TRANSFER_BIT,
-        0,
-        0, NULL,
-        1, &barrier,
-        0, NULL);
-
-    VkBufferCopy copy = {
-        .srcOffset = offset,
-        .dstOffset = 0,
-        .size = size,
-    };
-
-    vkCmdCopyBuffer(cmd_buf, instance_staging_buffer, instance_buffer, 1, &copy);
-
-    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
-
-    vkCmdPipelineBarrier(
-        cmd_buf,
-        VK_PIPELINE_STAGE_TRANSFER_BIT,
-        VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-        0,
-        0, NULL,
-        1, &barrier,
-        0, NULL);
-}
-
 static void add_panel(panel* panel, int o){
 
     make_box(panel->dimensions);
@@ -1163,7 +1105,7 @@ static void add_panel(panel* panel, int o){
     mat4x4_orthonormalize(model_matrix[o], mm);
 }
 
-static void append_text(panel* panel, int o) {
+static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
 
     float w = panel->dimensions[0];
     float h = panel->dimensions[1];
@@ -1185,7 +1127,7 @@ static void append_text(panel* panel, int o) {
         uint32_t glyph_index = *text - 32;
 
         fd_HostGlyphInfo *gi   = &glyph_infos[glyph_index];
-        fd_GlyphInstance *inst = &glyph_instances[glyph_instance_count];
+        fd_GlyphInstance *inst = &glyphs[glyph_instance_count];
 
         inst->rect.min_x =  x + gi->bbox.min_x * scale;
         inst->rect.min_y = -y + gi->bbox.min_y * scale;
@@ -1231,18 +1173,48 @@ static void do_render_pass() {
   VK_CHECK(vkBeginCommandBuffer(cmd_buf, &command_buffer_bi));
 
   // --------------------------------------------
-  begin_text();
 
-  append_text(&welcome_banner, 0);
-  append_text(&document,       1);
-  append_text(&info_board,     2);
-  append_text(&room_floor,     3);
-  append_text(&room_ceiling,   4);
-  append_text(&room_wall_1,    5);
-  append_text(&room_wall_2,    6);
-  append_text(&room_wall_3,    7);
+  uint32_t size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
+  uint32_t offset = 0;
 
-  end_text();
+  VkBufferMemoryBarrier barrier = {
+      .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+      .srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
+      .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+      .buffer = instance_buffer,
+      .offset = 0,
+      .size = size,
+  };
+
+  vkCmdPipelineBarrier(
+      cmd_buf,
+      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+      VK_PIPELINE_STAGE_TRANSFER_BIT,
+      0,
+      0, NULL,
+      1, &barrier,
+      0, NULL);
+
+  VkBufferCopy copy = {
+      .srcOffset = offset,
+      .dstOffset = 0,
+      .size = size,
+  };
+
+  vkCmdCopyBuffer(cmd_buf, instance_staging_buffer, instance_buffer, 1, &copy);
+
+  barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+  barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+
+  vkCmdPipelineBarrier(
+      cmd_buf,
+      VK_PIPELINE_STAGE_TRANSFER_BIT,
+      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+      0,
+      0, NULL,
+      1, &barrier,
+      0, NULL);
+
   // --------------------------------------------
 
   const VkClearValue clear_values[] = {
@@ -2077,6 +2049,28 @@ void onx_render_pass() {
       *(vertices+i*5+4) = uv_buffer_data[i*2+1];
   }
   vkUnmapMemory(device, vertex_buffer_memory);
+
+  // -------------------------------------------------
+
+  glyph_instance_count = 0;
+
+  size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
+
+  fd_GlyphInstance* glyphs;
+
+  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size, 0, &glyphs));
+
+  add_text(&welcome_banner, 0, glyphs);
+  add_text(&document,       1, glyphs);
+  add_text(&info_board,     2, glyphs);
+  add_text(&room_floor,     3, glyphs);
+  add_text(&room_ceiling,   4, glyphs);
+  add_text(&room_wall_1,    5, glyphs);
+  add_text(&room_wall_2,    6, glyphs);
+  add_text(&room_wall_3,    7, glyphs);
+
+  vkUnmapMemory(device, instance_staging_buffer_memory);
+
   // -------------------------------------------------
 
   for (uint32_t i = 0; i < image_count; i++) {

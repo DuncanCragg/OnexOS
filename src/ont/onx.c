@@ -306,6 +306,7 @@ typedef struct {
     VkFramebuffer   framebuffer;
     VkImageView     image_view;
     VkCommandBuffer command_buffer;
+    VkFence         command_buffer_fence;
 } SwapchainImageResources;
 
 uint32_t image_count;
@@ -317,7 +318,6 @@ VkRenderPass render_pass;
 
 VkSemaphore image_acquired_semaphore;
 VkSemaphore render_complete_semaphore;
-VkFence*    command_buffer_fences;
 
 VkPipeline       pipeline;
 VkPipelineLayout pipeline_layout;
@@ -1384,8 +1384,6 @@ void onx_prepare_swapchain_images(bool restart) {
 
 void onx_prepare_semaphores_and_fences(bool restart) {
 
-  command_buffer_fences = malloc(sizeof(VkFence) * image_count);
-
   VkFenceCreateInfo fence_ci = {
       .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
       .flags = VK_FENCE_CREATE_SIGNALED_BIT,
@@ -1393,7 +1391,7 @@ void onx_prepare_semaphores_and_fences(bool restart) {
   };
 
   for (uint32_t i = 0; i < image_count; i++) {
-      VK_CHECK(vkCreateFence(device, &fence_ci, 0, &command_buffer_fences[i]));
+      VK_CHECK(vkCreateFence(device, &fence_ci, 0, &swapchain_image_resources[i].command_buffer_fence));
   }
 
   VkSemaphoreCreateInfo semaphore_ci = {
@@ -2021,8 +2019,8 @@ void onx_finish() {
   VK_DESTROY(vkDestroySemaphore, device, render_complete_semaphore);
 
   for (uint32_t i = 0; i < image_count; i++) {
-    vkWaitForFences(device, 1, &command_buffer_fences[i], VK_TRUE, UINT64_MAX);
-    vkDestroyFence(device, command_buffer_fences[i], NULL);
+    vkWaitForFences(device, 1, &swapchain_image_resources[i].command_buffer_fence, VK_TRUE, UINT64_MAX);
+    vkDestroyFence(device, swapchain_image_resources[i].command_buffer_fence, NULL);
   }
 
   vkDestroyRenderPass(device, render_pass, NULL);
@@ -2094,7 +2092,7 @@ static void set_up_scene() {
 
 void onx_render_frame() {
 
-  VkFence current_fence = command_buffer_fences[image_index];  // wrong image_index really
+  VkFence current_fence = swapchain_image_resources[image_index].command_buffer_fence; // wrong image_index, really
   vkWaitForFences(device, 1, &current_fence, VK_TRUE, UINT64_MAX);
   vkResetFences(device, 1, &current_fence);
 

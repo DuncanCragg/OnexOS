@@ -11,6 +11,35 @@
 #include <onn.h>
 #include <onr.h>
 
+// ---------------------------------
+
+#define MAX_PANELS 8
+
+vec3 up = { 0.0f, -1.0, 0.0 };
+
+// 1.75m height
+// standing back 4m from origin
+vec3  eye = { 0.0, 1.75, -4.0 };
+float eye_dir=0;
+float head_hor_dir=0;
+float head_ver_dir=0;
+
+mat4x4 proj_matrix;
+mat4x4 view_matrix;
+mat4x4 model_matrix[MAX_PANELS];
+vec4   text_ends[MAX_PANELS];
+
+struct uniforms {
+    float proj[4][4];
+    float view[4][4];
+    float model[MAX_PANELS][4][4];
+    vec4  text_ends[MAX_PANELS];
+};
+
+struct push_constants {
+  uint32_t phase;
+};
+
 // -----------------------------------------
 
 object* config;
@@ -51,7 +80,7 @@ static void init_onex() {
     userUID=object_property(user, (char*)"UID");
 
     oclock=object_new(0, (char*)"clock", (char*)"clock event", 12);
-    object_property_set(oclock, (char*)"title", (char*)"OnexApp Clock");
+    object_property_set(oclock, (char*)"title", (char*)"OnexOS Clock");
     clockUID=object_property(oclock, (char*)"UID");
 
     object_set_evaluator(onex_device_object, (char*)"device");
@@ -73,6 +102,7 @@ static void init_onex() {
     user     =onex_get_from_cache(userUID);
     oclock   =onex_get_from_cache(clockUID);
   }
+
   time_ticker(every_second, 1000);
 }
 
@@ -93,8 +123,6 @@ void onx_init(){
 }
 
 // ---------------------------------
-
-#define MAX_PANELS 8
 
 typedef struct panel {
 
@@ -251,33 +279,6 @@ uint32_t glyph_points_size;
 
 // ---------------------------------
 
-vec3 up = { 0.0f, -1.0, 0.0 };
-
-// 1.75m height
-// standing back 4m from origin
-vec3  eye = { 0.0, 1.75, -4.0 };
-float eye_dir=0;
-float head_hor_dir=0;
-float head_ver_dir=0;
-
-mat4x4 proj_matrix;
-mat4x4 view_matrix;
-mat4x4 model_matrix[MAX_PANELS];
-vec4   text_ends[MAX_PANELS];
-
-struct uniforms {
-    float proj[4][4];
-    float view[4][4];
-    float model[MAX_PANELS][4][4];
-    vec4  text_ends[MAX_PANELS];
-};
-
-struct push_constants {
-  uint32_t phase;
-};
-
-// ---------------------------------
-
 typedef struct {
     VkBuffer        uniform_buffer;
     VkDeviceMemory  uniform_memory;
@@ -288,8 +289,8 @@ typedef struct {
 uniform_mem_t *uniform_mem;
 
 typedef struct {
-    VkFramebuffer framebuffer;
-    VkImageView image_view;
+    VkFramebuffer   framebuffer;
+    VkImageView     image_view;
     VkCommandBuffer command_buffer;
 } SwapchainImageResources;
 

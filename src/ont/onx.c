@@ -136,8 +136,8 @@ typedef struct panel {
 
 panel welcome_banner ={
  .dimensions = { 2.0f, 0.8f, 0.03f },
- .position   = { -5.0f, 2.0f, -1.0f },
- .rotation   = { 0.0f, 45.0f, 0.0f },
+ .position   = { 0.0f, 2.0f, -2.0f },
+ .rotation   = { 0.0f, 0.0f, 0.0f },
  .text = "Hello, and welcome to OnexOS and the Object Network! This is your place to hang out with friends and family and chill without surveillance or censorship. Big Tech has had their way for decades, now it's time to bring the power of our technology back to ourselves! OnexOS is a freeing and empowering operating system. We hope you enjoy using it! Hello, and welcome to OnexOS and the Object Network! This is your place to hang out with friends and family and chill without surveillance or censorship. Big Tech has had their way for decades, now it's time to bring the power of our technology back to ourselves! OnexOS is a freeing and empowering operating system. We hope you enjoy using it! ",
 };
 
@@ -197,6 +197,10 @@ static bool evaluate_user(object* o, void* d) {
     printf("evaluate_user\n");
 
     // model changes, vertex changes, text changes
+    char* ts=object_property(user, (char*)"viewing:io:ts");
+    if(ts) welcome_banner.text=ts;
+
+    info_board.rotation[1]+=4.0f;
 
     set_up_scene();
   }
@@ -2175,14 +2179,14 @@ float dwell(float delta, float width){
 }
 
 void onx_iostate_changed() {
-
+/*
   printf("onx_iostate_changed %d' [%d,%d][%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
            io.rotation_angle,
            io.view_width, io.view_height, io.swap_width, io.swap_height,
            io.mouse_x, io.mouse_y,
            io.left_pressed, io.middle_pressed, io.right_pressed,
            io.key);
-
+*/
   bool bottom_left = io.mouse_x < io.view_width / 3 && io.mouse_y > io.view_height / 2;
 
   if(io.left_pressed && !body_moving && bottom_left){

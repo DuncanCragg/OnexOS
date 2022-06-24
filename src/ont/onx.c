@@ -714,6 +714,231 @@ static void set_mvp_uniforms() {
            (const void*)&text_ends, sizeof(text_ends));
 }
 
+// ---------------------------------
+
+static bool            scene_ready = false;
+static pthread_mutex_t scene_lock;
+
+static void set_up_scene() {
+
+  pthread_mutex_lock(&scene_lock);
+  scene_ready = false;
+
+  // -------------------------------------------------
+
+  vertex_buffer_end=0;
+  uv_buffer_end=0;
+
+  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(vertex_buffer_data[0]) +
+                                           2 * sizeof(uv_buffer_data[0])      );
+  float* vertices;
+
+  VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, vertex_size, 0, &vertices));
+
+  add_panel(&welcome_banner, 0);
+  add_panel(&document,       1);
+  add_panel(&info_board,     2);
+  add_panel(&room_floor,     3);
+  add_panel(&room_ceiling,   4);
+  add_panel(&room_wall_1,    5);
+  add_panel(&room_wall_2,    6);
+  add_panel(&room_wall_3,    7);
+
+  for (unsigned int i = 0; i < MAX_PANELS * 6*6; i++) {
+      *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
+      *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
+      *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
+      *(vertices+i*5+3) = uv_buffer_data[i*2+0];
+      *(vertices+i*5+4) = uv_buffer_data[i*2+1];
+  }
+  vkUnmapMemory(device, vertex_buffer_memory);
+
+  // -------------------------------------------------
+
+  glyph_instance_count = 0;
+
+  size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
+
+  fd_GlyphInstance* glyphs;
+
+  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size, 0, &glyphs));
+
+  add_text(&welcome_banner, 0, glyphs);
+  add_text(&document,       1, glyphs);
+  add_text(&info_board,     2, glyphs);
+  add_text(&room_floor,     3, glyphs);
+  add_text(&room_ceiling,   4, glyphs);
+  add_text(&room_wall_1,    5, glyphs);
+  add_text(&room_wall_2,    6, glyphs);
+  add_text(&room_wall_3,    7, glyphs);
+
+  vkUnmapMemory(device, instance_staging_buffer_memory);
+
+  // -------------------------------------------------
+
+  for (uint32_t i = 0; i < image_count; i++) {
+      image_index = i;
+      do_render_pass();
+  }
+  image_index = 0;
+
+  // -------------------------------------------------
+
+  scene_ready = true;
+  pthread_mutex_unlock(&scene_lock);
+}
+
+void onx_render_frame() {
+
+  VkFence previous_fence = swapchain_image_resources[image_index].command_buffer_fence;
+  vkWaitForFences(device, 1, &previous_fence, VK_TRUE, UINT64_MAX);
+
+  pthread_mutex_lock(&scene_lock);
+  if(!scene_ready){
+    pthread_mutex_unlock(&scene_lock);
+    return;
+  }
+
+  VkResult err;
+  do {
+      err = vkAcquireNextImageKHR(device,
+                                  swapchain,
+                                  UINT64_MAX,
+                                  image_acquired_semaphore,
+                                  VK_NULL_HANDLE,
+                                  &image_index);
+
+      if (err == VK_SUCCESS || err == VK_SUBOPTIMAL_KHR){
+        break;
+      }
+      else
+      if (err == VK_ERROR_OUT_OF_DATE_KHR) {
+        ont_vk_restart();
+      }
+      else {
+        pthread_mutex_unlock(&scene_lock);
+        return;
+      }
+  } while(true);
+
+  VkFence current_fence = swapchain_image_resources[image_index].command_buffer_fence;
+  vkWaitForFences(device, 1, &current_fence, VK_TRUE, UINT64_MAX);
+  vkResetFences(device, 1, &current_fence);
+
+  set_mvp_uniforms();
+
+  VkSemaphore wait_semaphores[] = { image_acquired_semaphore };
+  VkPipelineStageFlags wait_stages[] = {
+    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+  };
+  VkSemaphore signal_semaphores[] = { render_complete_semaphore };
+
+  VkSubmitInfo submit_info = {
+    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores = wait_semaphores,
+    .pWaitDstStageMask = wait_stages,
+    .commandBufferCount = 1,
+    .pCommandBuffers = &swapchain_image_resources[image_index].command_buffer,
+    .signalSemaphoreCount = 1,
+    .pSignalSemaphores = signal_semaphores,
+  };
+
+  err = vkQueueSubmit(queue, 1, &submit_info, current_fence);
+
+  VkPresentInfoKHR present_info = {
+    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores = signal_semaphores,
+    .swapchainCount = 1,
+    .pSwapchains = &swapchain,
+    .pImageIndices = &image_index,
+    .pNext = NULL,
+  };
+
+  err = vkQueuePresentKHR(queue, &present_info);
+
+  if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
+    ont_vk_restart();
+  }
+  pthread_mutex_unlock(&scene_lock);
+}
+
+bool     head_moving=false;
+bool     body_moving=false;
+uint32_t x_on_press;
+uint32_t y_on_press;
+
+float dwell(float delta, float width){
+  return delta > 0? max(delta - width, 0.0f):
+                    min(delta + width, 0.0f);
+}
+
+void onx_iostate_changed() {
+/*
+  printf("onx_iostate_changed %d' [%d,%d][%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
+           io.rotation_angle,
+           io.view_width, io.view_height, io.swap_width, io.swap_height,
+           io.mouse_x, io.mouse_y,
+           io.left_pressed, io.middle_pressed, io.right_pressed,
+           io.key);
+*/
+  bool bottom_left = io.mouse_x < io.view_width / 3 && io.mouse_y > io.view_height / 2;
+
+  if(io.left_pressed && !body_moving && bottom_left){
+    body_moving=true;
+
+    x_on_press = io.mouse_x;
+    y_on_press = io.mouse_y;
+  }
+  else
+  if(io.left_pressed && body_moving){
+
+    float delta_x =  0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
+    float delta_y = -0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
+
+    delta_x = dwell(delta_x, 0.0015f);
+    delta_y = dwell(delta_y, 0.0015f);
+
+    eye_dir += 0.5f* delta_x;
+
+    eye[0] += 4.0f * delta_y * sin(eye_dir);
+    eye[2] += 4.0f * delta_y * cos(eye_dir);
+  }
+  else
+  if(!io.left_pressed && body_moving){
+    body_moving=false;
+  }
+  else
+  if(io.left_pressed && !head_moving){
+
+    head_moving=true;
+
+    x_on_press = io.mouse_x;
+    y_on_press = io.mouse_y;
+  }
+  else
+  if(io.left_pressed && head_moving){
+
+    float delta_x = 0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
+    float delta_y = 0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
+
+    head_hor_dir = 35.0f*dwell(delta_x, 0.0015f);
+    head_ver_dir = 35.0f*dwell(delta_y, 0.0015f);
+  }
+  else
+  if(!io.left_pressed && head_moving){
+
+    head_moving=false;
+
+    head_hor_dir=0;
+    head_ver_dir=0;
+  }
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 static bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
     for (uint32_t i = 0; i < VK_MAX_MEMORY_TYPES; i++) {
         if ((typeBits & 1) == 1) {
@@ -1357,6 +1582,9 @@ static void prepare_glyph_buffers() {
                             &instance_staging_buffer_memory);
 }
 
+// --------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------
+
 void onx_prepare_swapchain_images(bool restart) {
     VkResult err;
     err = vkGetSwapchainImagesKHR(device, swapchain, &image_count, NULL);
@@ -1415,118 +1643,6 @@ void onx_prepare_semaphores_and_fences(bool restart) {
 
   VK_CHECK(vkCreateSemaphore(device, &semaphore_ci, 0, &image_acquired_semaphore));
   VK_CHECK(vkCreateSemaphore(device, &semaphore_ci, 0, &render_complete_semaphore));
-}
-
-void onx_prepare_render_pass(bool restart) {
-    const VkAttachmentDescription attachments[2] = {
-        [0] =
-            {
-                .format = surface_format,
-                .flags = 0,
-                .samples = VK_SAMPLE_COUNT_1_BIT,
-                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-                .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-            },
-        [1] =
-            {
-                .format = depth.format,
-                .flags = 0,
-                .samples = VK_SAMPLE_COUNT_1_BIT,
-                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                .finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            },
-    };
-    const VkAttachmentReference color_reference = {
-        .attachment = 0,
-        .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-    };
-    const VkAttachmentReference depth_reference = {
-        .attachment = 1,
-        .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    };
-    const VkSubpassDescription subpass = {
-        .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
-        .flags = 0,
-        .inputAttachmentCount = 0,
-        .pInputAttachments = NULL,
-        .colorAttachmentCount = 1,
-        .pColorAttachments = &color_reference,
-        .pResolveAttachments = NULL,
-        .pDepthStencilAttachment = &depth_reference,
-        .preserveAttachmentCount = 0,
-        .pPreserveAttachments = NULL,
-    };
-
-    VkSubpassDependency attachmentDependencies[2] = {
-        [0] =
-            {
-                .srcSubpass = VK_SUBPASS_EXTERNAL,
-                .dstSubpass = 0,
-                .srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-                .dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-                .srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                .dependencyFlags = 0,
-            },
-        [1] =
-            {
-                .srcSubpass = VK_SUBPASS_EXTERNAL,
-                .dstSubpass = 0,
-                .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                .srcAccessMask = 0,
-                .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
-                .dependencyFlags = 0,
-            },
-    };
-
-    const VkRenderPassCreateInfo rp_info = {
-        .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-        .pNext = NULL,
-        .flags = 0,
-        .attachmentCount = 2,
-        .pAttachments = attachments,
-        .subpassCount = 1,
-        .pSubpasses = &subpass,
-        .dependencyCount = 2,
-        .pDependencies = attachmentDependencies,
-    };
-    VkResult err;
-
-    err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
-    assert(!err);
-}
-
-void onx_prepare_framebuffers(bool restart) {
-    VkImageView attachments[2];
-    attachments[1] = depth.image_view;
-
-    const VkFramebufferCreateInfo fb_info = {
-        .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-        .pNext = NULL,
-        .renderPass = render_pass,
-        .attachmentCount = 2,
-        .pAttachments = attachments,
-        .width =  io.swap_width,
-        .height = io.swap_height,
-        .layers = 1,
-    };
-    VkResult err;
-    uint32_t i;
-
-    for (i = 0; i < image_count; i++) {
-        attachments[0] = swapchain_image_resources[i].image_view;
-        err = vkCreateFramebuffer(device, &fb_info, NULL, &swapchain_image_resources[i].framebuffer);
-        assert(!err);
-    }
 }
 
 void onx_prepare_command_buffers(bool restart){
@@ -1790,6 +1906,94 @@ void onx_prepare_descriptor_set(bool restart) {
   }
 }
 
+void onx_prepare_render_pass(bool restart) {
+    const VkAttachmentDescription attachments[2] = {
+        [0] =
+            {
+                .format = surface_format,
+                .flags = 0,
+                .samples = VK_SAMPLE_COUNT_1_BIT,
+                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+                .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            },
+        [1] =
+            {
+                .format = depth.format,
+                .flags = 0,
+                .samples = VK_SAMPLE_COUNT_1_BIT,
+                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                .finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+            },
+    };
+    const VkAttachmentReference color_reference = {
+        .attachment = 0,
+        .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+    };
+    const VkAttachmentReference depth_reference = {
+        .attachment = 1,
+        .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+    };
+    const VkSubpassDescription subpass = {
+        .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+        .flags = 0,
+        .inputAttachmentCount = 0,
+        .pInputAttachments = NULL,
+        .colorAttachmentCount = 1,
+        .pColorAttachments = &color_reference,
+        .pResolveAttachments = NULL,
+        .pDepthStencilAttachment = &depth_reference,
+        .preserveAttachmentCount = 0,
+        .pPreserveAttachments = NULL,
+    };
+
+    VkSubpassDependency attachmentDependencies[2] = {
+        [0] =
+            {
+                .srcSubpass = VK_SUBPASS_EXTERNAL,
+                .dstSubpass = 0,
+                .srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                .dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                .srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                .dependencyFlags = 0,
+            },
+        [1] =
+            {
+                .srcSubpass = VK_SUBPASS_EXTERNAL,
+                .dstSubpass = 0,
+                .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                .srcAccessMask = 0,
+                .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
+                .dependencyFlags = 0,
+            },
+    };
+
+    const VkRenderPassCreateInfo rp_info = {
+        .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+        .pNext = NULL,
+        .flags = 0,
+        .attachmentCount = 2,
+        .pAttachments = attachments,
+        .subpassCount = 1,
+        .pSubpasses = &subpass,
+        .dependencyCount = 2,
+        .pDependencies = attachmentDependencies,
+    };
+    VkResult err;
+
+    err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
+    assert(!err);
+}
+
 void onx_prepare_pipeline(bool restart) {
 
   VkShaderModule vert_shader_module = load_shader_module("./shaders/onx.vert.spv");
@@ -1963,10 +2167,31 @@ void onx_prepare_pipeline(bool restart) {
   vkDestroyShaderModule(device, vert_shader_module, NULL);
 }
 
-// ---------------------------------
+void onx_prepare_framebuffers(bool restart) {
+    VkImageView attachments[2];
+    attachments[1] = depth.image_view;
 
-static bool            scene_ready = false;
-static pthread_mutex_t scene_lock;
+    const VkFramebufferCreateInfo fb_info = {
+        .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+        .pNext = NULL,
+        .renderPass = render_pass,
+        .attachmentCount = 2,
+        .pAttachments = attachments,
+        .width =  io.swap_width,
+        .height = io.swap_height,
+        .layers = 1,
+    };
+    VkResult err;
+    uint32_t i;
+
+    for (i = 0; i < image_count; i++) {
+        attachments[0] = swapchain_image_resources[i].image_view;
+        err = vkCreateFramebuffer(device, &fb_info, NULL, &swapchain_image_resources[i].framebuffer);
+        assert(!err);
+    }
+}
+
+// --------------------------------------------------------------------------------------------------------
 
 void onx_finish() {
 
@@ -2043,225 +2268,6 @@ void onx_finish() {
   VK_DESTROY(vkDestroySemaphore, device, render_complete_semaphore);
 
   vkDestroyRenderPass(device, render_pass, NULL);
-}
-
-// ---------------------------------
-
-static void set_up_scene() {
-
-  pthread_mutex_lock(&scene_lock);
-  scene_ready = false;
-
-  // -------------------------------------------------
-
-  vertex_buffer_end=0;
-  uv_buffer_end=0;
-
-  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(vertex_buffer_data[0]) +
-                                           2 * sizeof(uv_buffer_data[0])      );
-  float* vertices;
-
-  VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, vertex_size, 0, &vertices));
-
-  add_panel(&welcome_banner, 0);
-  add_panel(&document,       1);
-  add_panel(&info_board,     2);
-  add_panel(&room_floor,     3);
-  add_panel(&room_ceiling,   4);
-  add_panel(&room_wall_1,    5);
-  add_panel(&room_wall_2,    6);
-  add_panel(&room_wall_3,    7);
-
-  for (unsigned int i = 0; i < MAX_PANELS * 6*6; i++) {
-      *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
-      *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
-      *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
-      *(vertices+i*5+3) = uv_buffer_data[i*2+0];
-      *(vertices+i*5+4) = uv_buffer_data[i*2+1];
-  }
-  vkUnmapMemory(device, vertex_buffer_memory);
-
-  // -------------------------------------------------
-
-  glyph_instance_count = 0;
-
-  size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
-
-  fd_GlyphInstance* glyphs;
-
-  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size, 0, &glyphs));
-
-  add_text(&welcome_banner, 0, glyphs);
-  add_text(&document,       1, glyphs);
-  add_text(&info_board,     2, glyphs);
-  add_text(&room_floor,     3, glyphs);
-  add_text(&room_ceiling,   4, glyphs);
-  add_text(&room_wall_1,    5, glyphs);
-  add_text(&room_wall_2,    6, glyphs);
-  add_text(&room_wall_3,    7, glyphs);
-
-  vkUnmapMemory(device, instance_staging_buffer_memory);
-
-  // -------------------------------------------------
-
-  for (uint32_t i = 0; i < image_count; i++) {
-      image_index = i;
-      do_render_pass();
-  }
-  image_index = 0;
-
-  // -------------------------------------------------
-
-  scene_ready = true;
-  pthread_mutex_unlock(&scene_lock);
-}
-
-void onx_render_frame() {
-
-  VkFence previous_fence = swapchain_image_resources[image_index].command_buffer_fence;
-  vkWaitForFences(device, 1, &previous_fence, VK_TRUE, UINT64_MAX);
-
-  pthread_mutex_lock(&scene_lock);
-  if(!scene_ready){
-    pthread_mutex_unlock(&scene_lock);
-    return;
-  }
-
-  VkResult err;
-  do {
-      err = vkAcquireNextImageKHR(device,
-                                  swapchain,
-                                  UINT64_MAX,
-                                  image_acquired_semaphore,
-                                  VK_NULL_HANDLE,
-                                  &image_index);
-
-      if (err == VK_SUCCESS || err == VK_SUBOPTIMAL_KHR){
-        break;
-      }
-      else
-      if (err == VK_ERROR_OUT_OF_DATE_KHR) {
-        ont_vk_restart();
-      }
-      else {
-        pthread_mutex_unlock(&scene_lock);
-        return;
-      }
-  } while(true);
-
-  VkFence current_fence = swapchain_image_resources[image_index].command_buffer_fence;
-  vkWaitForFences(device, 1, &current_fence, VK_TRUE, UINT64_MAX);
-  vkResetFences(device, 1, &current_fence);
-
-  set_mvp_uniforms();
-
-  VkSemaphore wait_semaphores[] = { image_acquired_semaphore };
-  VkPipelineStageFlags wait_stages[] = {
-    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
-  };
-  VkSemaphore signal_semaphores[] = { render_complete_semaphore };
-
-  VkSubmitInfo submit_info = {
-    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-    .waitSemaphoreCount = 1,
-    .pWaitSemaphores = wait_semaphores,
-    .pWaitDstStageMask = wait_stages,
-    .commandBufferCount = 1,
-    .pCommandBuffers = &swapchain_image_resources[image_index].command_buffer,
-    .signalSemaphoreCount = 1,
-    .pSignalSemaphores = signal_semaphores,
-  };
-
-  err = vkQueueSubmit(queue, 1, &submit_info, current_fence);
-
-  VkPresentInfoKHR present_info = {
-    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-    .waitSemaphoreCount = 1,
-    .pWaitSemaphores = signal_semaphores,
-    .swapchainCount = 1,
-    .pSwapchains = &swapchain,
-    .pImageIndices = &image_index,
-    .pNext = NULL,
-  };
-
-  err = vkQueuePresentKHR(queue, &present_info);
-
-  if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
-    ont_vk_restart();
-  }
-  pthread_mutex_unlock(&scene_lock);
-}
-
-bool     head_moving=false;
-bool     body_moving=false;
-uint32_t x_on_press;
-uint32_t y_on_press;
-
-float dwell(float delta, float width){
-  return delta > 0? max(delta - width, 0.0f):
-                    min(delta + width, 0.0f);
-}
-
-void onx_iostate_changed() {
-/*
-  printf("onx_iostate_changed %d' [%d,%d][%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
-           io.rotation_angle,
-           io.view_width, io.view_height, io.swap_width, io.swap_height,
-           io.mouse_x, io.mouse_y,
-           io.left_pressed, io.middle_pressed, io.right_pressed,
-           io.key);
-*/
-  bool bottom_left = io.mouse_x < io.view_width / 3 && io.mouse_y > io.view_height / 2;
-
-  if(io.left_pressed && !body_moving && bottom_left){
-    body_moving=true;
-
-    x_on_press = io.mouse_x;
-    y_on_press = io.mouse_y;
-  }
-  else
-  if(io.left_pressed && body_moving){
-
-    float delta_x =  0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
-    float delta_y = -0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
-
-    delta_x = dwell(delta_x, 0.0015f);
-    delta_y = dwell(delta_y, 0.0015f);
-
-    eye_dir += 0.5f* delta_x;
-
-    eye[0] += 4.0f * delta_y * sin(eye_dir);
-    eye[2] += 4.0f * delta_y * cos(eye_dir);
-  }
-  else
-  if(!io.left_pressed && body_moving){
-    body_moving=false;
-  }
-  else
-  if(io.left_pressed && !head_moving){
-
-    head_moving=true;
-
-    x_on_press = io.mouse_x;
-    y_on_press = io.mouse_y;
-  }
-  else
-  if(io.left_pressed && head_moving){
-
-    float delta_x = 0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
-    float delta_y = 0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
-
-    head_hor_dir = 35.0f*dwell(delta_x, 0.0015f);
-    head_ver_dir = 35.0f*dwell(delta_y, 0.0015f);
-  }
-  else
-  if(!io.left_pressed && head_moving){
-
-    head_moving=false;
-
-    head_hor_dir=0;
-    head_ver_dir=0;
-  }
 }
 
 // ---------------------------------

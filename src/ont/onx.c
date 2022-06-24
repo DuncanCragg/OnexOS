@@ -2092,9 +2092,6 @@ static void set_up_scene() {
 
 void onx_render_frame() {
 
-  VkFence current_fence = swapchain_image_resources[image_index].command_buffer_fence; // wrong image_index, really
-  vkWaitForFences(device, 1, &current_fence, VK_TRUE, UINT64_MAX);
-  vkResetFences(device, 1, &current_fence);
 
   VkResult err;
   do {
@@ -2116,6 +2113,10 @@ void onx_render_frame() {
         return;
       }
   } while(true);
+
+  VkFence current_fence = swapchain_image_resources[image_index].command_buffer_fence;
+  vkWaitForFences(device, 1, &current_fence, VK_TRUE, UINT64_MAX);
+  vkResetFences(device, 1, &current_fence);
 
   set_mvp_uniforms();
 

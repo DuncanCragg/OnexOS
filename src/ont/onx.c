@@ -136,7 +136,7 @@ typedef struct panel {
 
 panel welcome_banner ={
  .dimensions = { 2.0f, 0.8f, 0.03f },
- .position   = { 0.0f, 2.0f, -2.0f },
+ .position   = { 1.0f, 2.0f, -2.0f },
  .rotation   = { 0.0f, 0.0f, 0.0f },
  .text = "Hello, and welcome to OnexOS and the Object Network! This is your place to hang out with friends and family and chill without surveillance or censorship. Big Tech has had their way for decades, now it's time to bring the power of our technology back to ourselves! OnexOS is a freeing and empowering operating system. We hope you enjoy using it! Hello, and welcome to OnexOS and the Object Network! This is your place to hang out with friends and family and chill without surveillance or censorship. Big Tech has had their way for decades, now it's time to bring the power of our technology back to ourselves! OnexOS is a freeing and empowering operating system. We hope you enjoy using it! ",
 };
@@ -197,6 +197,21 @@ static bool evaluate_user(object* o, void* d) {
     printf("evaluate_user\n");
 
     // model changes, vertex changes, text changes
+    /*
+    {
+     is: user
+     viewing: {
+       is: device
+       user: uid-user
+       io: {
+         is: clock event
+         title: OnexOS Clock
+         ts: 1656097056
+         tz: BST 3600
+       }
+     }
+    }
+    */
     char* ts=object_property(user, (char*)"viewing:io:ts");
     if(ts) welcome_banner.text=ts;
 
@@ -465,6 +480,238 @@ static void make_box(vec3 dimensions){
   memcpy((void*)uv_buffer_data + uv_buffer_end, (const void*)uvs, sizeof(uvs));
 
   uv_buffer_end += sizeof(uvs);
+}
+
+static void add_panel(panel* panel, int o){
+
+    make_box(panel->dimensions);
+
+    mat4x4_translation(model_matrix[o], panel->position[0],
+                                        panel->position[1],
+                                        panel->position[2]);
+    mat4x4 mm;
+    mat4x4_rotate_X(mm, model_matrix[o], (float)degreesToRadians(panel->rotation[0]));
+    mat4x4_rotate_Y(model_matrix[o], mm, (float)degreesToRadians(panel->rotation[1]));
+    mat4x4_rotate_Z(mm, model_matrix[o], (float)degreesToRadians(panel->rotation[2]));
+    mat4x4_orthonormalize(model_matrix[o], mm);
+}
+
+static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
+
+    float w = panel->dimensions[0];
+    float h = panel->dimensions[1];
+
+    float left = -w/2.17f;
+    float top  = -h/2.63f;
+
+    float x = left;
+    float y = top;
+
+    float scale = w/30000.0f;
+
+    const char *text = panel->text;
+
+    while (*text) {
+
+        if (glyph_instance_count >= MAX_VISIBLE_GLYPHS) break;
+
+        uint32_t glyph_index = *text - 32;
+
+        fd_HostGlyphInfo *gi   = &glyph_infos[glyph_index];
+        fd_GlyphInstance *inst = &glyphs[glyph_instance_count];
+
+        inst->rect.min_x =  x + gi->bbox.min_x * scale;
+        inst->rect.min_y = -y + gi->bbox.min_y * scale;
+        inst->rect.max_x =  x + gi->bbox.max_x * scale;
+        inst->rect.max_y = -y + gi->bbox.max_y * scale;
+
+        inst->glyph_index = glyph_index;
+        inst->sharpness = scale * 2500;
+
+        if (inst->rect.max_x < w/2.2f) {
+        }
+        else
+        if(inst->rect.min_y > top) {
+
+            x = left;
+            y += scale*2000.0f;
+
+            inst->rect.min_x =  x + gi->bbox.min_x * scale;
+            inst->rect.min_y = -y + gi->bbox.min_y * scale;
+            inst->rect.max_x =  x + gi->bbox.max_x * scale;
+            inst->rect.max_y = -y + gi->bbox.max_y * scale;
+        }
+        else break;
+
+        glyph_instance_count++;
+        text++;
+        x += gi->advance * scale;
+    }
+    text_ends[o][0]=glyph_instance_count-1;
+}
+
+static void do_render_pass() {
+
+  vkWaitForFences(device, 1, &swapchain_image_resources[image_index].command_buffer_fence, VK_TRUE, UINT64_MAX);
+
+  VkCommandBuffer cmd_buf = swapchain_image_resources[image_index].command_buffer;
+
+  const VkCommandBufferBeginInfo command_buffer_bi = {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+    .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+    .pInheritanceInfo = NULL,
+    .pNext = 0,
+  };
+
+  VK_CHECK(vkBeginCommandBuffer(cmd_buf, &command_buffer_bi));
+
+  // --------------------------------------------
+
+  uint32_t size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
+  uint32_t offset = 0;
+
+  VkBufferMemoryBarrier barrier = {
+      .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+      .srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
+      .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+      .buffer = instance_buffer,
+      .offset = 0,
+      .size = size,
+  };
+
+  vkCmdPipelineBarrier(
+      cmd_buf,
+      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+      VK_PIPELINE_STAGE_TRANSFER_BIT,
+      0,
+      0, NULL,
+      1, &barrier,
+      0, NULL);
+
+  VkBufferCopy copy = {
+      .srcOffset = offset,
+      .dstOffset = 0,
+      .size = size,
+  };
+
+  vkCmdCopyBuffer(cmd_buf, instance_staging_buffer, instance_buffer, 1, &copy);
+
+  barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+  barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+
+  vkCmdPipelineBarrier(
+      cmd_buf,
+      VK_PIPELINE_STAGE_TRANSFER_BIT,
+      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+      0,
+      0, NULL,
+      1, &barrier,
+      0, NULL);
+
+  // --------------------------------------------
+
+  const VkClearValue clear_values[] = {
+    { .color.float32 = { 0.2f, 0.8f, 1.0f, 0.0f } },
+    { .depthStencil = { 1.0f, 0 }},
+  };
+
+  const VkRenderPassBeginInfo render_pass_bi = {
+      .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+      .renderPass = render_pass,
+      .framebuffer = swapchain_image_resources[image_index].framebuffer,
+      .renderArea.offset = { 0, 0 },
+      .renderArea.extent = swapchain_extent,
+      .clearValueCount = 2,
+      .pClearValues = clear_values,
+      .pNext = 0,
+  };
+
+  vkCmdBeginRenderPass(cmd_buf, &render_pass_bi, VK_SUBPASS_CONTENTS_INLINE);
+
+  // --------------------------------------------
+
+  VkBuffer vertex_buffers[] = {
+    vertex_buffer,
+    instance_buffer,
+  };
+  VkDeviceSize offsets[] = { 0, 0 };
+  vkCmdBindVertexBuffers(cmd_buf, 0, 2, vertex_buffers, offsets);
+
+  vkCmdBindDescriptorSets(cmd_buf,
+                          VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          pipeline_layout,
+                          0, 1,
+                          &uniform_mem[image_index].descriptor_set,
+                          0, NULL);
+
+  vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+  // --------------------------------------------
+
+  struct push_constants pc;
+
+  pc.phase = 0, // ground plane
+  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
+  vkCmdDraw(cmd_buf, 6, 1, 0, 0);
+
+  pc.phase = 1, // panels
+  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
+  for(int o=0; o<MAX_PANELS; o++){
+    vkCmdDraw(cmd_buf, 6*6, 1, o*6*6, o);
+  }
+
+  pc.phase = 2, // text
+  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
+  vkCmdDraw(cmd_buf, 6, glyph_instance_count, 0, 0);
+
+  vkCmdEndRenderPass(cmd_buf);
+
+  VK_CHECK(vkEndCommandBuffer(cmd_buf));
+}
+
+// ---------------------------------
+
+static void show_matrix(mat4x4 m){
+  printf("/---------------------\\\n");
+  for(uint32_t i=0; i<4; i++) printf("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
+  printf("\\---------------------/\n");
+}
+
+static void set_mvp_uniforms() {
+
+    #define VIEWPORT_FOV   70.0f
+    #define VIEWPORT_NEAR   0.1f
+    #define VIEWPORT_FAR  100.0f
+
+    float swap_aspect_ratio = 1.0f * io.swap_width / io.swap_height;
+
+    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), swap_aspect_ratio, VIEWPORT_NEAR, VIEWPORT_FAR);
+    proj_matrix[1][1] *= -1;
+    if(io.rotation_angle){
+      mat4x4 pm;
+      mat4x4_dup(pm, proj_matrix);
+      mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(-io.rotation_angle));
+    }
+
+    vec3 looking_at;
+
+    looking_at[0] = eye[0] + 100.0f * sin(eye_dir + head_hor_dir);
+    looking_at[1] = eye[1] - 100.0f * sin(          head_ver_dir);
+    looking_at[2] = eye[2] + 100.0f * cos(eye_dir + head_hor_dir);
+
+    mat4x4_look_at(view_matrix, eye, looking_at, up);
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr,
+           (const void*)&proj_matrix,  sizeof(proj_matrix));
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
+           (const void*)&view_matrix,  sizeof(view_matrix));
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
+           (const void*)&model_matrix, sizeof(model_matrix));
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
+           (const void*)&text_ends, sizeof(text_ends));
 }
 
 static bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
@@ -1108,238 +1355,6 @@ static void prepare_glyph_buffers() {
                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
                             &instance_staging_buffer,
                             &instance_staging_buffer_memory);
-}
-
-static void add_panel(panel* panel, int o){
-
-    make_box(panel->dimensions);
-
-    mat4x4_translation(model_matrix[o], panel->position[0],
-                                        panel->position[1],
-                                        panel->position[2]);
-    mat4x4 mm;
-    mat4x4_rotate_X(mm, model_matrix[o], (float)degreesToRadians(panel->rotation[0]));
-    mat4x4_rotate_Y(model_matrix[o], mm, (float)degreesToRadians(panel->rotation[1]));
-    mat4x4_rotate_Z(mm, model_matrix[o], (float)degreesToRadians(panel->rotation[2]));
-    mat4x4_orthonormalize(model_matrix[o], mm);
-}
-
-static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
-
-    float w = panel->dimensions[0];
-    float h = panel->dimensions[1];
-
-    float left = -w/2.17f;
-    float top  = -h/2.63f;
-
-    float x = left;
-    float y = top;
-
-    float scale = w/30000.0f;
-
-    const char *text = panel->text;
-
-    while (*text) {
-
-        if (glyph_instance_count >= MAX_VISIBLE_GLYPHS) break;
-
-        uint32_t glyph_index = *text - 32;
-
-        fd_HostGlyphInfo *gi   = &glyph_infos[glyph_index];
-        fd_GlyphInstance *inst = &glyphs[glyph_instance_count];
-
-        inst->rect.min_x =  x + gi->bbox.min_x * scale;
-        inst->rect.min_y = -y + gi->bbox.min_y * scale;
-        inst->rect.max_x =  x + gi->bbox.max_x * scale;
-        inst->rect.max_y = -y + gi->bbox.max_y * scale;
-
-        inst->glyph_index = glyph_index;
-        inst->sharpness = scale * 2500;
-
-        if (inst->rect.max_x < w/2.2f) {
-        }
-        else
-        if(inst->rect.min_y > top) {
-
-            x = left;
-            y += scale*2000.0f;
-
-            inst->rect.min_x =  x + gi->bbox.min_x * scale;
-            inst->rect.min_y = -y + gi->bbox.min_y * scale;
-            inst->rect.max_x =  x + gi->bbox.max_x * scale;
-            inst->rect.max_y = -y + gi->bbox.max_y * scale;
-        }
-        else break;
-
-        glyph_instance_count++;
-        text++;
-        x += gi->advance * scale;
-    }
-    text_ends[o][0]=glyph_instance_count-1;
-}
-
-static void do_render_pass() {
-
-  vkWaitForFences(device, 1, &swapchain_image_resources[image_index].command_buffer_fence, VK_TRUE, UINT64_MAX);
-
-  VkCommandBuffer cmd_buf = swapchain_image_resources[image_index].command_buffer;
-
-  const VkCommandBufferBeginInfo command_buffer_bi = {
-    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-    .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
-    .pInheritanceInfo = NULL,
-    .pNext = 0,
-  };
-
-  VK_CHECK(vkBeginCommandBuffer(cmd_buf, &command_buffer_bi));
-
-  // --------------------------------------------
-
-  uint32_t size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
-  uint32_t offset = 0;
-
-  VkBufferMemoryBarrier barrier = {
-      .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-      .srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
-      .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-      .buffer = instance_buffer,
-      .offset = 0,
-      .size = size,
-  };
-
-  vkCmdPipelineBarrier(
-      cmd_buf,
-      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-      VK_PIPELINE_STAGE_TRANSFER_BIT,
-      0,
-      0, NULL,
-      1, &barrier,
-      0, NULL);
-
-  VkBufferCopy copy = {
-      .srcOffset = offset,
-      .dstOffset = 0,
-      .size = size,
-  };
-
-  vkCmdCopyBuffer(cmd_buf, instance_staging_buffer, instance_buffer, 1, &copy);
-
-  barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-  barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
-
-  vkCmdPipelineBarrier(
-      cmd_buf,
-      VK_PIPELINE_STAGE_TRANSFER_BIT,
-      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-      0,
-      0, NULL,
-      1, &barrier,
-      0, NULL);
-
-  // --------------------------------------------
-
-  const VkClearValue clear_values[] = {
-    { .color.float32 = { 0.2f, 0.8f, 1.0f, 0.0f } },
-    { .depthStencil = { 1.0f, 0 }},
-  };
-
-  const VkRenderPassBeginInfo render_pass_bi = {
-      .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-      .renderPass = render_pass,
-      .framebuffer = swapchain_image_resources[image_index].framebuffer,
-      .renderArea.offset = { 0, 0 },
-      .renderArea.extent = swapchain_extent,
-      .clearValueCount = 2,
-      .pClearValues = clear_values,
-      .pNext = 0,
-  };
-
-  vkCmdBeginRenderPass(cmd_buf, &render_pass_bi, VK_SUBPASS_CONTENTS_INLINE);
-
-  // --------------------------------------------
-
-  VkBuffer vertex_buffers[] = {
-    vertex_buffer,
-    instance_buffer,
-  };
-  VkDeviceSize offsets[] = { 0, 0 };
-  vkCmdBindVertexBuffers(cmd_buf, 0, 2, vertex_buffers, offsets);
-
-  vkCmdBindDescriptorSets(cmd_buf,
-                          VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          pipeline_layout,
-                          0, 1,
-                          &uniform_mem[image_index].descriptor_set,
-                          0, NULL);
-
-  vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-
-  // --------------------------------------------
-
-  struct push_constants pc;
-
-  pc.phase = 0, // ground plane
-  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 6, 1, 0, 0);
-
-  pc.phase = 1, // panels
-  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  for(int o=0; o<MAX_PANELS; o++){
-    vkCmdDraw(cmd_buf, 6*6, 1, o*6*6, o);
-  }
-
-  pc.phase = 2, // text
-  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 6, glyph_instance_count, 0, 0);
-
-  vkCmdEndRenderPass(cmd_buf);
-
-  VK_CHECK(vkEndCommandBuffer(cmd_buf));
-}
-
-// ---------------------------------
-
-static void show_matrix(mat4x4 m){
-  printf("/---------------------\\\n");
-  for(uint32_t i=0; i<4; i++) printf("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
-  printf("\\---------------------/\n");
-}
-
-static void set_mvp_uniforms() {
-
-    #define VIEWPORT_FOV   70.0f
-    #define VIEWPORT_NEAR   0.1f
-    #define VIEWPORT_FAR  100.0f
-
-    float swap_aspect_ratio = 1.0f * io.swap_width / io.swap_height;
-
-    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), swap_aspect_ratio, VIEWPORT_NEAR, VIEWPORT_FAR);
-    proj_matrix[1][1] *= -1;
-    if(io.rotation_angle){
-      mat4x4 pm;
-      mat4x4_dup(pm, proj_matrix);
-      mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(-io.rotation_angle));
-    }
-
-    vec3 looking_at;
-
-    looking_at[0] = eye[0] + 100.0f * sin(eye_dir + head_hor_dir);
-    looking_at[1] = eye[1] - 100.0f * sin(          head_ver_dir);
-    looking_at[2] = eye[2] + 100.0f * cos(eye_dir + head_hor_dir);
-
-    mat4x4_look_at(view_matrix, eye, looking_at, up);
-
-    memcpy(uniform_mem[image_index].uniform_memory_ptr,
-           (const void*)&proj_matrix,  sizeof(proj_matrix));
-
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
-           (const void*)&view_matrix,  sizeof(view_matrix));
-
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
-           (const void*)&model_matrix, sizeof(model_matrix));
-
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
-           (const void*)&text_ends, sizeof(text_ends));
 }
 
 void onx_prepare_swapchain_images(bool restart) {

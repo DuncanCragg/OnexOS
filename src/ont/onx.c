@@ -1325,13 +1325,6 @@ static void set_mvp_uniforms() {
 
     mat4x4_look_at(view_matrix, eye, looking_at, up);
 
-    mat4x4 mm;
-    mat4x4_rotate_X(mm, model_matrix[0], (float)degreesToRadians(-0.4f));
-    mat4x4_orthonormalize(model_matrix[0], mm);
-
-    mat4x4_rotate_Y(mm, model_matrix[2], (float)degreesToRadians(-0.4f));
-    mat4x4_orthonormalize(model_matrix[2], mm);
-
     memcpy(uniform_mem[image_index].uniform_memory_ptr,
            (const void*)&proj_matrix,  sizeof(proj_matrix));
 

@@ -55,11 +55,8 @@ bool evaluate_default(object* o, void* d) {
   return true;
 }
 
-bool evaluate_user(object* o, void* d) {
+static bool evaluate_user(object* o, void* d);
 
-  if(prepared){} // render some content according to user's view
-  return true;
-}
 
 static void every_second(){ onex_run_evaluators(clockUID, 0); }
 
@@ -188,6 +185,18 @@ panel room_wall_3 ={
  .rotation   = { 0.0f, 180.0f,  0.0f },
  .text = "wall 3",
 };
+
+static bool evaluate_user(object* o, void* d) {
+
+  if(prepared){
+
+    printf("evaluate_user\n");
+
+    // model changes, vertex changes, text changes
+
+  }
+  return true;
+}
 
 // ---------------------------------
 
@@ -1285,7 +1294,7 @@ static void show_matrix(mat4x4 m){
   printf("\\---------------------/\n");
 }
 
-static bool update_data_buffer() {
+static void set_mvp_uniforms() {
 
     #define VIEWPORT_FOV   70.0f
     #define VIEWPORT_NEAR   0.1f
@@ -1327,8 +1336,6 @@ static bool update_data_buffer() {
 
     memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
            (const void*)&text_ends, sizeof(text_ends));
-
-    return false;
 }
 
 void onx_prepare_swapchain_images(bool restart) {
@@ -2108,7 +2115,7 @@ void onx_render_frame() {
       }
   } while(true);
 
-  if(update_data_buffer()) onx_render_pass();
+  set_mvp_uniforms();
 
   VkSemaphore wait_semaphores[] = { image_acquired_semaphore };
   VkPipelineStageFlags wait_stages[] = {

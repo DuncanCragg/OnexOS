@@ -1951,7 +1951,11 @@ void onx_prepare_pipeline(bool restart) {
 
 // ---------------------------------
 
+static bool scene_ready = false;
+
 void onx_finish() {
+
+  scene_ready = false;
 
   printf("onx_finish\n");
 
@@ -2030,6 +2034,7 @@ void onx_finish() {
 
 static void set_up_scene() {
 
+  scene_ready = false;
 
   // -------------------------------------------------
 
@@ -2088,10 +2093,16 @@ static void set_up_scene() {
       do_render_pass();
   }
   image_index = 0;
+
+  // -------------------------------------------------
+
+  scene_ready = true;
 }
 
 void onx_render_frame() {
 
+
+  if(!scene_ready) return;
 
   VkResult err;
   do {

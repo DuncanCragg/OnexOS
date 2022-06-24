@@ -706,44 +706,13 @@ void onx_init(bool restart){
 
 // ---------------------------------
 
-static VkFormat texture_format = VK_FORMAT_R8G8B8A8_UNORM;
-
-struct texture_object {
-    int32_t texture_width;
-    int32_t texture_height;
-    VkSampler sampler;
-    VkBuffer buffer;
-    VkImageLayout image_layout;
-    VkDeviceMemory device_memory;
-    VkImage image;
-    VkImageView image_view;
-};
-
-struct {
-    VkFormat format;
-    VkDeviceMemory device_memory;
-    VkImage image;
-    VkImageView image_view;
-} depth;
-
-static char *texture_files[] = {"ivory.ppm"};
-
-#include "ont/ivory.ppm.h"
-
-#define TEXTURE_COUNT 1
-
-struct texture_object textures[TEXTURE_COUNT];
-// struct texture_object staging_texture;
-
-static bool use_staging_buffer = false;
-
-// ---------------------------------
-
 static void show_matrix(mat4x4 m){
   printf("/---------------------\\\n");
   for(uint32_t i=0; i<4; i++) printf("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
   printf("\\---------------------/\n");
 }
+
+// ---------------------------------
 
 static void set_mvp_uniforms() {
 
@@ -781,8 +750,6 @@ static void set_mvp_uniforms() {
     memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
            (const void*)&text_ends, sizeof(text_ends));
 }
-
-// ---------------------------------
 
 void onx_render_frame() {
 
@@ -871,14 +838,14 @@ static float dwell(float delta, float width){
 }
 
 void onx_iostate_changed() {
-/*
+  /*
   printf("onx_iostate_changed %d' [%d,%d][%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
            io.rotation_angle,
            io.view_width, io.view_height, io.swap_width, io.swap_height,
            io.mouse_x, io.mouse_y,
            io.left_pressed, io.middle_pressed, io.right_pressed,
            io.key);
-*/
+  */
   bool bottom_left = io.mouse_x < io.view_width / 3 && io.mouse_y > io.view_height / 2;
 
   if(io.left_pressed && !body_moving && bottom_left){
@@ -934,6 +901,39 @@ void onx_iostate_changed() {
 
 // --------------------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
+
+static VkFormat texture_format = VK_FORMAT_R8G8B8A8_UNORM;
+
+struct texture_object {
+    int32_t texture_width;
+    int32_t texture_height;
+    VkSampler sampler;
+    VkBuffer buffer;
+    VkImageLayout image_layout;
+    VkDeviceMemory device_memory;
+    VkImage image;
+    VkImageView image_view;
+};
+
+struct {
+    VkFormat format;
+    VkDeviceMemory device_memory;
+    VkImage image;
+    VkImageView image_view;
+} depth;
+
+static char *texture_files[] = {"ivory.ppm"};
+
+#include "ont/ivory.ppm.h"
+
+#define TEXTURE_COUNT 1
+
+struct texture_object textures[TEXTURE_COUNT];
+// struct texture_object staging_texture;
+
+static bool use_staging_buffer = false;
+
+// ---------------------------------
 
 static bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
     for (uint32_t i = 0; i < VK_MAX_MEMORY_TYPES; i++) {
@@ -1350,108 +1350,6 @@ static void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkIma
     vkCmdPipelineBarrier(initcmd, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
 }
 
-static void prepare_textures(){
-
-    uint32_t i;
-
-    for (i = 0; i < TEXTURE_COUNT; i++) {
-        VkResult err;
-
-        if ((format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) && !use_staging_buffer) {
-            /* Device can texture using linear textures */
-            prepare_texture_image(texture_files[i], &textures[i], VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
-                                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-            set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
-                                    textures[i].image_layout, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-/*
-            staging_texture.image = 0;
-        } else if (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
-
-            memset(&staging_texture, 0, sizeof(staging_texture));
-            prepare_texture_buffer(texture_files[i], &staging_texture);
-
-            prepare_texture_image(texture_files[i], &textures[i], VK_IMAGE_TILING_OPTIMAL,
-                                       (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT),
-                                       VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-            set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                  VK_PIPELINE_STAGE_TRANSFER_BIT);
-
-            VkBufferImageCopy copy_region = {
-                .bufferOffset = 0,
-                .bufferRowLength = staging_texture.texture_width,
-                .bufferImageHeight = staging_texture.texture_height,
-                .imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
-                .imageOffset = {0, 0, 0},
-                .imageExtent = {staging_texture.texture_width, staging_texture.texture_height, 1},
-            };
-
-            vkCmdCopyBufferToImage(initcmd, staging_texture.buffer, textures[i].image,
-                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
-
-            set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  textures[i].image_layout, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-
-*/
-        } else {
-            assert(!"No support for R8G8B8A8_UNORM as texture image format");
-        }
-
-        const VkSamplerCreateInfo sampler = {
-            .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-            .pNext = NULL,
-            .magFilter = VK_FILTER_NEAREST,
-            .minFilter = VK_FILTER_NEAREST,
-            .mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
-            .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-            .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-            .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-            .mipLodBias = 0.0f,
-            .anisotropyEnable = VK_FALSE,
-            .maxAnisotropy = 1,
-            .compareOp = VK_COMPARE_OP_NEVER,
-            .minLod = 0.0f,
-            .maxLod = 0.0f,
-            .borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE,
-            .unnormalizedCoordinates = VK_FALSE,
-        };
-
-        VkImageViewCreateInfo image_view_ci = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-            .pNext = NULL,
-            .image = VK_NULL_HANDLE,
-            .viewType = VK_IMAGE_VIEW_TYPE_2D,
-            .format = texture_format,
-            .components =
-                {
-                    VK_COMPONENT_SWIZZLE_IDENTITY,
-                    VK_COMPONENT_SWIZZLE_IDENTITY,
-                    VK_COMPONENT_SWIZZLE_IDENTITY,
-                    VK_COMPONENT_SWIZZLE_IDENTITY,
-                },
-            .subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1},
-            .flags = 0,
-        };
-
-        err = vkCreateSampler(device, &sampler, NULL, &textures[i].sampler);
-        assert(!err);
-
-        image_view_ci.image = textures[i].image;
-        VK_CHECK(vkCreateImageView(device, &image_view_ci, NULL, &textures[i].image_view));
-    }
-/*
-    if (staging_texture.buffer) {
-        vkFreeMemory(device, staging_texture.device_memory, NULL);
-        if(staging_texture.image) vkDestroyImage(device, staging_texture.image, NULL);
-        vkDestroyBuffer(device, staging_texture.buffer, NULL);
-    }
-*/
-}
-
 static void prepare_depth() {
     const VkFormat depth_format = VK_FORMAT_D16_UNORM;
     VkImageCreateInfo image_ci = {
@@ -1578,6 +1476,125 @@ static void prepare_glyph_buffers() {
                             &instance_staging_buffer_memory);
 }
 
+static void prepare_textures(){
+
+    uint32_t i;
+
+    for (i = 0; i < TEXTURE_COUNT; i++) {
+        VkResult err;
+
+        if ((format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) && !use_staging_buffer) {
+            /* Device can texture using linear textures */
+            prepare_texture_image(texture_files[i], &textures[i], VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
+                                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+            set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
+                                    textures[i].image_layout, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+     /*
+            staging_texture.image = 0;
+        } else if (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
+
+            memset(&staging_texture, 0, sizeof(staging_texture));
+            prepare_texture_buffer(texture_files[i], &staging_texture);
+
+            prepare_texture_image(texture_files[i], &textures[i], VK_IMAGE_TILING_OPTIMAL,
+                                       (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT),
+                                       VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+            set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                  VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+            VkBufferImageCopy copy_region = {
+                .bufferOffset = 0,
+                .bufferRowLength = staging_texture.texture_width,
+                .bufferImageHeight = staging_texture.texture_height,
+                .imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+                .imageOffset = {0, 0, 0},
+                .imageExtent = {staging_texture.texture_width, staging_texture.texture_height, 1},
+            };
+
+            vkCmdCopyBufferToImage(initcmd, staging_texture.buffer, textures[i].image,
+                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
+
+            set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  textures[i].image_layout, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+
+     */
+        } else {
+            assert(!"No support for R8G8B8A8_UNORM as texture image format");
+        }
+
+        const VkSamplerCreateInfo sampler = {
+            .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+            .pNext = NULL,
+            .magFilter = VK_FILTER_NEAREST,
+            .minFilter = VK_FILTER_NEAREST,
+            .mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
+            .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .mipLodBias = 0.0f,
+            .anisotropyEnable = VK_FALSE,
+            .maxAnisotropy = 1,
+            .compareOp = VK_COMPARE_OP_NEVER,
+            .minLod = 0.0f,
+            .maxLod = 0.0f,
+            .borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE,
+            .unnormalizedCoordinates = VK_FALSE,
+        };
+
+        VkImageViewCreateInfo image_view_ci = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+            .pNext = NULL,
+            .image = VK_NULL_HANDLE,
+            .viewType = VK_IMAGE_VIEW_TYPE_2D,
+            .format = texture_format,
+            .components =
+                {
+                    VK_COMPONENT_SWIZZLE_IDENTITY,
+                    VK_COMPONENT_SWIZZLE_IDENTITY,
+                    VK_COMPONENT_SWIZZLE_IDENTITY,
+                    VK_COMPONENT_SWIZZLE_IDENTITY,
+                },
+            .subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1},
+            .flags = 0,
+        };
+
+        err = vkCreateSampler(device, &sampler, NULL, &textures[i].sampler);
+        assert(!err);
+
+        image_view_ci.image = textures[i].image;
+        VK_CHECK(vkCreateImageView(device, &image_view_ci, NULL, &textures[i].image_view));
+    }
+  /*
+    if (staging_texture.buffer) {
+        vkFreeMemory(device, staging_texture.device_memory, NULL);
+        if(staging_texture.image) vkDestroyImage(device, staging_texture.image, NULL);
+        vkDestroyBuffer(device, staging_texture.buffer, NULL);
+    }
+  */
+}
+
+static void prepare_vertex_buffers(){
+
+  VkBufferCreateInfo buffer_ci = {
+    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+    .size = MAX_PANELS * 6*6 * (3 * sizeof(vertex_buffer_data[0]) +
+                                2 * sizeof(uv_buffer_data[0])),
+    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+  };
+
+  create_buffer_with_memory(&buffer_ci,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                            &vertex_buffer,
+                            &vertex_buffer_memory);
+}
+
 // --------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------
 
@@ -1671,23 +1688,6 @@ void onx_prepare_render_data(bool restart) {
   prepare_depth();
   prepare_glyph_buffers();
   prepare_textures();
-}
-
-static void prepare_vertex_buffers(){
-
-  VkBufferCreateInfo buffer_ci = {
-    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = MAX_PANELS * 6*6 * (3 * sizeof(vertex_buffer_data[0]) +
-                                2 * sizeof(uv_buffer_data[0])),
-    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-  };
-
-  create_buffer_with_memory(&buffer_ci,
-                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                            &vertex_buffer,
-                            &vertex_buffer_memory);
 }
 
 void onx_prepare_uniform_buffers(bool restart) {

@@ -57,6 +57,7 @@ bool evaluate_default(object* o, void* d) {
 
 static bool evaluate_user(object* o, void* d);
 
+static void set_up_scene();
 
 static void every_second(){ onex_run_evaluators(clockUID, 0); }
 
@@ -114,9 +115,12 @@ static void* loop_onex_thread(void* d) {
   return 0;
 }
 
-void onx_init(){
-  init_onex();
-  pthread_create(&loop_onex_thread_id, 0, loop_onex_thread, 0);
+void onx_init(bool restart){
+  if(!restart){
+    init_onex();
+    pthread_create(&loop_onex_thread_id, 0, loop_onex_thread, 0);
+  }
+  onex_run_evaluators(userUID, 0);
 }
 
 // ---------------------------------
@@ -194,6 +198,7 @@ static bool evaluate_user(object* o, void* d) {
 
     // model changes, vertex changes, text changes
 
+    set_up_scene();
   }
   return true;
 }
@@ -2025,9 +2030,8 @@ void onx_finish() {
 
 // ---------------------------------
 
-void onx_render_pass() {
+static void set_up_scene() {
 
-  printf("onx_render_pass\n");
 
   // -------------------------------------------------
 

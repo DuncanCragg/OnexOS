@@ -837,8 +837,6 @@ void prepare(bool restart) {
 
     prepare_command_pools();
     choose_surface_format();
-
-    onx_init();
   }
 
   prepare_swapchain();
@@ -856,11 +854,12 @@ void prepare(bool restart) {
     onx_prepare_render_pass(restart);
     onx_prepare_pipeline(restart);
     onx_prepare_framebuffers(restart);
-    onx_render_pass();
   }
   end_command_buffer();
 
   prepared = true;
+
+  onx_init(restart);
 }
 
 static void cleanup(bool restart) {

@@ -39,8 +39,6 @@ extern bool prepared;
 
 void ont_vk_restart();
 
-void onx_init();
-
 void onx_prepare_swapchain_images(bool restart);
 void onx_prepare_semaphores_and_fences(bool restart);
 void onx_prepare_command_buffers(bool restart);
@@ -53,7 +51,8 @@ void onx_prepare_render_pass(bool restart);
 void onx_prepare_pipeline(bool restart);
 void onx_prepare_framebuffers(bool restart);
 
-void onx_render_pass();
+void onx_init(bool restart);
+
 void onx_render_frame();
 void onx_finish();
 void onx_iostate_changed();

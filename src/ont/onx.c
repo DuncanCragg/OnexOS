@@ -1176,6 +1176,8 @@ static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
 
 static void do_render_pass() {
 
+  vkWaitForFences(device, 1, &swapchain_image_resources[image_index].command_buffer_fence, VK_TRUE, UINT64_MAX);
+
   VkCommandBuffer cmd_buf = swapchain_image_resources[image_index].command_buffer;
 
   const VkCommandBufferBeginInfo command_buffer_bi = {
@@ -1959,6 +1961,11 @@ void onx_finish() {
 
   printf("onx_finish\n");
 
+  for (uint32_t i = 0; i < image_count; i++) {
+    vkWaitForFences(device, 1, &swapchain_image_resources[i].command_buffer_fence, VK_TRUE, UINT64_MAX);
+    vkDestroyFence(device, swapchain_image_resources[i].command_buffer_fence, NULL);
+  }
+
   vkDestroyPipeline(device, pipeline, NULL);
   vkDestroyPipelineCache(device, pipeline_cache, NULL);
 
@@ -2021,11 +2028,6 @@ void onx_finish() {
 
   VK_DESTROY(vkDestroySemaphore, device, image_acquired_semaphore);
   VK_DESTROY(vkDestroySemaphore, device, render_complete_semaphore);
-
-  for (uint32_t i = 0; i < image_count; i++) {
-    vkWaitForFences(device, 1, &swapchain_image_resources[i].command_buffer_fence, VK_TRUE, UINT64_MAX);
-    vkDestroyFence(device, swapchain_image_resources[i].command_buffer_fence, NULL);
-  }
 
   vkDestroyRenderPass(device, render_pass, NULL);
 }
@@ -2101,6 +2103,8 @@ static void set_up_scene() {
 
 void onx_render_frame() {
 
+  VkFence previous_fence = swapchain_image_resources[image_index].command_buffer_fence;
+  vkWaitForFences(device, 1, &previous_fence, VK_TRUE, UINT64_MAX);
 
   if(!scene_ready) return;
 

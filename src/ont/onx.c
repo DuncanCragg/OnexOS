@@ -1950,7 +1950,8 @@ void onx_prepare_pipeline(bool restart) {
 
 // ---------------------------------
 
-static bool scene_ready = false;
+static bool            scene_ready = false;
+static pthread_mutex_t scene_lock;
 
 void onx_finish() {
 
@@ -2033,6 +2034,7 @@ void onx_finish() {
 
 static void set_up_scene() {
 
+  pthread_mutex_lock(&scene_lock);
   scene_ready = false;
 
   // -------------------------------------------------
@@ -2096,6 +2098,7 @@ static void set_up_scene() {
   // -------------------------------------------------
 
   scene_ready = true;
+  pthread_mutex_unlock(&scene_lock);
 }
 
 void onx_render_frame() {
@@ -2103,7 +2106,11 @@ void onx_render_frame() {
   VkFence previous_fence = swapchain_image_resources[image_index].command_buffer_fence;
   vkWaitForFences(device, 1, &previous_fence, VK_TRUE, UINT64_MAX);
 
-  if(!scene_ready) return;
+  pthread_mutex_lock(&scene_lock);
+  if(!scene_ready){
+    pthread_mutex_unlock(&scene_lock);
+    return;
+  }
 
   VkResult err;
   do {
@@ -2122,6 +2129,7 @@ void onx_render_frame() {
         ont_vk_restart();
       }
       else {
+        pthread_mutex_unlock(&scene_lock);
         return;
       }
   } while(true);
@@ -2166,6 +2174,7 @@ void onx_render_frame() {
   if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
     ont_vk_restart();
   }
+  pthread_mutex_unlock(&scene_lock);
 }
 
 bool     head_moving=false;

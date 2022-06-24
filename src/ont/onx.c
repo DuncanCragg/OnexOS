@@ -1941,9 +1941,9 @@ void onx_prepare_pipeline(bool restart) {
 
 // ---------------------------------
 
-void onx_destroy_objects() {
+void onx_finish() {
 
-  printf("onx_destroy_objects\n");
+  printf("onx_finish\n");
 
   vkDestroyPipeline(device, pipeline, NULL);
   vkDestroyPipelineCache(device, pipeline_cache, NULL);

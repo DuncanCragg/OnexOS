@@ -894,25 +894,32 @@ void ont_vk_iostate_changed() {
   onx_iostate_changed();
 }
 
-void finish(bool restart)
-{
-    prepared = false;
-    vkDeviceWaitIdle(device);
+void finish(bool restart) {
 
-    onx_destroy_objects();
+  prepared = false;
 
-    cleanup(restart);
+  vkDeviceWaitIdle(device);
+
+  onx_finish();
+
+  cleanup(restart);
 }
 
 void ont_vk_restart(){
+
   finish(true);
+
   prepare(true);
 }
 
 int main() {
+
   printf("--------------------------\nStarting onx (OnexOS)\n--------------------------\n");
+
   prepare(false);
+
   onl_run();
+
   finish(false);
 }
 

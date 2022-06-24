@@ -55,7 +55,7 @@ void onx_prepare_framebuffers(bool restart);
 
 void onx_render_pass();
 void onx_render_frame();
-void onx_destroy_objects();
+void onx_finish();
 void onx_iostate_changed();
 
 #endif

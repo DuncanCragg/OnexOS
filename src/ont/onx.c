@@ -15,19 +15,19 @@
 
 #define MAX_PANELS 8
 
-vec3 up = { 0.0f, -1.0, 0.0 };
+static vec3 up = { 0.0f, -1.0, 0.0 };
 
 // 1.75m height
 // standing back 4m from origin
-vec3  eye = { 0.0, 1.75, -4.0 };
-float eye_dir=0;
-float head_hor_dir=0;
-float head_ver_dir=0;
+static vec3  eye = { 0.0, 1.75, -4.0 };
+static float eye_dir=0;
+static float head_hor_dir=0;
+static float head_ver_dir=0;
 
-mat4x4 proj_matrix;
-mat4x4 view_matrix;
-mat4x4 model_matrix[MAX_PANELS];
-vec4   text_ends[MAX_PANELS];
+static mat4x4 proj_matrix;
+static mat4x4 view_matrix;
+static mat4x4 model_matrix[MAX_PANELS];
+static vec4   text_ends[MAX_PANELS];
 
 struct uniforms {
     float proj[4][4];
@@ -39,89 +39,6 @@ struct uniforms {
 struct push_constants {
   uint32_t phase;
 };
-
-// -----------------------------------------
-
-object* config;
-object* user;
-object* oclock;
-
-char* userUID=0;
-char* clockUID=0;
-
-bool evaluate_default(object* o, void* d) {
-
-  log_write("evaluate_default data=%p\n", d); object_log(o);
-  return true;
-}
-
-static bool evaluate_user(object* o, void* d);
-
-static void set_up_scene();
-
-static void every_second(){ onex_run_evaluators(clockUID, 0); }
-
-static void init_onex() {
-
-  onex_set_evaluators((char*)"default", evaluate_object_setter, evaluate_default, 0);
-  onex_set_evaluators((char*)"device",                          evaluate_device_logic, 0);
-  onex_set_evaluators((char*)"user",                            evaluate_user, 0);
-  onex_set_evaluators((char*)"clock",   evaluate_object_setter, evaluate_clock, 0);
-
-  onex_init((char*)"./onex.ondb");
-
-  config=onex_get_from_cache((char*)"uid-0");
-
-  if(!config){
-
-    user=object_new(0, (char*)"user", (char*)"user", 8);
-    userUID=object_property(user, (char*)"UID");
-
-    oclock=object_new(0, (char*)"clock", (char*)"clock event", 12);
-    object_property_set(oclock, (char*)"title", (char*)"OnexOS Clock");
-    clockUID=object_property(oclock, (char*)"UID");
-
-    object_set_evaluator(onex_device_object, (char*)"device");
-    char* deviceUID=object_property(onex_device_object, (char*)"UID");
-
-    object_property_add(onex_device_object, (char*)"user", userUID);
-    object_property_add(onex_device_object, (char*)"io", clockUID);
-
-    object_property_set(user, (char*)"viewing", deviceUID);
-
-    config=object_new((char*)"uid-0", 0, (char*)"config", 10);
-    object_property_set(config, (char*)"user",      userUID);
-    object_property_set(config, (char*)"clock",     clockUID);
-  }
-  else{
-    userUID=     object_property(config, (char*)"user");
-    clockUID=    object_property(config, (char*)"clock");
-
-    user     =onex_get_from_cache(userUID);
-    oclock   =onex_get_from_cache(clockUID);
-  }
-
-  time_ticker(every_second, 1000);
-}
-
-static pthread_t loop_onex_thread_id;
-
-static void* loop_onex_thread(void* d) {
-  while(true){
-    if(!onex_loop()){
-      time_delay_ms(5);
-    }
-  }
-  return 0;
-}
-
-void onx_init(bool restart){
-  if(!restart){
-    init_onex();
-    pthread_create(&loop_onex_thread_id, 0, loop_onex_thread, 0);
-  }
-  onex_run_evaluators(userUID, 0);
-}
 
 // ---------------------------------
 
@@ -190,39 +107,17 @@ panel room_wall_3 ={
  .text = "wall 3",
 };
 
-static bool evaluate_user(object* o, void* d) {
+// -----------------------------------------
 
-  if(prepared){
+static object* config;
+static object* user;
+static object* oclock;
 
-    printf("evaluate_user\n");
+static char* userUID=0;
+static char* clockUID=0;
 
-    // model changes, vertex changes, text changes
-    /*
-    {
-     is: user
-     viewing: {
-       is: device
-       user: uid-user
-       io: {
-         is: clock event
-         title: OnexOS Clock
-         ts: 1656097056
-         tz: BST 3600
-       }
-     }
-    }
-    */
-    char* ts=object_property(user, (char*)"viewing:io:ts");
-    if(ts) welcome_banner.text=ts;
-
-    info_board.rotation[1]+=4.0f;
-
-    set_up_scene();
-  }
-  return true;
-}
-
-// ---------------------------------
+static uint32_t image_count;
+static uint32_t image_index;
 
 static float    vertex_buffer_data[MAX_PANELS*6*6*3];
 static uint32_t vertex_buffer_end=0;
@@ -230,36 +125,58 @@ static uint32_t vertex_buffer_end=0;
 static float    uv_buffer_data[MAX_PANELS*6*6*2];
 static uint32_t uv_buffer_end=0;
 
-VkFormat texture_format = VK_FORMAT_R8G8B8A8_UNORM;
+static bool            scene_ready = false;
+static pthread_mutex_t scene_lock;
 
-struct texture_object {
-    int32_t texture_width;
-    int32_t texture_height;
-    VkSampler sampler;
-    VkBuffer buffer;
-    VkImageLayout image_layout;
-    VkDeviceMemory device_memory;
-    VkImage image;
-    VkImageView image_view;
-};
+static VkBuffer vertex_buffer;
+static VkBuffer staging_buffer;
+static VkBuffer storage_buffer;
+static VkBuffer instance_buffer;
+static VkBuffer instance_staging_buffer;
 
-struct {
-    VkFormat format;
-    VkDeviceMemory device_memory;
-    VkImage image;
-    VkImageView image_view;
-} depth;
+static VkDeviceMemory vertex_buffer_memory;
+static VkDeviceMemory staging_buffer_memory;
+static VkDeviceMemory storage_buffer_memory;
+static VkDeviceMemory instance_buffer_memory;
+static VkDeviceMemory instance_staging_buffer_memory;
 
-static char *texture_files[] = {"ivory.ppm"};
+static VkRenderPass render_pass;
 
-#include "ont/ivory.ppm.h"
+static VkSemaphore image_acquired_semaphore;
+static VkSemaphore render_complete_semaphore;
 
-#define TEXTURE_COUNT 1
+static VkPipeline       pipeline;
+static VkPipelineLayout pipeline_layout;
+static VkPipelineCache  pipeline_cache;
 
-struct texture_object textures[TEXTURE_COUNT];
-// struct texture_object staging_texture;
+static VkDescriptorSetLayout descriptor_layout;
+static VkDescriptorPool      descriptor_pool;
 
-bool use_staging_buffer = false;
+static VkShaderModule  vert_shader_module;
+static VkShaderModule  frag_shader_module;
+
+static VkFormatProperties               format_properties;
+static VkPhysicalDeviceMemoryProperties memory_properties;
+
+// ---------------------------------
+
+typedef struct {
+    VkBuffer        uniform_buffer;
+    VkDeviceMemory  uniform_memory;
+    void*           uniform_memory_ptr;
+    VkDescriptorSet descriptor_set;
+} uniform_mem_t;
+
+static uniform_mem_t *uniform_mem;
+
+typedef struct {
+    VkFramebuffer   framebuffer;
+    VkImageView     image_view;
+    VkCommandBuffer command_buffer;
+    VkFence         command_buffer_fence;
+} SwapchainImageResources;
+
+static SwapchainImageResources *swapchain_image_resources;
 
 // --------------------------------------
 
@@ -267,7 +184,7 @@ bool use_staging_buffer = false;
 
 #define MAX_VISIBLE_GLYPHS 4096
 
-uint32_t align_uint32(uint32_t value, uint32_t alignment) {
+static uint32_t align_uint32(uint32_t value, uint32_t alignment) {
     return (value + alignment - 1) / alignment * alignment;
 }
 
@@ -295,73 +212,20 @@ typedef struct fd_DeviceGlyphInfo {
     fd_CellInfo cell_info;
 } fd_DeviceGlyphInfo;
 
-fd_Outline       outlines[NUMBER_OF_GLYPHS];
-fd_HostGlyphInfo glyph_infos[NUMBER_OF_GLYPHS];
+static fd_Outline       outlines[NUMBER_OF_GLYPHS];
+static fd_HostGlyphInfo glyph_infos[NUMBER_OF_GLYPHS];
 
-uint32_t glyph_instance_count;
+static uint32_t glyph_instance_count;
 
-void*    glyph_data;
-uint32_t glyph_data_size;
+static void*    glyph_data;
+static uint32_t glyph_data_size;
 
-uint32_t glyph_info_offset;
-uint32_t glyph_info_size;
-uint32_t glyph_cells_offset;
-uint32_t glyph_cells_size;
-uint32_t glyph_points_offset;
-uint32_t glyph_points_size;
-
-// ---------------------------------
-
-typedef struct {
-    VkBuffer        uniform_buffer;
-    VkDeviceMemory  uniform_memory;
-    void*           uniform_memory_ptr;
-    VkDescriptorSet descriptor_set;
-} uniform_mem_t;
-
-uniform_mem_t *uniform_mem;
-
-typedef struct {
-    VkFramebuffer   framebuffer;
-    VkImageView     image_view;
-    VkCommandBuffer command_buffer;
-    VkFence         command_buffer_fence;
-} SwapchainImageResources;
-
-uint32_t image_count;
-uint32_t image_index;
-
-SwapchainImageResources *swapchain_image_resources;
-
-VkRenderPass render_pass;
-
-VkSemaphore image_acquired_semaphore;
-VkSemaphore render_complete_semaphore;
-
-VkPipeline       pipeline;
-VkPipelineLayout pipeline_layout;
-VkPipelineCache  pipeline_cache;
-
-VkDescriptorSetLayout descriptor_layout;
-VkDescriptorPool      descriptor_pool;
-
-VkBuffer vertex_buffer;
-VkBuffer staging_buffer;
-VkBuffer storage_buffer;
-VkBuffer instance_buffer;
-VkBuffer instance_staging_buffer;
-
-VkDeviceMemory vertex_buffer_memory;
-VkDeviceMemory staging_buffer_memory;
-VkDeviceMemory storage_buffer_memory;
-VkDeviceMemory instance_buffer_memory;
-VkDeviceMemory instance_staging_buffer_memory;
-
-VkShaderModule  vert_shader_module;
-VkShaderModule  frag_shader_module;
-
-VkFormatProperties               format_properties;
-VkPhysicalDeviceMemoryProperties memory_properties;
+static uint32_t glyph_info_offset;
+static uint32_t glyph_info_size;
+static uint32_t glyph_cells_offset;
+static uint32_t glyph_cells_size;
+static uint32_t glyph_points_offset;
+static uint32_t glyph_points_size;
 
 // ---------------------------------
 
@@ -669,56 +533,6 @@ static void do_render_pass() {
   VK_CHECK(vkEndCommandBuffer(cmd_buf));
 }
 
-// ---------------------------------
-
-static void show_matrix(mat4x4 m){
-  printf("/---------------------\\\n");
-  for(uint32_t i=0; i<4; i++) printf("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
-  printf("\\---------------------/\n");
-}
-
-static void set_mvp_uniforms() {
-
-    #define VIEWPORT_FOV   70.0f
-    #define VIEWPORT_NEAR   0.1f
-    #define VIEWPORT_FAR  100.0f
-
-    float swap_aspect_ratio = 1.0f * io.swap_width / io.swap_height;
-
-    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), swap_aspect_ratio, VIEWPORT_NEAR, VIEWPORT_FAR);
-    proj_matrix[1][1] *= -1;
-    if(io.rotation_angle){
-      mat4x4 pm;
-      mat4x4_dup(pm, proj_matrix);
-      mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(-io.rotation_angle));
-    }
-
-    vec3 looking_at;
-
-    looking_at[0] = eye[0] + 100.0f * sin(eye_dir + head_hor_dir);
-    looking_at[1] = eye[1] - 100.0f * sin(          head_ver_dir);
-    looking_at[2] = eye[2] + 100.0f * cos(eye_dir + head_hor_dir);
-
-    mat4x4_look_at(view_matrix, eye, looking_at, up);
-
-    memcpy(uniform_mem[image_index].uniform_memory_ptr,
-           (const void*)&proj_matrix,  sizeof(proj_matrix));
-
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
-           (const void*)&view_matrix,  sizeof(view_matrix));
-
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
-           (const void*)&model_matrix, sizeof(model_matrix));
-
-    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
-           (const void*)&text_ends, sizeof(text_ends));
-}
-
-// ---------------------------------
-
-static bool            scene_ready = false;
-static pthread_mutex_t scene_lock;
-
 static void set_up_scene() {
 
   pthread_mutex_lock(&scene_lock);
@@ -787,6 +601,188 @@ static void set_up_scene() {
   scene_ready = true;
   pthread_mutex_unlock(&scene_lock);
 }
+
+static bool evaluate_default(object* o, void* d) {
+
+  log_write("evaluate_default data=%p\n", d); object_log(o);
+  return true;
+}
+
+static bool evaluate_user(object* o, void* d) {
+
+  if(prepared){
+
+    printf("evaluate_user\n");
+
+    // model changes, vertex changes, text changes
+    /*
+    {
+     is: user
+     viewing: {
+       is: device
+       user: uid-user
+       io: {
+         is: clock event
+         title: OnexOS Clock
+         ts: 1656097056
+         tz: BST 3600
+       }
+     }
+    }
+    */
+    char* ts=object_property(user, (char*)"viewing:io:ts");
+    if(ts) welcome_banner.text=ts;
+
+    info_board.rotation[1]+=4.0f;
+
+    set_up_scene();
+  }
+  return true;
+}
+
+static void every_second(){ onex_run_evaluators(clockUID, 0); }
+
+static void init_onex() {
+
+  onex_set_evaluators((char*)"default", evaluate_object_setter, evaluate_default, 0);
+  onex_set_evaluators((char*)"device",                          evaluate_device_logic, 0);
+  onex_set_evaluators((char*)"user",                            evaluate_user, 0);
+  onex_set_evaluators((char*)"clock",   evaluate_object_setter, evaluate_clock, 0);
+
+  onex_init((char*)"./onex.ondb");
+
+  config=onex_get_from_cache((char*)"uid-0");
+
+  if(!config){
+
+    user=object_new(0, (char*)"user", (char*)"user", 8);
+    userUID=object_property(user, (char*)"UID");
+
+    oclock=object_new(0, (char*)"clock", (char*)"clock event", 12);
+    object_property_set(oclock, (char*)"title", (char*)"OnexOS Clock");
+    clockUID=object_property(oclock, (char*)"UID");
+
+    object_set_evaluator(onex_device_object, (char*)"device");
+    char* deviceUID=object_property(onex_device_object, (char*)"UID");
+
+    object_property_add(onex_device_object, (char*)"user", userUID);
+    object_property_add(onex_device_object, (char*)"io", clockUID);
+
+    object_property_set(user, (char*)"viewing", deviceUID);
+
+    config=object_new((char*)"uid-0", 0, (char*)"config", 10);
+    object_property_set(config, (char*)"user",      userUID);
+    object_property_set(config, (char*)"clock",     clockUID);
+  }
+  else{
+    userUID=     object_property(config, (char*)"user");
+    clockUID=    object_property(config, (char*)"clock");
+
+    user     =onex_get_from_cache(userUID);
+    oclock   =onex_get_from_cache(clockUID);
+  }
+
+  time_ticker(every_second, 1000);
+}
+
+static pthread_t loop_onex_thread_id;
+
+static void* loop_onex_thread(void* d) {
+  while(true){
+    if(!onex_loop()){
+      time_delay_ms(5);
+    }
+  }
+  return 0;
+}
+
+void onx_init(bool restart){
+  if(!restart){
+    init_onex();
+    pthread_create(&loop_onex_thread_id, 0, loop_onex_thread, 0);
+  }
+  onex_run_evaluators(userUID, 0);
+}
+
+// ---------------------------------
+
+static VkFormat texture_format = VK_FORMAT_R8G8B8A8_UNORM;
+
+struct texture_object {
+    int32_t texture_width;
+    int32_t texture_height;
+    VkSampler sampler;
+    VkBuffer buffer;
+    VkImageLayout image_layout;
+    VkDeviceMemory device_memory;
+    VkImage image;
+    VkImageView image_view;
+};
+
+struct {
+    VkFormat format;
+    VkDeviceMemory device_memory;
+    VkImage image;
+    VkImageView image_view;
+} depth;
+
+static char *texture_files[] = {"ivory.ppm"};
+
+#include "ont/ivory.ppm.h"
+
+#define TEXTURE_COUNT 1
+
+struct texture_object textures[TEXTURE_COUNT];
+// struct texture_object staging_texture;
+
+static bool use_staging_buffer = false;
+
+// ---------------------------------
+
+static void show_matrix(mat4x4 m){
+  printf("/---------------------\\\n");
+  for(uint32_t i=0; i<4; i++) printf("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
+  printf("\\---------------------/\n");
+}
+
+static void set_mvp_uniforms() {
+
+    #define VIEWPORT_FOV   70.0f
+    #define VIEWPORT_NEAR   0.1f
+    #define VIEWPORT_FAR  100.0f
+
+    float swap_aspect_ratio = 1.0f * io.swap_width / io.swap_height;
+
+    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), swap_aspect_ratio, VIEWPORT_NEAR, VIEWPORT_FAR);
+    proj_matrix[1][1] *= -1;
+    if(io.rotation_angle){
+      mat4x4 pm;
+      mat4x4_dup(pm, proj_matrix);
+      mat4x4_rotate_Z(proj_matrix, pm, (float)degreesToRadians(-io.rotation_angle));
+    }
+
+    vec3 looking_at;
+
+    looking_at[0] = eye[0] + 100.0f * sin(eye_dir + head_hor_dir);
+    looking_at[1] = eye[1] - 100.0f * sin(          head_ver_dir);
+    looking_at[2] = eye[2] + 100.0f * cos(eye_dir + head_hor_dir);
+
+    mat4x4_look_at(view_matrix, eye, looking_at, up);
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr,
+           (const void*)&proj_matrix,  sizeof(proj_matrix));
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
+           (const void*)&view_matrix,  sizeof(view_matrix));
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
+           (const void*)&model_matrix, sizeof(model_matrix));
+
+    memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
+           (const void*)&text_ends, sizeof(text_ends));
+}
+
+// ---------------------------------
 
 void onx_render_frame() {
 
@@ -864,12 +860,12 @@ void onx_render_frame() {
   pthread_mutex_unlock(&scene_lock);
 }
 
-bool     head_moving=false;
-bool     body_moving=false;
-uint32_t x_on_press;
-uint32_t y_on_press;
+static bool     head_moving=false;
+static bool     body_moving=false;
+static uint32_t x_on_press;
+static uint32_t y_on_press;
 
-float dwell(float delta, float width){
+static float dwell(float delta, float width){
   return delta > 0? max(delta - width, 0.0f):
                     min(delta + width, 0.0f);
 }

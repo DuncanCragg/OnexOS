@@ -52,9 +52,8 @@ void onx_prepare_pipeline(bool restart);
 void onx_prepare_framebuffers(bool restart);
 
 void onx_init(bool restart);
-
 void onx_render_frame();
-void onx_finish();
 void onx_iostate_changed();
+void onx_finish();
 
 #endif

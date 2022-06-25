@@ -1,9 +1,10 @@
 
  - --
+ - https://github.com/libhybris/libhybris/wiki/Building
  - install Android headers Pie 9 API level 28
- - patch libhybris
+ - patch libhybris - see ../patches/hybris-diffs
  - build libhybris locally, install
- - replace o.so
+ - replace o.so - see ./hybris-opt-tree
  - --
  - export LD_LIBRARY_PATH=/opt/libhybris/lib:/vendor/lib:/system/lib
  - export HYBRIS_VULKANPLATFORM=null

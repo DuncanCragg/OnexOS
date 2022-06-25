@@ -1,0 +1,16 @@
+
+ - --
+ - install Android headers Pie 9 API level 28
+ - patch libhybris
+ - build libhybris locally, install
+ - replace o.so
+ - --
+ - export LD_LIBRARY_PATH=/opt/libhybris/lib:/vendor/lib:/system/lib
+ - export HYBRIS_VULKANPLATFORM=null
+ - --
+ - setprop service.sf.present_timestamp banana
+ - --
+
+
+
+

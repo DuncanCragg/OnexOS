@@ -1,0 +1,28 @@
+
+setprop service.sf.present_timestamp banana
+
+export LD_LIBRARY_PATH=/opt/libhybris/lib:/vendor/lib:/system/lib
+export HYBRIS_VULKANPLATFORM=null
+
+shopt -s expand_aliases
+
+alias rw="sudo mount -o rw,remount /"
+alias on="sudo powerd-cli display on bright"
+alias dm="sudo service lightdm"
+
+alias vi="/usr/bin/vim -o -N"
+
+alias lr="ls -Flatr"
+alias ll="ls -l"
+
+alias gist="git status -u -s; git status"
+
+alias h="history | tail -99"
+
+function gr() { grep -rsI --exclude-dir={.git,build} "$@"; }
+
+function tracelog() { strace -s 1024 "$@" 2>&1 | grep writev.3 | sed 's:^.*, {"::' | sed 's:\\0", .*::' | sed 's:\\n:\n :g'; }
+function traceopen() { strace -s 1024 "$@" 2>&1 | grep open | grep -v ENOENT; }
+function traceclean() { strace -s 1024 "$@" 2>&1 | grep -v mmap | grep -v munmap | grep -v mprotect | grep -v 'close(' | grep -v PR_GET_DUMPABLE ;}
+
+

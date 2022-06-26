@@ -146,19 +146,18 @@ typedef struct fd_DeviceGlyphInfo {
 static fd_Outline       outlines[NUMBER_OF_GLYPHS];
 static fd_HostGlyphInfo glyph_infos[NUMBER_OF_GLYPHS];
 
-static uint32_t glyph_instance_count;
+static uint32_t num_glyphs;
 
 static void*    glyph_data;
 static uint32_t glyph_data_size;
 
-static uint32_t glyph_info_offset;
 static uint32_t glyph_info_size;
 static uint32_t glyph_cells_offset;
 static uint32_t glyph_cells_size;
 static uint32_t glyph_points_offset;
 static uint32_t glyph_points_size;
 
-static void load_font(const char * font_face) {
+static void load_font(const char * font_face, uint32_t alignment) {
 
   FT_Library library;
   FT_CHECK(FT_Init_FreeType(&library));
@@ -200,18 +199,13 @@ static void load_font(const char * font_face) {
   glyph_cells_size = sizeof(uint32_t) * total_cells;
   glyph_points_size = sizeof(vec2) * total_points;
 
-  VkPhysicalDeviceProperties gpu_props;
-  vkGetPhysicalDeviceProperties(gpu, &gpu_props);
-  uint32_t alignment = gpu_props.limits.minStorageBufferOffsetAlignment;
-
-  glyph_info_offset = 0;
   glyph_cells_offset = align_uint32(glyph_info_size, alignment);
   glyph_points_offset = align_uint32(glyph_info_size + glyph_cells_size, alignment);
   glyph_data_size = glyph_points_offset + glyph_points_size;
   glyph_data = malloc(glyph_data_size);
 
   fd_DeviceGlyphInfo *device_glyph_infos = (fd_DeviceGlyphInfo*)
-                                             ((char*)glyph_data + glyph_info_offset);
+                                             ((char*)glyph_data);
 
   uint32_t *cells = (uint32_t*)((char*)glyph_data + glyph_cells_offset);
   vec2 *points = (vec2*)((char*)glyph_data + glyph_points_offset);
@@ -399,12 +393,12 @@ static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
 
     while (*text) {
 
-        if (glyph_instance_count >= MAX_VISIBLE_GLYPHS) break;
+        if (num_glyphs >= MAX_VISIBLE_GLYPHS) break;
 
         uint32_t glyph_index = *text - 32;
 
         fd_HostGlyphInfo *gi   = &glyph_infos[glyph_index];
-        fd_GlyphInstance *inst = &glyphs[glyph_instance_count];
+        fd_GlyphInstance *inst = &glyphs[num_glyphs];
 
         inst->rect.min_x =  x + gi->bbox.min_x * scale;
         inst->rect.min_y = -y + gi->bbox.min_y * scale;
@@ -429,11 +423,11 @@ static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
         }
         else break;
 
-        glyph_instance_count++;
+        num_glyphs++;
         text++;
         x += gi->advance * scale;
     }
-    text_ends[o][0]=glyph_instance_count-1;
+    text_ends[o][0]=num_glyphs-1;
 }
 
 static bool evaluate_default(object* o, void* d) {
@@ -826,7 +820,7 @@ static void do_render_pass() {
 
   pc.phase = 2, // text
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 6, glyph_instance_count, 0, 0);
+  vkCmdDraw(cmd_buf, 6, num_glyphs, 0, 0);
 
   vkCmdEndRenderPass(cmd_buf);
 
@@ -843,8 +837,8 @@ static void set_up_scene() {
   vertex_buffer_end=0;
   uv_buffer_end=0;
 
-  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(vertex_buffer_data[0]) +
-                                           2 * sizeof(uv_buffer_data[0])      );
+  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
+                                           2 * sizeof(float)  );
   float* vertices;
 
   VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, vertex_size, 0, &vertices));
@@ -869,7 +863,7 @@ static void set_up_scene() {
 
   // -------------------------------------------------
 
-  glyph_instance_count = 0;
+  num_glyphs = 0;
 
   size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
 
@@ -1020,6 +1014,8 @@ struct uniforms {
     vec4  text_ends[MAX_PANELS];
 };
 
+static const char* font_face = "./fonts/Roboto-Medium.ttf";
+
 static char *texture_files[] = {"ivory.ppm"};
 
 #include "ont/ivory.ppm.h"
@@ -1137,7 +1133,7 @@ static void create_uniform_buffer_with_memory(VkBufferCreateInfo* buffer_ci,
 
 // ---------------------------------
 
-static bool load_texture(const char *filename, uint8_t *rgba_data, VkSubresourceLayout *layout, int32_t *w, int32_t *h) {
+static bool load_texture(const char *filename, uint8_t *rgba_data, uint64_t row_pitch, int32_t *w, int32_t *h) {
     (void)filename;
     char *cPtr;
     cPtr = (char *)texture_array;
@@ -1165,7 +1161,7 @@ static bool load_texture(const char *filename, uint8_t *rgba_data, VkSubresource
             rowPtr += 4;
             cPtr += 3;
         }
-        rgba_data += layout->rowPitch;
+        rgba_data += row_pitch;
     }
     return true;
 }
@@ -1212,7 +1208,7 @@ static void prepare_texture_image(const char *filename,
     int32_t texture_height;
     VkResult err;
 
-    if (!load_texture(filename, NULL, NULL, &texture_width, &texture_height)) {
+    if (!load_texture(filename, NULL, 0, &texture_width, &texture_height)) {
         ERR_EXIT("Failed to load textures");
     }
 
@@ -1252,7 +1248,7 @@ static void prepare_texture_image(const char *filename,
         void *data;
         VK_CHECK(vkMapMemory(device, texture_obj->device_memory, 0, size, 0, &data));
 
-        if (!load_texture(filename, data, &layout, &texture_width, &texture_height)) {
+        if (!load_texture(filename, data, layout.rowPitch, &texture_width, &texture_height)) {
             fprintf(stderr, "Error loading texture: %s\n", filename);
         }
         vkUnmapMemory(device, texture_obj->device_memory);
@@ -1265,7 +1261,7 @@ static void prepare_texture_buffer(const char *filename, struct texture_object *
     int32_t texture_height;
     VkResult err;
 
-    if (!load_texture(filename, NULL, NULL, &texture_width, &texture_height)) {
+    if (!load_texture(filename, NULL, 0, &texture_width, &texture_height)) {
         ERR_EXIT("Failed to load textures");
     }
 
@@ -1297,7 +1293,7 @@ static void prepare_texture_buffer(const char *filename, struct texture_object *
     err = vkMapMemory(device, texture_obj->device_memory, 0, size, 0, &data);
     assert(!err);
 
-    if (!load_texture(filename, data, &layout, &texture_width, &texture_height)) {
+    if (!load_texture(filename, data, layout.rowPitch, &texture_width, &texture_height)) {
         fprintf(stderr, "Error loading texture: %s\n", filename);
     }
 
@@ -1587,8 +1583,8 @@ static void prepare_vertex_buffers(){
 
   VkBufferCreateInfo buffer_ci = {
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = MAX_PANELS * 6*6 * (3 * sizeof(vertex_buffer_data[0]) +
-                                2 * sizeof(uv_buffer_data[0])),
+    .size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
+                                2 * sizeof(float)  ),
     .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
@@ -1684,8 +1680,10 @@ void onx_prepare_command_buffers(bool restart){
 
 void onx_prepare_render_data(bool restart) {
 
-  const char* font_face = "./fonts/Roboto-Medium.ttf";
-  load_font(font_face);
+  VkPhysicalDeviceProperties gpu_props;
+  vkGetPhysicalDeviceProperties(gpu, &gpu_props);
+
+  load_font(font_face, gpu_props.limits.minStorageBufferOffsetAlignment);
 
   vkGetPhysicalDeviceFormatProperties(gpu, texture_format, &format_properties);
   vkGetPhysicalDeviceMemoryProperties(gpu, &memory_properties);
@@ -1823,7 +1821,7 @@ void onx_prepare_descriptor_set(bool restart) {
 
   VkDescriptorBufferInfo glyph_info = {
     .buffer = storage_buffer,
-    .offset = glyph_info_offset,
+    .offset = 0,
     .range = glyph_info_size,
   };
 
@@ -2017,8 +2015,8 @@ void onx_prepare_pipeline(bool restart) {
 
   VkVertexInputBindingDescription vertices_input_binding = {
     .binding = 0,
-    .stride = 3 * sizeof(vertex_buffer_data[0]) +
-              2 * sizeof(    uv_buffer_data[0]),
+    .stride = 3 * sizeof(float) +
+              2 * sizeof(float),
     .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
   };
 

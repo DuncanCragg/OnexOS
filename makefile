@@ -85,17 +85,17 @@ SDK_INCLUDES = \
 #-------------------------------------------------------------------------------
 # Targets
 
-onx-iot: $(EXE_SOURCES:.c=.o)
+onx-nrf: $(EXE_SOURCES:.c=.o)
 	mkdir -p okolo
 	ar x ../OnexKernel/libonex-kernel-nrf.a --output okolo
 	ar x ../OnexLang/libonex-lang-nrf.a     --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES) -Wl,-Map=./onx-iot.map -o ./onx-iot.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-iot.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot.out ./onx-iot.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot.out ./onx-iot.hex
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES) -Wl,-Map=./onx-nrf.map -o ./onx-nrf.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-nrf.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-nrf.out ./onx-nrf.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-nrf.out ./onx-nrf.hex
 
-flash0: onx-iot
-	nrfutil pkg generate --hw-version 52 --sd-req 0xCA --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
+flash0: onx-nrf
+	nrfutil pkg generate --hw-version 52 --sd-req 0xCA --application-version 1 --application ./onx-nrf.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
 
 #-------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ LD_FILES = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/onex.ld
 clean:
 	find src -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf onx-iot.??? dfu.zip core okolo
+	rm -rf onx-nrf.??? dfu.zip core okolo
 	@echo "------------------------------"
 	@echo "files not cleaned:"
 	@git ls-files --others --exclude-from=.git/info/exclude | xargs -r ls -Fla

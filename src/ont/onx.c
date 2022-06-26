@@ -647,9 +647,6 @@ void onx_iostate_changed() {
 static uint32_t image_count;
 static uint32_t image_index;
 
-static bool            scene_ready = false;
-static pthread_mutex_t scene_lock;
-
 static VkBuffer vertex_buffer;
 static VkBuffer staging_buffer;
 static VkBuffer storage_buffer;
@@ -825,23 +822,29 @@ static void do_render_pass() {
   VK_CHECK(vkEndCommandBuffer(cmd_buf));
 }
 
+static bool            scene_ready = false;
+static pthread_mutex_t scene_lock;
+
 static void set_up_scene() {
+
+  float* vertices;
+  fd_GlyphInstance* glyphs;
 
   if(!prepared) return;
 
   pthread_mutex_lock(&scene_lock);
   scene_ready = false;
 
-  // -------------------------------------------------
+  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
+                                           2 * sizeof(float)  );
+  size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
+
+  VK_CHECK(vkMapMemory(device, vertex_buffer_memory,           0, vertex_size, 0, &vertices));
+  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size,  0, &glyphs));
 
   vertex_buffer_end=0;
   uv_buffer_end=0;
-
-  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
-                                           2 * sizeof(float)  );
-  float* vertices;
-
-  VK_CHECK(vkMapMemory(device, vertex_buffer_memory, 0, vertex_size, 0, &vertices));
+  num_glyphs = 0;
 
   add_panel(&welcome_banner, 0);
   add_panel(&document,       1);
@@ -859,17 +862,6 @@ static void set_up_scene() {
       *(vertices+i*5+3) = uv_buffer_data[i*2+0];
       *(vertices+i*5+4) = uv_buffer_data[i*2+1];
   }
-  vkUnmapMemory(device, vertex_buffer_memory);
-
-  // -------------------------------------------------
-
-  num_glyphs = 0;
-
-  size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
-
-  fd_GlyphInstance* glyphs;
-
-  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size, 0, &glyphs));
 
   add_text(&welcome_banner, 0, glyphs);
   add_text(&document,       1, glyphs);
@@ -880,17 +872,14 @@ static void set_up_scene() {
   add_text(&room_wall_2,    6, glyphs);
   add_text(&room_wall_3,    7, glyphs);
 
+  vkUnmapMemory(device, vertex_buffer_memory);
   vkUnmapMemory(device, instance_staging_buffer_memory);
-
-  // -------------------------------------------------
 
   for (uint32_t i = 0; i < image_count; i++) {
       image_index = i;
       do_render_pass();
   }
   image_index = 0;
-
-  // -------------------------------------------------
 
   scene_ready = true;
   pthread_mutex_unlock(&scene_lock);

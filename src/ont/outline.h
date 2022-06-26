@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <ft2build.h>
+#include <assert.h>
 
 #include "ont/linmath-plus.h"
 #include "ont/geometry.h"

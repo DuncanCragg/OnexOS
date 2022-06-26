@@ -1,10 +1,43 @@
 
-#include <pthread.h>
+// ------- common/shared between user and vk code -------------
 
-#include "ont/linmath-plus.h"
+#include <pthread.h>
+#include <stdbool.h>
+
+#include "onl/onl.h"
+
 #include "ont/outline.h"
 
-#include "ont/vulkan/vulkan.h"
+#define MAX_PANELS 8
+
+#define MAX_VISIBLE_GLYPHS 4096
+
+static mat4x4 proj_matrix;
+static mat4x4 view_matrix;
+static mat4x4 model_matrix[MAX_PANELS];
+static vec4   text_ends[MAX_PANELS];
+
+static uint32_t num_glyphs;
+static void*    glyph_data;
+static uint32_t glyph_data_size;
+static uint32_t glyph_info_size;
+static uint32_t glyph_cells_offset;
+static uint32_t glyph_cells_size;
+static uint32_t glyph_points_offset;
+static uint32_t glyph_points_size;
+
+typedef struct fd_GlyphInstance {
+  fd_Rect  rect;
+  uint32_t glyph_index;
+  float    sharpness;
+} fd_GlyphInstance;
+
+static bool set_up_scene_begin(void** vertices, void** glyphs);
+static void set_up_scene_end();
+
+// -----------------------------------------------------------
+
+#include "ont/linmath-plus.h"
 
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
@@ -12,12 +45,6 @@
 #include <onr.h>
 
 // ---------------------------------
-
-#define MAX_PANELS 8
-
-#define NUMBER_OF_GLYPHS 96
-
-#define MAX_VISIBLE_GLYPHS 4096
 
 static vec3 up = { 0.0f, -1.0, 0.0 };
 
@@ -28,12 +55,9 @@ static float eye_dir=0;
 static float head_hor_dir=0;
 static float head_ver_dir=0;
 
-static mat4x4 proj_matrix;
-static mat4x4 view_matrix;
-static mat4x4 model_matrix[MAX_PANELS];
-static vec4   text_ends[MAX_PANELS];
-
 // ---------------------------------
+
+#define NUMBER_OF_GLYPHS 96
 
 typedef struct panel {
 
@@ -126,12 +150,6 @@ typedef struct fd_CellInfo {
     uint32_t cell_count_y;
 } fd_CellInfo;
 
-typedef struct fd_GlyphInstance {
-  fd_Rect  rect;
-  uint32_t glyph_index;
-  float    sharpness;
-} fd_GlyphInstance;
-
 typedef struct fd_HostGlyphInfo {
     fd_Rect bbox;
     float advance;
@@ -145,17 +163,6 @@ typedef struct fd_DeviceGlyphInfo {
 
 static fd_Outline       outlines[NUMBER_OF_GLYPHS];
 static fd_HostGlyphInfo glyph_infos[NUMBER_OF_GLYPHS];
-
-static uint32_t num_glyphs;
-
-static void*    glyph_data;
-static uint32_t glyph_data_size;
-
-static uint32_t glyph_info_size;
-static uint32_t glyph_cells_offset;
-static uint32_t glyph_cells_size;
-static uint32_t glyph_points_offset;
-static uint32_t glyph_points_size;
 
 static void load_font(const char * font_face, uint32_t alignment) {
 
@@ -204,8 +211,7 @@ static void load_font(const char * font_face, uint32_t alignment) {
   glyph_data_size = glyph_points_offset + glyph_points_size;
   glyph_data = malloc(glyph_data_size);
 
-  fd_DeviceGlyphInfo *device_glyph_infos = (fd_DeviceGlyphInfo*)
-                                             ((char*)glyph_data);
+  fd_DeviceGlyphInfo *device_glyph_infos = (fd_DeviceGlyphInfo*)((char*)glyph_data);
 
   uint32_t *cells = (uint32_t*)((char*)glyph_data + glyph_cells_offset);
   vec2 *points = (vec2*)((char*)glyph_data + glyph_points_offset);
@@ -435,9 +441,6 @@ static bool evaluate_default(object* o, void* d) {
   log_write("evaluate_default data=%p\n", d); object_log(o);
   return true;
 }
-
-static bool set_up_scene_begin(void** vertices, void** glyphs);
-static void set_up_scene_end();
 
 static bool evaluate_user(object* o, void* d) {
 
@@ -682,6 +685,7 @@ void onx_iostate_changed() {
 // ------------------------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------
 
+#include "ont/vulkan/vulkan.h"
 
 static uint32_t image_count;
 static uint32_t image_index;

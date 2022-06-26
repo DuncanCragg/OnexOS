@@ -436,7 +436,8 @@ static bool evaluate_default(object* o, void* d) {
   return true;
 }
 
-static void set_up_scene();
+static bool set_up_scene_begin(void** vertices, void** glyphs);
+static void set_up_scene_end();
 
 static bool evaluate_user(object* o, void* d) {
 
@@ -463,7 +464,45 @@ static bool evaluate_user(object* o, void* d) {
 
   info_board.rotation[1]+=4.0f;
 
-  set_up_scene();
+  // -----------------------------------
+
+  float* vertices;
+  fd_GlyphInstance* glyphs;
+
+  if(set_up_scene_begin(&vertices, &glyphs)) {
+
+    vertex_buffer_end=0;
+    uv_buffer_end=0;
+    num_glyphs = 0;
+
+    add_panel(&welcome_banner, 0);
+    add_panel(&document,       1);
+    add_panel(&info_board,     2);
+    add_panel(&room_floor,     3);
+    add_panel(&room_ceiling,   4);
+    add_panel(&room_wall_1,    5);
+    add_panel(&room_wall_2,    6);
+    add_panel(&room_wall_3,    7);
+
+    for (unsigned int i = 0; i < MAX_PANELS * 6*6; i++) {
+        *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
+        *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
+        *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
+        *(vertices+i*5+3) = uv_buffer_data[i*2+0];
+        *(vertices+i*5+4) = uv_buffer_data[i*2+1];
+    }
+
+    add_text(&welcome_banner, 0, glyphs);
+    add_text(&document,       1, glyphs);
+    add_text(&info_board,     2, glyphs);
+    add_text(&room_floor,     3, glyphs);
+    add_text(&room_ceiling,   4, glyphs);
+    add_text(&room_wall_1,    5, glyphs);
+    add_text(&room_wall_2,    6, glyphs);
+    add_text(&room_wall_3,    7, glyphs);
+
+    set_up_scene_end();
+  }
 
   return true;
 }
@@ -825,12 +864,9 @@ static void do_render_pass() {
 static bool            scene_ready = false;
 static pthread_mutex_t scene_lock;
 
-static void set_up_scene() {
+static bool set_up_scene_begin(void** vertices, void** glyphs) {
 
-  float* vertices;
-  fd_GlyphInstance* glyphs;
-
-  if(!prepared) return;
+  if(!prepared) return false;
 
   pthread_mutex_lock(&scene_lock);
   scene_ready = false;
@@ -839,38 +875,13 @@ static void set_up_scene() {
                                            2 * sizeof(float)  );
   size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
 
-  VK_CHECK(vkMapMemory(device, vertex_buffer_memory,           0, vertex_size, 0, &vertices));
-  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size,  0, &glyphs));
+  VK_CHECK(vkMapMemory(device, vertex_buffer_memory,           0, vertex_size, 0, vertices));
+  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size,  0, glyphs));
 
-  vertex_buffer_end=0;
-  uv_buffer_end=0;
-  num_glyphs = 0;
+  return true;
+}
 
-  add_panel(&welcome_banner, 0);
-  add_panel(&document,       1);
-  add_panel(&info_board,     2);
-  add_panel(&room_floor,     3);
-  add_panel(&room_ceiling,   4);
-  add_panel(&room_wall_1,    5);
-  add_panel(&room_wall_2,    6);
-  add_panel(&room_wall_3,    7);
-
-  for (unsigned int i = 0; i < MAX_PANELS * 6*6; i++) {
-      *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
-      *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
-      *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
-      *(vertices+i*5+3) = uv_buffer_data[i*2+0];
-      *(vertices+i*5+4) = uv_buffer_data[i*2+1];
-  }
-
-  add_text(&welcome_banner, 0, glyphs);
-  add_text(&document,       1, glyphs);
-  add_text(&info_board,     2, glyphs);
-  add_text(&room_floor,     3, glyphs);
-  add_text(&room_ceiling,   4, glyphs);
-  add_text(&room_wall_1,    5, glyphs);
-  add_text(&room_wall_2,    6, glyphs);
-  add_text(&room_wall_3,    7, glyphs);
+static void set_up_scene_end() {
 
   vkUnmapMemory(device, vertex_buffer_memory);
   vkUnmapMemory(device, instance_staging_buffer_memory);

@@ -9,15 +9,16 @@
 #include "ont/outline.h"
 
 #define MAX_PANELS 8
+uint32_t num_panels=MAX_PANELS;
 
 #define MAX_VISIBLE_GLYPHS 4096
+static uint32_t num_glyphs;
 
 static mat4x4 proj_matrix;
 static mat4x4 view_matrix;
 static mat4x4 model_matrix[MAX_PANELS];
 static vec4   text_ends[MAX_PANELS];
 
-static uint32_t num_glyphs;
 static void*    glyph_data;
 static uint32_t glyph_data_size;
 static uint32_t glyph_info_size;
@@ -58,6 +59,7 @@ static float head_ver_dir=0;
 // ---------------------------------
 
 #define NUMBER_OF_GLYPHS 96
+uint32_t num_glyph_chars=NUMBER_OF_GLYPHS;
 
 typedef struct panel {
 
@@ -181,7 +183,7 @@ static void load_font(const char * font_face, uint32_t alignment) {
   uint32_t total_points = 0;
   uint32_t total_cells = 0;
 
-  for (uint32_t i = 0; i < NUMBER_OF_GLYPHS; i++) {
+  for (uint32_t i = 0; i < num_glyph_chars; i++) {
 
       char c = ' ' + i;
       printf("%c", c);
@@ -202,7 +204,7 @@ static void load_font(const char * font_face, uint32_t alignment) {
   }
   printf("\n");
 
-  glyph_info_size = sizeof(fd_DeviceGlyphInfo) * NUMBER_OF_GLYPHS;
+  glyph_info_size = sizeof(fd_DeviceGlyphInfo) * num_glyph_chars;
   glyph_cells_size = sizeof(uint32_t) * total_cells;
   glyph_points_size = sizeof(vec2) * total_points;
 
@@ -219,7 +221,7 @@ static void load_font(const char * font_face, uint32_t alignment) {
   uint32_t point_offset = 0;
   uint32_t cell_offset = 0;
 
-  for (uint32_t i = 0; i < NUMBER_OF_GLYPHS; i++) {
+  for (uint32_t i = 0; i < num_glyph_chars; i++) {
 
       fd_Outline *o = &outlines[i];
       fd_DeviceGlyphInfo *dgi = &device_glyph_infos[i];
@@ -243,7 +245,7 @@ static void load_font(const char * font_face, uint32_t alignment) {
   assert(point_offset == total_points);
   assert(cell_offset == total_cells);
 
-  for (uint32_t i = 0; i < NUMBER_OF_GLYPHS; i++){
+  for (uint32_t i = 0; i < num_glyph_chars; i++){
       fd_outline_destroy(&outlines[i]);
   }
 
@@ -487,7 +489,7 @@ static bool evaluate_user(object* o, void* d) {
     add_panel(&room_wall_2,    6);
     add_panel(&room_wall_3,    7);
 
-    for (unsigned int i = 0; i < MAX_PANELS * 6*6; i++) {
+    for (unsigned int i = 0; i < num_panels * 6*6; i++) {
         *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
         *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
         *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
@@ -852,7 +854,7 @@ static void do_render_pass() {
 
   pc.phase = 1, // panels
   vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  for(int o=0; o<MAX_PANELS; o++){
+  for(uint32_t o=0; o<num_panels; o++){
     vkCmdDraw(cmd_buf, 6*6, 1, o*6*6, o);
   }
 
@@ -875,7 +877,7 @@ static bool set_up_scene_begin(void** vertices, void** glyphs) {
   pthread_mutex_lock(&scene_lock);
   scene_ready = false;
 
-  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
+  size_t vertex_size = num_panels * 6*6 * (3 * sizeof(float) +
                                            2 * sizeof(float)  );
   size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
 
@@ -1587,7 +1589,7 @@ static void prepare_vertex_buffers(){
 
   VkBufferCreateInfo buffer_ci = {
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
+    .size = num_panels * 6*6 * (3 * sizeof(float) +
                                 2 * sizeof(float)  ),
     .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     .sharingMode = VK_SHARING_MODE_EXCLUSIVE,

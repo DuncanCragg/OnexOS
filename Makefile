@@ -12,7 +12,8 @@ TARGETS = onx-arm \
 #-------------------------------------------------------------------------------
 
 SOURCES_ONX_ARM = \
-  ./src/ont/onx.c \
+  ./src/ont/user.c \
+  ./src/ont/onx-vulkan.c \
   ./src/ont/outline.c \
   ./src/ont/geometry.c \
   ./src/ont/vulkan/vulkan.c \
@@ -22,7 +23,8 @@ SOURCES_ONX_ARM_CPP = \
   ./src/onl/mobile/hwc.cpp \
 
 SOURCES_ONX_X86 = \
-  ./src/ont/onx.c \
+  ./src/ont/user.c \
+  ./src/ont/onx-vulkan.c \
   ./src/ont/outline.c \
   ./src/ont/geometry.c \
   ./src/ont/vulkan/vulkan.c \

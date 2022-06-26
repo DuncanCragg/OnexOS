@@ -1,49 +1,28 @@
-
-// ------- common/shared between user and vk code -------------
-
-#include <pthread.h>
-#include <stdbool.h>
-
-#include "onl/onl.h"
-
-#include "ont/outline.h"
-
-#define MAX_PANELS 8
-uint32_t num_panels=MAX_PANELS;
-
-#define MAX_VISIBLE_GLYPHS 4096
-static uint32_t num_glyphs;
-
-static mat4x4 proj_matrix;
-static mat4x4 view_matrix;
-static mat4x4 model_matrix[MAX_PANELS];
-static vec4   text_ends[MAX_PANELS];
-
-static void*    glyph_data;
-static uint32_t glyph_data_size;
-static uint32_t glyph_info_size;
-static uint32_t glyph_cells_offset;
-static uint32_t glyph_cells_size;
-static uint32_t glyph_points_offset;
-static uint32_t glyph_points_size;
-
-typedef struct fd_GlyphInstance {
-  fd_Rect  rect;
-  uint32_t glyph_index;
-  float    sharpness;
-} fd_GlyphInstance;
-
-static bool set_up_scene_begin(void** vertices, void** glyphs);
-static void set_up_scene_end();
-
 // -----------------------------------------------------------
 
+#include "ont/user-vk-common.h"
 #include "ont/linmath-plus.h"
 
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
 #include <onn.h>
 #include <onr.h>
+
+uint32_t num_panels=MAX_PANELS;
+uint32_t num_glyphs;
+
+mat4x4 proj_matrix;
+mat4x4 view_matrix;
+mat4x4 model_matrix[MAX_PANELS];
+vec4   text_ends[MAX_PANELS];
+
+void*    glyph_data;
+uint32_t glyph_data_size;
+uint32_t glyph_info_size;
+uint32_t glyph_cells_offset;
+uint32_t glyph_cells_size;
+uint32_t glyph_points_offset;
+uint32_t glyph_points_size;
 
 // ---------------------------------
 
@@ -166,7 +145,7 @@ typedef struct fd_DeviceGlyphInfo {
 static fd_Outline       outlines[NUMBER_OF_GLYPHS];
 static fd_HostGlyphInfo glyph_infos[NUMBER_OF_GLYPHS];
 
-static void load_font(const char * font_face, uint32_t alignment) {
+void load_font(const char * font_face, uint32_t alignment) {
 
   FT_Library library;
   FT_CHECK(FT_Init_FreeType(&library));
@@ -523,7 +502,7 @@ static void show_matrix(mat4x4 m){
 
 // ---------------------------------
 
-static void set_mvp_uniforms() {
+void set_mvp_uniforms() {
 
     #define VIEWPORT_FOV   70.0f
     #define VIEWPORT_NEAR   0.1f
@@ -742,8 +721,6 @@ typedef struct {
 
 static SwapchainImageResources *swapchain_image_resources;
 
-// --------------------------------------
-
 struct push_constants {
   uint32_t phase;
 };
@@ -870,7 +847,7 @@ static void do_render_pass() {
 static bool            scene_ready = false;
 static pthread_mutex_t scene_lock;
 
-static bool set_up_scene_begin(void** vertices, void** glyphs) {
+bool set_up_scene_begin(void** vertices, void** glyphs) {
 
   if(!prepared) return false;
 
@@ -887,7 +864,7 @@ static bool set_up_scene_begin(void** vertices, void** glyphs) {
   return true;
 }
 
-static void set_up_scene_end() {
+void set_up_scene_end() {
 
   vkUnmapMemory(device, vertex_buffer_memory);
   vkUnmapMemory(device, instance_staging_buffer_memory);
@@ -990,7 +967,6 @@ void onx_render_frame() {
   pthread_mutex_unlock(&scene_lock);
 }
 
-// --------------------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
 
 static VkFormat texture_format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -1602,7 +1578,6 @@ static void prepare_vertex_buffers(){
                             &vertex_buffer_memory);
 }
 
-// --------------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------
 
 void onx_prepare_swapchain_images(bool restart) {

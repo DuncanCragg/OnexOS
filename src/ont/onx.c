@@ -15,6 +15,10 @@
 
 #define MAX_PANELS 8
 
+#define NUMBER_OF_GLYPHS 96
+
+#define MAX_VISIBLE_GLYPHS 4096
+
 static vec3 up = { 0.0f, -1.0, 0.0 };
 
 // 1.75m height
@@ -28,17 +32,6 @@ static mat4x4 proj_matrix;
 static mat4x4 view_matrix;
 static mat4x4 model_matrix[MAX_PANELS];
 static vec4   text_ends[MAX_PANELS];
-
-struct uniforms {
-    float proj[4][4];
-    float view[4][4];
-    float model[MAX_PANELS][4][4];
-    vec4  text_ends[MAX_PANELS];
-};
-
-struct push_constants {
-  uint32_t phase;
-};
 
 // ---------------------------------
 
@@ -116,73 +109,11 @@ static object* oclock;
 static char* userUID=0;
 static char* clockUID=0;
 
-static uint32_t image_count;
-static uint32_t image_index;
-
 static float    vertex_buffer_data[MAX_PANELS*6*6*3];
 static uint32_t vertex_buffer_end=0;
 
 static float    uv_buffer_data[MAX_PANELS*6*6*2];
 static uint32_t uv_buffer_end=0;
-
-static bool            scene_ready = false;
-static pthread_mutex_t scene_lock;
-
-static VkBuffer vertex_buffer;
-static VkBuffer staging_buffer;
-static VkBuffer storage_buffer;
-static VkBuffer instance_buffer;
-static VkBuffer instance_staging_buffer;
-
-static VkDeviceMemory vertex_buffer_memory;
-static VkDeviceMemory staging_buffer_memory;
-static VkDeviceMemory storage_buffer_memory;
-static VkDeviceMemory instance_buffer_memory;
-static VkDeviceMemory instance_staging_buffer_memory;
-
-static VkRenderPass render_pass;
-
-static VkSemaphore image_acquired_semaphore;
-static VkSemaphore render_complete_semaphore;
-
-static VkPipeline       pipeline;
-static VkPipelineLayout pipeline_layout;
-static VkPipelineCache  pipeline_cache;
-
-static VkDescriptorSetLayout descriptor_layout;
-static VkDescriptorPool      descriptor_pool;
-
-static VkShaderModule  vert_shader_module;
-static VkShaderModule  frag_shader_module;
-
-static VkFormatProperties               format_properties;
-static VkPhysicalDeviceMemoryProperties memory_properties;
-
-// ---------------------------------
-
-typedef struct {
-    VkBuffer        uniform_buffer;
-    VkDeviceMemory  uniform_memory;
-    void*           uniform_memory_ptr;
-    VkDescriptorSet descriptor_set;
-} uniform_mem_t;
-
-static uniform_mem_t *uniform_mem;
-
-typedef struct {
-    VkFramebuffer   framebuffer;
-    VkImageView     image_view;
-    VkCommandBuffer command_buffer;
-    VkFence         command_buffer_fence;
-} SwapchainImageResources;
-
-static SwapchainImageResources *swapchain_image_resources;
-
-// --------------------------------------
-
-#define NUMBER_OF_GLYPHS 96
-
-#define MAX_VISIBLE_GLYPHS 4096
 
 static uint32_t align_uint32(uint32_t value, uint32_t alignment) {
     return (value + alignment - 1) / alignment * alignment;
@@ -227,7 +158,98 @@ static uint32_t glyph_cells_size;
 static uint32_t glyph_points_offset;
 static uint32_t glyph_points_size;
 
-// ---------------------------------
+static void load_font(const char * font_face) {
+
+  FT_Library library;
+  FT_CHECK(FT_Init_FreeType(&library));
+
+  FT_Face face;
+  int err=FT_New_Face(library, font_face, 0, &face);
+  if(err){
+    fprintf(stderr, "Font loading failed or font not found: %s\n", font_face);
+    exit(-1);
+  }
+
+  FT_CHECK(FT_Set_Char_Size(face, 0, 1000 * 64, 96, 96));
+
+  uint32_t total_points = 0;
+  uint32_t total_cells = 0;
+
+  for (uint32_t i = 0; i < NUMBER_OF_GLYPHS; i++) {
+
+      char c = ' ' + i;
+      printf("%c", c);
+
+      fd_Outline *o = &outlines[i];
+      fd_HostGlyphInfo *hgi = &glyph_infos[i];
+
+      FT_UInt glyph_index = FT_Get_Char_Index(face, c);
+      FT_CHECK(FT_Load_Glyph(face, glyph_index, FT_LOAD_NO_HINTING));
+
+      fd_outline_convert(&face->glyph->outline, o, c);
+
+      hgi->bbox = o->bbox;
+      hgi->advance = face->glyph->metrics.horiAdvance / 64.0f;
+
+      total_points += o->num_of_points;
+      total_cells += o->cell_count_x * o->cell_count_y;
+  }
+  printf("\n");
+
+  glyph_info_size = sizeof(fd_DeviceGlyphInfo) * NUMBER_OF_GLYPHS;
+  glyph_cells_size = sizeof(uint32_t) * total_cells;
+  glyph_points_size = sizeof(vec2) * total_points;
+
+  VkPhysicalDeviceProperties gpu_props;
+  vkGetPhysicalDeviceProperties(gpu, &gpu_props);
+  uint32_t alignment = gpu_props.limits.minStorageBufferOffsetAlignment;
+
+  glyph_info_offset = 0;
+  glyph_cells_offset = align_uint32(glyph_info_size, alignment);
+  glyph_points_offset = align_uint32(glyph_info_size + glyph_cells_size, alignment);
+  glyph_data_size = glyph_points_offset + glyph_points_size;
+  glyph_data = malloc(glyph_data_size);
+
+  fd_DeviceGlyphInfo *device_glyph_infos = (fd_DeviceGlyphInfo*)
+                                             ((char*)glyph_data + glyph_info_offset);
+
+  uint32_t *cells = (uint32_t*)((char*)glyph_data + glyph_cells_offset);
+  vec2 *points = (vec2*)((char*)glyph_data + glyph_points_offset);
+
+  uint32_t point_offset = 0;
+  uint32_t cell_offset = 0;
+
+  for (uint32_t i = 0; i < NUMBER_OF_GLYPHS; i++) {
+
+      fd_Outline *o = &outlines[i];
+      fd_DeviceGlyphInfo *dgi = &device_glyph_infos[i];
+
+      dgi->cell_info.cell_count_x = o->cell_count_x;
+      dgi->cell_info.cell_count_y = o->cell_count_y;
+      dgi->cell_info.point_offset = point_offset;
+      dgi->cell_info.cell_offset = cell_offset;
+      dgi->bbox = o->bbox;
+
+      uint32_t cell_count = o->cell_count_x * o->cell_count_y;
+      memcpy(cells + cell_offset, o->cells, sizeof(uint32_t) * cell_count);
+      memcpy(points + point_offset, o->points, sizeof(vec2) * o->num_of_points);
+
+      //fd_outline_u16_points(o, &dgi->cbox, points + point_offset);
+
+      point_offset += o->num_of_points;
+      cell_offset += cell_count;
+  }
+
+  assert(point_offset == total_points);
+  assert(cell_offset == total_cells);
+
+  for (uint32_t i = 0; i < NUMBER_OF_GLYPHS; i++){
+      fd_outline_destroy(&outlines[i]);
+  }
+
+  FT_CHECK(FT_Done_Face(face));
+  FT_CHECK(FT_Done_FreeType(library));
+}
 
 static void make_box(vec3 dimensions){
 
@@ -413,6 +435,70 @@ static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
     }
     text_ends[o][0]=glyph_instance_count-1;
 }
+
+// ---------------------------------
+
+static uint32_t image_count;
+static uint32_t image_index;
+
+static bool            scene_ready = false;
+static pthread_mutex_t scene_lock;
+
+static VkBuffer vertex_buffer;
+static VkBuffer staging_buffer;
+static VkBuffer storage_buffer;
+static VkBuffer instance_buffer;
+static VkBuffer instance_staging_buffer;
+
+static VkDeviceMemory vertex_buffer_memory;
+static VkDeviceMemory staging_buffer_memory;
+static VkDeviceMemory storage_buffer_memory;
+static VkDeviceMemory instance_buffer_memory;
+static VkDeviceMemory instance_staging_buffer_memory;
+
+static VkRenderPass render_pass;
+
+static VkSemaphore image_acquired_semaphore;
+static VkSemaphore render_complete_semaphore;
+
+static VkPipeline       pipeline;
+static VkPipelineLayout pipeline_layout;
+static VkPipelineCache  pipeline_cache;
+
+static VkDescriptorSetLayout descriptor_layout;
+static VkDescriptorPool      descriptor_pool;
+
+static VkShaderModule  vert_shader_module;
+static VkShaderModule  frag_shader_module;
+
+static VkFormatProperties               format_properties;
+static VkPhysicalDeviceMemoryProperties memory_properties;
+
+// ---------------------------------
+
+typedef struct {
+    VkBuffer        uniform_buffer;
+    VkDeviceMemory  uniform_memory;
+    void*           uniform_memory_ptr;
+    VkDescriptorSet descriptor_set;
+} uniform_mem_t;
+
+static uniform_mem_t *uniform_mem;
+
+typedef struct {
+    VkFramebuffer   framebuffer;
+    VkImageView     image_view;
+    VkCommandBuffer command_buffer;
+    VkFence         command_buffer_fence;
+} SwapchainImageResources;
+
+static SwapchainImageResources *swapchain_image_resources;
+
+// --------------------------------------
+
+struct push_constants {
+  uint32_t phase;
+};
 
 static void do_render_pass() {
 
@@ -922,6 +1008,13 @@ struct {
     VkImageView image_view;
 } depth;
 
+struct uniforms {
+    float proj[4][4];
+    float view[4][4];
+    float model[MAX_PANELS][4][4];
+    vec4  text_ends[MAX_PANELS];
+};
+
 static char *texture_files[] = {"ivory.ppm"};
 
 #include "ont/ivory.ppm.h"
@@ -1101,99 +1194,6 @@ static VkShaderModule load_shader_module(const char *path) {
                                   &module));
     free(code);
     return module;
-}
-
-static void load_font(const char * font_face) {
-
-  FT_Library library;
-  FT_CHECK(FT_Init_FreeType(&library));
-
-  FT_Face face;
-  int err=FT_New_Face(library, font_face, 0, &face);
-  if(err){
-    fprintf(stderr, "Font loading failed or font not found: %s\n", font_face);
-    exit(-1);
-  }
-
-  FT_CHECK(FT_Set_Char_Size(face, 0, 1000 * 64, 96, 96));
-
-  uint32_t total_points = 0;
-  uint32_t total_cells = 0;
-
-  for (uint32_t i = 0; i < NUMBER_OF_GLYPHS; i++) {
-
-      char c = ' ' + i;
-      printf("%c", c);
-
-      fd_Outline *o = &outlines[i];
-      fd_HostGlyphInfo *hgi = &glyph_infos[i];
-
-      FT_UInt glyph_index = FT_Get_Char_Index(face, c);
-      FT_CHECK(FT_Load_Glyph(face, glyph_index, FT_LOAD_NO_HINTING));
-
-      fd_outline_convert(&face->glyph->outline, o, c);
-
-      hgi->bbox = o->bbox;
-      hgi->advance = face->glyph->metrics.horiAdvance / 64.0f;
-
-      total_points += o->num_of_points;
-      total_cells += o->cell_count_x * o->cell_count_y;
-  }
-  printf("\n");
-
-  glyph_info_size = sizeof(fd_DeviceGlyphInfo) * NUMBER_OF_GLYPHS;
-  glyph_cells_size = sizeof(uint32_t) * total_cells;
-  glyph_points_size = sizeof(vec2) * total_points;
-
-  VkPhysicalDeviceProperties gpu_props;
-  vkGetPhysicalDeviceProperties(gpu, &gpu_props);
-  uint32_t alignment = gpu_props.limits.minStorageBufferOffsetAlignment;
-
-  glyph_info_offset = 0;
-  glyph_cells_offset = align_uint32(glyph_info_size, alignment);
-  glyph_points_offset = align_uint32(glyph_info_size + glyph_cells_size, alignment);
-  glyph_data_size = glyph_points_offset + glyph_points_size;
-  glyph_data = malloc(glyph_data_size);
-
-  fd_DeviceGlyphInfo *device_glyph_infos = (fd_DeviceGlyphInfo*)
-                                             ((char*)glyph_data + glyph_info_offset);
-
-  uint32_t *cells = (uint32_t*)((char*)glyph_data + glyph_cells_offset);
-  vec2 *points = (vec2*)((char*)glyph_data + glyph_points_offset);
-
-  uint32_t point_offset = 0;
-  uint32_t cell_offset = 0;
-
-  for (uint32_t i = 0; i < NUMBER_OF_GLYPHS; i++) {
-
-      fd_Outline *o = &outlines[i];
-      fd_DeviceGlyphInfo *dgi = &device_glyph_infos[i];
-
-      dgi->cell_info.cell_count_x = o->cell_count_x;
-      dgi->cell_info.cell_count_y = o->cell_count_y;
-      dgi->cell_info.point_offset = point_offset;
-      dgi->cell_info.cell_offset = cell_offset;
-      dgi->bbox = o->bbox;
-
-      uint32_t cell_count = o->cell_count_x * o->cell_count_y;
-      memcpy(cells + cell_offset, o->cells, sizeof(uint32_t) * cell_count);
-      memcpy(points + point_offset, o->points, sizeof(vec2) * o->num_of_points);
-
-      //fd_outline_u16_points(o, &dgi->cbox, points + point_offset);
-
-      point_offset += o->num_of_points;
-      cell_offset += cell_count;
-  }
-
-  assert(point_offset == total_points);
-  assert(cell_offset == total_cells);
-
-  for (uint32_t i = 0; i < NUMBER_OF_GLYPHS; i++){
-      fd_outline_destroy(&outlines[i]);
-  }
-
-  FT_CHECK(FT_Done_Face(face));
-  FT_CHECK(FT_Done_FreeType(library));
 }
 
 // ---------------------------------

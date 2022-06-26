@@ -1,15 +1,25 @@
 
+The following is temporary hackery I used to get things started.
+
+Planning proper build approach at some point this year.
+
  - --
- - https://github.com/libhybris/libhybris/wiki/Building
+ - git clone libhybris on device
+    - see https://github.com/libhybris/libhybris/wiki/Building
  - install Android headers Pie 9 API level 28
- - patch libhybris - see ../patches/hybris-diffs
+    - see https://github.com/ubports/android-headers.git
+ - patch libhybris
+    - see ../patches/hybris-diffs
  - build libhybris locally, install
- - replace o.so - see ./hybris-opt-tree
- - --
- - export LD_LIBRARY_PATH=/opt/libhybris/lib:/vendor/lib:/system/lib
- - export HYBRIS_VULKANPLATFORM=null
+    - see ./ut-debs.txt
+ - replace o.so
+    - see ./hybris-opt-tree
  - --
  - setprop service.sf.present_timestamp banana
+    - any fruit works here
+ - export LD_LIBRARY_PATH=/opt/libhybris/lib:/vendor/lib:/system/lib
+ - export HYBRIS_VULKANPLATFORM=null
+    - see ./bashrc
  - --
 
 

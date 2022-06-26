@@ -440,33 +440,31 @@ static void set_up_scene();
 
 static bool evaluate_user(object* o, void* d) {
 
-  if(prepared){
+  printf("evaluate_user\n");
 
-    printf("evaluate_user\n");
-
-    // model changes, vertex changes, text changes
-    /*
-    {
-     is: user
-     viewing: {
-       is: device
-       user: uid-user
-       io: {
-         is: clock event
-         title: OnexOS Clock
-         ts: 1656097056
-         tz: BST 3600
-       }
+  // model changes, vertex changes, text changes
+  /*
+  {
+   is: user
+   viewing: {
+     is: device
+     user: uid-user
+     io: {
+       is: clock event
+       title: OnexOS Clock
+       ts: 1656097056
+       tz: BST 3600
      }
-    }
-    */
-    char* ts=object_property(user, (char*)"viewing:io:ts");
-    if(ts) welcome_banner.text=ts;
-
-    info_board.rotation[1]+=4.0f;
-
-    set_up_scene();
+   }
   }
+  */
+  char* ts=object_property(user, (char*)"viewing:io:ts");
+  if(ts) welcome_banner.text=ts;
+
+  info_board.rotation[1]+=4.0f;
+
+  set_up_scene();
+
   return true;
 }
 
@@ -828,6 +826,8 @@ static void do_render_pass() {
 }
 
 static void set_up_scene() {
+
+  if(!prepared) return;
 
   pthread_mutex_lock(&scene_lock);
   scene_ready = false;

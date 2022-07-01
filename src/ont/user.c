@@ -428,21 +428,7 @@ static bool evaluate_user(object* o, void* d) {
   printf("evaluate_user\n");
 
   // model changes, vertex changes, text changes
-  /*
-  {
-   is: user
-   viewing: {
-     is: device
-     user: uid-user
-     io: {
-       is: clock event
-       title: OnexOS Clock
-       ts: 1656097056
-       tz: BST 3600
-     }
-   }
-  }
-  */
+
   char* ts=object_property(user, (char*)"viewing:io:ts");
   if(ts) welcome_banner.text=ts;
 
@@ -492,6 +478,7 @@ static bool evaluate_user(object* o, void* d) {
 }
 
 static void every_second(){ onex_run_evaluators(clockUID, 0); }
+
 // ---------------------------------
 
 static void show_matrix(mat4x4 m){

@@ -190,8 +190,11 @@ clean:
 	@echo "files not cleaned:"
 	@git ls-files --others --exclude-from=.git/info/exclude | xargs -r ls -Fla
 
-copy:
+copy-dorold:
 	rsync -ruav --stats --progress --delete onx/ phablet@dorold:onx
+
+copy-op5t:
+	rsync -ruav --stats --progress --delete onx/ phablet@op5t:onx
 
 SHELL=/usr/bin/bash
 

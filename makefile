@@ -251,7 +251,7 @@ COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Wer
 clean:
 	find src external -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf onx-iot.??? dfu.zip core okolo
+	rm -rf onx-wear.??? onx-iot.??? dfu.zip core okolo
 	rm -f ,*
 	@echo "------------------------------"
 	@echo "files not cleaned:"

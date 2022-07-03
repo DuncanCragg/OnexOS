@@ -153,7 +153,7 @@ static void draw_log();
 
 int main()
 {
-  //boot_init();
+  boot_init();
   log_init();
   time_init();
   gpio_init();
@@ -282,7 +282,7 @@ int main()
       spi_sleep();  // will spi_wake() as soon as spi_tx called
       i2c_sleep();  // will i2c_wake() in irq to read values
       // stop every_5ms timer!!
-      //boot_sleep();
+      boot_sleep();
     }
 
     if(event_tick_5ms){
@@ -299,7 +299,7 @@ int main()
 
     static uint64_t feeding_time=0;
     if(ct>feeding_time && gpio_get(BUTTON_1)!=BUTTONS_ACTIVE_STATE){
-      //boot_feed_watchdog();
+      boot_feed_watchdog();
       feeding_time=ct+1000;
     }
   }
@@ -462,8 +462,8 @@ bool evaluate_about_in(object* o, void* d)
   snprintf(buf, 32, "%lu %lu", (unsigned long)&__BUILD_TIMESTAMP, (unsigned long)&__BOOTLOADER_NUMBER);
   object_property_set(about, "build-info", buf);
 
-//  snprintf(buf, 16, "%d%%", boot_cpu());
-//  object_property_set(about, "cpu", buf);
+  snprintf(buf, 16, "%d%%", boot_cpu());
+  object_property_set(about, "cpu", buf);
 
   return true;
 }

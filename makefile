@@ -194,9 +194,9 @@ SDK_INCLUDES = \
 #-------------------------------------------------------------------------------
 # Targets
 
-onx-wear: INCLUDES=$(INCLUDES_S132)
-onx-wear: COMPILER_DEFINES=$(COMPILER_DEFINES_S132)
-onx-wear: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
+onx-wear.hex: INCLUDES=$(INCLUDES_S132)
+onx-wear.hex: COMPILER_DEFINES=$(COMPILER_DEFINES_S132)
+onx-wear.hex: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-132.a --output okolo
@@ -218,17 +218,32 @@ onx-iot: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot.out ./onx-iot.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot.out ./onx-iot.hex
 
+APPLICATION_VERSION = --application-version 1
+BOOTLOADER_VERSION = --bootloader-version $(shell cat ../OnexKernel/bootloader-number.txt)
+SETTINGS_VERSIONS = $(APPLICATION_VERSION) $(BOOTLOADER_VERSION) --bl-settings-version 2
+
+settings.hex: onx-wear.hex
+	nrfutil settings generate --family NRF52 --application onx-wear.hex $(SETTINGS_VERSIONS) settings.hex
+
 pinetime-erase:
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "nrf5 mass_erase" -c "reset run" -c exit
+
+pinetime-flash-bootloader: settings.hex
+	mergehex --merge ../OnexKernel/onex-kernel-bootloader.hex settings.hex --output ok-bl+settings.hex
+	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program ok-bl+settings.hex" -c "reset run" -c exit
 
 pinetime-flash-sd:
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program ./sdk/components/softdevice/s132/hex/s132_nrf52_7.0.1_softdevice.hex" -c "reset run" -c exit
 
-pinetime-flash: onx-wear
-	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program ./onx-wear.hex" -c "reset run" -c exit
+pinetime-flash: settings.hex
+	mergehex --merge onx-wear.hex settings.hex --output onx-wear+settings.hex
+	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-wear+settings.hex" -c "reset run" -c exit
 
 pinetime-reset:
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "reset run" -c exit
+
+pinetime-ota: onx-wear.hex
+	nrfutil pkg generate --hw-version 52 --application onx-wear.hex $(APPLICATION_VERSION) --sd-req 0xCB --key-file $(PRIVATE_PEM) onx-wear.zip
 
 dongle-flash: onx-iot
 	nrfutil pkg generate --hw-version 52 --sd-req 0xCA --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
@@ -251,7 +266,7 @@ COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Wer
 clean:
 	find src external -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf onx-wear.??? onx-iot.??? dfu.zip core okolo
+	rm -rf *.hex onx-wear.??? onx-iot.??? dfu.zip core okolo
 	rm -f ,*
 	@echo "------------------------------"
 	@echo "files not cleaned:"

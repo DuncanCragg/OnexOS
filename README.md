@@ -1,9 +1,9 @@
 # OnexOS
-An app-free OS building a trap-free 3D Web
+An OS _with no apps_ - returning to normal people the power and freedom promised by their own technology!
 
 See http://object.network/
 
-TL;DR: replaces apps and services with a shared 3D space containing us and our stuff that we can all "snap" together, hosted on our own devices.
+TL;DR: replaces apps and services with shared spaces containing us and our stuff that we can all "pin" together, hosted on our own devices.
 
 ### The app trap
 
@@ -15,22 +15,22 @@ OnexOS is a mobile OS without apps, hence no more app traps.
 
 ### OnexOSes create the Object Network
 
-Our social network and media posts created in OnexOS now live in a space called the Object Network.
+Our social network and media posts created in OnexOS now live in spaces that we can share.
 
 ### It's decentralised
 
-The whole Object Network is created on our own devices.
+The spaces are created on our own devices.
 
 If you do something sitting next to me, I get the change via the wifi, not via California.
 
-### The Object Network is a Metaverse, or a cyberspace
+### It's a Metaverse, or a cyberspace
 
-When you open your OnexOS mobile, you enter the Object Network as a 3D space containing all your stuff, and everyone else's.
+When you open your OnexOS mobile, you enter spaces containing all your stuff, and everyone else's.
 
-### Everything just snaps together
+### Everything just pins together
 
-We can "snap" together the 3D spaces we've built into super-spaces, spanning the globe.
+We can "pin" together the spaces and things we own and build into super-spaces, spanning the globe.
 
-I can grab a photo you let me see, and snap it onto my home wall, or into a media post I'm writing.
+I can grab a photo you let me see, and pin it onto my home wall, or into a media post I'm writing.
 
 

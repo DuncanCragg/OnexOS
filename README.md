@@ -13,7 +13,7 @@ Facebook and Google want your stuff, so they create traps - "app traps" - to cap
 
 OnexOS is a mobile OS without apps, hence no more app traps.
 
-### OnexOSes create the Object Network
+### OnexOSes create shared spaces
 
 Our social network and media posts created in OnexOS now live in spaces that we can share.
 

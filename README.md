@@ -3,7 +3,11 @@
 
 ## What it basically is
 
-OnexOS is an IoT or Home Automation Operating System for non-techies.
+OnexOS is an IoT or Home Automation Operating System for non-techies. It's got a bit of Augmented Reality.
+
+Or at least that's how it will begin, but it will then branch out into being a Metaverse, programmable by non-techies!
+
+It creates a mesh or P2P network called the Object Network.
 
 
 ## What's different about it

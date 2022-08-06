@@ -26,7 +26,7 @@ You can organise your Things into 3D rooms that match the rooms of your house.
 You can walk up to a button and grab a link to it (a handle on it) in the 3D view, then
 go up to any lamp and drop that link into it. Now the button operates the light! You can
 go up to a soil moisture sensor on a houseplant and you can see the current soil state.
-Wire /that/ Thing to an RGB light and you can have a colourful display of how dry the
+Wire _that_ Thing to an RGB light and you can have a colourful display of how dry the
 soil is.
 
 

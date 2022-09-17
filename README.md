@@ -1,9 +1,9 @@
 
 # OnexOS
 
-OnexOS is an OS for Raspberry Pie 4s plugged into the family telly.
+OnexOS is an OS for Raspberry Pi 4s plugged into the family telly.
 
-OnexOS empowers non-technical families to program in a 3D Virtual World.
+OnexOS empowers non-technical families to program in a 3D virtual world.
 
 ### Program what?
 

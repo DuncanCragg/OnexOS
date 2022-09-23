@@ -2,11 +2,12 @@
 # OnexOS
 
 OnexOS is an app for family Android devices that empowers non-technical families to
-build and program together in a 3D virtual world.
+build and program interactive experiences together in a 3D virtual world shared over the
+WiFi.
 
-### Program what?
+### Build what?
 
-Anything really, but while you're in a 3D world, you may as well:
+Anything really, for example your family can:
 
  - build a house and have the door open for you when you stand near it
  - ... and make the light turn on inside, or get brighter the closer you are
@@ -33,7 +34,7 @@ Since it's got 2D hypermedia panels in the 3D space, you can also create flat th
 
 There's only one big space shared by everyone in the family where all of this happens in
 your OnexOS, so you can re-use, re-mash and re-purpose anything, or join each family
-member's buildings and games together in new ways.
+member's buildings and games together in new ways, sharing materials and rules.
 
 OnexOS is not a fancy techie game engine like Roblox, just a way to easily knock up fun,
 interactive things in a 3D virtual world on the family tablets and phones.

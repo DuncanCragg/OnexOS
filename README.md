@@ -1,9 +1,9 @@
 
 # OnexOS
 
-OnexOS is an app for family Android devices that empowers non-technical families to
-build and program interactive experiences together in a 3D virtual world shared over the
-WiFi.
+OnexOS is an OS for Raspberry Pi 4s plugged into the family telly that empowers
+non-technical families to build and program interactive experiences together in a 3D
+virtual world.
 
 ### Build what?
 
@@ -37,7 +37,7 @@ your OnexOS, so you can re-use, re-mash and re-purpose anything, or join each fa
 member's buildings and games together in new ways, sharing materials and rules.
 
 OnexOS is not a fancy techie game engine like Roblox, just a way to easily knock up fun,
-interactive things in a 3D virtual world on the family tablets and phones.
+interactive things in a 3D virtual world on the family telly.
 
 ### How's it going?
 

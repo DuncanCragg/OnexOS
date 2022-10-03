@@ -18,8 +18,8 @@ Anything really, for example your family can:
  - knock up a game where objects are randomly aimed in your rough direction, and if you intercept them, you score a point; miss them and lose a point
  - make a rule to create a big spiralling chain of dominos, then run into the first one...
  - make a chill-out room with changing lights and images on the walls, with relaxing music
- - make a flower that opens in the day and closes at night
- - replicate that into a field of flowers
+ - make a flower that opens in the day and closes at night, or opens when you come near or touch it gently
+ - replicate that into a field of flowers, and add some birds that flock together and fly away as you approach
  - make a farm where you have soil panels and an irrigation panel down the middle; plant seeds and watch them grow when you add water
  - create a dog that follows you around, but gets distracted occasionally
  - create an ant farm where each ant has a couple of simple rules, then set off scores of ants and see how they interact

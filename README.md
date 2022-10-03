@@ -32,12 +32,15 @@ Since it's got 2D hypermedia panels in the 3D space, you can also create flat th
  - a spreadsheet-style calculator for parents to quickly enter readings and track their energy usage per day
  - a family photo gallery
 
-There's only one big space shared by everyone in the family where all of this happens in
-your OnexOS, so you can re-use, re-mash and re-purpose anything, or join each family
-member's buildings and games together in new ways, sharing materials and rules.
+There's only one big space shared by everyone in the family where all of this happens
+within each device's OnexOS, so you can re-use, re-mash and re-purpose anything, or join
+each family member's buildings and games on all of your devices together in new ways,
+sharing materials and rules.
 
-OnexOS is not a fancy techie game engine like Roblox, just a way to easily knock up fun,
-interactive things in a 3D virtual world on the family telly.
+OnexOS is not a fancy techie game engine like Roblox, or even a fancy non-techie game
+engine like Playstation Dreams. It's just a way to easily knock up fun, interactive
+spaces and experiences in a 3D virtual world on the family telly. It's like a cross
+between Dreams, Minecraft Creative mode and Second Life.
 
 ### How's it going?
 

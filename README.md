@@ -1,63 +1,38 @@
 
 # OnexOS
 
-OnexOS is an OS for Raspberry Pi 4s plugged into the family telly that empowers
-non-technical families to build and program interactive experiences together in a 3D
-virtual world.
+OnexOS is going to be a 3D world creator, in the category of "family fun and creative
+pastimes", or, to use gaming categories, a "physics sandbox 3D virtual world simulation".
 
-### Build what?
+It's a way to easily knock up fun, interactive spaces and experiences in a 3D virtual
+world. It will be somewhat a cross between Minecraft Creative mode, Playstation Dreams
+and Second Life.
 
-Anything really, for example your family can:
+The goal is that you can quickly and easily create beautiful or imaginative places and
+spaces. Make a chill-out room with coloured lights and soft-coloured walls. Then build
+your ideal house, then a street of houses, then complete cities. You can create a
+magical tree, then copy that into a magical wood, then multiply that wood into a magical
+forest.
 
- - build a house and have the door open for you when you stand near it
- - ... and make the light turn on inside, or get brighter the closer you are
- - add a lift that takes you up to the first floor
- - create a street of identical houses with just a simple rule or two
- - and add a car to drive up and down
- - make a game where platforms appear and disappear, and you have to keep jumping to avoid falling to the ground
- - knock up a game where objects are randomly aimed in your rough direction, and if you intercept them, you score a point; miss them and lose a point
- - make a rule to create a big spiralling chain of dominos, then run into the first one...
- - make a chill-out room with changing lights and images on the walls, with relaxing music
- - make a flower that opens in the day and closes at night, or opens when you come near or touch it gently
- - replicate that into a field of flowers, and add some birds that flock together and fly away as you approach
- - make a farm where you have soil panels and an irrigation panel down the middle; plant seeds and watch them grow when you add water
- - create a dog that follows you around, but gets distracted occasionally
- - create an ant farm where each ant has a couple of simple rules, then set off scores of ants and see how they interact
+Things in this world have physical properties: every house you make can have doors and
+windows that swing open and shut. You can make a windmill whose vanes turn when it's
+windy. You can build a wheeled buggy to jump into, that can roll faster and faster down
+the street from the top of the hill.  Make a game of skittles or try to build a tower
+without it falling over.
 
-Since it's got 2D hypermedia panels in the 3D space, you can also create flat things like:
-
- - a message board
- - a family to-do list
- - a big-button calculator
- - a spreadsheet-style calculator for parents to quickly enter readings and track their energy usage per day
- - a family photo gallery
-
-There's only one big space shared by everyone in the family where all of this happens
-within each device's OnexOS, so you can re-use, re-mash and re-purpose anything, or join
-each family member's buildings and games on all of your devices together in new ways,
-sharing materials and rules.
-
-OnexOS is not a fancy techie game engine like Roblox, or even a fancy non-techie game
-engine like Playstation Dreams. It's just a way to easily knock up fun, interactive
-spaces and experiences in a 3D virtual world on the family telly. It's like a cross
-between Dreams, Minecraft Creative mode and Second Life.
+Everything you make is in a single unbounded world, so you can re-use, re-mash and
+re-purpose anything, and join each family member's spaces, buildings and games together
+in new ways, sharing materials or entire constructions.
 
 ### How's it going?
 
-It's early days - I just have text panels showing in Vulkan so far. Watch this space...
-
-Meanwhile, go here for some indication of what's to come: the previous implementation of
-my programming language applied to Minecraft:
-
-https://github.com/DuncanCragg/NetMash/blob/master/src/server/vm1/mc-tutorial.db
+It's early days - I just have panels showing in Vulkan on Linux so far! Watch this space...
 
 ### Read more
 
 OnexOS is part of a much more ambitious project, described here:
 
 See http://object.network/
-
-
 
 ____________________________________
 

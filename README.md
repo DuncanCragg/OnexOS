@@ -1,8 +1,9 @@
 
 # OnexOS
 
-OnexOS is going to be a 3D world creator, in the category of "family fun and creative
-pastimes", or, to use gaming categories, a "physics sandbox 3D virtual world simulation".
+OnexOS is going to be a 3D world creator for Android, in the category of "family fun and
+creative pastimes", or, to use gaming categories, a "physics sandbox 3D virtual world
+simulation".
 
 It's a way to easily knock up fun, interactive spaces and experiences in a 3D virtual
 world. It will be somewhat a cross between Minecraft Creative mode, Playstation Dreams

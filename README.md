@@ -1,29 +1,29 @@
 
 # OnexOS
 
-OnexOS is going to be a 3D world creator for Android, in the category of "family fun and
-creative pastimes", or, to use gaming categories, a "physics sandbox 3D virtual world
-simulation".
+OnexOS is going to be an open Metaverse for Android aimed at regular people, like
+families.
 
-It's a way to easily knock up fun, interactive spaces and experiences in a 3D virtual
-world. It will be somewhat a cross between Minecraft Creative mode, Playstation Dreams
-and Second Life.
+You build everything with simple coloured cuboids (cubes, panels) that can have text or
+images (hypermedia) on them.
 
-The goal is that you can quickly and easily create beautiful or imaginative places and
-spaces. Make a chill-out room with coloured lights and soft-coloured walls. Then build
-your ideal house, then a street of houses, then complete cities. You can create a
-magical tree, then copy that into a magical wood, then multiply that wood into a magical
-forest.
+With just these basic starting materials you can build a room, a house, a street, a
+city. Build a photo gallery. Create an article or a chat room, or a library of all your
+best recipes or a warehouse full of 3D objects you want to share.
 
-Things in this world have physical properties: every house you make can have doors and
-windows that swing open and shut. You can make a windmill whose vanes turn when it's
-windy. You can build a wheeled buggy to jump into, that can roll faster and faster down
-the street from the top of the hill.  Make a game of skittles or try to build a tower
-without it falling over.
+These can be set up to be seen by your family or by the public. You can set up a family
+photo gallery, message board or to-do list.
 
-Everything you make is in a single unbounded world, so you can re-use, re-mash and
-re-purpose anything, and join each family member's spaces, buildings and games together
-in new ways, sharing materials or entire constructions.
+Everything we all make in OnexOS is in a single unbounded world shared by all of us,
+with private family spaces, so we can join all the spaces, creations, media, documents
+and chats we create together in new ways, sharing materials or entire constructions,
+re-using, re-mashing and re-purposing anything with anything or anyone anywhere.
+
+Everything you build stays owned by you, on your own device. You get to decide who can
+see it or who can change it.
+
+This whole virtual world is simply sewn together by links - like web links or URLs - to
+each object, house, city, document, chatroom or gallery that we create.
 
 ### How's it going?
 

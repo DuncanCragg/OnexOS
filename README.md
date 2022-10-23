@@ -1,7 +1,7 @@
 
 # OnexOS
 
-OnexOS is going to be an open Metaverse for Android aimed at regular people, like
+OnexOS is going to be an open 3D virtual world for Android aimed at regular people, like
 families.
 
 You build everything with simple coloured cuboids (cubes, panels) that can have text or

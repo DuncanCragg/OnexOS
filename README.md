@@ -1,3 +1,4 @@
+<p align="center"><img src="http://object.network/object-network-logo.png" /></p>
 
 # OnexOS
 

@@ -42,29 +42,35 @@ build the One True Metaverse, it has to have links like the ole' Web!
 The Web runs out of steam when faced with the Metaverse challenge. I talk more about
 this <a href="http://object.network/other-open-metaverses.html">here</a>.
 
-### What kind of Metaverse are you building? Who's the target demographic?
+### What kind of Metaverse are you building?
 
-Families mostly, at least to start off. Co-creation, sharing, exploration.
-
-Everything we all make in the OnexOS Metaverse is in a *single*, seamless, unbounded
-universe, shared by all of us.
+Co-creation, sharing, exploration.
 
 You build everything in the OnexOS universe from simple coloured cubes and panels that
-can have text or images on them.
+can have text or images on them (although the building materials will expand over time).
+
+Everything we all make in the OnexOS Metaverse is in a single, seamless, unbounded
+universe, shared by all of us.
 
 We can link up all the spaces, creations, cities and media, documents and chats that we
 create together in new ways, sharing links to materials or entire constructions,
 re-using, re-mashing and re-purposing anything with anyone anywhere.
 
+### Who's the target demographic?
+
+Aimed at families mostly, at least to start off.
+
 ### If it's all one shared Metaverse, who owns what?
 
 Everything you build stays owned by you, on your own device or trusted server. You get
 to decide who can see or who can change your stuff: your objects can be set up to be
-seen only by your family or by the public. You can set up a family photo wall, or a
-message board or to-do list in a virtual family room, that are all shared just over the
-family WiFi. You can share links to objects or link objects together directly between
-your family's devices.  There's no account set-up, and no adverts (unless someone
-creates a billboard somewhere!). You can all just jump in and start co-creating!
+seen only by your family or by the public.
+
+You can set up a family photo wall, or a message board or to-do list in a virtual family
+room, that are all shared just over the family WiFi. You can share links to objects or
+link objects together directly between your family's devices.  There's no account
+set-up, and no adverts (unless someone creates a billboard somewhere!). You can all just
+jump in and start co-creating!
 
 ### How's it going?
 

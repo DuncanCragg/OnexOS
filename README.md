@@ -2,11 +2,11 @@
 
 # OnexOS is also building the Metaverse
 
-No-one is building The One Open Metaverse these days, so I thought I'd do it...
+No-one is building The One Open Metaverse these days, so I thought I'd do it.
 
 The OnexOS Metaverse is built from a single distributed scenegraph, with scene elements
 all tied together with links like Web URLs. The distributed scenegraph owes its
-seamlessness - between your leaves on my tree, or between a my forest and your city - to
+seamlessness - between your leaves on my tree, or between my forest and your city - to
 being sewn together by these links.
 
 You build everything in the OnexOS universe from simple coloured cubes and panels that

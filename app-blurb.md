@@ -1,7 +1,7 @@
 
 # The OnexOS app description
 
-OnexOS is going to enable an open 3D universe, filled with regular people like families,
+OnexOS creates an open 3D universe, filled with regular people like families,
 co-creating and exploring each others virtual places and worlds.
 
 Everything we all make in OnexOS is in a *single* seamless, unbounded universe, shared

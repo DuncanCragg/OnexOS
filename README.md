@@ -5,7 +5,7 @@ OnexOS manifests an open 3D universe for all of us, and our families and friends
 co-create virtual places and to share and explore together. Everything we all make in
 OnexOS is in a single seamless, unbounded universe, shared by all of us.
 
-The OnexOS Metaverse is built from a single distributed scenegraph, with scene elements
+The OnexOS universe is built from a single distributed scenegraph, with scene elements
 all tied together with links like URLs. The distributed scenegraph owes its seamlessness -
 between your leaves on my tree, or between my forest and your city - to being sewn
 together by these links.
@@ -38,7 +38,7 @@ Everything you build stays owned by you, on your own device. You get to decide w
 see or who can change your stuff: your objects can be set up to be seen only by your
 family or by the public. You can set up a family photo wall, or a message board or to-do
 list in a virtual family room, that are all shared just over the family WiFi. You can
-share objects or glue objects together directly between your family's devices.  There's
+share objects or link objects together directly between your family's devices.  There's
 no account set-up, and no adverts (unless someone creates a billboard somewhere!). You
 can all just jump in and start co-creating!
 

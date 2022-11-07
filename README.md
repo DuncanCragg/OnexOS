@@ -10,6 +10,8 @@ all tied together with links like URLs. The distributed scenegraph owes its seam
 between your leaves on my tree, or between my forest and your city - to being sewn
 together by these links.
 
+### What can you do?
+
 You build everything in the OnexOS universe from simple coloured cubes and panels that
 can have text or images on them. These are then linked together into the universe that
 we're going to build together. With just these basic starting materials you can:
@@ -34,6 +36,8 @@ another city made by a different group of folk, and like it, share its link with
 other families in the chat room. Then if everyone in each city agrees, you can all
 co-create a highway through the hills to link the two cities up in each direction.
 
+### Who owns what and where?
+
 Everything you build stays owned by you, on your own device. You get to decide who can
 see or who can change your stuff: your objects can be set up to be seen only by your
 family or by the public. You can set up a family photo wall, or a message board or to-do
@@ -47,7 +51,7 @@ can all just jump in and start co-creating!
 It's early days - I just have panels with text on them rendering in Vulkan on Linux so
 far! Watch this space...
 
-### Read more
+### Tell me more!
 
 See <a href="http://object.network/index-meta-web.html">this article for a deep
 description</a> of what I'm up to here!

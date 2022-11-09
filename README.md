@@ -2,13 +2,11 @@
 # OnexOS
 
 OnexOS manifests an open 3D universe for all of us, and our families and friends, to
-co-create virtual places and to share and explore together. Everything we all make in
-OnexOS is in a single seamless, unbounded universe, shared by all of us.
+co-create virtual places and to share and explore together.
 
-The OnexOS universe is built from a single distributed scenegraph, with scene elements
-all tied together with links like URLs. The distributed scenegraph owes its seamlessness -
-between your leaves on my tree, or between my forest and your city - to being sewn
-together by these links.
+The OnexOS universe is built from world elements all tied together with links like URLs.
+The world owes its seamlessness - between your leaves on my tree, or between my forest
+and your city - to being sewn together by these links.
 
 ### What can you do?
 
@@ -35,16 +33,6 @@ Attach that mountain to the back of your city with just a single link. If you vi
 another city made by a different group of folk, and like it, share its link with the
 other families in the chat room. Then if everyone in each city agrees, you can all
 co-create a highway through the hills to link the two cities up in each direction.
-
-### Who owns what and where?
-
-Everything you build stays owned by you, on your own device. You get to decide who can
-see or who can change your stuff: your objects can be set up to be seen only by your
-family or by the public. You can set up a family photo wall, or a message board or to-do
-list in a virtual family room, that are all shared just over the family WiFi. You can
-share objects or link objects together directly between your family's devices.  There's
-no account set-up, and no adverts (unless someone creates a billboard somewhere!). You
-can all just jump in and start co-creating!
 
 ### How's it going?
 

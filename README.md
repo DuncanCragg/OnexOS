@@ -2,11 +2,12 @@
 # OnexOS
 
 OnexOS manifests an open 3D universe for all of us, and our families and friends, to
-co-create virtual places and to share and explore together.
+create virtual places and to share and explore together.
 
-The OnexOS universe is built from world elements all tied together with links like URLs.
-The world owes its seamlessness - between your leaves on my tree, or between my forest
-and your city - to being sewn together by these links.
+The OnexOS universe is built from world elements all tied together with "links".
+
+This universe owes its "mashability" to being sewn together everywhere by these
+pervasive links - between your leaves on my tree, or between my forest and your city.
 
 ### What can you do?
 

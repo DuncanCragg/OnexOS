@@ -1,19 +1,25 @@
 
 # OnexOS
 
-OnexOS manifests an open 3D universe for all of us, and our families and friends, to
-create virtual places and to share and explore together.
+The OnexOS Android app gives you and your family a 3D creative space where you can
+all sketch 3D objects and places and write and post 2D notes and documents around in
+virtual rooms.
 
-The OnexOS universe is built from world elements all tied together with "links".
+Use it as a thinking space, a creative space or a sharing space; have fun exploring each
+others creations.
 
-This universe owes its "mashability" to being sewn together everywhere by these
-pervasive links - between your leaves on my tree, or between my forest and your city.
+You can run it on a shared family Android tablet, or on the LineageOS version of Android
+on a Raspberry Pi 4 behind your family TV! Each family member can have their own stuff.
 
 ### What can you do?
 
-You build everything in the OnexOS universe from simple coloured cubes and panels that
-can have text or images on them. These are then linked together into the universe that
-we're going to build together. With just these basic starting materials you can:
+This space owes its creative "mashability" to being sewn, tied or snapped together
+everywhere by "links" - links between your leaves on my tree, or between my forest and
+your city.
+
+You build everything in OnexOS from simple coloured panels that can have text or images
+on them. These are then linked together into the creative space that you play in. With
+just these basic starting materials you can:
 
 Build a house from panels linked into rooms and rooms linked together. Then build a
 street made of links to all the houses of your family and friends. Then build a city

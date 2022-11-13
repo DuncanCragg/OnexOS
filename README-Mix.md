@@ -39,9 +39,9 @@ just these basic starting materials you can:
  - Fill it with plants, tables, trees, rocks, houses, castles
  - You can create a pretty tree on a little hill
  - Then multiply that up to a forest on a mountain by dropping hill and tree links all over
- - Attach that mountain to the back of your city with just a single link
- - If you visit a city made by an enthusiastic family member, share its link with the family on the discussion board
- - Then you can all create a highway through the hills to link the two cities up in each direction
+ - Attach that mountain to the back of your city with just a link, and another link to get back again
+ - If a family member makes a fantasy village, they can share its link with the family on the discussion board
+ - Then you can pin the village to the top of the mountain with its link and a link back
 
 ____________________________________
 

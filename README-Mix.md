@@ -31,7 +31,7 @@ just these basic starting materials you can:
  - Or even holiday plans, favourite recipes or music reviews
  - Sit in the library surrounded by links to snippets of text and images while you compose a story
  - Next to the library, place a gallery with walls linking to everyone's favourite photos
- - Rebuild the library to create many rooms organised by theme
+ - Rebuild the gallery to create many rooms organised by theme
  - Create a billboard with links to text paragraphs and images, describing an upcoming event you'll all attend
  - Remind everyone by putting the billboard up along the street, by simply dropping its link down
  - Create signs pointing the way to landmarks, containing a link to allow direct teleporting

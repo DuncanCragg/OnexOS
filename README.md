@@ -14,8 +14,8 @@ on a Raspberry Pi 4 behind your family TV! Each family member can have their own
 ### What can you do?
 
 This space owes its creative "mashability" to being sewn, tied or snapped together
-everywhere by "links" - links between your leaves on my tree, or between my forest and
-your city.
+everywhere by "links" - links between my scrapbook of notes and photos and one of your
+notes, or between your leaves and my tree, or between my forest and your city.
 
 You build everything in OnexOS from simple coloured panels that can have text or images
 on them. These are then linked together into the creative space that you play in. With
@@ -27,14 +27,18 @@ just these basic starting materials you can:
  - Leave messages around linked to the walls of the family virtual home kitchen
  - Then collect those onto a pinboard by grabbing and pasting their links
  - Start up a discussion board, which has lists of links to messages and family members
- - Create a billboard with links to text paragraphs and images, describing an upcoming event
- - Put the billboard up along the street by simply dropping its link down
- - Create signs pointing the way to landmarks, containing a link to allow direct teleporting
- - Put down a library on the high street full of links to documents you have each created, like favourite recipes or music reviews
+ - Put down a library on the high street full of links to documents you have each created
+ - Or even holiday plans, favourite recipes or music reviews
  - Sit in the library surrounded by links to snippets of text and images while you compose a story
- - Next to that, put a gallery with many rooms with walls linking to everyone's favourite photos, organised by theme
- - Create a warehouse store full of links to 3D objects to share with each other, like plants, tables, trees, rocks, houses, castles
- - You can create a pretty tree on a little hill, then multiply that up to a forest on a mountain by dropping hill and tree links all over
+ - Next to the library, place a gallery with walls linking to everyone's favourite photos
+ - Rebuild the library to create many rooms organised by theme
+ - Create a billboard with links to text paragraphs and images, describing an upcoming event you'll all attend
+ - Remind everyone by putting the billboard up along the street, by simply dropping its link down
+ - Create signs pointing the way to landmarks, containing a link to allow direct teleporting
+ - Create a warehouse store full of links to 3D objects to share with each other
+ - Fill it with plants, tables, trees, rocks, houses, castles
+ - You can create a pretty tree on a little hill
+ - Then multiply that up to a forest on a mountain by dropping hill and tree links all over
  - Attach that mountain to the back of your city with just a single link
  - If you visit a city made by an enthusiastic family member, share its link with the family on the discussion board
  - Then you can all create a highway through the hills to link the two cities up in each direction

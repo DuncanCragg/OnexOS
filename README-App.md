@@ -8,8 +8,9 @@ virtual rooms.
 Use it as a thinking space, a creative space or a sharing space; have fun exploring each
 others creations.
 
-You can run it on a shared family Android tablet, or on the LineageOS version of Android
-on a Raspberry Pi 4 behind your family TV! Each family member can have their own stuff.
+You can run it on a shared family Android tablet, or on a version of Android (LineageOS)
+on a Raspberry Pi 4 behind your family TV! Each family member can have their own stuff,
+and everything is shared over the domestic WiFi.
 
 ### What can you do?
 
@@ -27,20 +28,26 @@ just these basic starting materials you can:
  - Leave messages around linked to the walls of the family virtual home kitchen
  - Then collect those onto a pinboard by grabbing and pasting their links
  - Start up a discussion board, which has lists of links to messages and family members
+ - But then meet in a 3D room to chat as well; a room links to the people present
  - Put down a library on the high street full of links to documents you have each created
  - Or even holiday plans, favourite recipes or music reviews
- - Sit in the library surrounded by links to snippets of text and images while you compose a story
+ - Sit in the library surrounded by links to snippets of text and images while you
+   compose a story
  - Next to the library, place a gallery with walls linking to everyone's favourite photos
  - Rebuild the gallery to create many rooms organised by theme
- - Create a billboard with links to text paragraphs and images, describing an upcoming event you'll all attend
- - Remind everyone by putting the billboard up along the street, by simply dropping its link down
+ - Create a billboard with links to text paragraphs and images, describing an upcoming
+   event you'll all attend
+ - Remind everyone by putting the billboard up along the street, by simply dropping its
+   link down
  - Create signs pointing the way to landmarks, containing a link to allow direct teleporting
  - Create a warehouse store full of links to 3D objects to share with each other
  - Fill it with plants, tables, trees, rocks, houses, castles
  - You can create a pretty tree on a little hill
  - Then multiply that up to a forest on a mountain by dropping hill and tree links all over
- - Attach that mountain to the back of your city with just a link, and another link to get back again
- - If a family member makes a fantasy village, they can share its link with the family on the discussion board
+ - Attach that mountain to the back of your city with just a link, and another link to
+   get back again
+ - If a family member makes a fantasy village, they can share its link with the family
+   on the discussion board
  - Then you can pin the village to the top of the mountain with its link and a link back
 
 ____________________________________

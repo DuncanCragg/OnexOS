@@ -27,7 +27,7 @@ just these basic starting materials you can:
  - Then build a city with links to the streets
  - Leave messages around linked to the walls of the family virtual home kitchen
  - Then collect those onto a pinboard by grabbing and pasting their links
- - Start up a discussion board, which has lists of links to messages and family members
+ - Create a 2D chat room, which has lists of links to messages and to family members
  - But then meet in a 3D room to chat as well; a room links to the people present
  - Put down a library on the high street full of links to documents you have each created
  - Or even holiday plans, favourite recipes or music reviews
@@ -47,7 +47,7 @@ just these basic starting materials you can:
  - Attach that mountain to the back of your city with just a link, and another link to
    get back again
  - If a family member makes a fantasy village, they can share its link with the family
-   on the discussion board
+   in the chat room
  - Then you can pin the village to the top of the mountain with its link and a link back
 
 ____________________________________

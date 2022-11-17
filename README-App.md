@@ -14,10 +14,10 @@ and everything is shared over the domestic WiFi.
 
 ### What can you do?
 
-This space owes its creative "mashability" to being sewn, tied or snapped together
-everywhere by "links" - which work somewhat like the Web's URLs - links between my
-scrapbook of notes and photos and one of your notes, or between your leaves and my tree,
-or between my forest and your city.
+This space owes its creative "mashability" to being sewn, pinned, tied and snapped
+together everywhere by "links" - which work somewhat like the Web's URLs: links between
+my scrapbook of notes and photos and one of your notes, or between your leaves and my
+tree, or between my forest and your city.
 
 You build everything in OnexOS from simple coloured panels that can have text or images
 on them. These are then linked together into the creative space that you play in. With

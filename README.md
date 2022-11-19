@@ -6,7 +6,7 @@ places and write and post 2D notes and documents around in virtual rooms. It's a
 thinking space, a creative space or a sharing space. It will run on Android, or on
 LineageOS on a Raspberry Pi 4.
 
-See this [description the first release of the app](README-App.md).
+See this [description of the first release of the app](README-App.md).
 
 ### How's it going?
 

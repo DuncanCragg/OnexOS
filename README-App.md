@@ -1,27 +1,43 @@
 
 # OnexOS
 
-The OnexOS Android app gives you and your family a 3D creative space where you can
-all sketch 3D objects and places and write and post 2D notes and documents around in
-virtual rooms.
+OnexOS gives you and your family a 3D creative space where you can all build 3D objects
+and places and write and post 2D notes and documents around in virtual rooms.
 
-Use it as a thinking space, a creative space or a sharing space; have fun exploring each
-others creations.
+### What's it for?
 
-You can run it on a shared family Android tablet, or on a version of Android (LineageOS)
-on a Raspberry Pi 4 behind your family TV! Each family member can have their own stuff,
-and everything is shared over the domestic WiFi.
+You can use OnexOS as a thinking space, a family creative space or a sharing space; have
+fun exploring each other's creations, working together and sharing 2D and 3D objects.
 
-### What can you do?
+### Who's it for?
 
-This space owes its creative "mashability" to being sewn, pinned, tied and snapped
-together everywhere by "links" - which work somewhat like the Web's URLs: links between
-my scrapbook of notes and photos and one of your notes, or between your leaves and my
-tree, or between my forest and your city.
+It's aimed at families. Mums, dads, grannies, girls, boys. Cross-demographic.
+
+### What will it run on?
+
+It's an Android app so you can run it on a shared family tablet, or on a version of
+Android (LineageOS) on a Raspberry Pi 4 behind your family TV! It works over the home
+WiFi between everyone's Android device.
+
+### What's novel about it?
 
 You build everything in OnexOS from simple coloured panels that can have text or images
-on them. These are then linked together into the creative space that you play in. With
-just these basic starting materials you can:
+on them - echoing the simplicity and power of Minecraft's blocks.
+
+But this space really owes its creative "mashability" to the way all your family's
+panels are sewn, pinned, tied and snapped together everywhere by "links", forming a
+potentially huge shared playground. Links work somewhat like the Web's URLs in that they
+form a handle or hook onto anything you see in the world.
+
+### What can you do with links?
+
+You can put in links between your scrapbook of notes and photos and one of your mum's
+notes, between the virtual kitchen wall and one of those photos, between your leaves and
+your sister's tree, or between your grandad's forest and your city.
+
+### Can you give some more examples?
+
+with just these basic starting materials you can:
 
  - Build a house from panels linked into rooms and rooms linked together
  - Then build a street made of links to all the houses of your family
@@ -50,6 +66,36 @@ just these basic starting materials you can:
  - If a family member makes a fantasy village, they can share its link with the family
    in the chat room
  - Then you can pin the village to the top of the mountain with its link and a link back
+
+### What's the nearest "competitor"?
+
+Since there's nothing really like OnexOS, it's hard to say! It can perhaps be described
+as:
+
+_Like Minecraft Creative - with the simplicity and power of doing everything the same
+basic way - but replacing stacking blocks with links between panels._
+
+The top benefit of that is that you can just pick up your house by its link and move or
+copy it!
+
+Further, unlike Minecraft:
+
+ - our panels can have proper rounded text and your photos on them
+ - there's only one world that's always available; you don't need to keep restarting in
+   new worlds and waiting for them to load; OnexOS is designed to be running all the
+   time so you can just drop in at any time
+ - there's no account set-up or logging in: you can all just jump in and get started
+   immediately!
+
+### What's the business model?
+
+There is none. Free and Open software. No adverts.
+
+### Where does all our stuff go?
+
+Each family member can have their own stuff on their own devices, and everything is
+shared over the domestic WiFi. Nothing need leave the home unless you want it to
+(and anyway, you'll need to wait for the internet-enabled version for that).
 
 ____________________________________
 

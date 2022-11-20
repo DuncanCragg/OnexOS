@@ -45,8 +45,6 @@ You can put in a link between:
 
 ### Can you give some more examples?
 
-with just these basic starting materials you can:
-
  - Build a house from panels linked into rooms and rooms linked together
  - Then build a street made of links to all the houses of your family
  - Add some extra houses by creating one house and dropping its link up the street

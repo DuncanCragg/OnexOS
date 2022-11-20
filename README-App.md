@@ -106,14 +106,17 @@ or clone it!
 
 Again, unlike Minecraft:
 
- - each family member can have their own stuff on their own device rather than joining
-   someone else's world - links work across devices, too, and everything is shared
-   securely just over the domestic WiFi; but you can all keep working on your own
-   creations away from home and re-sync when you return.
- - there's only one shared family world, that's always available; you don't need to keep
+ - Each family member has their own stuff on their own device, and all that is sewn
+   together into the shared family world - rather than everyone joining someone else's
+   world that's just on their device
+ - There's only one shared family world, that's always available; you don't need to keep
    restarting in new worlds and waiting for them to load; OnexOS is designed to be
    running all the time so you can just drop in at any time
- - there's no account set-up or logging in: you can all just jump in and get started
+ - So links work across devices, too, and everything is shared securely just over the
+   domestic WiFi
+ - Hence you can all keep working on your own creations away from home and then re-sync
+   when you return
+ - There's no account set-up or logging in: you can all just jump in and get started
    immediately!
 
 ### What's the business model?

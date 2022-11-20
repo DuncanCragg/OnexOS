@@ -80,22 +80,23 @@ copy it!
 
 Further, unlike Minecraft:
 
- - our panels can have proper rounded text and your photos on them
- - there's only one world that's always available; you don't need to keep restarting in
-   new worlds and waiting for them to load; OnexOS is designed to be running all the
-   time so you can just drop in at any time
+ - there's only one shared family world, that's always available; you don't need to keep
+   restarting in new worlds and waiting for them to load; OnexOS is designed to be
+   running all the time so you can just drop in at any time
  - there's no account set-up or logging in: you can all just jump in and get started
    immediately!
+ - each family member can have their own stuff on their own device rather than joining
+   someone else's world - links work across devices, too, and everything is shared
+   securely just over the domestic WiFi; but you can all keep working on your own
+   creations away from home and re-sync when you return.
+
+Oh, and:
+
+ - our panels can have proper rounded text and your photos on them!
 
 ### What's the business model?
 
 There is none. Free and Open software. No adverts.
-
-### Where does all our stuff go?
-
-Each family member can have their own stuff on their own devices, and everything is
-shared over the domestic WiFi. Nothing need leave the home unless you want it to
-(and anyway, you'll need to wait for the internet-enabled version for that).
 
 ____________________________________
 

@@ -59,14 +59,19 @@ You can put in a link between:
  - Put down a library on the high street full of links collecting the best documents you
    have each created
  - Maybe the holiday plans, favourite recipes or music reviews you each have in your rooms
- - Collect some links to snippets of text and images that you find useful for a short
-   story you're writing
+ - Collect a list of some links to snippets of text and images that you find useful for
+   a short story you're writing
+ - Obviously, lists are objects too, and also have links
+ - If you like a paragraph in someone's document, then of course it also has a link that
+   you can grab for your snippet list
  - Sit in the library and surround yourself with (links to) those snippets while you
    compose it
  - Next to the library, place a gallery with walls linking to everyone's favourite
    photos in their albums or photo frames
  - Rebuild the gallery to create many rooms organised by theme; a picture matching two
    themes can appear twice
+ - If you like the gallery's "landscape" room, simply grab its link and paste it into
+   your own virtual house where you can wander in easily
  - Create a billboard with links to text paragraphs and images, describing an upcoming
    event you'll all attend
  - Remind everyone by putting the billboard up along the street, by simply dropping its
@@ -77,6 +82,8 @@ You can put in a link between:
  - Fill it with plants, tables, trees, rocks, houses, castles
  - If you want to use something, you don't walk out with it, you just grab a link to it
    and drop it where you want
+ - You can even grab a bit of that castle: if you like its tallest tower, simply take
+   its link
  - Create a pretty tree on a little hill
  - Then multiply that up to a forest on a mountain by dropping hill and tree links all over
  - Attach that mountain to the back of your city with just a link, and another link to

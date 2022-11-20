@@ -21,19 +21,27 @@ WiFi between everyone's Android device.
 
 ### What's novel about it?
 
-You build everything in OnexOS from simple coloured panels that can have text or images
-on them - echoing the simplicity and power of Minecraft's blocks.
+You build everything in OnexOS from simple coloured panels - echoing the simplicity and
+power of Minecraft's blocks. Unlike Minecraft, text on our panels uses proper rounded
+fonts and you can paste your photos on them!
 
 But this space really owes its creative "mashability" to the way all your family's
 panels are sewn, pinned, tied and snapped together everywhere by "links", forming a
-potentially huge shared playground. Links work somewhat like the Web's URLs in that they
-form a handle or hook onto anything you see in the world.
+potentially huge shared world to play in. Links work somewhat like the Web's URLs in
+that they form a handle or hook onto anything and everything you see in the world.
 
 ### What can you do with links?
 
-You can put in links between your scrapbook of notes and photos and one of your mum's
-notes, between the virtual kitchen wall and one of those photos, between your leaves and
-your sister's tree, or between your grandad's forest and your city.
+You can put in a link between:
+
+ - your scrapbook of notes and photos and one of your mum's notes on the desk in her
+   virtual study
+ - the virtual kitchen wall and one of your scrapbook photos
+ - your tree and your sister's leaf, repeated all over it
+    - if she changes the leaf to red in autumn, all trees that use the leaf go red together
+ - your grandad's forest and your city, so you can just walk across and back
+    - but have a signpost in the forest that also contains the city's link so you can
+      save the walk and teleport there!
 
 ### Can you give some more examples?
 
@@ -41,31 +49,47 @@ with just these basic starting materials you can:
 
  - Build a house from panels linked into rooms and rooms linked together
  - Then build a street made of links to all the houses of your family
+ - Add some extra houses by creating one house and dropping its link up the street
  - Then build a city with links to the streets
- - Leave messages around linked to the walls of the family virtual home kitchen
- - Then collect those onto a pinboard by grabbing and pasting their links
+ - Leave messages around linked (pinned) to the walls of the family virtual home
+ - Then collect all of those onto a kitchen pinboard by grabbing and pasting all of
+   their links
+ - Now if someone changes a message in their virtual bedroom, someone in the kitchen
+   sees that
  - Create a 2D chat room, which has lists of links to messages and to family members
  - But then meet in a 3D room to chat as well; a room links to the people present
- - Put down a library on the high street full of links to documents you have each created
- - Or even holiday plans, favourite recipes or music reviews
- - Sit in the library surrounded by links to snippets of text and images while you
-   compose a story
- - Next to the library, place a gallery with walls linking to everyone's favourite photos
- - Rebuild the gallery to create many rooms organised by theme
+ - Put down a library on the high street full of links collecting the best documents you
+   have each created
+ - Maybe the holiday plans, favourite recipes or music reviews you each have in your rooms
+ - Collect some links to snippets of text and images that you find useful for a short
+   story you're writing
+ - Sit in the library and surround yourself with (links to) those snippets while you
+   compose it
+ - Next to the library, place a gallery with walls linking to everyone's favourite
+   photos in their albums or photo frames
+ - Rebuild the gallery to create many rooms organised by theme; a picture matching two
+   themes can appear twice
  - Create a billboard with links to text paragraphs and images, describing an upcoming
    event you'll all attend
  - Remind everyone by putting the billboard up along the street, by simply dropping its
    link down
+ - If the event time changes, when you edit the billboard, all instances around update
  - Create signs pointing the way to landmarks, containing a link to allow direct teleporting
  - Create a warehouse store full of links to 3D objects to share with each other
  - Fill it with plants, tables, trees, rocks, houses, castles
- - You can create a pretty tree on a little hill
+ - If you want to use something, you don't walk out with it, you just grab a link to it
+   and drop it where you want
+ - Create a pretty tree on a little hill
  - Then multiply that up to a forest on a mountain by dropping hill and tree links all over
  - Attach that mountain to the back of your city with just a link, and another link to
    get back again
  - If a family member makes a fantasy village, they can share its link with the family
    in the chat room
  - Then you can pin the village to the top of the mountain with its link and a link back
+
+Even your avatar has a link. So if you meet someone, grab their link and now whenever you
+want to see where they are, just view that link! And you're only truly "in" a place if
+it links to your avatar, so you can visit somewhere invisibly if you want.
 
 ### What's the nearest "competitor"?
 
@@ -75,24 +99,22 @@ as:
 _Like Minecraft Creative - with the simplicity and power of doing everything the same
 basic way - but replacing stacking blocks with links between panels._
 
-The top benefit of that is that you can just pick up your house by its link and move or
-copy it!
+The top benefit of that is that you can just pick up your house by its link and move it,
+or clone it!
 
-Further, unlike Minecraft:
+### Where's all our stuff kept?
 
+Again, unlike Minecraft:
+
+ - each family member can have their own stuff on their own device rather than joining
+   someone else's world - links work across devices, too, and everything is shared
+   securely just over the domestic WiFi; but you can all keep working on your own
+   creations away from home and re-sync when you return.
  - there's only one shared family world, that's always available; you don't need to keep
    restarting in new worlds and waiting for them to load; OnexOS is designed to be
    running all the time so you can just drop in at any time
  - there's no account set-up or logging in: you can all just jump in and get started
    immediately!
- - each family member can have their own stuff on their own device rather than joining
-   someone else's world - links work across devices, too, and everything is shared
-   securely just over the domestic WiFi; but you can all keep working on your own
-   creations away from home and re-sync when you return.
-
-Oh, and:
-
- - our panels can have proper rounded text and your photos on them!
 
 ### What's the business model?
 

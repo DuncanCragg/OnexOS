@@ -39,6 +39,13 @@ onto or into them, and they're rendered lined up. You can then re-order the para
 panels easily. Similarly, there's a chat panel, where the list of message panels it
 contains can only be added to at the end. Such panels have scrollers, too.
 
+Panels can be coloured "transparent", but still show their attached image, so this
+way you can create objects that are flat, yet have a shape that isn't rectangular, as
+long as the image also has a transparent background. This allows you to create leaves
+and flowers, for example. To create a flower, you can cross two images at right angles
+(as Minecraft does).
+
+
 ### What can you do with links?
 
 The document and chat panels mentioned above are really just lists of links to paragraph

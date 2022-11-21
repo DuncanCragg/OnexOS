@@ -22,8 +22,15 @@ WiFi between everyone's Android device.
 ### What's novel about it?
 
 You build everything in OnexOS from simple coloured panels - echoing the simplicity and
-power of Minecraft's blocks. Unlike Minecraft, text on our panels uses proper rounded
-fonts and you can paste your photos on them!
+power of Minecraft's blocks.
+
+You can add text or images to any panel. Unlike in Minecraft, text on our panels uses
+proper rounded fonts and you can paste your photos on them!
+
+In addition, there are panels that know about layout, so you can drop paragraph panels
+onto or into them, and they're rendered lined up. You can then re-order the paragraph
+panels easily. Similarly, there's a chat panel, where the list of message panels it
+contains can only be added to at the end. Such panels have scrollers, too.
 
 But this space really owes its creative "mashability" to the way all your family's
 panels are sewn, pinned, tied and snapped together everywhere by "links", forming a
@@ -43,7 +50,7 @@ You can put in a link between:
     - but have a signpost in the forest that also contains the city's link so you can
       save the walk and teleport there!
 
-### Can you give some more examples?
+With links you can:
 
  - Build a house from panels linked into rooms and rooms linked together
  - Then build a street made of links to all the houses of your family

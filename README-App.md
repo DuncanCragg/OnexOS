@@ -1,3 +1,4 @@
+_This is a description of what I'm working on now, not what the app does yet!_
 
 # OnexOS
 

@@ -91,7 +91,7 @@ With links you can:
  - Next to the library, place a gallery with walls linking to everyone's favourite
    photos in their albums or photo frames
  - Rebuild the gallery to create many rooms organised by theme; a picture matching two
-   themes can appear twice
+   themes can appear twice with a link from each room
  - If you like the gallery's "landscape" room, simply grab its link and paste it into
    your own virtual house where you can wander in easily
  - Create a billboard with links to text paragraphs and images, describing an upcoming

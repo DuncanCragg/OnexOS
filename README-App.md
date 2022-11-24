@@ -23,9 +23,10 @@ WiFi between everyone's Android device.
 ### What's novel about it?
 
 You build everything in OnexOS from simple coloured panels - echoing the simplicity and
-power of Minecraft's blocks.
+power of Minecraft's blocks. Both 3D room walls and furniture and 2D messages and lists
+are built from flat panels.
 
-This space really owes its creative "mashability" to the way all your family's panels
+But this space really owes its creative "mashability" to the way all your family's panels
 are sewn, pinned, tied and snapped together everywhere by "links", forming a potentially
 huge shared world to play in. Links work somewhat like the Web's URLs in that they form
 a handle or hook onto anything and everything you see in the world.

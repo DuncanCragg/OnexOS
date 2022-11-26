@@ -16,8 +16,7 @@ It's aimed at families. Mums, dads, grannies, girls, boys. Cross-demographic.
 
 ### What will it run on?
 
-It's an Android app so you can run it on a shared family tablet, or on a version of
-Android (LineageOS) on a Raspberry Pi 4 behind your family TV! It works over the home
+It's an Android app so you can run it on a shared family tablet, or on your own phones. It works over the home
 WiFi between everyone's Android device.
 
 ### What's novel about it?
@@ -123,8 +122,8 @@ it links to your avatar, so you can visit somewhere invisibly if you want.
 Since there's nothing really like OnexOS, it's hard to say! It can perhaps be described
 as:
 
-_Like Minecraft Creative - with the simplicity and power of doing everything the same
-basic way - but replacing stacking blocks with links between panels._
+_Like Minecraft Creative but replacing stacking blocks with links between panels - thus
+also retaining the simplicity and power of doing everything the same basic way._
 
 The top benefit of that is that you can just pick up your house by its link and move it,
 or clone it!

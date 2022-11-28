@@ -27,11 +27,6 @@ onto or into them, and they're rendered lined up. You can then re-order the stac
 paragraph panels easily. Similarly, there's a chat panel, where the stack of message
 panels it contains can only be added to at the end. Such panels have scrollers, too.
 
-These document and chat panels are really just stacks of links to paragraph panels. So
-this means that you can easily build a new document by simply collecting and dropping
-some links into it. These could be links to paragraph panels that you find elsewhere,
-perhaps even links to a few select chat messages.
-
 ### What's novel about it?
 
 This space really owes its creative "mashability" to the way all your family's panels
@@ -43,19 +38,13 @@ and everything that you see there.
 
 ### What can you do with links?
 
+The document and chat panels described above are really just stacks of links to
+paragraph panels. So this means that you can easily build a new document by simply
+collecting and dropping some links into it. These could be links to paragraph panels
+that you find elsewhere, perhaps even links to a few select chat messages.
+
 Having everything in the world linked together like this allows you to quickly create a
 potentially huge shared world to play in.
-
-You can put in a link between:
-
- - your scrapbook of notes and photos and one of your mum's notes on the desk in her
-   virtual study
- - the virtual kitchen wall and one of your scrapbook photos
- - your tree and your sister's leaf, repeated all over it
-    - if she changes the leaf to red in autumn, all trees that use the leaf go red together
- - your grandad's forest and your city, so you can just walk across and back
-    - but have a signpost in the forest that also contains the city's link so you can
-      save the walk and teleport there!
 
 With links you can build a city:
 
@@ -71,6 +60,9 @@ You can communicate:
    their links
  - now if someone changes a message in their virtual bedroom, someone in the kitchen
    sees that
+ - drop in a link from your scrapbook of notes and photos to one of your mum's notes on
+   the desk in her virtual study
+ - pin a link in the middle of your virtual kitchen wall to one of your scrapbook photos
  - create a 2D chat room, which has lists of links to messages and to family members
  - but then meet in a 3D room to chat as well; a room links to the people present
 
@@ -112,9 +104,15 @@ You can reuse links to stuff:
 You can build entire worlds:
 
  - create a pretty tree on a little hill
- - then multiply that up to a forest on a mountain by dropping hill and tree links all over
+ - replicate a link from your tree to your sister's leaf, repeated all over it
+ - then multiply that tree up to a forest on a mountain by dropping hill and tree links
+   all over
+ - if your sister changes the leaf to red in autumn, all trees that use the leaf go red
+   together
  - attach that mountain to the back of your city with just a link, and another link to
    get back again
+ - but have a signpost in the forest that also contains the city's link so you can save
+   the walk and teleport there!
  - if a family member makes a fantasy village, they can share its link with the family
    in the chat room
  - then you can pin the village to the top of the mountain with its link and a link back

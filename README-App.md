@@ -17,15 +17,6 @@ You build everything in OnexOS from simple coloured panels - echoing the simplic
 power of Minecraft's blocks. Both 3D room walls and furniture and 2D messages and
 documents are built from these flat panels.
 
-### What's novel about it?
-
-This space really owes its creative "mashability" to the way all your family's panels
-are sewn, pinned, tied and snapped together everywhere by "links".
-
-These links work somewhat like the Web's URLs in that they form a handle or hook onto
-everything that you see in the world. This allows you to point at, pick up, share and
-reuse anything and everything you see.
-
 ### How does the 2D stuff work in 3D?
 
 You can add text or images to any panel. Unlike in Minecraft, text on our panels uses
@@ -33,14 +24,22 @@ proper rounded fonts and you can paste your photos on them!
 
 In addition, there are panels that know about layout, so you can drop paragraph panels
 onto or into them, and they're rendered lined up. You can then re-order the stack of
-paragraph panels easily.
-
-Similarly, there's a chat panel, where the stack of message panels it contains can only
-be added to at the end. Such panels have scrollers, too.
+paragraph panels easily. Similarly, there's a chat panel, where the stack of message
+panels it contains can only be added to at the end. Such panels have scrollers, too.
 
 These document and chat panels are really just stacks of links to paragraph panels. So
-this means that, for example, you can build a new document by collecting and dropping
-links to a few select chat message panels into it.
+this means that you can easily build a new document by simply collecting and dropping
+some links into it. These could be links to paragraph panels that you find elsewhere,
+perhaps even links to a few select chat messages.
+
+### What's novel about it?
+
+This space really owes its creative "mashability" to the way all your family's panels
+are sewn, pinned, tied and snapped together everywhere by "links".
+
+These links work somewhat like the Web's URLs in that they form a handle or hook onto
+everything in the world. This allows you to point at, pick up, share and reuse anything
+and everything that you see there.
 
 ### What can you do with links?
 
@@ -58,12 +57,15 @@ You can put in a link between:
     - but have a signpost in the forest that also contains the city's link so you can
       save the walk and teleport there!
 
-With links you can:
+With links you can build a city:
 
  - build a house from panels linked into rooms and rooms linked together
  - then build a street made of links to all the houses of your family
  - add some extra houses by creating one house and dropping its link up the street
  - then build a city with links to the streets
+
+You can communicate:
+
  - leave messages around linked (pinned) to the walls of the family virtual home
  - then collect all of those onto a kitchen pinboard by grabbing and pasting all of
    their links
@@ -71,6 +73,9 @@ With links you can:
    sees that
  - create a 2D chat room, which has lists of links to messages and to family members
  - but then meet in a 3D room to chat as well; a room links to the people present
+
+You can build shared experiences:
+
  - put down a library on the high street full of links collecting the best documents you
    have each created
  - maybe the holiday plans, favourite recipes or music reviews you each have in your rooms
@@ -86,6 +91,9 @@ With links you can:
    photos in their albums or photo frames
  - rebuild the gallery to create many rooms organised by theme; a picture matching two
    themes can appear twice with a link from each room
+
+You can reuse links to stuff:
+
  - if you like the gallery's "landscape" room, simply grab its link and paste it into
    your own virtual house where you can wander in easily
  - create a billboard with links to text paragraphs and images, describing an upcoming
@@ -100,6 +108,9 @@ With links you can:
    and drop it where you want
  - you can even grab a bit of that castle: if you like its tallest tower, simply take
    its link
+
+You can build entire worlds:
+
  - create a pretty tree on a little hill
  - then multiply that up to a forest on a mountain by dropping hill and tree links all over
  - attach that mountain to the back of your city with just a link, and another link to

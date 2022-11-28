@@ -14,8 +14,8 @@ fun exploring each other's creations, working together and sharing 3D and 2D obj
 ### What's it like to use?
 
 You build everything in OnexOS from simple coloured panels - echoing the simplicity and
-power of Minecraft's blocks. Both 3D room walls and furniture and 2D messages and lists
-are built from these flat panels.
+power of Minecraft's blocks. Both 3D room walls and furniture and 2D messages and
+documents are built from these flat panels.
 
 ### What's novel about it?
 
@@ -23,10 +23,8 @@ This space really owes its creative "mashability" to the way all your family's p
 are sewn, pinned, tied and snapped together everywhere by "links".
 
 These links work somewhat like the Web's URLs in that they form a handle or hook onto
-anything and everything that you see in the world.
-
-Having everything in the world linked together like this allows you to quickly create a
-potentially huge shared world to play in.
+everything that you see in the world. This allows you to point at, pick up, share and
+reuse anything and everything you see.
 
 ### How does the 2D stuff work in 3D?
 
@@ -34,17 +32,20 @@ You can add text or images to any panel. Unlike in Minecraft, text on our panels
 proper rounded fonts and you can paste your photos on them!
 
 In addition, there are panels that know about layout, so you can drop paragraph panels
-onto or into them, and they're rendered lined up. You can then re-order the paragraph
-panels easily.
+onto or into them, and they're rendered lined up. You can then re-order the stack of
+paragraph panels easily.
 
-Similarly, there's a chat panel, where the list of message panels it contains can only
+Similarly, there's a chat panel, where the stack of message panels it contains can only
 be added to at the end. Such panels have scrollers, too.
 
-These document and chat panels are really just lists of links to paragraph panels. So
+These document and chat panels are really just stacks of links to paragraph panels. So
 this means that, for example, you can build a new document by collecting and dropping
 links to a few select chat message panels into it.
 
 ### What can you do with links?
+
+Having everything in the world linked together like this allows you to quickly create a
+potentially huge shared world to play in.
 
 You can put in a link between:
 
@@ -73,11 +74,12 @@ With links you can:
  - put down a library on the high street full of links collecting the best documents you
    have each created
  - maybe the holiday plans, favourite recipes or music reviews you each have in your rooms
- - collect a list of some links to snippets of text and images that you find useful for
+ - collect an array of some links to snippets of text and images that you find useful for
    a short story you're writing
- - obviously, lists are objects too, and also have links
+ - obviously, a stack, array or list of links is also an object in the world, so has its
+   own link
  - if you like a paragraph in someone's document, then of course it also has a link that
-   you can grab for your snippet list
+   you can grab for your snippet collection
  - sit in the library and surround yourself with (links to) those snippets while you
    compose it
  - next to the library, place a gallery with walls linking to everyone's favourite

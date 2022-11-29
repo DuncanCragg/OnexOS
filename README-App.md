@@ -81,13 +81,15 @@ You can build shared experiences:
    compose it
  - next to the library, place a gallery with walls linking to everyone's favourite
    photos in their albums or photo frames
- - rebuild the gallery to create many rooms organised by theme; a picture matching two
-   themes can appear twice with a link from each room
+ - rebuild the gallery to create many rooms organised by theme
 
 You can reuse links to stuff:
 
- - if you like the gallery's "landscape" room, simply grab its link and paste it into
-   your own virtual house where you can wander in easily
+ - a picture matching two themes in the gallery can appear twice with a link from each room
+ - if you like the gallery's "landscape" room, simply grab its link and paste it onto
+   your own virtual house
+ - now you can wander in easily at any time (but you'll be in the gallery now, so need
+   to hit the back button to return home!)
  - create a billboard with links to text paragraphs and images, describing an upcoming
    event you'll all attend
  - remind everyone by putting the billboard up along the street, by simply dropping its
@@ -117,9 +119,9 @@ You can build entire worlds:
    in the chat room
  - then you can pin the village to the top of the mountain with its link and a link back
 
-Even your avatar has a link. So if you meet someone, grab their link and now whenever you
-want to see where they are, just view that link! And you're only truly "in" a place if
-it links to your avatar, so you can visit somewhere invisibly if you want.
+Even our avatars have a link. So if you meet someone, grab the link to their avatar. Now
+whenever you want to see where they are, just view that link! And you're only truly "in"
+a place if it links to your avatar, so you can visit somewhere invisibly if you want.
 
 ### Nice! Anything else?
 

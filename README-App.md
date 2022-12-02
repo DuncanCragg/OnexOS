@@ -42,11 +42,12 @@ and photos, pinned to the walls or even left lying around on the floor. Now:
 
  - if anyone wants to share something from their room, they simply grab its link and pin
    it to the kitchen pinboard
- - now if they change the message in their virtual bedroom, everyone in the kitchen can
-   see that change too
+ - now if they change the text of something they shared from within their virtual
+   bedroom, everyone in the kitchen can see that change too
  - drop in a link from your scrapbook of notes and photos to one of your mum's notes on
    the desk in her virtual study
  - pin a link in the middle of your virtual kitchen wall to one of your scrapbook photos
+ - keep a shopping list in the virtual kitchen that everyone can see when going out
 
 ### How does the 2D stuff work in 3D?
 
@@ -64,8 +65,10 @@ that you find elsewhere, links to select chat messages or links to photos you li
 someone's wall. You can of course, link to bigger things in your document, like other
 documents, or to complete 3D objects, or to an entire virtual city.
 
-With document, poster and chat panels you can:
+With document, poster and chat panels:
 
+ - before going out, anyone can quickly make a personal shopping list by grabbing just the
+   links to the items of the shared one that they plan to fetch themselves
  - create a 2D chat panel on the kitchen wall, which everyone can grab a link to to put
    in their own rooms
  - create a billboard with links to text paragraphs and images, describing an upcoming

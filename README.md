@@ -2,7 +2,8 @@
 # OnexOS
 
 The OnexOS Android app represents an approach to building the "One Open Metaverse".
-Without the Web, and without blockchains.
+
+Without the Web. Without blockchains.
 
 See this [description of the first release of the app](README-App.md).
 

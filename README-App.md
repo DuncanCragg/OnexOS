@@ -2,9 +2,10 @@ _This is a description of what I'm working on now, not what the app does yet!_
 
 # LinkCraft
 
-LinkCraft is an Android app creating a virtual world, an open 3D universe. Something
-like a mix between Minecraft Creative, Avakin Life and Second Life, so aimed at
-whole families, not just kids _or_ teens _or_ adults.
+LinkCraft is an Android app creating a virtual world, an open 3D universe.
+
+It's something like a mix between Minecraft Creative, Avakin Life and Second Life, so
+aimed at whole families, not just kids _or_ teens _or_ adults.
 
 ### What can you do?
 
@@ -15,7 +16,7 @@ All the usual Virtual World things: meet, chat, share, build, co-create, work, p
 Everyone running LinkCraft owns their own chunks of the world that we're all building
 together; you host and serve your own stuff on your own phone or tablet.
 
-We all then sew our virtual objects and places together. We can build a single, vast,
+Then we can all sew our virtual objects and places together into a single, vast,
 seamless universe, owned by all of us.
 
 This is enabled by LinkCraft's **links**.
@@ -56,7 +57,8 @@ garden", so it's a bit like the World Wide Web in that regard.
 
 ### So why not base this on the good ole' Web? That's got links already!
 
-There are three reasons why we are better off starting again:
+There are three reasons why we are better off starting again, since we basically have to
+start again anyway if we use the Web:
 
 ##### Fine-grained links; transclusion
 
@@ -88,6 +90,8 @@ Notes:
  - you can still use trusted online servers to give you backups and more reliable
    serving of your data, if you get serious! But these are generic services allowing you
    to easily switch providers
+ - the main "cost" of not running inside the Web's browsers is needing to download
+   LinkCraft, but people install apps all the time, so that's not a huge blocker
 
 See a further elaboration here: http://object.network/other-open-metaverses.html
 

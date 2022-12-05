@@ -14,10 +14,10 @@ All the usual Virtual World things: meet, chat, share, build, co-create, work, p
 ### What's novel about it?
 
 Everyone running LinkCraft owns their own chunks of the world that we're all building
-together; you host and serve your own stuff on your own phone or tablet.
+together. You host and serve your own stuff on your own phone or tablet.
 
-Then we can all sew our virtual objects and places together into a single, vast,
-seamless universe, owned by all of us.
+We then all sew our virtual objects and places together - into a single, vast, seamless
+universe, owned by all of us.
 
 This is enabled by LinkCraft's **links**.
 

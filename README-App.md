@@ -47,6 +47,10 @@ family or by the public.
 You can set up a family photo wall, or a message board or to-do list in a virtual family
 room, that are all shared just over the family WiFi.
 
+### What's the business model?
+
+There is none. Free and open software and protocols.
+
 There's no account set-up, and no adverts (unless someone creates a billboard
 somewhere!). You can all just jump in and start co-creating!
 
@@ -84,7 +88,7 @@ browser.
 LinkCraft gives you back control over your own data and your own identity because it's all
 hosted on your own devices.
 
-Notes:
+##### Notes:
 
  - you can still use the Web's URLs to pull content into the LinkCraft universe
  - you can still use trusted online servers to give you backups and more reliable
@@ -94,10 +98,6 @@ Notes:
    LinkCraft, but people install apps all the time, so that's not a huge blocker
 
 See a further elaboration here: http://object.network/other-open-metaverses.html
-
-### What's the business model?
-
-There is none. Free and Open software and protocols. No adverts.
 
 ____________________________________
 

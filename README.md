@@ -1,9 +1,8 @@
 
 # OnexOS
 
-The OnexOS Android app will be a 3D creative space where you can sketch 3D objects and
-places and write and post 2D notes and documents around in virtual rooms. It's a
-thinking space, a creative space or a sharing space.
+The OnexOS Android app represents an approach to building the "One Open Metaverse".
+Without the Web, and without blockchains.
 
 See this [description of the first release of the app](README-App.md).
 

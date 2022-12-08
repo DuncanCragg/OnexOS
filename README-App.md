@@ -56,7 +56,8 @@ somewhere!). You can all just jump in and start co-creating!
 
 ### Is this something like a Metaverse?
 
-Yes, you can describe it as a Metaverse. Being open, there's no lock-in to a "walled
+Yes, you can describe it as a Metaverse. But without VR (at first - maybe AR will overtake
+VR anyway) and no Blockchains in sight! Being open, there's no lock-in to a "walled
 garden", so it's a bit like the World Wide Web in that regard.
 
 ### So why not base this on the good ole' Web? That's got links already!

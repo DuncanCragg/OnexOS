@@ -21,8 +21,8 @@ universe, owned by all of us.
 
 This is enabled by LinkCraft's **links**.
 
-LinkCraft links work somewhat like the Web's URLs in that they form handles or hooks
-onto things in the world, where-ever they may be.
+LinkCraft links work somewhat like URLs in that they form handles or hooks onto things
+in the world, where-ever they may be.
 
 So we can have direct links to objects inside each other's phones or tablets.
 
@@ -44,8 +44,8 @@ Everything you build stays owned by you, on your own device. You get to decide w
 see or who can change your stuff: your objects can be set up to be seen only by your
 family or by the public.
 
-You can set up a family photo wall, or a message board or to-do list in a virtual family
-room, that are all shared just over the family WiFi.
+You can set up a virtual family kitchen with a message or chat board or a family to-do
+list, or a living room with a photo wall, that are all shared just over the family WiFi.
 
 ### What's the business model?
 
@@ -56,9 +56,11 @@ somewhere!). You can all just jump in and start co-creating!
 
 ### Is this something like a Metaverse?
 
-Yes, you can describe it as a Metaverse. But without VR (at first - maybe AR will overtake
-VR anyway) and no Blockchains in sight! Being open, there's no lock-in to a "walled
-garden", so it's a bit like the World Wide Web in that regard.
+You can describe it as a Metaverse, but without VR at first. Maybe AR will overtake VR
+anyway? And no Blockchains in sight!
+
+Being open, it's free from lock-in to "walled gardens", so it's a bit like the World Wide
+Web in that regard - but it doesn't use any Web technologies.
 
 ### So why not base this on the good ole' Web? That's got links already!
 

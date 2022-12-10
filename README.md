@@ -2,13 +2,9 @@
 # OnexOS
 
 OnexOS has an Android app (called LinkCraft) that represents an approach to building an
-open virtual world.
+open virtual world based around links. But no Web; no VR (at first); no Blockchains.
 
 See this description of the first release of the [LinkCraft app](README-App.md).
-
-Perhaps it can become the "One Open Metaverse". Without the Web. Without Blockchains.
-
-Maybe even without VR (hopefully AR will mature before VR support is demanded!).
 
 ### How's it going?
 

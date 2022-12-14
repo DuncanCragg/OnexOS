@@ -11,15 +11,15 @@ every device we run it.
 In its early releases, the primary building material we use will be flat panels, that
 can be used both for making rooms and for writing messages on.
 
-### Building worlds together, with links between objects
-
-The first thing you may do in LinkCraft is to build a family room to share stuff. Just
+So the first thing you may do in LinkCraft is to build a family room to share stuff. Just
 quickly snap or link together some panels into a room, then put a panel on the wall as a
 pinboard space to pin or link to messages and photos. Everyone can visit this room and
 will see each other and can say "Hi!", and add to the pinboard.
 
-Having everything in the world, from leaves to forests, linked together allows us all to
-quickly create a potentially single huge shared universe to play in.
+### Building worlds together, with links between objects
+
+Having everything in the world, from photos to cities and from leaves to forests, linked
+together allows us all to quickly create a potentially huge, single, shared universe.
 
 With links you can build a city:
 
@@ -29,25 +29,10 @@ With links you can build a city:
  - add some extra houses by creating one house and dropping its link up the street
  - then build a city with links to the streets of other families
 
-You can build shared experiences like a library:
+You can build shared experiences like a gallery:
 
- - put down a library on the high street full of links collecting the best documents you
-   have created or discovered
- - maybe the holiday plans, favourite recipes or music reviews you each have in your rooms
- - or documents "published" by other families
- - collect an array of some links to snippets of text and images that you find useful for
-   a short story you're writing
- - obviously, a stack, array or list of links is also an object in the world, so has its
-   own link
- - if you like a paragraph in someone's document, then of course it also has a link that
-   you can grab for your snippet collection
- - sit in the library and surround yourself with (links to) those snippets while you
-   compose it
-
-Or a gallery:
-
- - next to the library, place a large city gallery with walls linking to everyone's
-   favourite photos in their albums or photo frames
+ - place a large city gallery with walls linking to everyone's favourite photos in their
+   albums or photo frames
  - rebuild the gallery to create many rooms organised by theme
  - a picture matching two themes in the gallery can appear twice with a link from each room
  - if you like the gallery's "landscape" room, simply grab its link and paste it onto
@@ -121,6 +106,22 @@ With document, poster and chat panels:
    link down
  - if the event time changes, when you edit the billboard, all instances around update
  - create signs pointing the way to landmarks, containing a link to allow direct teleporting
+
+Or build a city library:
+
+ - next to the city gallery on the high street, put down a library full of links
+   collecting the best documents you have created or discovered
+ - maybe the holiday plans, favourite recipes or music reviews you each have in your rooms
+ - or documents "published" by other families
+ - collect an array of some links to snippets of text and images that you find useful for
+   a short story you're writing
+ - obviously, a stack, array or list of links is also an object in the world, so has its
+   own link
+ - if you like a paragraph in someone's document, then of course it also has a link that
+   you can grab for your snippet collection
+ - sit in the library and surround yourself with (links to) those snippets while you
+   compose it
+
 
 ---------------------
 

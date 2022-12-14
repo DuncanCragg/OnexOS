@@ -7,10 +7,6 @@ LinkCraft is an Android app creating a virtual world, an open 3D universe.
 It's something like a mix between Minecraft Creative, Avakin Life and Second Life, so
 aimed at whole families, not just kids _or_ teens _or_ adults.
 
-### What can you do?
-
-All the usual Virtual World things: meet, chat, share, build, co-create, work, play.
-
 ### What's novel about it?
 
 Everyone running LinkCraft owns their own chunks of the world that we're all building
@@ -29,7 +25,7 @@ So we can have direct links to objects inside each other's phones or tablets.
 ### How do links actually manifest in this world?
 
 Every single object you create or see in the shared world has a link - cities, streets,
-houses, rooms, tables, vases, flowers and petals.
+houses, rooms, tables, vases, flowers and petals. And news feeds, messages and photos.
 
 Everything is sewn, pinned, tied and snapped together using these links.
 
@@ -37,6 +33,12 @@ Everything can be pointed to, picked up, reused, shared and saved via their link
 
 I can link to a city you've built from my virtual garden, which lets me see it and just
 walk across into it, or you can link to a leaf I made, and use it yourself.
+
+### What can you do?
+
+All the usual Virtual World things: meet, chat, share, build, co-create, work, play.
+
+For full examples of what you can do in LinkCraft, [read this description](README-Usage.md).
 
 ### How do I control who can see and change my stuff?
 

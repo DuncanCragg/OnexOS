@@ -5,8 +5,8 @@ LinkCraft is an Android app that will let us create a single, shared 3D universe
 LinkCraft gives you and your family and friends a shared space for creativity, sharing
 and communicating.
 
-Its primary unique feature is its use of **links** - between everything we create on
-every device we run it.
+Its primary unique feature is its use of **links** - between everything we create and
+between each of our creations within a single shared universe.
 
 In its early releases, the primary building material we use will be flat panels, that
 can be used both for making rooms and for writing messages on.

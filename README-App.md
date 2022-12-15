@@ -10,7 +10,7 @@ aimed at whole families, not just kids _or_ teens _or_ adults.
 ### What's novel about it?
 
 Everyone running LinkCraft owns their own chunks of the world that we're all building
-together. You host and serve your own stuff on your own phone or tablet.
+together.
 
 We then all sew our virtual objects and places together - into a single, vast, seamless
 universe, owned by all of us.
@@ -20,7 +20,7 @@ This is enabled by LinkCraft's **links**.
 LinkCraft links work somewhat like URLs in that they form handles or hooks onto things
 in the world, where-ever they may be.
 
-So we can have direct links to objects inside each other's phones or tablets.
+So we can grab, wire and share direct links to and between any object owned by anyone.
 
 ### How do links actually manifest in this world?
 
@@ -38,16 +38,15 @@ walk across into it, or you can link to a leaf I made, and use it yourself.
 
 All the usual Virtual World things: meet, chat, share, build, co-create, work, play.
 
-For full examples of what you can do in LinkCraft, [read this description](README-Usage.md).
+For examples of how you can use LinkCraft, [read this description](README-Usage.md).
 
 ### How do I control who can see and change my stuff?
 
-Everything you build stays owned by you, on your own device. You get to decide who can
-see or who can change your stuff: your objects can be set up to be seen only by your
-family or by the public.
+Everything you build stays owned by you. You get to decide who can see or who can change
+your stuff: your objects can be set up to be seen only by your family or by the public.
 
 You can set up a virtual family kitchen with a message or chat board or a family to-do
-list, or a living room with a photo wall, that are all shared just over the family WiFi.
+list, or a living room with a photo wall, all visible only to you and your family.
 
 ### What's the business model?
 
@@ -67,6 +66,11 @@ Web in that regard - but it doesn't use any Web technologies.
 ### So why not base this on the good ole' Web? That's got links already!
 
 See this [this explanation](README-Web.md)!
+
+### Why do I need more chat or messages or photo walls?
+
+You don't need to use them! But if your whole family and friends are in the LinkCraft
+universe, it may be convenient.
 
 ____________________________________
 

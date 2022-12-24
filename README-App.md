@@ -2,75 +2,95 @@ _This is a description of what I'm working on now, not what the app does yet!_
 
 # LinkCraft
 
-LinkCraft is an Android app creating a virtual world, an open 3D universe.
+LinkCraft is an Android app enabling you to create your own virtual world with both 3D
+and 2D objects. You can build 3D objects and places like tables, rooms or galleries, and
+write and post 2D photos, notes and documents around in them.
 
-It's something like a mix between Minecraft Creative, Avakin Life and Second Life, so
-aimed at whole families, not just kids _or_ teens _or_ adults.
+With LinkCraft you can create vast virtual worlds of creative, fun or beautiful 3D (and
+2D) interactive, calm or fun experiences. Cities, forests, creativity rooms and castles.
+It's an endless world of whatever stuff you like.
+
 
 ### What's novel about it?
 
-Everyone running LinkCraft owns their own chunks of the world that we're all building
-together.
+It's like Minecraft Creative, but instead of mainly being about blocks, it's mainly
+about "links".
 
-We then all sew our virtual objects and places together - into a single, vast, seamless
-universe, owned by all of us.
+LinkCraft links form handles or hooks onto all of your objects in the world. Every
+single 3D object you create or see in the world has a link and can be sewn, pinned, tied
+and snapped together with everything else by their links. And then re-snapped and
+"re-mashed" with anything else.
 
-This is enabled by LinkCraft's **links**.
+Petals to flowers, vases on tables, rooms in houses, streets of cities. Also photos in
+notes and paragraphs in documents.
 
-LinkCraft links work somewhat like URLs in that they form handles or hooks onto things
-in the world, where-ever they may be.
+Everything can be pointed to, picked up, reused and saved via its link.
 
-So we can grab, wire and share direct links to and between any object owned by anyone.
+Everything you make is in a single unbounded, linked-up world, so you can re-use,
+re-mash and re-purpose anything, and join all of your spaces, buildings and games
+together in new ways, sharing materials or entire constructions between your creations,
+just through the power of pervasive links.
 
-### How do links actually manifest in this world?
 
-Every single object you create or see in the shared world has a link - cities, streets,
-houses, rooms, tables, vases, flowers and petals. And news feeds, messages and photos.
+### Give some examples!
 
-Everything is sewn, pinned, tied and snapped together using these links.
+You can link from the back of your virtual garden to a city you've built. It will appear
+right there, and you can then just walk across into it. If you want to be able to walk
+back again, you'll need a link back! (Otherwise, use the back button.) There's no fixed
+grid, you are completely in control of the topology of your world.
 
-Everything can be pointed to, picked up, reused, shared and saved via their links.
+You can save links to anything you see for later use, like a whole castle, a tower, or a
+brick in the tower. You can save the link to a leaf you made, then use it repeatedly all
+over a tree. You can grab a link to just the top of a tower you've made, and dot that
+mini-tower around your castle. If you pin a flag to one tower, it appears on all; if you
+change the colour of the leaf to red in the autumn, all instances will change at once.
+(Of course, you can also make copies.)
 
-I can link to a city you've built from my virtual garden, which lets me see it and just
-walk across into it, or you can link to a leaf I made, and use it yourself.
+You can link from a document to any image or text paragraph you like, including from
+other documents, or images on the walls of a gallery. In fact, a document is just a
+scrollable sequence of objects: so you can create a "document" from a sequence of 3D
+objects like your favourite plants! You can put up a 2D sign that has a teleport link
+to a forest village. You can pin 2D notes to your 3D walls. You could create your own
+huge warehouse store full of (links to) your favourite 3D objects to use later.
 
-### What can you do?
+Things in this world have physical properties: every house you make can have doors and
+windows that swing open and shut. You can build a wheeled buggy to jump into, that can
+roll faster and faster down the street from the top of the hill.  Make a game of
+skittles or a game where you try to build a tower without it falling over. Because
+there's only one world, you can just sew these together into a game park, where the
+skittle balls can also knock over the tower.
 
-All the usual Virtual World things: meet, chat, share, build, co-create, work, play.
+You can actually put in a special link from a door object to a button object so that
+pushing or standing on the button opens the door.
 
-For examples of how you can use LinkCraft, [read this description](README-Usage.md).
 
-### How do I control who can see and change my stuff?
+### What would I use the 3D world for?
 
-Everything you build stays owned by you. You get to decide who can see or who can change
-your stuff: your objects can be set up to be seen only by your family or by the public.
+Mainly creative fun, or to organise your thoughts. You can use your world as a thinking
+space, a creative space, or an organising space.
 
-You can set up a virtual family kitchen with a message or chat board or a family to-do
-list, or a living room with a photo wall, all visible only to you and your family.
+You can quickly and easily create beautiful or imaginative places and spaces. Make a
+chill-out room with coloured lights and soft-coloured walls. Build your ideal house,
+then a street of houses, then complete cities. You can create a magical tree, then copy
+that into a magical wood, then multiply that wood into a magical forest.
 
-### What's the business model?
 
-There is none. Free and open software and protocols.
+### What would I use the 2D objects for?
 
-There's no account set-up, and no adverts (unless someone creates a billboard
-somewhere!). You can all just jump in and start co-creating!
+You could type up poems or stories or pin inspirational quotes and images around your
+chill-out room. Or make notes and to-do lists. Write articles or even books. Organise
+your photos on gallery walls.
 
-### Is this something like a Metaverse?
+LinkCraft is always running and puts you right back where you were every time you open
+or flip to it, just like other 2D apps. So it can literally replace your notes app if
+you like.
 
-You can describe it as a Metaverse, but without VR at first. Maybe AR will overtake VR
-anyway? And no Blockchains in sight!
 
-Being open, it's free from lock-in to "walled gardens", so it's a bit like the World Wide
-Web in that regard - but it doesn't use any Web technologies.
+### Who's it for?
 
-### So why not base this on the good ole' Web? That's got links already!
+Unlike (or like?) Minecraft, it's aimed at people of any age.
 
-See this [this explanation](README-Web.md)!
 
-### Why do I need more chat or messages or photo walls?
-
-You don't need to use them! But if your whole family and friends are in the LinkCraft
-universe, it may be convenient.
 
 ____________________________________
 

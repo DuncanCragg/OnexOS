@@ -14,7 +14,7 @@ in OnexOS can then be:
  - linked together peer-to-peer directly between our devices to build a single global data fabric, without techies watching or stopping us
  - animated by rules that we can write ourselves, rather than waiting for a techie to deliver it
 
-<a href="http://object.network/smartwatch-os.html">Go here to see how this applies to smartwatches.</a>
+<a href="http://object.network/mash-mesh-smartwatch-os.html">Go here to see how this can make smartwatches mashable and meshable!</a>
 
 <br/>
 ____________________________________

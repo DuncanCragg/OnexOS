@@ -15,26 +15,24 @@ PRIVATE_PEM = ../OnexKernel/doc/local/private.pem
 
 #-------------------------------------------------------------------------------
 
-EXE_DEFINES =
-EXE_DEFINES += -DLOG_TO_SERIAL
-EXE_DEFINES += -DHAS_SERIAL
-
-#-------------------------------------------------------------------------------
-
 COMMON_DEFINES = \
 -DAPP_TIMER_V2 \
 -DAPP_TIMER_V2_RTC1_ENABLED \
 -DCONFIG_GPIO_AS_PINRESET \
 -DFLOAT_ABI_HARD \
 -DNRF5 \
--DNRF_SD_BLE_API_VERSION=7 \
--DSOFTDEVICE_PRESENT \
 -D__HEAP_SIZE=8192 \
 -D__STACK_SIZE=8192 \
 
 
-COMMON_DEFINES_S132 = \
+COMMON_DEFINES_SD = \
+-DNRF_SD_BLE_API_VERSION=7 \
+-DSOFTDEVICE_PRESENT \
+
+
+COMPILER_DEFINES_PINETIME = \
 $(COMMON_DEFINES) \
+$(COMMON_DEFINES_SD) \
 -DBOARD_PINETIME \
 -DNRF52832_XXAA \
 -DS132 \
@@ -48,24 +46,18 @@ $(COMMON_DEFINES) \
 
 
 
-COMMON_DEFINES_S140 = \
+COMPILER_DEFINES_DONGLE = \
 $(COMMON_DEFINES) \
+$(COMMON_DEFINES_SD) \
 -DBOARD_PCA10059 \
 -DNRF52840_XXAA \
 -DS140 \
-
-
-COMPILER_DEFINES_S132 = \
-$(COMMON_DEFINES_S132) \
-
-
-COMPILER_DEFINES_S140 = \
-$(COMMON_DEFINES_S140) \
-$(EXE_DEFINES) \
+-DLOG_TO_SERIAL \
+-DHAS_SERIAL \
 
 #-------------------------------------------------------------------------------
 
-INCLUDES_S132 = \
+INCLUDES_PINETIME = \
 -I./include \
 -I./src/ \
 -I./external \
@@ -73,16 +65,16 @@ INCLUDES_S132 = \
 -I./external/lvgl \
 -I./external/lvgl/src/lv_font \
 $(OL_INCLUDES) \
-$(OK_INCLUDES_S132) \
-$(SDK_INCLUDES_S132) \
+$(OK_INCLUDES_PINETIME) \
+$(SDK_INCLUDES_PINETIME) \
 
 
-INCLUDES_S140 = \
+INCLUDES_DONGLE = \
 -I./include \
 -I./src/ \
 $(OL_INCLUDES) \
-$(OK_INCLUDES_S140) \
-$(SDK_INCLUDES_S140) \
+$(OK_INCLUDES_DONGLE) \
+$(SDK_INCLUDES_DONGLE) \
 
 #-------------------------------------------------------------------------------
 
@@ -152,17 +144,17 @@ OL_INCLUDES = \
 -I../OnexLang/include \
 
 
-OK_INCLUDES_S132 = \
+OK_INCLUDES_PINETIME = \
 -I../OnexKernel/include \
--I../OnexKernel/src/platforms/nRF5/s132 \
+-I../OnexKernel/src/platforms/nRF5/pinetime \
 
 
-OK_INCLUDES_S140 = \
+OK_INCLUDES_DONGLE = \
 -I../OnexKernel/include \
--I../OnexKernel/src/platforms/nRF5 \
+-I../OnexKernel/src/platforms/nRF5/dongle \
 
 
-SDK_INCLUDES_S132 = \
+SDK_INCLUDES_PINETIME = \
 -I./sdk/components/softdevice/s132/headers \
 -I./sdk/components/softdevice/s132/headers/nrf52 \
 -I./sdk/external/thedotfactory_fonts \
@@ -170,7 +162,7 @@ SDK_INCLUDES_S132 = \
 $(SDK_INCLUDES) \
 
 
-SDK_INCLUDES_S140 = \
+SDK_INCLUDES_DONGLE = \
 -I./sdk/components/softdevice/s140/headers \
 -I./sdk/components/softdevice/s140/headers/nrf52 \
 $(SDK_INCLUDES) \
@@ -194,26 +186,26 @@ SDK_INCLUDES = \
 #-------------------------------------------------------------------------------
 # Targets
 
-onx-wear.hex: INCLUDES=$(INCLUDES_S132)
-onx-wear.hex: COMPILER_DEFINES=$(COMPILER_DEFINES_S132)
-onx-wear.hex: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
+onx-wear-pinetime: INCLUDES=$(INCLUDES_PINETIME)
+onx-wear-pinetime: COMPILER_DEFINES=$(COMPILER_DEFINES_PINETIME)
+onx-wear-pinetime: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
-	ar x ../OnexKernel/libonex-kernel-132.a --output okolo
-	ar x   ../OnexLang/libonex-lang-132.a   --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_S132) -Wl,-Map=./onx-wear.map -o ./onx-wear.out $^ okolo/* -lm
+	ar x ../OnexKernel/libonex-kernel-pinetime.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a        --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_PINETIME) -Wl,-Map=./onx-wear.map -o ./onx-wear.out $^ okolo/* -lm
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-wear.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-wear.out ./onx-wear.hex
 
-onx-iot: INCLUDES=$(INCLUDES_S140)
-onx-iot: COMPILER_DEFINES=$(COMPILER_DEFINES_S140)
+onx-iot: INCLUDES=$(INCLUDES_DONGLE)
+onx-iot: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
 onx-iot: $(IOT_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
-	ar x ../OnexKernel/libonex-kernel-140.a --output okolo
-	ar x   ../OnexLang/libonex-lang-140.a   --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_S140) -Wl,-Map=./onx-iot.map -o ./onx-iot.out $^ okolo/*
+	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-iot.map -o ./onx-iot.out $^ okolo/*
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-iot.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot.out ./onx-iot.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot.out ./onx-iot.hex
@@ -222,7 +214,7 @@ APPLICATION_VERSION = --application-version 1
 BOOTLOADER_VERSION = --bootloader-version $(shell cat ../OnexKernel/bootloader-number.txt)
 SETTINGS_VERSIONS = $(APPLICATION_VERSION) $(BOOTLOADER_VERSION) --bl-settings-version 2
 
-settings.hex: onx-wear.hex
+settings.hex: onx-wear-pinetime
 	nrfutil settings generate --family NRF52 --application onx-wear.hex $(SETTINGS_VERSIONS) settings.hex
 
 pinetime-erase:
@@ -255,8 +247,8 @@ LINKER_FLAGS = -O3 -g3 -mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfp
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMESTAMP=$$(date +'%y%m%d%H%M')
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BOOTLOADER_NUMBER=$$(cat ../OnexKernel/bootloader-number.txt)
 
-LD_FILES_S132 = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/s132/onex.ld
-LD_FILES_S140 = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/onex.ld
+LD_FILES_PINETIME = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/pinetime/onex.ld
+LD_FILES_DONGLE   = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/dongle/onex.ld
 
 COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Werror -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin -fshort-enums
 

@@ -45,6 +45,16 @@ $(COMMON_DEFINES_SD) \
 #-DSPI_BLOCKING \
 
 
+COMPILER_DEFINES_MAGIC3 = \
+$(COMMON_DEFINES) \
+-DBOARD_MAGIC3 \
+-DNRF52840_XXAA \
+#-DDEBUG \
+#-DDEBUG_NRF \
+#-DLOG_TO_RTT \
+#-DLOG_TO_GFX \
+#-DSPI_BLOCKING \
+
 
 COMPILER_DEFINES_DONGLE = \
 $(COMMON_DEFINES) \
@@ -67,6 +77,18 @@ INCLUDES_PINETIME = \
 $(OL_INCLUDES) \
 $(OK_INCLUDES_PINETIME) \
 $(SDK_INCLUDES_PINETIME) \
+
+
+INCLUDES_MAGIC3 = \
+-I./include \
+-I./src/ \
+-I./external \
+-I./external/fonts \
+-I./external/lvgl \
+-I./external/lvgl/src/lv_font \
+$(OL_INCLUDES) \
+$(OK_INCLUDES_MAGIC3) \
+$(SDK_INCLUDES_MAGIC3) \
 
 
 INCLUDES_DONGLE = \
@@ -149,6 +171,11 @@ OK_INCLUDES_PINETIME = \
 -I../OnexKernel/src/platforms/nRF5/pinetime \
 
 
+OK_INCLUDES_MAGIC3 = \
+-I../OnexKernel/include \
+-I../OnexKernel/src/platforms/nRF5/magic3 \
+
+
 OK_INCLUDES_DONGLE = \
 -I../OnexKernel/include \
 -I../OnexKernel/src/platforms/nRF5/dongle \
@@ -157,6 +184,14 @@ OK_INCLUDES_DONGLE = \
 SDK_INCLUDES_PINETIME = \
 -I./sdk/components/softdevice/s132/headers \
 -I./sdk/components/softdevice/s132/headers/nrf52 \
+-I./sdk/external/thedotfactory_fonts \
+-I./sdk/components/libraries/gfx \
+$(SDK_INCLUDES) \
+
+
+SDK_INCLUDES_MAGIC3 = \
+-I./sdk/components/drivers_nrf/nrf_soc_nosd/ \
+-I./sdk/components/softdevice/mbr/headers/ \
 -I./sdk/external/thedotfactory_fonts \
 -I./sdk/components/libraries/gfx \
 $(SDK_INCLUDES) \
@@ -198,6 +233,18 @@ onx-wear-pinetime: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-wear.out ./onx-wear.hex
 
+onx-wear-magic3: INCLUDES=$(INCLUDES_MAGIC3)
+onx-wear-magic3: COMPILER_DEFINES=$(COMPILER_DEFINES_MAGIC3)
+onx-wear-magic3: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-magic3.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_MAGIC3) -Wl,-Map=./onx-wear.map -o ./onx-wear.out $^ okolo/* -lm
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-wear.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-wear.out ./onx-wear.hex
+
 onx-iot: INCLUDES=$(INCLUDES_DONGLE)
 onx-iot: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
 onx-iot: $(IOT_SOURCES:.c=.o)
@@ -231,6 +278,9 @@ pinetime-flash: settings.hex
 	mergehex --merge onx-wear.hex settings.hex --output onx-wear+settings.hex
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-wear+settings.hex" -c "reset run" -c exit
 
+magic3-flash: onx-wear-magic3
+	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-wear.hex" -c "reset run" -c exit
+
 pinetime-reset:
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "reset run" -c exit
 
@@ -248,6 +298,7 @@ LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMESTAMP=$$(date +'%y%m%d%H%
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BOOTLOADER_NUMBER=$$(cat ../OnexKernel/bootloader-number.txt)
 
 LD_FILES_PINETIME = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/pinetime/onex.ld
+LD_FILES_MAGIC3   = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/magic3/onex.ld
 LD_FILES_DONGLE   = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/dongle/onex.ld
 
 COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Werror -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin -fshort-enums

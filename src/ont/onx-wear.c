@@ -665,7 +665,7 @@ void draw_home(char* path)
   strftime(t, 32, h24? "24 %a %d %h": "%p %a %d %h", &tms);
   lv_label_set_text(date_label, t);
 
-  int8_t pcnum=(int8_t)strtol(pc,&e,10);
+  int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
   if(pcnum>100) pcnum=100;
 

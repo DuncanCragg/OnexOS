@@ -152,6 +152,10 @@ EXTERNAL_SOURCES = \
 ./external/lvgl/src/lv_draw/lv_draw.c \
 ./external/lvgl/src/lv_draw/lv_draw_rect.c \
 ./external/lvgl/src/lv_draw/lv_draw_line.c \
+./external/lvgl/src/lv_objx/lv_kb.c \
+./external/lvgl/src/lv_objx/lv_ta.c \
+./external/lvgl/src/lv_objx/lv_page.c \
+./external/lvgl/src/lv_objx/lv_btnm.c \
 ./external/lvgl/src/lv_objx/lv_label.c \
 ./external/lvgl/src/lv_objx/lv_btn.c \
 ./external/lvgl/src/lv_objx/lv_bar.c \
@@ -274,11 +278,11 @@ pinetime-flash-bootloader: settings.hex
 pinetime-flash-sd:
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program ./sdk/components/softdevice/s132/hex/s132_nrf52_7.0.1_softdevice.hex" -c "reset run" -c exit
 
-pinetime-flash: settings.hex
+pinetime-wear-flash: settings.hex
 	mergehex --merge onx-wear.hex settings.hex --output onx-wear+settings.hex
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-wear+settings.hex" -c "reset run" -c exit
 
-magic3-flash: onx-wear-magic3
+magic3-wear-flash: onx-wear-magic3
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-wear.hex" -c "reset run" -c exit
 
 pinetime-reset:

@@ -280,7 +280,7 @@ int main()
 
   object_property_set(backlight, "light", "on");
   object_property_set(backlight, "level", "high");
-  object_property_set(backlight, "timeout", "6000");
+  object_property_set(backlight, "timeout", "60000");
   object_property_set(backlight, "touch", touchuid);
 #if defined(BOARD_PINETIME)
   object_property_set(backlight, "motion", motionuid);
@@ -295,9 +295,9 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
-  object_property_add(viewlist, (char*)"list", homeuid);
   object_property_add(viewlist, (char*)"list", calendaruid);
   object_property_add(viewlist, (char*)"list", aboutuid);
+  object_property_add(viewlist, (char*)"list", homeuid);
 
 #if defined(BOARD_PINETIME)
   object_property_set(home, (char*)"battery",   batteryuid);
@@ -383,7 +383,11 @@ void area_drawn()
 void initiate_display_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p)
 {
   disp_for_flush_ready=disp;
+#if defined(BOARD_MAGIC3)
+  display_draw_area(area->x1, area->x2, area->y1+40, area->y2+40, (uint16_t*)color_p, area_drawn);
+#else
   display_draw_area(area->x1, area->x2, area->y1, area->y2, (uint16_t*)color_p, area_drawn);
+#endif
 }
 
 static bool read_touch(lv_indev_drv_t* indev, lv_indev_data_t* data)
@@ -395,8 +399,13 @@ static bool read_touch(lv_indev_drv_t* indev, lv_indev_data_t* data)
   else{
     data->state = LV_INDEV_STATE_REL;
   }
+#if defined(BOARD_MAGIC3)
+  data->point.x=touch_info.x*110/100;
+  data->point.y=touch_info.y-40;
+#else
   data->point.x=touch_info.x;
   data->point.y=touch_info.y;
+#endif
   return false;
 }
 
@@ -789,12 +798,45 @@ static void plus_button_event(lv_obj_t * obj, lv_event_t event)
   }
 }
 
+void keyboard(void)
+{
+    static lv_style_t rel_style, pr_style;
+
+    lv_style_copy(&rel_style, &lv_style_btn_rel);
+    rel_style.body.radius = 0;
+    rel_style.body.border.width = 1;
+
+    lv_style_copy(&pr_style, &lv_style_btn_pr);
+    pr_style.body.radius = 0;
+    pr_style.body.border.width = 1;
+
+    lv_obj_t *kb = lv_kb_create(calendar_screen, NULL);
+    lv_kb_set_cursor_manage(kb, true);
+    lv_kb_set_style(kb, LV_KB_STYLE_BG, &lv_style_transp_tight);
+    lv_kb_set_style(kb, LV_KB_STYLE_BTN_REL, &rel_style);
+    lv_kb_set_style(kb, LV_KB_STYLE_BTN_PR, &pr_style);
+    lv_obj_set_width(kb, 240);
+    lv_obj_set_height(kb, 180);
+    lv_kb_set_mode(kb, LV_KB_MODE_NUM);
+    lv_obj_align(kb, calendar_screen, LV_ALIGN_IN_BOTTOM_LEFT, 0, 0);
+
+    lv_obj_t *ta = lv_ta_create(calendar_screen, NULL);
+    lv_obj_set_width(ta, 240);
+    lv_obj_set_height(ta, 60);
+    lv_obj_align(ta, calendar_screen, LV_ALIGN_IN_TOP_LEFT, 0, 0);
+    lv_ta_set_text(ta, "");
+
+    lv_kb_set_ta(kb, ta);
+}
+
+
 void draw_calendar(char* path)
 {
   if(!calendar_screen){
+
     calendar_screen = lv_obj_create(0,0);
     lv_label_set_style(calendar_screen, LV_LABEL_STYLE_MAIN, &screen_style);
-
+/*
     calendar_title=lv_label_create(calendar_screen, 0);
     lv_label_set_long_mode(calendar_title, LV_LABEL_LONG_BREAK);
     lv_obj_set_width(calendar_title, 200);
@@ -808,17 +850,13 @@ void draw_calendar(char* path)
     lv_obj_set_height(len_label, 100);
     lv_label_set_align(len_label, LV_LABEL_ALIGN_LEFT);
     lv_obj_align(len_label, calendar_screen, LV_ALIGN_IN_TOP_LEFT, 50, 160);
-
-    plus_button = lv_btn_create(calendar_screen, 0);
-    lv_obj_set_event_cb(plus_button, plus_button_event);
-    lv_obj_align(plus_button, 0, LV_ALIGN_CENTER, 0, -40);
-
-    plus_button_label = lv_label_create(plus_button, 0);
-    lv_label_set_text(plus_button_label, "+");
+*/
+    keyboard();
   }
   if(lv_scr_act()!=calendar_screen){
     lv_scr_load(calendar_screen);
   }
+/*
   snprintf(buf, 64, "%s:title", path); char* title=object_property_values(user, buf);
   snprintf(buf, 64, "%s:list",  path); int n=object_property_length(user, buf);
 
@@ -826,6 +864,7 @@ void draw_calendar(char* path)
 
   lv_label_set_text(calendar_title, title? title: "Calendar");
   lv_label_set_text(len_label, buf);
+*/
 }
 
 void draw_event(char* path)

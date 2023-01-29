@@ -789,15 +789,6 @@ static lv_obj_t* len_label;
 static lv_obj_t* plus_button;
 static lv_obj_t* plus_button_label;
 
-static void plus_button_event(lv_obj_t * obj, lv_event_t event)
-{
-  if(event==LV_EVENT_CLICKED) {
-#if defined(BOARD_PINETIME)
-    log_write("Plus button pressed\n");
-#endif
-  }
-}
-
 void keyboard(void)
 {
     static lv_style_t rel_style, pr_style;
@@ -828,7 +819,6 @@ void keyboard(void)
 
     lv_kb_set_ta(kb, ta);
 }
-
 
 void draw_calendar(char* path)
 {

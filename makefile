@@ -111,58 +111,6 @@ IOT_SOURCES = \
 EXTERNAL_SOURCES = \
 ./external/fonts/fonts_noto_sans_numeric_60.c \
 ./external/fonts/fonts_noto_sans_numeric_80.c \
-./external/lvgl/src/lv_font/lv_font_roboto_12.c \
-./external/lvgl/src/lv_misc/lv_area.c \
-./external/lvgl/src/lv_misc/lv_mem.c \
-./external/lvgl/src/lv_misc/lv_task.c \
-./external/lvgl/src/lv_misc/lv_bidi.c \
-./external/lvgl/src/lv_misc/lv_async.c \
-./external/lvgl/src/lv_misc/lv_anim.c \
-./external/lvgl/src/lv_misc/lv_gc.c \
-./external/lvgl/src/lv_misc/lv_fs.c \
-./external/lvgl/src/lv_misc/lv_templ.c \
-./external/lvgl/src/lv_misc/lv_log.c \
-./external/lvgl/src/lv_misc/lv_math.c \
-./external/lvgl/src/lv_misc/lv_txt.c \
-./external/lvgl/src/lv_misc/lv_ll.c \
-./external/lvgl/src/lv_misc/lv_utils.c \
-./external/lvgl/src/lv_misc/lv_color.c \
-./external/lvgl/src/lv_misc/lv_circ.c \
-./external/lvgl/src/lv_misc/lv_printf.c \
-./external/lvgl/src/lv_font/lv_font_fmt_txt.c \
-./external/lvgl/src/lv_font/lv_font.c \
-./external/lvgl/src/lv_font/lv_font_roboto_28.c \
-./external/lvgl/src/lv_hal/lv_hal_tick.c \
-./external/lvgl/src/lv_hal/lv_hal_indev.c \
-./external/lvgl/src/lv_hal/lv_hal_disp.c \
-./external/lvgl/src/lv_core/lv_debug.c \
-./external/lvgl/src/lv_core/lv_style.c \
-./external/lvgl/src/lv_core/lv_group.c \
-./external/lvgl/src/lv_core/lv_disp.c \
-./external/lvgl/src/lv_core/lv_refr.c \
-./external/lvgl/src/lv_core/lv_obj.c \
-./external/lvgl/src/lv_core/lv_indev.c \
-./external/lvgl/src/lv_draw/lv_draw_img.c \
-./external/lvgl/src/lv_draw/lv_img_cache.c \
-./external/lvgl/src/lv_draw/lv_draw_label.c \
-./external/lvgl/src/lv_draw/lv_draw_arc.c \
-./external/lvgl/src/lv_draw/lv_draw_basic.c \
-./external/lvgl/src/lv_draw/lv_img_decoder.c \
-./external/lvgl/src/lv_draw/lv_draw_triangle.c \
-./external/lvgl/src/lv_draw/lv_draw.c \
-./external/lvgl/src/lv_draw/lv_draw_rect.c \
-./external/lvgl/src/lv_draw/lv_draw_line.c \
-./external/lvgl/src/lv_objx/lv_kb.c \
-./external/lvgl/src/lv_objx/lv_ta.c \
-./external/lvgl/src/lv_objx/lv_page.c \
-./external/lvgl/src/lv_objx/lv_btnm.c \
-./external/lvgl/src/lv_objx/lv_label.c \
-./external/lvgl/src/lv_objx/lv_btn.c \
-./external/lvgl/src/lv_objx/lv_bar.c \
-./external/lvgl/src/lv_objx/lv_lmeter.c \
-./external/lvgl/src/lv_objx/lv_cont.c \
-./external/lvgl/src/lv_themes/lv_theme_default.c \
-./external/lvgl/src/lv_themes/lv_theme.c \
 
 #-------------------------------------------------------------------------------
 
@@ -232,6 +180,7 @@ onx-wear-pinetime: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-pinetime.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a        --output okolo
+	cp -a `find ~/Sources/lvgl-wear -name *.o` okolo
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_PINETIME) -Wl,-Map=./onx-wear.map -o ./onx-wear.out $^ okolo/* -lm
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-wear.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin
@@ -244,6 +193,7 @@ onx-wear-magic3: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-magic3.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	cp -a `find ~/Sources/lvgl-wear -name *.o` okolo
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_MAGIC3) -Wl,-Map=./onx-wear.map -o ./onx-wear.out $^ okolo/* -lm
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-wear.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin

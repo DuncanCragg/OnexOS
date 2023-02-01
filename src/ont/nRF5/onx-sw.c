@@ -174,6 +174,8 @@ static void draw_log();
 
 #define ADC_CHANNEL 0
 
+static uint8_t fps = 111;
+
 static char    typed[64];
 static uint8_t cursor=0;
 
@@ -346,7 +348,6 @@ int main()
 
     static uint8_t  frame_count = 0;
     static uint64_t tm_last = 0;
-    static uint8_t  fps = 111;
 
     frame_count++;
     uint64_t tm=time_ms();
@@ -355,20 +356,6 @@ int main()
       fps = frame_count;
       frame_count = 0;
     }
-
-    g2d_clear_screen(0xff);
-
-    static char buf[64];
-
-    snprintf(buf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-    g2d_text(10, 20, buf, 0x001a, 0xffff, 2);
-
-    snprintf(buf, 64, "%s|", typed);
-    g2d_text(10, 40, buf, 0x001a, 0xffff, 2);
-
-    g2d_keyboard();
-
-    g2d_write_out_buffer();
 
     if(new_touch_info){
       new_touch_info=false;
@@ -606,10 +593,8 @@ void draw_home(char* path)
   char t[32];
 
   strftime(t, 32, h24? "%H:%M": "%l:%M", &tms);
-  // set_text(time_label, t);
 
   strftime(t, 32, h24? "24 %a %d %h": "%p %a %d %h", &tms);
-  // set_text(date_label, t);
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
@@ -624,7 +609,6 @@ void draw_home(char* path)
 
 void draw_calendar(char* path)
 {
-  // keyboard();
 }
 
 void draw_event(char* path)
@@ -636,11 +620,8 @@ void draw_about(char* path)
   snprintf(buf, 64, "%s:build-info", path); char* bnf=object_property_values(user, buf);
   snprintf(buf, 64, "%s:cpu", path);        char* cpu=object_property(       user, buf);
 
-  // set_text(about_title, "About device");
 
-  // set_text(build_label, bnf);
 
-  // set_text(cpu_label, cpu);
 }
 
 void draw_default(char* path)

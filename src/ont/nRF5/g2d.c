@@ -16,10 +16,6 @@
 #define LCD_BUFFER_SIZE ((ST7789_WIDTH * ST7789_HEIGHT) * 2)
 static uint8_t lcd_buffer[LCD_BUFFER_SIZE + 4];
 
-void gfx_fast_init()
-{
-  display_fast_init();
-}
 
 void gfx_fast_set_pixel(int32_t x, int32_t y, uint16_t colour)
 {
@@ -62,6 +58,18 @@ bool gfx_fast_draw_char(int32_t x, int32_t y, unsigned char c, uint16_t colour, 
   return true;
 }
 
+// ------------
+
+void gfx_fast_init()
+{
+  display_fast_init();
+}
+
+void gfx_fast_clear_screen(uint8_t colour)
+{
+  memset(lcd_buffer, colour, LCD_BUFFER_SIZE);
+}
+
 void gfx_fast_text(int32_t x, int32_t y, char* text, uint16_t colour, uint16_t bg, uint32_t size)
 {
   int p = 0;
@@ -74,11 +82,6 @@ void gfx_fast_text(int32_t x, int32_t y, char* text, uint16_t colour, uint16_t b
       p++;
     }
   }
-}
-
-void gfx_fast_clear_screen(uint8_t colour)
-{
-  memset(lcd_buffer, colour, LCD_BUFFER_SIZE);
 }
 
 void gfx_fast_write_out_buffer()

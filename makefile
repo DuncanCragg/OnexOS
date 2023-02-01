@@ -104,6 +104,10 @@ WEAR_SOURCES = \
 ./src/ont/onx-wear.c \
 
 
+SW_SOURCES = \
+./src/ont/onx-sw.c \
+
+
 IOT_SOURCES = \
 ./src/ont/onx-iot.c \
 
@@ -156,7 +160,7 @@ $(SDK_INCLUDES) \
 
 
 SDK_INCLUDES = \
--I./sdk/components/boards \
+-I../OnexKernel/mod-sdk/components/boards \
 -I./sdk/components/libraries/balloc \
 -I./sdk/components/libraries/experimental_section_vars \
 -I./sdk/components/libraries/log \
@@ -199,6 +203,18 @@ onx-wear-magic3: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-wear.out ./onx-wear.hex
 
+onx-sw-magic3: INCLUDES=$(INCLUDES_MAGIC3)
+onx-sw-magic3: COMPILER_DEFINES=$(COMPILER_DEFINES_MAGIC3)
+onx-sw-magic3: $(EXTERNAL_SOURCES:.c=.o) $(SW_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-magic3.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_MAGIC3) -Wl,-Map=./onx-sw.map -o ./onx-sw.out $^ okolo/* -lm
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-sw.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-sw.out ./onx-sw.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-sw.out ./onx-sw.hex
+
 onx-iot: INCLUDES=$(INCLUDES_DONGLE)
 onx-iot: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
 onx-iot: $(IOT_SOURCES:.c=.o)
@@ -228,6 +244,8 @@ pinetime-flash-bootloader: settings.hex
 pinetime-flash-sd:
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program ./sdk/components/softdevice/s132/hex/s132_nrf52_7.0.1_softdevice.hex" -c "reset run" -c exit
 
+#-------------------------------:
+
 pinetime-wear-flash: settings.hex
 	mergehex --merge onx-wear.hex settings.hex --output onx-wear+settings.hex
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-wear+settings.hex" -c "reset run" -c exit
@@ -235,15 +253,20 @@ pinetime-wear-flash: settings.hex
 magic3-wear-flash: onx-wear-magic3
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-wear.hex" -c "reset run" -c exit
 
+magic3-sw-flash: onx-sw-magic3
+	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-sw.hex" -c "reset run" -c exit
+
+dongle-flash: onx-iot
+	nrfutil pkg generate --hw-version 52 --sd-req 0xCA --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
+	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
+
+#-------------------------------:
+
 pinetime-reset:
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "reset run" -c exit
 
 pinetime-ota: onx-wear.hex
 	nrfutil pkg generate --hw-version 52 --application onx-wear.hex $(APPLICATION_VERSION) --sd-req 0xCB --key-file $(PRIVATE_PEM) onx-wear.zip
-
-dongle-flash: onx-iot
-	nrfutil pkg generate --hw-version 52 --sd-req 0xCA --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
-	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
 
 #-------------------------------------------------------------------------------
 

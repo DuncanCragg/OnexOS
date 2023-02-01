@@ -1,0 +1,8 @@
+target extended-remote localhost:3333
+mon speed 10000
+mon flash download=1
+file ./onx-sw.out
+set print pretty on
+break HardFault_Handler
+set unwindonsignal on
+mon reset 0

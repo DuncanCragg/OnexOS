@@ -532,7 +532,7 @@ void draw_by_type(char* p, bool touchevent)
   snprintf(pi, 32, "%s:is", p);
 
   if(object_property_contains(user, pi, "home"))  draw_home(p);               else
-  if(object_property_contains(user, pi, "notes") &&
+  if(object_property_contains(user, pi, "note") &&
      object_property_contains(user, pi, "list") ) draw_notes(p);              else
   if(object_property_contains(user, pi, "about")) draw_about(p);              else
   if(object_property_contains(user, pi, "list"))  draw_list(p, !!touchevent); else
@@ -588,11 +588,20 @@ void draw_home(char* path)
   struct tm tms={0};
   localtime_r(&est, &tms);
 
+  g2d_clear_screen(0xff);
+
+  static char buf[64];
   char t[32];
 
   strftime(t, 32, h24? "%H:%M": "%l:%M", &tms);
+  snprintf(buf, 64, "%s", t);
+  g2d_text(10, 110, buf, 0x001a, 0xffff, 7);
 
   strftime(t, 32, h24? "24 %a %d %h": "%p %a %d %h", &tms);
+  snprintf(buf, 64, "%s", t);
+  g2d_text(10, 200, buf, 0x001a, 0xffff, 3);
+
+  g2d_write_out_buffer();
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
@@ -605,18 +614,39 @@ void draw_home(char* path)
   else         batt_col=BATTERY_LOW;
 }
 
-void draw_notes(char* path)
-{
+void draw_notes(char* path) {
+
+  g2d_clear_screen(0xff);
+
+  static char buf[64];
+
+  snprintf(buf, 64, "%s|", typed);
+  g2d_text(10, 40, buf, 0x001a, 0xffff, 2);
+
+  g2d_keyboard();
+
+  g2d_write_out_buffer();
 }
 
+void draw_about(char* path) {
 
-void draw_about(char* path)
-{
   snprintf(buf, 64, "%s:build-info", path); char* bnf=object_property_values(user, buf);
   snprintf(buf, 64, "%s:cpu", path);        char* cpu=object_property(       user, buf);
 
+  g2d_clear_screen(0xff);
 
+  static char buf[64];
 
+  snprintf(buf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
+  g2d_text(10, 20, buf, 0x001a, 0xffff, 2);
+
+  snprintf(buf, 64, "cpu: %s", cpu);
+  g2d_text(10, 70, buf, 0x001a, 0xffff, 3);
+
+  snprintf(buf, 64, "build: %s", bnf);
+  g2d_text(10, 190, buf, 0x001a, 0xffff, 1);
+
+  g2d_write_out_buffer();
 }
 
 void draw_default(char* path)

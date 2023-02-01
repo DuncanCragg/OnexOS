@@ -383,11 +383,7 @@ void area_drawn()
 void initiate_display_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p)
 {
   disp_for_flush_ready=disp;
-#if defined(BOARD_MAGIC3)
-  display_draw_area(area->x1, area->x2, area->y1+40, area->y2+40, (uint16_t*)color_p, area_drawn);
-#else
   display_draw_area(area->x1, area->x2, area->y1, area->y2, (uint16_t*)color_p, area_drawn);
-#endif
 }
 
 static bool read_touch(lv_indev_drv_t* indev, lv_indev_data_t* data)
@@ -399,13 +395,8 @@ static bool read_touch(lv_indev_drv_t* indev, lv_indev_data_t* data)
   else{
     data->state = LV_INDEV_STATE_REL;
   }
-#if defined(BOARD_MAGIC3)
-  data->point.x=touch_info.x*110/100;
-  data->point.y=touch_info.y-40;
-#else
   data->point.x=touch_info.x;
   data->point.y=touch_info.y;
-#endif
   return false;
 }
 

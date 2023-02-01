@@ -212,18 +212,6 @@ void add_char(char c)
 
 uint8_t key_index(uint16_t x, uint16_t y)
 {
-/*
-  170 right
-  155 ---
-  140 right centre
-  125 ---
-  110 bang centre
-   95 ---
-   80 left centre
-   65 ---
-   50 left
-   35 ---
-*/
   uint8_t xstart=40;
   uint8_t xend  =170;
   uint8_t ystart=130;

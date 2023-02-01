@@ -233,7 +233,7 @@ int main()
   motion_init(moved);
 #endif
 
-  gfx_fast_init();
+  g2d_init();
 
   onex_init("");
 
@@ -383,15 +383,15 @@ int main()
       frame_count = 0;
     }
 
-    gfx_fast_clear_screen(0xff);
+    g2d_clear_screen(0xff);
 
     static char buf[64];
 
     snprintf(buf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-    gfx_fast_text(10, 20, buf, 0x001a, 0xffff, 2);
+    g2d_text(10, 20, buf, 0x001a, 0xffff, 2);
 
     snprintf(buf, 64, "%s|", typed);
-    gfx_fast_text(10, 40, buf, 0x001a, 0xffff, 2);
+    g2d_text(10, 40, buf, 0x001a, 0xffff, 2);
 
     uint8_t kbdstart_x=15;
     uint8_t kbdstart_y=115;
@@ -445,10 +445,10 @@ int main()
                          key_indexes_page[kbpg][4+j*5],
                          key_indexes_page[kbpg][5+j*5]);
 
-      gfx_fast_text(kbdstart_x, kbdstart_y+rowspacing*(j), buf, 0x0000, 0xffff, 4);
+      g2d_text(kbdstart_x, kbdstart_y+rowspacing*(j), buf, 0x0000, 0xffff, 4);
     }
 
-    gfx_fast_write_out_buffer();
+    g2d_write_out_buffer();
 
     if(new_touch_info){
       new_touch_info=false;

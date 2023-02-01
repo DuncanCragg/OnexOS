@@ -37,7 +37,7 @@ static object* oclock;
 static object* watchface;
 static object* viewlist;
 static object* home;
-static object* calendar;
+static object* notes;
 static object* about;
 
 static char* deviceuid;
@@ -55,7 +55,7 @@ static char* clockuid;
 static char* watchfaceuid;
 static char* viewlistuid;
 static char* homeuid;
-static char* calendaruid;
+static char* notesuid;
 static char* aboutuid;
 
 static volatile touch_info_t  touch_info={ 120, 140 };
@@ -244,7 +244,7 @@ int main()
   watchface=object_new(0, "editable",  "watchface editable", 6);
   viewlist =object_new(0, "editable",  "list editable", 4);
   home     =object_new(0, "default",   "home", 4);
-  calendar =object_new(0, "editable",  "event list editable", 4);
+  notes    =object_new(0, "editable",  "note list editable", 4);
   about    =object_new(0, "about",     "about", 4);
 
   deviceuid   =object_property(onex_device_object, "UID");
@@ -262,7 +262,7 @@ int main()
   watchfaceuid=object_property(watchface, "UID");
   viewlistuid =object_property(viewlist, "UID");
   homeuid     =object_property(home, "UID");
-  calendaruid =object_property(calendar, "UID");
+  notesuid    =object_property(notes, "UID");
   aboutuid    =object_property(about, "UID");
 
   object_property_set(backlight, "light", "on");
@@ -282,7 +282,7 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
-  object_property_add(viewlist, (char*)"list", calendaruid);
+  object_property_add(viewlist, (char*)"list", notesuid);
   object_property_add(viewlist, (char*)"list", aboutuid);
   object_property_add(viewlist, (char*)"list", homeuid);
 
@@ -513,8 +513,7 @@ bool evaluate_backlight_out(object* o, void* d)
 
 static void draw_by_type(char* path, bool touchevent);
 static void draw_home(char* path);
-static void draw_calendar(char* path);
-static void draw_event(char* path);
+static void draw_notes(char* path);
 static void draw_about(char* path);
 static void draw_list(char* p, bool touchevent);
 static void draw_default(char* path);
@@ -533,9 +532,8 @@ void draw_by_type(char* p, bool touchevent)
   snprintf(pi, 32, "%s:is", p);
 
   if(object_property_contains(user, pi, "home"))  draw_home(p);               else
-  if(object_property_contains(user, pi, "event") &&
-     object_property_contains(user, pi, "list") ) draw_calendar(p);           else
-  if(object_property_contains(user, pi, "event")) draw_event(p);              else
+  if(object_property_contains(user, pi, "notes") &&
+     object_property_contains(user, pi, "list") ) draw_notes(p);              else
   if(object_property_contains(user, pi, "about")) draw_about(p);              else
   if(object_property_contains(user, pi, "list"))  draw_list(p, !!touchevent); else
                                                   draw_default(p);
@@ -607,13 +605,10 @@ void draw_home(char* path)
   else         batt_col=BATTERY_LOW;
 }
 
-void draw_calendar(char* path)
+void draw_notes(char* path)
 {
 }
 
-void draw_event(char* path)
-{
-}
 
 void draw_about(char* path)
 {

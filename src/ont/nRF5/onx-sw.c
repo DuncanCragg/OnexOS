@@ -5,32 +5,28 @@
 #include <string.h>
 #include <boards.h>
 #include <onex-kernel/boot.h>
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 #include <onex-kernel/log.h>
 #endif
 #include <onex-kernel/time.h>
 #include <onex-kernel/gpio.h>
 #include <onex-kernel/i2c.h>
 #include <onex-kernel/spi.h>
-#if defined(BOARD_PINETIME)
-#include <onex-kernel/blenus.h>
-#endif
 #include <onex-kernel/display.h>
 #include <onex-kernel/gfx.h>
 #include <onex-kernel/touch.h>
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 #include <onex-kernel/motion.h>
 #endif
 #include <onn.h>
 #include <onr.h>
 
 static object* user;
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 static object* battery;
-static object* bluetooth;
 #endif
 static object* touch;
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 static object* motion;
 #endif
 static object* button;
@@ -44,12 +40,11 @@ static object* about;
 
 static char* deviceuid;
 static char* useruid;
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 static char* batteryuid;
-static char* bluetoothuid;
 #endif
 static char* touchuid;
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 static char* motionuid;
 #endif
 static char* buttonuid;
@@ -64,9 +59,8 @@ static char* aboutuid;
 static volatile touch_info_t  touch_info={ 120, 140 };
 static volatile bool          new_touch_info=false;
 static volatile uint16_t      touch_info_stroke=0;
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 static volatile motion_info_t motion_info;
-static volatile blenus_info_t ble_info={ .connected=false, .rssi=-100 };
 #endif
 
 static char buf[64];
@@ -77,18 +71,10 @@ static void every_second(){
 }
 
 static void every_10s(){
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   onex_run_evaluators(batteryuid, 0);
 #endif
 }
-
-#if defined(BOARD_PINETIME)
-static void blechanged(blenus_info_t bi)
-{
-  ble_info=bi;
-  onex_run_evaluators(bluetoothuid, 0);
-}
-#endif
 
 static bool user_active=true;
 
@@ -127,14 +113,14 @@ static void touched(touch_info_t ti)
   if(disable_user_touch==2 && touch_info.action==TOUCH_ACTION_CONTACT) disable_user_touch=0;
 
   if(!disable_user_touch){
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
     log_write("eval user from touched %d\n", is_gesture);
 #endif
     onex_run_evaluators(useruid, (void*)1);
   }
 }
 
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 static void moved(motion_info_t mi)
 {
   motion_info=mi;
@@ -146,7 +132,7 @@ static void button_changed(uint8_t pin, uint8_t type){
   onex_run_evaluators(buttonuid, 0);
 }
 
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 static void charging_changed(uint8_t pin, uint8_t type){
   onex_run_evaluators(batteryuid, 0);
 }
@@ -155,32 +141,24 @@ static void charging_changed(uint8_t pin, uint8_t type){
 static void set_up_gpio(void)
 {
   gpio_mode_cb(BUTTON_1, INPUT_PULLDOWN, RISING_AND_FALLING, button_changed);
-#if defined(BOARD_PINETIME)
-  gpio_mode(   BUTTON_ENABLE, OUTPUT);
-  gpio_set(    BUTTON_ENABLE, 1);
+#if defined(DO_LATER)
   gpio_mode_cb(CHARGE_SENSE, INPUT, RISING_AND_FALLING, charging_changed);
   gpio_adc_init(BATTERY_V, ADC_CHANNEL);
-
-  gpio_mode(LCD_BACKLIGHT_LOW, OUTPUT);
-  gpio_mode(LCD_BACKLIGHT_MID, OUTPUT);
-  gpio_mode(LCD_BACKLIGHT_HIGH, OUTPUT);
-#elif defined(BOARD_MAGIC3)
+#endif
   gpio_mode_cb(BUTTON_1, INPUT_PULLDOWN, RISING_AND_FALLING, button_changed);
   gpio_mode(I2C_ENABLE, OUTPUT);
   gpio_set( I2C_ENABLE, 1);
   gpio_mode(LCD_BACKLIGHT, OUTPUT);
   gpio_set(LCD_BACKLIGHT, LEDS_ACTIVE_STATE);
-#endif
 }
 
 static bool evaluate_default(object* o, void* d);
 static bool evaluate_user(object* o, void* d);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 static bool evaluate_battery_in(object* o, void* d);
-static bool evaluate_bluetooth_in(object* o, void* d);
 #endif
 static bool evaluate_touch_in(object* o, void* d);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 static bool evaluate_motion_in(object* o, void* d);
 #endif
 static bool evaluate_button_in(object* o, void* d);
@@ -240,41 +218,31 @@ uint8_t key_index(uint16_t x, uint16_t y)
 int main()
 {
   boot_init();
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   log_init();
 #endif
   time_init();
   gpio_init();
-#if defined(BOARD_PINETIME)
-  blenus_init(0, blechanged);
-#endif
 
   set_up_gpio();
 
-#if defined(BOARD_PINETIME)
-  display_init();
-#endif
-
   touch_init(touched);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   motion_init(moved);
 #endif
 
-#if defined(BOARD_MAGIC3)
   gfx_fast_init();
-#endif
 
   onex_init("");
 
   onex_set_evaluators("default",   evaluate_default, 0);
   onex_set_evaluators("device",    evaluate_device_logic, 0);
   onex_set_evaluators("user",      evaluate_user, 0);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   onex_set_evaluators("battery",   evaluate_battery_in, 0);
-  onex_set_evaluators("bluetooth", evaluate_bluetooth_in, 0);
 #endif
   onex_set_evaluators("touch",     evaluate_touch_in, 0);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   onex_set_evaluators("motion",    evaluate_motion_in, 0);
 #endif
   onex_set_evaluators("button",    evaluate_button_in, 0);
@@ -286,12 +254,11 @@ int main()
   object_set_evaluator(onex_device_object, "device");
 
   user     =object_new(0, "user",      "user", 8);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   battery  =object_new(0, "battery",   "battery", 4);
-  bluetooth=object_new(0, "bluetooth", "bluetooth", 4);
 #endif
   touch    =object_new(0, "touch",     "touch", 6);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   motion   =object_new(0, "motion",    "motion", 8);
 #endif
   button   =object_new(0, "button",    "button", 4);
@@ -305,12 +272,11 @@ int main()
 
   deviceuid   =object_property(onex_device_object, "UID");
   useruid     =object_property(user, "UID");
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   batteryuid  =object_property(battery, "UID");
-  bluetoothuid=object_property(bluetooth, "UID");
 #endif
   touchuid    =object_property(touch, "UID");
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   motionuid   =object_property(motion, "UID");
 #endif
   buttonuid   =object_property(button, "UID");
@@ -326,7 +292,7 @@ int main()
   object_property_set(backlight, "level", "high");
   object_property_set(backlight, "timeout", "60000");
   object_property_set(backlight, "touch", touchuid);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   object_property_set(backlight, "motion", motionuid);
 #endif
   object_property_set(backlight, "button", buttonuid);
@@ -343,21 +309,19 @@ int main()
   object_property_add(viewlist, (char*)"list", aboutuid);
   object_property_add(viewlist, (char*)"list", homeuid);
 
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   object_property_set(home, (char*)"battery",   batteryuid);
-  object_property_set(home, (char*)"bluetooth", bluetoothuid);
 #endif
   object_property_set(home, (char*)"watchface", watchfaceuid);
 
   object_property_set(user, "viewing", viewlistuid);
 
   object_property_add(onex_device_object, (char*)"user", useruid);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   object_property_add(onex_device_object, (char*)"io",   batteryuid);
-  object_property_add(onex_device_object, (char*)"io",   bluetoothuid);
 #endif
   object_property_add(onex_device_object, (char*)"io",   touchuid);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   object_property_add(onex_device_object, (char*)"io",   motionuid);
 #endif
   object_property_add(onex_device_object, (char*)"io",   buttonuid);
@@ -365,9 +329,8 @@ int main()
   object_property_add(onex_device_object, (char*)"io",   clockuid);
 
   onex_run_evaluators(useruid, 0);
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   onex_run_evaluators(batteryuid, 0);
-  onex_run_evaluators(bluetoothuid, 0);
 #endif
   onex_run_evaluators(clockuid, 0);
   onex_run_evaluators(backlightuid, 0);
@@ -536,7 +499,6 @@ int main()
         is_touched=false;
       }
     }
-
   }
 }
 
@@ -544,13 +506,13 @@ int main()
 
 bool evaluate_default(object* o, void* d)
 {
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
   log_write("evaluate_default data=%p\n", d); object_log(o);
 #endif
   return true;
 }
 
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 #define BATTERY_ZERO_PERCENT 3400
 #define BATTERY_100_PERCENT 4000
 #define BATTERY_PERCENT_STEPS 2
@@ -573,16 +535,6 @@ bool evaluate_battery_in(object* o, void* d)
 }
 #endif
 
-#if defined(BOARD_PINETIME)
-bool evaluate_bluetooth_in(object* o, void* d)
-{
-  object_property_set(bluetooth, "connected", ble_info.connected? "yes": "no");
-  snprintf(buf, 16, "%3d", ble_info.rssi);
-  object_property_set(bluetooth, "rssi", buf);
-  return true;
-}
-#endif
-
 bool evaluate_touch_in(object* o, void* d)
 {
   snprintf(buf, 64, "%3d %3d", touch_info.x, touch_info.y);
@@ -597,7 +549,7 @@ bool evaluate_touch_in(object* o, void* d)
   return true;
 }
 
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
 bool evaluate_motion_in(object* o, void* d)
 {
   static int16_t prevx=0;
@@ -649,21 +601,17 @@ bool evaluate_backlight_out(object* o, void* d)
 
   if(light_on && !user_active){
 
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
     display_wake();
 #endif
 
     bool mid =object_property_is(backlight, "level", "mid");
     bool high=object_property_is(backlight, "level", "high");
-#if defined(BOARD_PINETIME)
-    gpio_set(LCD_BACKLIGHT_LOW,               LEDS_ACTIVE_STATE);
-    gpio_set(LCD_BACKLIGHT_MID,  (mid||high)? LEDS_ACTIVE_STATE: !LEDS_ACTIVE_STATE);
-    gpio_set(LCD_BACKLIGHT_HIGH, (high)?      LEDS_ACTIVE_STATE: !LEDS_ACTIVE_STATE);
-#elif defined(BOARD_MAGIC3)
     gpio_set(LCD_BACKLIGHT,      (mid||high)? LEDS_ACTIVE_STATE: !LEDS_ACTIVE_STATE);
-#endif
 
-  //touch_wake();
+#if defined(DO_LATER)
+    touch_wake();
+#endif
 
     user_active=true;
 
@@ -676,15 +624,9 @@ bool evaluate_backlight_out(object* o, void* d)
 
   //touch_sleep();
 
-#if defined(BOARD_PINETIME)
-    gpio_set(LCD_BACKLIGHT_LOW,  !LEDS_ACTIVE_STATE);
-    gpio_set(LCD_BACKLIGHT_MID,  !LEDS_ACTIVE_STATE);
-    gpio_set(LCD_BACKLIGHT_HIGH, !LEDS_ACTIVE_STATE);
-#elif defined(BOARD_MAGIC3)
     gpio_set(LCD_BACKLIGHT,      !LEDS_ACTIVE_STATE);
-#endif
 
-#if defined(BOARD_PINETIME)
+#if defined(DO_LATER)
     display_sleep();
 #endif
   }
@@ -754,7 +696,6 @@ void draw_home(char* path)
 {
   snprintf(buf, 64, "%s:battery:percent", path);      char* pc=object_property(   user, buf);
   snprintf(buf, 64, "%s:battery:status", path);       bool  ch=object_property_is(user, buf, "charging");
-  snprintf(buf, 64, "%s:bluetooth:connected", path);  bool  bl=object_property_is(user, buf, "yes");
   snprintf(buf, 64, "%s:watchface:clock:ts", path);   char* ts=object_property(   user, buf);
   snprintf(buf, 64, "%s:watchface:clock:tz:2", path); char* tz=object_property(   user, buf);
   snprintf(buf, 64, "%s:watchface:ampm-24hr", path);  bool h24=object_property_is(user, buf, "24hr");

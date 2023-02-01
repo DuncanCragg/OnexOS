@@ -190,33 +190,6 @@ void add_char(char c)
   typed[cursor]=0;
 }
 
-uint8_t key_index(uint16_t x, uint16_t y)
-{
-  uint8_t xstart=40;
-  uint8_t xend  =170;
-  uint8_t ystart=130;
-  uint8_t xinc  =30;
-  if(x<xstart) x=xstart;
-  if(x>xend)   x=xend;
-  if(y<ystart) y=ystart;
-  if(y>=130 && y<=165){
-    return 1+(x-xstart)/xinc;
-  }
-  else
-  if(y>165 && y<=200){
-    return 6+(x-xstart)/xinc;
-  }
-  else
-  if(y>200 && y<=235){
-    return 11+(x-xstart)/xinc;
-  }
-  else
-  if(y>235 && y<=280){
-    return 16+(x-xstart)/xinc;
-  }
-  return 0;
-}
-
 int main()
 {
   boot_init();
@@ -393,60 +366,7 @@ int main()
     snprintf(buf, 64, "%s|", typed);
     g2d_text(10, 40, buf, 0x001a, 0xffff, 2);
 
-    uint8_t kbdstart_x=15;
-    uint8_t kbdstart_y=115;
-    uint8_t rowspacing=40;
-
-    static uint8_t kbpg=1;
-
-    static char key_indexes_page[7][21]={
-                        { "      " },
-                        { " "
-                          "ERTIO"
-                          "ASDGH"
-                          "CBNM>"
-                          "^#  ~" },
-                        { " "
-                          "QWYUP"
-                          "FJKL "
-                          " ZXV<"
-                          "^#  ~" },
-                        { " "
-                          "+ ()-"
-                          "/'#@*"
-                          "%!;:>"
-                          "^#,.~" },
-                        { " "
-                          "^&[]_"
-                          " \"{}~"
-                          " ?<><"
-                          "^#,.~" },
-                        { " "
-                          "+123-"
-                          "/456*"
-                          "%789>"
-                          "^#0.=" },
-                        { " "
-                          "^123e"
-                          " 456 "
-                          " 789<"
-                          "^#0.=" }};
-
-    #define SELECT_PAGE 15
-    #define SELECT_TYPE 16
-    #define DELETE_LAST 17
-
-    for(uint8_t j=0; j<4; j++){
-
-      snprintf(buf, 64, "%c %c %c %c %c",
-                         key_indexes_page[kbpg][1+j*5],
-                         key_indexes_page[kbpg][2+j*5],
-                         key_indexes_page[kbpg][3+j*5],
-                         key_indexes_page[kbpg][4+j*5],
-                         key_indexes_page[kbpg][5+j*5]);
-
-      g2d_text(kbdstart_x, kbdstart_y+rowspacing*(j), buf, 0x0000, 0xffff, 4);
-    }
+    g2d_keyboard();
 
     g2d_write_out_buffer();
 
@@ -457,44 +377,11 @@ int main()
       if(!is_touched && touch_info.action==TOUCH_ACTION_CONTACT){
         is_touched=true;
 
-        uint8_t ki = key_index(touch_info.x, touch_info.y);
-        if(ki==SELECT_TYPE){
-          if(kbpg==1 || kbpg==2) kbpg=3;
-          else
-          if(kbpg==3 || kbpg==4) kbpg=5;
-          else
-          if(kbpg==5 || kbpg==6) kbpg=1;
-        }
-        else
-        if(ki==SELECT_PAGE){
-          if(kbpg==1) kbpg=2;
-          else
-          if(kbpg==2) kbpg=1;
-          else
-          if(kbpg==3) kbpg=4;
-          else
-          if(kbpg==4) kbpg=3;
-          else
-          if(kbpg==5) kbpg=6;
-          else
-          if(kbpg==6) kbpg=5;
-        }
-        else
-        if(ki==DELETE_LAST){
+        unsigned char ch=g2d_keyboard_char(touch_info.x, touch_info.y);
 
-          del_char();
-        }
+        if(ch==255) del_char();
         else
-        if(ki>=1){
-
-          add_char(key_indexes_page[kbpg][ki]);
-
-          if(kbpg==2 || kbpg==6) kbpg--;
-          else
-          if(kbpg==3 || kbpg==4) kbpg=1;
-        }
-        else
-        if(ki==0) add_char('?');
+        if(ch>0) add_char(ch);
       }
       else
       if(is_touched && touch_info.action!=TOUCH_ACTION_CONTACT){

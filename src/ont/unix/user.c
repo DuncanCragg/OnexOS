@@ -1,7 +1,7 @@
 // -----------------------------------------------------------
 
-#include "ont/user-vk-common.h"
-#include "ont/linmath-plus.h"
+#include "ont/unix/user-vk-common.h"
+#include "ont/unix/linmath-plus.h"
 
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>

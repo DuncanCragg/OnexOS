@@ -21,7 +21,7 @@
 
 #include "hwc_c.h"
 
-#include "ont/vulkan/vulkan_up.h"
+#include "ont/unix/vulkan/vulkan_up.h"
 #include "onl/onl.h"
 
 iostate io;

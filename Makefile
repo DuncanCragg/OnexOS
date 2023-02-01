@@ -12,42 +12,42 @@ TARGETS = onx-arm \
 #-------------------------------------------------------------------------------
 
 SOURCES_ONX_ARM = \
-  ./src/ont/user.c \
-  ./src/ont/onx-vulkan.c \
-  ./src/ont/outline.c \
-  ./src/ont/geometry.c \
-  ./src/ont/vulkan/vulkan.c \
+  ./src/ont/unix/user.c \
+  ./src/ont/unix/onx-vulkan.c \
+  ./src/ont/unix/outline.c \
+  ./src/ont/unix/geometry.c \
+  ./src/ont/unix/vulkan/vulkan.c \
   ./src/onl/mobile/vulkan-hwc.c \
 
 SOURCES_ONX_ARM_CPP = \
   ./src/onl/mobile/hwc.cpp \
 
 SOURCES_ONX_X86 = \
-  ./src/ont/user.c \
-  ./src/ont/onx-vulkan.c \
-  ./src/ont/outline.c \
-  ./src/ont/geometry.c \
-  ./src/ont/vulkan/vulkan.c \
+  ./src/ont/unix/user.c \
+  ./src/ont/unix/onx-vulkan.c \
+  ./src/ont/unix/outline.c \
+  ./src/ont/unix/geometry.c \
+  ./src/ont/unix/vulkan/vulkan.c \
   ./src/onl/desktop/vulkan-xcb.c \
 
 #-------------------------------------------------------------------------------
 
 HEADERS_ONX_ARM = \
-  ./src/ont/outline.h \
-  ./src/ont/geometry.h \
-  ./src/ont/vulkan/vulkan.h \
+  ./src/ont/unix/outline.h \
+  ./src/ont/unix/geometry.h \
+  ./src/ont/unix/vulkan/vulkan.h \
   ./src/onl/mobile/hwc.h \
 
 HEADERS_ONX_X86 = \
-  ./src/ont/outline.h \
-  ./src/ont/geometry.h \
-  ./src/ont/vulkan/vulkan.h \
+  ./src/ont/unix/outline.h \
+  ./src/ont/unix/geometry.h \
+  ./src/ont/unix/vulkan/vulkan.h \
 
 #-------------------------------------------------------------------------------
 
 SHADERS = \
-  src/ont/onx.vert.spv \
-  src/ont/onx.frag.spv \
+  src/ont/unix/onx.vert.spv \
+  src/ont/unix/onx.frag.spv \
 
 FONTS = \
   onx/fonts/Roboto-Medium.ttf
@@ -183,7 +183,7 @@ onx/fonts/%.ttf: assets/fonts/%.ttf
 clean:
 	find . -name '*.o' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf ${TARGETS} src/ont/*.{inc,spv} onx/
+	rm -rf ${TARGETS} src/ont/unix/*.{inc,spv} onx/
 	rm -f ,* core
 	rm -rf *.arm *.x86 onx
 	@echo "------------------------------"

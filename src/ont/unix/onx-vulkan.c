@@ -1,7 +1,7 @@
 // ------------------------------------------------------------------------------------------------------------------------------------
 
-#include "ont/user-vk-common.h"
-#include "ont/vulkan/vulkan.h"
+#include "ont/unix/user-vk-common.h"
+#include "ont/unix/vulkan/vulkan.h"
 
 static uint32_t image_count;
 static uint32_t image_index;
@@ -335,7 +335,7 @@ static const char* font_face = "./fonts/Roboto-Medium.ttf";
 
 static char *texture_files[] = {"ivory.ppm"};
 
-#include "ont/ivory.ppm.h"
+#include "ont/unix/ivory.ppm.h"
 
 #define TEXTURE_COUNT 1
 

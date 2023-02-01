@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "onl/onl.h"
-#include "ont/outline.h"
+#include "ont/unix/outline.h"
 
 #define MAX_PANELS 8
 extern uint32_t num_panels;

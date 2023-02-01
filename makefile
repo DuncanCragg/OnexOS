@@ -101,15 +101,15 @@ $(SDK_INCLUDES_DONGLE) \
 #-------------------------------------------------------------------------------
 
 WEAR_SOURCES = \
-./src/ont/onx-wear.c \
+./src/ont/nRF5/onx-wear.c \
 
 
 SW_SOURCES = \
-./src/ont/onx-sw.c \
+./src/ont/nRF5/onx-sw.c \
 
 
 IOT_SOURCES = \
-./src/ont/onx-iot.c \
+./src/ont/nRF5/onx-iot.c \
 
 
 EXTERNAL_SOURCES = \
@@ -286,7 +286,7 @@ COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Wer
 clean:
 	find src external -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf *.hex onx-wear.??? onx-iot.??? dfu.zip core okolo
+	rm -rf *.hex onx-sw.??? onx-wear.??? onx-iot.??? dfu.zip core okolo
 	rm -f ,*
 	@echo "------------------------------"
 	@echo "files not cleaned:"

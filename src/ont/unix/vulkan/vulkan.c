@@ -1,10 +1,10 @@
 
 /* Platform-independent Vulkan common code */
 
-#include "ont/vulkan/vulkan.h"
+#include "ont/unix/vulkan/vulkan.h"
 
-#include "ont/vulkan/object_type_string_helper.h"
-#include "ont/vulkan/gettime.h"
+#include "ont/unix/vulkan/object_type_string_helper.h"
+#include "ont/unix/vulkan/gettime.h"
 
 #include "inttypes.h"
 

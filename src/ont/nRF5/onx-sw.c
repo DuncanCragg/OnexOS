@@ -88,18 +88,13 @@ static void touched(touch_info_t ti)
   static uint16_t swipe_start_x=0;
   static uint16_t swipe_start_y=0;
 
-  bool is_gesture=(touch_info.gesture==TOUCH_GESTURE_LEFT  ||
-                   touch_info.gesture==TOUCH_GESTURE_RIGHT ||
-                   touch_info.gesture==TOUCH_GESTURE_DOWN  ||
-                   touch_info.gesture==TOUCH_GESTURE_UP      );
-
-  if(touch_info.action==TOUCH_ACTION_CONTACT && !is_gesture){
+  if(touch_info.action==TOUCH_ACTION_CONTACT){
     swipe_start_x=touch_info.x;
     swipe_start_y=touch_info.y;
     touch_info_stroke=0;
   }
   else
-  if(touch_info.action!=TOUCH_ACTION_CONTACT && is_gesture){
+  if(touch_info.action!=TOUCH_ACTION_CONTACT){
     int16_t dx=touch_info.x-swipe_start_x;
     int16_t dy=touch_info.y-swipe_start_y;
     touch_info_stroke=(uint16_t)sqrtf(dx*dx+dy*dy);
@@ -116,9 +111,9 @@ static void touched(touch_info_t ti)
 
   if(!disable_user_touch){
 #if defined(DO_LATER)
-    log_write("eval user from touched %d\n", is_gesture);
+    log_write("eval user from touched\n");
 #endif
-    onex_run_evaluators(useruid, (void*)1);
+    onex_run_evaluators(useruid, 0);
   }
 }
 
@@ -416,7 +411,7 @@ bool evaluate_touch_in(object* o, void* d)
   snprintf(buf, 64, "%3d %3d", touch_info.x, touch_info.y);
   object_property_set(touch, "coords", buf);
 
-  snprintf(buf, 64, "%s %s", touch_actions[touch_info.action], touch_gestures[touch_info.gesture]);
+  snprintf(buf, 64, "%s", touch_actions[touch_info.action]);
   object_property_set(touch, "action", buf);
 
   snprintf(buf, 64, "%d", touch_info_stroke);
@@ -511,54 +506,45 @@ bool evaluate_backlight_out(object* o, void* d)
 
 // -------------------- User --------------------------
 
-static void draw_by_type(char* path, bool touchevent);
+static void draw_by_type(char* path);
 static void draw_home(char* path);
 static void draw_notes(char* path);
 static void draw_about(char* path);
-static void draw_list(char* p, bool touchevent);
+static void draw_list(char* p);
 static void draw_default(char* path);
 
-bool evaluate_user(object* o, void* touchevent)
+bool evaluate_user(object* o, void* d)
 {
-  if(user_active) draw_by_type("viewing", !!touchevent);
+  if(user_active) draw_by_type("viewing");
   return true;
 }
 
 static char pi[64];
 static char pl[64];
 
-void draw_by_type(char* p, bool touchevent)
+void draw_by_type(char* p)
 {
   snprintf(pi, 32, "%s:is", p);
 
-  if(object_property_contains(user, pi, "home"))  draw_home(p);               else
+  if(object_property_contains(user, pi, "home"))  draw_home(p);    else
   if(object_property_contains(user, pi, "note") &&
-     object_property_contains(user, pi, "list") ) draw_notes(p);              else
-  if(object_property_contains(user, pi, "about")) draw_about(p);              else
-  if(object_property_contains(user, pi, "list"))  draw_list(p, !!touchevent); else
+     object_property_contains(user, pi, "list") ) draw_notes(p);   else
+  if(object_property_contains(user, pi, "about")) draw_about(p);   else
+  if(object_property_contains(user, pi, "list"))  draw_list(p);    else
                                                   draw_default(p);
 }
 
 static uint8_t list_index=1;
 
-void draw_list(char* p, bool touchevent)
+void draw_list(char* p)
 {
-  if(touchevent){
-    if(touch_info.gesture==TOUCH_GESTURE_LEFT  && touch_info_stroke > 50){
-      list_index++;
-    }
-    else
-    if(touch_info.gesture==TOUCH_GESTURE_RIGHT && touch_info_stroke > 50){
-      list_index--;
-    }
-  }
   uint8_t list_len=object_property_length(user, "viewing:list");
   if(list_index<1       ) list_index=list_len;
   if(list_index>list_len) list_index=1;
 
   snprintf(pl, 32, "%s:list:%d", p, list_index); // all goes wrong if this recurses (list:list) !
 
-  draw_by_type(pl, false);
+  draw_by_type(pl);
 }
 
 #define BATTERY_LOW      0x0 // RED

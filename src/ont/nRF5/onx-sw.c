@@ -21,6 +21,8 @@
 #include <onn.h>
 #include <onr.h>
 
+#include "g2d.h"
+
 static object* user;
 #if defined(DO_LATER)
 static object* battery;

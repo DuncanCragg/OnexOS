@@ -124,17 +124,17 @@ OL_INCLUDES = \
 
 OK_INCLUDES_PINETIME = \
 -I../OnexKernel/include \
--I../OnexKernel/src/platforms/nRF5/pinetime \
+-I../OnexKernel/src/onl/nRF5/pinetime \
 
 
 OK_INCLUDES_MAGIC3 = \
 -I../OnexKernel/include \
--I../OnexKernel/src/platforms/nRF5/magic3 \
+-I../OnexKernel/src/onl/nRF5/magic3 \
 
 
 OK_INCLUDES_DONGLE = \
 -I../OnexKernel/include \
--I../OnexKernel/src/platforms/nRF5/dongle \
+-I../OnexKernel/src/onl/nRF5/dongle \
 
 
 SDK_INCLUDES_PINETIME = \
@@ -274,9 +274,9 @@ LINKER_FLAGS = -O3 -g3 -mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfp
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMESTAMP=$$(date +'%y%m%d%H%M')
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BOOTLOADER_NUMBER=$$(cat ../OnexKernel/bootloader-number.txt)
 
-LD_FILES_PINETIME = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/pinetime/onex.ld
-LD_FILES_MAGIC3   = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/magic3/onex.ld
-LD_FILES_DONGLE   = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/platforms/nRF5/dongle/onex.ld
+LD_FILES_PINETIME = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/pinetime/onex.ld
+LD_FILES_MAGIC3   = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/magic3/onex.ld
+LD_FILES_DONGLE   = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/dongle/onex.ld
 
 COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Werror -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin -fshort-enums
 

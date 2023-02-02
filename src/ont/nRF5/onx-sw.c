@@ -140,6 +140,36 @@ static void charging_changed(uint8_t pin, uint8_t type){
 }
 #endif
 
+static uint8_t fps = 111;
+
+static char    typed[64];
+static uint8_t cursor=0;
+
+void del_char()
+{
+  if(cursor==0) return;
+  typed[--cursor]=0;
+}
+
+void add_char(char c)
+{
+  if(cursor==64) return;
+  typed[cursor++]=c;
+  typed[cursor]=0;
+}
+
+void key_hit(unsigned char ch, uint8_t command){
+
+  if(ch){
+    add_char(ch);
+    return;
+  }
+  if(command==G2D_KEYBOARD_COMMAND_DELETE){
+    del_char();
+    return;
+  }
+}
+
 static void set_up_gpio(void)
 {
   gpio_mode_cb(BUTTON_1, INPUT_PULLDOWN, RISING_AND_FALLING, button_changed);
@@ -173,36 +203,6 @@ static void draw_log();
 #endif
 
 #define ADC_CHANNEL 0
-
-static uint8_t fps = 111;
-
-static char    typed[64];
-static uint8_t cursor=0;
-
-void del_char()
-{
-  if(cursor==0) return;
-  typed[--cursor]=0;
-}
-
-void add_char(char c)
-{
-  if(cursor==64) return;
-  typed[cursor++]=c;
-  typed[cursor]=0;
-}
-
-void key_hit(unsigned char ch, uint8_t command){
-
-  if(ch){
-    add_char(ch);
-    return;
-  }
-  if(command==G2D_KEYBOARD_COMMAND_DELETE){
-    del_char();
-    return;
-  }
-}
 
 int main()
 {
@@ -626,6 +626,9 @@ void draw_notes(char* path) {
   g2d_clear_screen(0xff);
 
   static char buf[64];
+
+  snprintf(buf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
+  g2d_text(10, 20, buf, 0x001a, 0xffff, 2);
 
   snprintf(buf, 64, "%s|", typed);
   g2d_text(10, 40, buf, 0x001a, 0xffff, 2);

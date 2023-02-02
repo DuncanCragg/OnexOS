@@ -545,8 +545,6 @@ static char pl[64];
 
 void draw_by_type(char* p)
 {
-  g2d_clear_screen(0xff);
-
   snprintf(pi, 32, "%s:is", p);
 
   if(object_property_contains(user, pi, "home"))  draw_home(p);    else
@@ -555,8 +553,6 @@ void draw_by_type(char* p)
   if(object_property_contains(user, pi, "about")) draw_about(p);   else
   if(object_property_contains(user, pi, "list"))  draw_list(p);    else
                                                   draw_default(p);
-
-  g2d_render();
 }
 
 static uint8_t list_index=1;
@@ -599,6 +595,8 @@ void draw_home(char* path)
   struct tm tms={0};
   localtime_r(&est, &tms);
 
+  g2d_clear_screen(0xff);
+
   static char buf[64];
   char t[32];
 
@@ -609,6 +607,8 @@ void draw_home(char* path)
   strftime(t, 32, h24? "24 %a %d %h": "%p %a %d %h", &tms);
   snprintf(buf, 64, "%s", t);
   g2d_text(10, 170, buf, 0x001a, 0xffff, 3);
+
+  g2d_render();
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
@@ -623,6 +623,8 @@ void draw_home(char* path)
 
 void draw_notes(char* path) {
 
+  g2d_clear_screen(0xff);
+
   static char buf[64];
 
   snprintf(buf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
@@ -632,12 +634,16 @@ void draw_notes(char* path) {
   g2d_text(10, 40, buf, 0x001a, 0xffff, 2);
 
   g2d_keyboard(key_hit);
+
+  g2d_render();
 }
 
 void draw_about(char* path) {
 
   snprintf(buf, 64, "%s:build-info", path); char* bnf=object_property_values(user, buf);
   snprintf(buf, 64, "%s:cpu", path);        char* cpu=object_property(       user, buf);
+
+  g2d_clear_screen(0xff);
 
   static char buf[64];
 
@@ -649,6 +655,8 @@ void draw_about(char* path) {
 
   snprintf(buf, 64, "build: %s", bnf);
   g2d_text(10, 190, buf, 0x001a, 0xffff, 1);
+
+  g2d_render();
 }
 
 void draw_default(char* path)

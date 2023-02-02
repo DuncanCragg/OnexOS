@@ -192,6 +192,18 @@ void add_char(char c)
   typed[cursor]=0;
 }
 
+void key_hit(unsigned char ch, uint8_t command){
+
+  if(ch){
+    add_char(ch);
+    return;
+  }
+  if(command==G2D_KEYBOARD_COMMAND_DELETE){
+    del_char();
+    return;
+  }
+}
+
 int main()
 {
   boot_init();
@@ -368,11 +380,7 @@ int main()
       if(!is_touched && is_down){
         is_touched=true;
 
-        unsigned char ch=g2d_keyboard_char(touch_info.x, touch_info.y);
-
-        if(ch==255) del_char();
-        else
-        if(ch>0) add_char(ch);
+        g2d_touch_event(touch_info.x, touch_info.y);
       }
       else
       if(is_touched && !is_down){
@@ -622,7 +630,7 @@ void draw_notes(char* path) {
   snprintf(buf, 64, "%s|", typed);
   g2d_text(10, 40, buf, 0x001a, 0xffff, 2);
 
-  g2d_keyboard();
+  g2d_keyboard(key_hit);
 
   g2d_write_out_buffer();
 }

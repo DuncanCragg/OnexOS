@@ -126,7 +126,11 @@ static char key_indexes_page[7][21]={
     " 789<"
     "^#0.=" }};
 
-void g2d_keyboard() {
+static g2d_keyboard_cb kbd_cb=0;
+
+void g2d_keyboard(g2d_keyboard_cb kcb) {
+
+    kbd_cb = kcb;
 
     uint8_t kbdstart_x=15;
     uint8_t kbdstart_y=115;
@@ -149,11 +153,9 @@ void g2d_keyboard() {
 
       g2d_text(kbdstart_x, kbdstart_y+rowspacing*(j), buf, 0x0000, 0xffff, 4);
     }
-} // g2d_keyboard
+}
 
-unsigned char g2d_keyboard_char(uint16_t tx, uint16_t ty) {
-
-  unsigned char r=0;
+void g2d_touch_event(uint16_t tx, uint16_t ty) {
 
   uint8_t ki = key_index(tx, ty);
   if(ki==SELECT_TYPE){
@@ -180,21 +182,18 @@ unsigned char g2d_keyboard_char(uint16_t tx, uint16_t ty) {
   else
   if(ki==DELETE_LAST){
 
-    r=255;
+    if(kbd_cb) kbd_cb(0, G2D_KEYBOARD_COMMAND_DELETE);
   }
   else
   if(ki>=1){
 
-    r=key_indexes_page[kbpg][ki];
+    if(kbd_cb) kbd_cb(key_indexes_page[kbpg][ki], 0);
 
     if(kbpg==2 || kbpg==6) kbpg--;
     else
     if(kbpg==3 || kbpg==4) kbpg=1;
   }
-  else
-  if(ki==0) r='?';
-  return r;
-} // g2d_keyboard_char
+}
 
 // ------------
 

@@ -223,7 +223,7 @@ void g2d_clear_screen(uint8_t colour) {
   memset(lcd_buffer, colour, LCD_BUFFER_SIZE);
 }
 
-void g2d_write_out_buffer() {
+void g2d_render() {
 
   display_fast_write_out_buffer(lcd_buffer, LCD_BUFFER_SIZE);
 }

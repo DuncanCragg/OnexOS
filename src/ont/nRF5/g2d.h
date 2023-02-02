@@ -14,6 +14,6 @@ void g2d_text(int32_t x, int32_t y,
               char* text, uint16_t colour, uint16_t bg, uint32_t size);
 void g2d_keyboard(g2d_keyboard_cb kcb);
 void g2d_touch_event(uint16_t tx, uint16_t ty);
-void g2d_write_out_buffer();
+void g2d_render();
 
 #endif

@@ -361,7 +361,11 @@ int main()
       new_touch_info=false;
 
       static bool is_touched=false;
-      if(!is_touched && touch_info.action==TOUCH_ACTION_CONTACT){
+
+      bool is_down = touch_info.action==TOUCH_ACTION_DOWN ||
+                     touch_info.action==TOUCH_ACTION_CONTACT;
+
+      if(!is_touched && is_down){
         is_touched=true;
 
         unsigned char ch=g2d_keyboard_char(touch_info.x, touch_info.y);
@@ -371,7 +375,7 @@ int main()
         if(ch>0) add_char(ch);
       }
       else
-      if(is_touched && touch_info.action!=TOUCH_ACTION_CONTACT){
+      if(is_touched && !is_down){
         is_touched=false;
       }
     }

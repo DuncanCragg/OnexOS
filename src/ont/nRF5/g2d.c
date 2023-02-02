@@ -151,7 +151,7 @@ void g2d_keyboard(g2d_keyboard_cb kcb) {
                          key_indexes_page[kbpg][4+j*5],
                          key_indexes_page[kbpg][5+j*5]);
 
-      g2d_text(kbdstart_x, kbdstart_y+rowspacing*(j), buf, 0x0000, 0xffff, 4);
+      g2d_text(kbdstart_x, kbdstart_y+rowspacing*(j), buf, G2D_BLACK, G2D_WHITE, 4);
     }
 }
 

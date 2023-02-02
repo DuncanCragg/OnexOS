@@ -602,11 +602,11 @@ void draw_home(char* path)
 
   strftime(t, 32, h24? "%H:%M": "%l:%M", &tms);
   snprintf(buf, 64, "%s", t);
-  g2d_text(10, 90, buf, 0x001a, 0xffff, 7);
+  g2d_text(10, 90, buf, G2D_BLUE, G2D_WHITE, 7);
 
   strftime(t, 32, h24? "24 %a %d %h": "%p %a %d %h", &tms);
   snprintf(buf, 64, "%s", t);
-  g2d_text(10, 170, buf, 0x001a, 0xffff, 3);
+  g2d_text(10, 170, buf, G2D_BLUE, G2D_WHITE, 3);
 
   g2d_render();
 
@@ -628,10 +628,10 @@ void draw_notes(char* path) {
   static char buf[64];
 
   snprintf(buf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_text(10, 20, buf, 0x001a, 0xffff, 2);
+  g2d_text(10, 20, buf, G2D_BLUE, G2D_WHITE, 2);
 
   snprintf(buf, 64, "%s|", typed);
-  g2d_text(10, 40, buf, 0x001a, 0xffff, 2);
+  g2d_text(10, 40, buf, G2D_BLUE, G2D_WHITE, 2);
 
   g2d_keyboard(key_hit);
 
@@ -648,13 +648,13 @@ void draw_about(char* path) {
   static char buf[64];
 
   snprintf(buf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_text(10, 20, buf, 0x001a, 0xffff, 2);
+  g2d_text(10, 20, buf, G2D_BLUE, G2D_WHITE, 2);
 
   snprintf(buf, 64, "cpu: %s", cpu);
-  g2d_text(10, 70, buf, 0x001a, 0xffff, 3);
+  g2d_text(10, 70, buf, G2D_BLUE, G2D_WHITE, 3);
 
   snprintf(buf, 64, "build: %s", bnf);
-  g2d_text(10, 190, buf, 0x001a, 0xffff, 1);
+  g2d_text(10, 190, buf, G2D_BLUE, G2D_WHITE, 1);
 
   g2d_render();
 }

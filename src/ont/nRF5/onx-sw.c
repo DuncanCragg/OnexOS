@@ -60,8 +60,8 @@ static char* aboutuid;
 
 static volatile touch_info_t  touch_info={ 120, 140 };
 static volatile bool          new_touch_info=false;
-static volatile uint16_t      touch_info_stroke=0;
 #if defined(DO_LATER)
+static volatile uint16_t      touch_info_stroke=0;
 static volatile motion_info_t motion_info;
 #endif
 
@@ -85,6 +85,7 @@ static void touched(touch_info_t ti)
   touch_info=ti;
   new_touch_info=true;
 
+#if defined(DO_LATER)
   static uint16_t swipe_start_x=0;
   static uint16_t swipe_start_y=0;
 
@@ -99,10 +100,13 @@ static void touched(touch_info_t ti)
     int16_t dy=touch_info.y-swipe_start_y;
     touch_info_stroke=(uint16_t)sqrtf(dx*dx+dy*dy);
   }
+#endif
 
   onex_run_evaluators(touchuid, 0);
 
+  onex_run_evaluators(useruid, 0);
 
+#if defined(DO_LATER)
   static uint8_t  disable_user_touch=0;
 
   if(!user_active          && touch_info.action==TOUCH_ACTION_CONTACT) disable_user_touch=1;
@@ -115,6 +119,7 @@ static void touched(touch_info_t ti)
 #endif
     onex_run_evaluators(useruid, 0);
   }
+#endif
 }
 
 #if defined(DO_LATER)
@@ -414,8 +419,10 @@ bool evaluate_touch_in(object* o, void* d)
   snprintf(buf, 64, "%s", touch_actions[touch_info.action]);
   object_property_set(touch, "action", buf);
 
+#if defined(DO_LATER)
   snprintf(buf, 64, "%d", touch_info_stroke);
   object_property_set(touch, "stroke", buf);
+#endif
 
   return true;
 }
@@ -493,7 +500,9 @@ bool evaluate_backlight_out(object* o, void* d)
 
     user_active=false;
 
+#if defined(DO_LATER)
   //touch_sleep();
+#endif
 
     gpio_set(LCD_BACKLIGHT,      !LEDS_ACTIVE_STATE);
 

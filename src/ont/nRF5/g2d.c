@@ -65,7 +65,7 @@ bool g2d_draw_char(int32_t x, int32_t y, unsigned char c, uint16_t colour, uint1
 
 uint8_t key_index(uint16_t x, uint16_t y) {
 
-  uint8_t xstart=40;
+  uint8_t xstart=35;
   uint8_t xend  =170;
   uint8_t ystart=130;
   uint8_t xinc  =30;

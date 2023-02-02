@@ -594,11 +594,11 @@ void draw_home(char* path)
 
   strftime(t, 32, h24? "%H:%M": "%l:%M", &tms);
   snprintf(buf, 64, "%s", t);
-  g2d_text(10, 110, buf, 0x001a, 0xffff, 7);
+  g2d_text(10, 90, buf, 0x001a, 0xffff, 7);
 
   strftime(t, 32, h24? "24 %a %d %h": "%p %a %d %h", &tms);
   snprintf(buf, 64, "%s", t);
-  g2d_text(10, 200, buf, 0x001a, 0xffff, 3);
+  g2d_text(10, 170, buf, 0x001a, 0xffff, 3);
 
   g2d_write_out_buffer();
 

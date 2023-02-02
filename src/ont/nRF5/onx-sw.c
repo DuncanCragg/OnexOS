@@ -131,7 +131,10 @@ static void moved(motion_info_t mi)
 #endif
 
 static void button_changed(uint8_t pin, uint8_t type){
+
   onex_run_evaluators(buttonuid, 0);
+
+  onex_run_evaluators(useruid, 0);
 }
 
 #if defined(DO_LATER)
@@ -294,9 +297,9 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
+  object_property_add(viewlist, (char*)"list", homeuid);
   object_property_add(viewlist, (char*)"list", notesuid);
   object_property_add(viewlist, (char*)"list", aboutuid);
-  object_property_add(viewlist, (char*)"list", homeuid);
 
 #if defined(DO_LATER)
   object_property_set(home, (char*)"battery",   batteryuid);
@@ -534,9 +537,31 @@ static void draw_about(char* path);
 static void draw_list(char* p);
 static void draw_default(char* path);
 
+static uint8_t list_index=1;
+
 bool evaluate_user(object* o, void* d)
 {
+  static uint64_t pressed_ts=0;
+
+  bool button_pressed=(gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
+
+  if(!pressed_ts && button_pressed){
+
+    pressed_ts=time_ms();
+  }
+  else
+  if(pressed_ts && !button_pressed){
+
+    uint32_t press_time = (time_ms() - pressed_ts);
+
+    if(press_time < 300) list_index++;
+    else                 list_index--;
+
+    pressed_ts=0;
+  }
+
   if(user_active) draw_by_type("viewing");
+
   return true;
 }
 
@@ -554,8 +579,6 @@ void draw_by_type(char* p)
   if(object_property_contains(user, pi, "list"))  draw_list(p);    else
                                                   draw_default(p);
 }
-
-static uint8_t list_index=1;
 
 void draw_list(char* p)
 {

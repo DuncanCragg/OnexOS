@@ -58,6 +58,7 @@ static char* homeuid;
 static char* notesuid;
 static char* aboutuid;
 
+static volatile bool          button_pressed=false;
 static volatile touch_info_t  touch_info={ 120, 140 };
 static volatile bool          new_touch_info=false;
 #if defined(DO_LATER)
@@ -132,6 +133,7 @@ static void moved(motion_info_t mi)
 
 static void button_changed(uint8_t pin, uint8_t type){
 
+  button_pressed = (gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
   onex_run_evaluators(buttonuid, 0);
 
   onex_run_evaluators(useruid, 0);
@@ -360,7 +362,7 @@ int main()
     // --------------------
 
     static uint64_t feeding_time=0;
-    if(ct>feeding_time && gpio_get(BUTTON_1)!=BUTTONS_ACTIVE_STATE){
+    if(ct>feeding_time && !button_pressed){
       boot_feed_watchdog();
       feeding_time=ct+1000;
     }

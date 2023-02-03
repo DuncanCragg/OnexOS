@@ -324,7 +324,7 @@ int main()
 #endif
   object_property_set(watch, (char*)"watchface", watchfaceuid);
 
-  object_property_set(user, "viewing", homeuid);
+  object_property_set(user, "viewing", watchuid);
 
   object_property_add(onex_device_object, (char*)"user", useruid);
 #if defined(DO_LATER)
@@ -581,19 +581,17 @@ static void draw_about(char* path);
 static void draw_list(char* p);
 static void draw_default(char* path);
 
-static uint8_t list_index=1;
-
 bool evaluate_user(object* o, void* d)
 {
   if(!user_active) return true;
 
   if(button_action==BUTTON_ACTION_SHORT){
-    list_index++;
+    object_property_set(user, "viewing", watchuid);
     button_action=BUTTON_ACTION_NONE;
   }
   else
   if(button_action==BUTTON_ACTION_LONG){
-    list_index--;
+    object_property_set(user, "viewing", homeuid);
     button_action=BUTTON_ACTION_NONE;
   }
 
@@ -602,30 +600,28 @@ bool evaluate_user(object* o, void* d)
   return true;
 }
 
-static char pi[64]; // XXX replace by pathbuf once recursion removed
-static char pl[64];
-
 void draw_by_type(char* p)
 {
-  snprintf(pi, 32, "%s:is", p);
+  snprintf(pathbuf, 32, "%s:is", p);
 
-  if(object_property_contains(user, pi, "watch")) draw_watch(p);   else
-  if(object_property_contains(user, pi, "note") &&
-     object_property_contains(user, pi, "list") ) draw_notes(p);   else
-  if(object_property_contains(user, pi, "about")) draw_about(p);   else
-  if(object_property_contains(user, pi, "list"))  draw_list(p);    else
-                                                  draw_default(p);
+  if(object_property_contains(user, pathbuf, "watch")) draw_watch(p);   else
+  if(object_property_contains(user, pathbuf, "note") &&
+     object_property_contains(user, pathbuf, "list") ) draw_notes(p);   else
+  if(object_property_contains(user, pathbuf, "about")) draw_about(p);   else
+  if(object_property_contains(user, pathbuf, "list"))  draw_list(p);    else
+                                                       draw_default(p);
 }
 
-void draw_list(char* p)
-{
-  uint8_t list_len=object_property_length(user, "viewing:list");
-  if(list_index<1       ) list_index=list_len;
-  if(list_index>list_len) list_index=1;
+void draw_list(char* p) {
 
-  snprintf(pl, 32, "%s:list:%d", p, list_index); // XXX all goes wrong if this recurses (list:list) !
+  g2d_clear_screen(0xff);
 
-  draw_by_type(pl);
+  uint8_t ll=object_property_length(user, "viewing:list");
+
+  snprintf(g2dbuf, 64, "this is a list of length %d", ll);
+  g2d_text(10, 80, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+
+  g2d_render();
 }
 
 #define BATTERY_LOW      0x0 // RED

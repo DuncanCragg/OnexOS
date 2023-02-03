@@ -131,12 +131,16 @@ static void moved(motion_info_t mi)
 }
 #endif
 
+#define BUTTON_ACTION_NONE  0
+#define BUTTON_ACTION_WAIT  1
+#define BUTTON_ACTION_SHORT 2
+#define BUTTON_ACTION_LONG  3
+static uint8_t button_action = BUTTON_ACTION_NONE;
+
 static void button_changed(uint8_t pin, uint8_t type){
 
   button_pressed = (gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
   onex_run_evaluators(buttonuid, 0);
-
-  onex_run_evaluators(useruid, 0);
 }
 
 #if defined(DO_LATER)
@@ -382,6 +386,31 @@ int main()
 
     // --------------------
 
+    static uint64_t pressed_ts=0;
+    if(button_pressed && !pressed_ts){
+      button_action = BUTTON_ACTION_WAIT;
+      pressed_ts=ct;
+    }
+    else
+    if(button_pressed && pressed_ts){
+      if(button_action == BUTTON_ACTION_WAIT){
+        if((ct - pressed_ts) > 300){
+          button_action = BUTTON_ACTION_LONG;
+          onex_run_evaluators(useruid, 0);
+        }
+      }
+    }
+    else
+    if(pressed_ts && !button_pressed){
+      if(button_action == BUTTON_ACTION_WAIT){
+        button_action = BUTTON_ACTION_SHORT;
+        onex_run_evaluators(useruid, 0);
+      }
+      pressed_ts=0;
+    }
+
+    // --------------------
+
     if(new_touch_info){
       new_touch_info=false;
 
@@ -557,26 +586,19 @@ static uint8_t list_index=1;
 
 bool evaluate_user(object* o, void* d)
 {
-  static uint64_t pressed_ts=0;
+  if(!user_active) return true;
 
-  bool button_pressed=(gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
-
-  if(!pressed_ts && button_pressed){
-
-    pressed_ts=time_ms();
+  if(button_action==BUTTON_ACTION_SHORT){
+    list_index++;
+    button_action=BUTTON_ACTION_NONE;
   }
   else
-  if(pressed_ts && !button_pressed){
-
-    uint32_t press_time = (time_ms() - pressed_ts);
-
-    if(press_time < 300) list_index++;
-    else                 list_index--;
-
-    pressed_ts=0;
+  if(button_action==BUTTON_ACTION_LONG){
+    list_index--;
+    button_action=BUTTON_ACTION_NONE;
   }
 
-  if(user_active) draw_by_type("viewing");
+  draw_by_type("viewing");
 
   return true;
 }

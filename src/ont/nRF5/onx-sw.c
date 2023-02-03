@@ -104,8 +104,6 @@ static void touched(touch_info_t ti)
 
   onex_run_evaluators(touchuid, 0);
 
-  onex_run_evaluators(useruid, 0); // XXX call in main loop instead?
-
 #if defined(DO_LATER)
   // XXX all in main loop not here
   static uint8_t  disable_user_touch=0;
@@ -421,8 +419,8 @@ int main()
 
       if(!is_touched && is_down){
         is_touched=true;
-
         g2d_touch_event(touch_info.x, touch_info.y);
+        onex_run_evaluators(useruid, 0);
       }
       else
       if(is_touched && !is_down){

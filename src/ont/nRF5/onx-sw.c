@@ -160,7 +160,7 @@ void del_char()
 
 void add_char(char c)
 {
-  if(cursor==64) return;
+  if(cursor==62) return;
   typed[cursor++]=c;
   typed[cursor]=0;
 }

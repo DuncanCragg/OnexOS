@@ -65,8 +65,6 @@ static volatile uint16_t      touch_info_stroke=0;
 static volatile motion_info_t motion_info;
 #endif
 
-static char buf[64];
-
 static void every_second(){
   onex_run_evaluators(clockuid, 0);
   onex_run_evaluators(aboutuid, 0);
@@ -395,6 +393,12 @@ int main()
 
 // ------------------- evaluators ----------------
 
+// *** separated out to remind me to extend the respective APIs to allow sprintf-style
+// *** varargs for path segments, value construction and g2d_text()
+static char pathbuf[64];
+static char valuebuf[64];
+static char g2dbuf[64];
+
 bool evaluate_default(object* o, void* d)
 {
 #if defined(DO_LATER)
@@ -414,13 +418,13 @@ bool evaluate_battery_in(object* o, void* d)
   int8_t pc = ((mv-BATTERY_ZERO_PERCENT)*100/((BATTERY_100_PERCENT-BATTERY_ZERO_PERCENT)*BATTERY_PERCENT_STEPS))*BATTERY_PERCENT_STEPS;
   if(pc<0) pc=0;
   if(pc>100) pc=100;
-  snprintf(buf, 16, "%d%%(%ld)", pc, mv);
+  snprintf(valuebuf, 64, "%d%%(%ld)", pc, mv);
 
-  object_property_set(battery, "percent", buf);
+  object_property_set(battery, "percent", valuebuf);
 
   int batt=gpio_get(CHARGE_SENSE);
-  snprintf(buf, 16, "%s", batt? "powering": "charging");
-  object_property_set(battery, "status", buf);
+  snprintf(valuebuf, 64, "%s", batt? "powering": "charging");
+  object_property_set(battery, "status", valuebuf);
 
   return true;
 }
@@ -428,15 +432,15 @@ bool evaluate_battery_in(object* o, void* d)
 
 bool evaluate_touch_in(object* o, void* d)
 {
-  snprintf(buf, 64, "%3d %3d", touch_info.x, touch_info.y);
-  object_property_set(touch, "coords", buf);
+  snprintf(valuebuf, 64, "%3d %3d", touch_info.x, touch_info.y);
+  object_property_set(touch, "coords", valuebuf);
 
-  snprintf(buf, 64, "%s", touch_actions[touch_info.action]);
-  object_property_set(touch, "action", buf);
+  snprintf(valuebuf, 64, "%s", touch_actions[touch_info.action]);
+  object_property_set(touch, "action", valuebuf);
 
 #if defined(DO_LATER)
-  snprintf(buf, 64, "%d", touch_info_stroke);
-  object_property_set(touch, "stroke", buf);
+  snprintf(valuebuf, 64, "%d", touch_info_stroke);
+  object_property_set(touch, "stroke", valuebuf);
 #endif
 
   return true;
@@ -459,8 +463,8 @@ bool evaluate_motion_in(object* o, void* d)
   ticks++;
   if(ticks%50 && !viewscreen) return true;
 
-  snprintf(buf, 64, "%d %d %d %d", motion_info.x, motion_info.y, motion_info.z, motion_info.m);
-  object_property_set(motion, "x-y-z-m", buf);
+  snprintf(valuebuf, 64, "%d %d %d %d", motion_info.x, motion_info.y, motion_info.z, motion_info.m);
+  object_property_set(motion, "x-y-z-m", valuebuf);
   object_property_set(motion, "gesture", viewscreen? "view-screen": "none");
 
   return true;
@@ -479,11 +483,11 @@ extern char __BOOTLOADER_NUMBER;
 
 bool evaluate_about_in(object* o, void* d)
 {
-  snprintf(buf, 32, "%lu %lu", (unsigned long)&__BUILD_TIMESTAMP, (unsigned long)&__BOOTLOADER_NUMBER);
-  object_property_set(about, "build-info", buf);
+  snprintf(valuebuf, 64, "%lu %lu", (unsigned long)&__BUILD_TIMESTAMP, (unsigned long)&__BOOTLOADER_NUMBER);
+  object_property_set(about, "build-info", valuebuf);
 
-  snprintf(buf, 16, "%d%%", boot_cpu());
-  object_property_set(about, "cpu", buf);
+  snprintf(valuebuf, 64, "%d%%", boot_cpu());
+  object_property_set(about, "cpu", valuebuf);
 
   return true;
 }
@@ -565,7 +569,7 @@ bool evaluate_user(object* o, void* d)
   return true;
 }
 
-static char pi[64];
+static char pi[64]; // !!! replace by pathbuf once recursion removed
 static char pl[64];
 
 void draw_by_type(char* p)
@@ -598,11 +602,11 @@ void draw_list(char* p)
 
 void draw_home(char* path)
 {
-  snprintf(buf, 64, "%s:battery:percent", path);      char* pc=object_property(   user, buf);
-  snprintf(buf, 64, "%s:battery:status", path);       bool  ch=object_property_is(user, buf, "charging");
-  snprintf(buf, 64, "%s:watchface:clock:ts", path);   char* ts=object_property(   user, buf);
-  snprintf(buf, 64, "%s:watchface:clock:tz:2", path); char* tz=object_property(   user, buf);
-  snprintf(buf, 64, "%s:watchface:ampm-24hr", path);  bool h24=object_property_is(user, buf, "24hr");
+  snprintf(pathbuf, 64, "%s:battery:percent", path);      char* pc=object_property(   user, pathbuf);
+  snprintf(pathbuf, 64, "%s:battery:status", path);       bool  ch=object_property_is(user, pathbuf, "charging");
+  snprintf(pathbuf, 64, "%s:watchface:clock:ts", path);   char* ts=object_property(   user, pathbuf);
+  snprintf(pathbuf, 64, "%s:watchface:clock:tz:2", path); char* tz=object_property(   user, pathbuf);
+  snprintf(pathbuf, 64, "%s:watchface:ampm-24hr", path);  bool h24=object_property_is(user, pathbuf, "24hr");
 
   if(!ts) return;
 
@@ -620,16 +624,11 @@ void draw_home(char* path)
 
   g2d_clear_screen(0xff);
 
-  static char buf[64];
-  char t[32];
+  strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
+  g2d_text(10, 90, g2dbuf, G2D_BLUE, G2D_WHITE, 7);
 
-  strftime(t, 32, h24? "%H:%M": "%l:%M", &tms);
-  snprintf(buf, 64, "%s", t);
-  g2d_text(10, 90, buf, G2D_BLUE, G2D_WHITE, 7);
-
-  strftime(t, 32, h24? "24 %a %d %h": "%p %a %d %h", &tms);
-  snprintf(buf, 64, "%s", t);
-  g2d_text(10, 170, buf, G2D_BLUE, G2D_WHITE, 3);
+  strftime(g2dbuf, 64, h24? "24 %a %d %h": "%p %a %d %h", &tms);
+  g2d_text(10, 170, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
 
   g2d_render();
 
@@ -648,13 +647,11 @@ void draw_notes(char* path) {
 
   g2d_clear_screen(0xff);
 
-  static char buf[64];
+  snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
+  g2d_text(10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
-  snprintf(buf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_text(10, 20, buf, G2D_BLUE, G2D_WHITE, 2);
-
-  snprintf(buf, 64, "%s|", typed);
-  g2d_text(10, 40, buf, G2D_BLUE, G2D_WHITE, 2);
+  snprintf(g2dbuf, 64, "%s|", typed);
+  g2d_text(10, 40, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
   g2d_keyboard(key_hit);
 
@@ -663,28 +660,26 @@ void draw_notes(char* path) {
 
 void draw_about(char* path) {
 
-  snprintf(buf, 64, "%s:build-info", path); char* bnf=object_property_values(user, buf);
-  snprintf(buf, 64, "%s:cpu", path);        char* cpu=object_property(       user, buf);
+  snprintf(pathbuf, 64, "%s:build-info", path); char* bnf=object_property_values(user, pathbuf);
+  snprintf(pathbuf, 64, "%s:cpu", path);        char* cpu=object_property(       user, pathbuf);
 
   g2d_clear_screen(0xff);
 
-  static char buf[64];
+  snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
+  g2d_text(10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
-  snprintf(buf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_text(10, 20, buf, G2D_BLUE, G2D_WHITE, 2);
+  snprintf(g2dbuf, 64, "cpu: %s", cpu);
+  g2d_text(10, 70, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
 
-  snprintf(buf, 64, "cpu: %s", cpu);
-  g2d_text(10, 70, buf, G2D_BLUE, G2D_WHITE, 3);
-
-  snprintf(buf, 64, "build: %s", bnf);
-  g2d_text(10, 190, buf, G2D_BLUE, G2D_WHITE, 1);
+  snprintf(g2dbuf, 64, "build: %s", bnf);
+  g2d_text(10, 190, g2dbuf, G2D_BLUE, G2D_WHITE, 1);
 
   g2d_render();
 }
 
 void draw_default(char* path)
 {
-  snprintf(buf, 64, "%s:is", path); char* is=object_property(user, buf);
+  snprintf(pathbuf, 64, "%s:is", path); char* is=object_property(user, pathbuf);
   // set_text(is_label, is);
 }
 

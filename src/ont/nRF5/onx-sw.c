@@ -84,6 +84,7 @@ static void touched(touch_info_t ti)
   new_touch_info=true;
 
 #if defined(DO_LATER)
+  // XXX all in main loop not here
   static uint16_t swipe_start_x=0;
   static uint16_t swipe_start_y=0;
 
@@ -102,9 +103,10 @@ static void touched(touch_info_t ti)
 
   onex_run_evaluators(touchuid, 0);
 
-  onex_run_evaluators(useruid, 0);
+  onex_run_evaluators(useruid, 0); // XXX call in main loop instead?
 
 #if defined(DO_LATER)
+  // XXX all in main loop not here
   static uint8_t  disable_user_touch=0;
 
   if(!user_active          && touch_info.action==TOUCH_ACTION_CONTACT) disable_user_touch=1;
@@ -331,7 +333,7 @@ int main()
 
   while(1){
 
-    uint64_t ct=time_ms();
+    uint64_t ct=time_ms(); // XXX every loop?!
 
 #if defined(LOG_LOOP_TIME)
     static uint64_t lt=0;
@@ -346,6 +348,8 @@ int main()
       boot_sleep();
     }
 
+    // --------------------
+
 #if defined(LOG_TO_GFX)
     if(event_log_buffer){
       draw_log();
@@ -353,22 +357,28 @@ int main()
     }
 #endif
 
+    // --------------------
+
     static uint64_t feeding_time=0;
     if(ct>feeding_time && gpio_get(BUTTON_1)!=BUTTONS_ACTIVE_STATE){
       boot_feed_watchdog();
       feeding_time=ct+1000;
     }
 
+    // --------------------
+
+    // XXX put this in g2d to count actual frames shifted/s
     static uint8_t  frame_count = 0;
     static uint64_t tm_last = 0;
 
     frame_count++;
-    uint64_t tm=time_ms();
-    if(tm > tm_last + 1000) {
-      tm_last = tm;
+    if(ct > tm_last + 1000) {
+      tm_last = ct;
       fps = frame_count;
       frame_count = 0;
     }
+
+    // --------------------
 
     if(new_touch_info){
       new_touch_info=false;
@@ -393,8 +403,8 @@ int main()
 
 // ------------------- evaluators ----------------
 
-// *** separated out to remind me to extend the respective APIs to allow sprintf-style
-// *** varargs for path segments, value construction and g2d_text()
+// XXX separated out to remind me to extend the respective APIs to allow sprintf-style
+// XXX varargs for path segments, value construction and g2d_text()
 static char pathbuf[64];
 static char valuebuf[64];
 static char g2dbuf[64];
@@ -569,7 +579,7 @@ bool evaluate_user(object* o, void* d)
   return true;
 }
 
-static char pi[64]; // !!! replace by pathbuf once recursion removed
+static char pi[64]; // XXX replace by pathbuf once recursion removed
 static char pl[64];
 
 void draw_by_type(char* p)
@@ -590,7 +600,7 @@ void draw_list(char* p)
   if(list_index<1       ) list_index=list_len;
   if(list_index>list_len) list_index=1;
 
-  snprintf(pl, 32, "%s:list:%d", p, list_index); // all goes wrong if this recurses (list:list) !
+  snprintf(pl, 32, "%s:list:%d", p, list_index); // XXX all goes wrong if this recurses (list:list) !
 
   draw_by_type(pl);
 }

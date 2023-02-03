@@ -60,7 +60,7 @@ static char* aboutuid;
 
 static volatile bool          button_pressed=false;
 static volatile touch_info_t  touch_info={ 120, 140 };
-static volatile bool          new_touch_info=false;
+static volatile bool          new_touch_down=false;
 #if defined(DO_LATER)
 static volatile uint16_t      touch_info_stroke=0;
 static volatile motion_info_t motion_info;
@@ -79,10 +79,24 @@ static void every_10s(){
 
 static bool user_active=true;
 
-static void touched(touch_info_t ti)
-{
+
+static void touched(touch_info_t ti) {
+
+  bool is_down_event = ti.action==TOUCH_ACTION_DOWN ||
+                       ti.action==TOUCH_ACTION_CONTACT;
+
+  static volatile bool down=false;
+
+  if(!down && is_down_event){
+    down=true;
+    new_touch_down=true;
+  }
+  else
+  if(down && !is_down_event){
+    down=false;
+  }
+
   touch_info=ti;
-  new_touch_info=true;
 
 #if defined(DO_LATER)
   // XXX all in main loop not here
@@ -409,23 +423,10 @@ int main()
 
     // --------------------
 
-    if(new_touch_info){
-      new_touch_info=false;
-
-      static bool is_touched=false;
-
-      bool is_down = touch_info.action==TOUCH_ACTION_DOWN ||
-                     touch_info.action==TOUCH_ACTION_CONTACT;
-
-      if(!is_touched && is_down){
-        is_touched=true;
-        g2d_touch_event(touch_info.x, touch_info.y);
-        onex_run_evaluators(useruid, 0);
-      }
-      else
-      if(is_touched && !is_down){
-        is_touched=false;
-      }
+    if(new_touch_down){
+      new_touch_down=false;
+      g2d_touch_event(touch_info.x, touch_info.y);
+      onex_run_evaluators(useruid, 0);
     }
   }
 }

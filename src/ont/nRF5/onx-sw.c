@@ -35,7 +35,7 @@ static object* button;
 static object* backlight;
 static object* oclock;
 static object* watchface;
-static object* viewlist;
+static object* home;
 static object* watch;
 static object* notes;
 static object* about;
@@ -53,7 +53,7 @@ static char* buttonuid;
 static char* backlightuid;
 static char* clockuid;
 static char* watchfaceuid;
-static char* viewlistuid;
+static char* homeuid;
 static char* watchuid;
 static char* notesuid;
 static char* aboutuid;
@@ -275,7 +275,7 @@ int main()
   backlight=object_new(0, "backlight", "light editable", 9);
   oclock   =object_new(0, "clock",     "clock event", 12);
   watchface=object_new(0, "editable",  "watchface editable", 6);
-  viewlist =object_new(0, "editable",  "list editable", 4);
+  home     =object_new(0, "editable",  "list editable", 4);
   watch    =object_new(0, "default",   "watch", 4);
   notes    =object_new(0, "editable",  "note list editable", 4);
   about    =object_new(0, "about",     "about", 4);
@@ -293,7 +293,7 @@ int main()
   backlightuid=object_property(backlight, "UID");
   clockuid    =object_property(oclock, "UID");
   watchfaceuid=object_property(watchface, "UID");
-  viewlistuid =object_property(viewlist, "UID");
+  homeuid     =object_property(home, "UID");
   watchuid    =object_property(watch, "UID");
   notesuid    =object_property(notes, "UID");
   aboutuid    =object_property(about, "UID");
@@ -315,16 +315,16 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
-  object_property_add(viewlist, (char*)"list", watchuid);
-  object_property_add(viewlist, (char*)"list", notesuid);
-  object_property_add(viewlist, (char*)"list", aboutuid);
+  object_property_add(home, (char*)"list", watchuid);
+  object_property_add(home, (char*)"list", notesuid);
+  object_property_add(home, (char*)"list", aboutuid);
 
 #if defined(DO_LATER)
   object_property_set(watch, (char*)"battery",   batteryuid);
 #endif
   object_property_set(watch, (char*)"watchface", watchfaceuid);
 
-  object_property_set(user, "viewing", viewlistuid);
+  object_property_set(user, "viewing", homeuid);
 
   object_property_add(onex_device_object, (char*)"user", useruid);
 #if defined(DO_LATER)

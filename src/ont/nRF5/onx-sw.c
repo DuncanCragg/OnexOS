@@ -36,7 +36,7 @@ static object* backlight;
 static object* oclock;
 static object* watchface;
 static object* viewlist;
-static object* home;
+static object* watch;
 static object* notes;
 static object* about;
 
@@ -54,7 +54,7 @@ static char* backlightuid;
 static char* clockuid;
 static char* watchfaceuid;
 static char* viewlistuid;
-static char* homeuid;
+static char* watchuid;
 static char* notesuid;
 static char* aboutuid;
 
@@ -276,7 +276,7 @@ int main()
   oclock   =object_new(0, "clock",     "clock event", 12);
   watchface=object_new(0, "editable",  "watchface editable", 6);
   viewlist =object_new(0, "editable",  "list editable", 4);
-  home     =object_new(0, "default",   "home", 4);
+  watch    =object_new(0, "default",   "watch", 4);
   notes    =object_new(0, "editable",  "note list editable", 4);
   about    =object_new(0, "about",     "about", 4);
 
@@ -294,7 +294,7 @@ int main()
   clockuid    =object_property(oclock, "UID");
   watchfaceuid=object_property(watchface, "UID");
   viewlistuid =object_property(viewlist, "UID");
-  homeuid     =object_property(home, "UID");
+  watchuid    =object_property(watch, "UID");
   notesuid    =object_property(notes, "UID");
   aboutuid    =object_property(about, "UID");
 
@@ -315,14 +315,14 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
-  object_property_add(viewlist, (char*)"list", homeuid);
+  object_property_add(viewlist, (char*)"list", watchuid);
   object_property_add(viewlist, (char*)"list", notesuid);
   object_property_add(viewlist, (char*)"list", aboutuid);
 
 #if defined(DO_LATER)
-  object_property_set(home, (char*)"battery",   batteryuid);
+  object_property_set(watch, (char*)"battery",   batteryuid);
 #endif
-  object_property_set(home, (char*)"watchface", watchfaceuid);
+  object_property_set(watch, (char*)"watchface", watchfaceuid);
 
   object_property_set(user, "viewing", viewlistuid);
 
@@ -575,7 +575,7 @@ bool evaluate_backlight_out(object* o, void* d)
 // -------------------- User --------------------------
 
 static void draw_by_type(char* path);
-static void draw_home(char* path);
+static void draw_watch(char* path);
 static void draw_notes(char* path);
 static void draw_about(char* path);
 static void draw_list(char* p);
@@ -609,7 +609,7 @@ void draw_by_type(char* p)
 {
   snprintf(pi, 32, "%s:is", p);
 
-  if(object_property_contains(user, pi, "home"))  draw_home(p);    else
+  if(object_property_contains(user, pi, "watch")) draw_watch(p);   else
   if(object_property_contains(user, pi, "note") &&
      object_property_contains(user, pi, "list") ) draw_notes(p);   else
   if(object_property_contains(user, pi, "about")) draw_about(p);   else
@@ -633,7 +633,7 @@ void draw_list(char* p)
 #define BATTERY_HIGH     0x0 // GREEN
 #define BATTERY_CHARGING 0x0 // WHITE
 
-void draw_home(char* path)
+void draw_watch(char* path)
 {
   snprintf(pathbuf, 64, "%s:battery:percent", path);      char* pc=object_property(   user, pathbuf);
   snprintf(pathbuf, 64, "%s:battery:status", path);       bool  ch=object_property_is(user, pathbuf, "charging");

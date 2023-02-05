@@ -606,7 +606,7 @@ bool evaluate_user(object* o, void* d)
 
 void draw_by_type(char* p)
 {
-  snprintf(pathbuf, 32, "%s:is", p);
+  snprintf(pathbuf, 64, "%s:is", p);
 
   if(object_property_contains(user, pathbuf, "watch")) draw_watch(p);   else
   if(object_property_contains(user, pathbuf, "note") &&
@@ -618,8 +618,10 @@ void draw_by_type(char* p)
 
 void draw_list(char* p) {
 
+  snprintf(pathbuf, 64, "%s:list", p);
 
-  uint8_t ll=object_property_length(user, "viewing:list");
+  uint8_t ll=object_property_length(user, pathbuf);
+
 
   snprintf(g2dbuf, 64, "this is a list of length %d", ll);
   g2d_text(10, 80, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
@@ -633,11 +635,16 @@ void draw_list(char* p) {
 
 void draw_watch(char* path)
 {
-  snprintf(pathbuf, 64, "%s:battery:percent", path);      char* pc=object_property(   user, pathbuf);
-  snprintf(pathbuf, 64, "%s:battery:status", path);       bool  ch=object_property_is(user, pathbuf, "charging");
-  snprintf(pathbuf, 64, "%s:watchface:clock:ts", path);   char* ts=object_property(   user, pathbuf);
-  snprintf(pathbuf, 64, "%s:watchface:clock:tz:2", path); char* tz=object_property(   user, pathbuf);
-  snprintf(pathbuf, 64, "%s:watchface:ampm-24hr", path);  bool h24=object_property_is(user, pathbuf, "24hr");
+  snprintf(pathbuf, 64, "%s:battery:percent", path);
+  char* pc=object_property(   user, pathbuf);
+  snprintf(pathbuf, 64, "%s:battery:status", path);
+  bool  ch=object_property_is(user, pathbuf, "charging");
+  snprintf(pathbuf, 64, "%s:watchface:clock:ts", path);
+  char* ts=object_property(   user, pathbuf);
+  snprintf(pathbuf, 64, "%s:watchface:clock:tz:2", path);
+  char* tz=object_property(   user, pathbuf);
+  snprintf(pathbuf, 64, "%s:watchface:ampm-24hr", path);
+  bool h24=object_property_is(user, pathbuf, "24hr");
 
   if(!ts) return;
 
@@ -685,9 +692,11 @@ void draw_notes(char* path) {
 
 void draw_about(char* path) {
 
-  snprintf(pathbuf, 64, "%s:build-info", path); char* bnf=object_property_values(user, pathbuf);
-  snprintf(pathbuf, 64, "%s:cpu", path);        char* cpu=object_property(       user, pathbuf);
+  snprintf(pathbuf, 64, "%s:cpu", path);
+  char* cpu=object_property(user, pathbuf);
 
+  snprintf(pathbuf, 64, "%s:build-info", path);
+  char* bnf=object_property_values(user, pathbuf);
 
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
   g2d_text(10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
@@ -701,7 +710,8 @@ void draw_about(char* path) {
 
 void draw_default(char* path)
 {
-  snprintf(pathbuf, 64, "%s:is", path); char* is=object_property(user, pathbuf);
+  snprintf(pathbuf, 64, "%s:is", path);
+  char* is=object_property(user, pathbuf);
 }
 
 #if defined(LOG_TO_GFX)

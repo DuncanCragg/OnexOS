@@ -586,7 +586,7 @@ bool evaluate_user(object* o, void* d)
   if(!user_active) return true;
 
   if(button_action==BUTTON_ACTION_SHORT){
-    object_property_set(user, "viewing", watchuid);
+    object_property_set(user, "viewing", notesuid);
     button_action=BUTTON_ACTION_NONE;
   }
   else
@@ -595,7 +595,11 @@ bool evaluate_user(object* o, void* d)
     button_action=BUTTON_ACTION_NONE;
   }
 
+  g2d_clear_screen(0xff); // XXX don't clear screen just fill all the space
+
   draw_by_type("viewing");
+
+  g2d_render();
 
   return true;
 }
@@ -614,14 +618,12 @@ void draw_by_type(char* p)
 
 void draw_list(char* p) {
 
-  g2d_clear_screen(0xff);
 
   uint8_t ll=object_property_length(user, "viewing:list");
 
   snprintf(g2dbuf, 64, "this is a list of length %d", ll);
   g2d_text(10, 80, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
-  g2d_render();
 }
 
 #define BATTERY_LOW      0x0 // RED
@@ -651,15 +653,12 @@ void draw_watch(char* path)
   struct tm tms={0};
   localtime_r(&est, &tms);
 
-  g2d_clear_screen(0xff);
 
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
   g2d_text(10, 90, g2dbuf, G2D_BLUE, G2D_WHITE, 7);
 
   strftime(g2dbuf, 64, h24? "24 %a %d %h": "%p %a %d %h", &tms);
   g2d_text(10, 170, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
-
-  g2d_render();
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
@@ -674,7 +673,6 @@ void draw_watch(char* path)
 
 void draw_notes(char* path) {
 
-  g2d_clear_screen(0xff);
 
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
   g2d_text(10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
@@ -683,8 +681,6 @@ void draw_notes(char* path) {
   g2d_text(10, 40, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
   g2d_keyboard(key_hit);
-
-  g2d_render();
 }
 
 void draw_about(char* path) {
@@ -692,7 +688,6 @@ void draw_about(char* path) {
   snprintf(pathbuf, 64, "%s:build-info", path); char* bnf=object_property_values(user, pathbuf);
   snprintf(pathbuf, 64, "%s:cpu", path);        char* cpu=object_property(       user, pathbuf);
 
-  g2d_clear_screen(0xff);
 
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
   g2d_text(10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
@@ -702,20 +697,17 @@ void draw_about(char* path) {
 
   snprintf(g2dbuf, 64, "build: %s", bnf);
   g2d_text(10, 190, g2dbuf, G2D_BLUE, G2D_WHITE, 1);
-
-  g2d_render();
 }
 
 void draw_default(char* path)
 {
   snprintf(pathbuf, 64, "%s:is", path); char* is=object_property(user, pathbuf);
-  // set_text(is_label, is);
 }
 
 #if defined(LOG_TO_GFX)
 void draw_log()
 {
-  // set_text(log_label, (const char*)event_log_buffer);
+  // render (const char*)event_log_buffer);
 }
 #endif
 

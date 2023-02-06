@@ -29,4 +29,31 @@ void g2d_keyboard(g2d_keyboard_cb kcb);
 void g2d_touch_event(uint16_t tx, uint16_t ty);
 void g2d_render();
 
+// ------ sprites
+
+typedef void (*g2d_sprite_cb)(uint8_t sprite_id, void* args);
+
+uint8_t g2d_sprite_create(uint16_t parent_id,
+                          uint16_t x,
+                          uint16_t y,
+                          uint16_t w,
+                          uint16_t h,
+                          g2d_sprite_cb cb,
+                          void* cb_args);
+
+#define G2D_OK         0
+#define G2D_X_OUTSIDE  1
+#define G2D_Y_OUTSIDE  2
+
+uint8_t g2d_sprite_text(uint8_t sprite_id, uint16_t x, uint16_t y, char* text,
+                        uint16_t colour, uint16_t bg, uint8_t size);
+
+void g2d_sprite_rectangle(uint8_t sprite_id, uint16_t x, uint16_t y,
+                          uint16_t w, uint16_t h, uint16_t colour);
+
+uint8_t g2d_sprite_pixel(uint8_t sprite_id, uint16_t x, uint16_t y, uint16_t colour);
+
+uint16_t g2d_sprite_width(uint8_t sprite_id);
+uint16_t g2d_sprite_height(uint8_t sprite_id);
+
 #endif

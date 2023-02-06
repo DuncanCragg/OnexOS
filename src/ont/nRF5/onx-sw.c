@@ -296,8 +296,11 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
-  object_property_add(home, (char*)"list", watchuid);
   object_property_add(home, (char*)"list", notesuid);
+  object_property_add(home, (char*)"list", watchuid);
+  object_property_add(home, (char*)"list", aboutuid);
+  object_property_add(home, (char*)"list", notesuid);
+  object_property_add(home, (char*)"list", watchuid);
   object_property_add(home, (char*)"list", aboutuid);
 
   object_property_set(watch, (char*)"battery",   batteryuid);
@@ -547,12 +550,12 @@ bool evaluate_backlight_out(object* o, void* d)
 
 // -------------------- User --------------------------
 
-static void draw_by_type(char* path);
-static void draw_watch(char* path);
-static void draw_notes(char* path);
-static void draw_about(char* path);
-static void draw_list(char* p);
-static void draw_default(char* path);
+static void draw_by_type(char* p, uint8_t sprid);
+static void draw_watch(char* p, uint8_t sprid);
+static void draw_notes(char* p, uint8_t sprid);
+static void draw_about(char* p, uint8_t sprid);
+static void draw_list(char* p, uint8_t sprid);
+static void draw_default(char* p, uint8_t sprid);
 
 bool evaluate_user(object* o, void* d)
 {
@@ -568,37 +571,56 @@ bool evaluate_user(object* o, void* d)
     button_action=BUTTON_ACTION_NONE;
   }
 
+  uint8_t root_sprid = g2d_sprite_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0, 0);
+
   g2d_clear_screen(0xff); // XXX don't clear screen just fill all the space
 
-  draw_by_type("viewing");
+  draw_by_type("viewing", root_sprid);
 
   g2d_render();
 
   return true;
 }
 
-void draw_by_type(char* p)
+void draw_by_type(char* p, uint8_t sprid)
 {
   snprintf(pathbuf, 64, "%s:is", p);
 
-  if(object_property_contains(user, pathbuf, "watch")) draw_watch(p);   else
+  if(object_property_contains(user, pathbuf, "watch")) draw_watch(p, sprid);   else
   if(object_property_contains(user, pathbuf, "note") &&
-     object_property_contains(user, pathbuf, "list") ) draw_notes(p);   else
-  if(object_property_contains(user, pathbuf, "about")) draw_about(p);   else
-  if(object_property_contains(user, pathbuf, "list"))  draw_list(p);    else
-                                                       draw_default(p);
+     object_property_contains(user, pathbuf, "list") ) draw_notes(p, sprid);   else
+  if(object_property_contains(user, pathbuf, "about")) draw_about(p, sprid);   else
+  if(object_property_contains(user, pathbuf, "list"))  draw_list(p, sprid);    else
+                                                       draw_default(p, sprid);
 }
 
-void draw_list(char* p) {
+void list_cb(uint8_t sprid, void* args){
+  object_property_set(user, "viewing", (char*)args);
+}
+
+static char pathbufrec[64];
+
+void draw_list(char* p, uint8_t sprid) {
 
   snprintf(pathbuf, 64, "%s:list", p);
 
   uint8_t ll=object_property_length(user, pathbuf);
 
+  uint16_t y=10;
 
-  snprintf(g2dbuf, 64, "this is a list of length %d", ll);
-  g2d_text(10, 80, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  for(uint8_t i=1; i<=ll; i++){
 
+    snprintf(pathbufrec, 64, "%s:list:%d", p, i);
+    // XXX all goes wrong if this recurses (list inside a list)
+
+    char* uid=object_property(user, pathbufrec);
+
+    uint8_t child_sprid = g2d_sprite_create(sprid, 20,y, 200,60, list_cb, (void*)uid);
+
+    draw_by_type(pathbufrec, child_sprid);
+
+    y+=70;
+  }
 }
 
 #define BATTERY_LOW      G2D_RED
@@ -606,7 +628,7 @@ void draw_list(char* p) {
 #define BATTERY_HIGH     G2D_GREEN
 #define BATTERY_CHARGING G2D_BLUE
 
-void draw_watch(char* path)
+void draw_watch(char* path, uint8_t sprid)
 {
   snprintf(pathbuf, 64, "%s:battery:percent", path);
   char* pc=object_property(   user, pathbuf);
@@ -633,6 +655,12 @@ void draw_watch(char* path)
   struct tm tms={0};
   localtime_r(&est, &tms);
 
+  if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
+    g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_YELLOW);
+    strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
+    g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_YELLOW, 3);
+    return;
+  }
 
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
   g2d_text(10, 90, g2dbuf, G2D_BLUE, G2D_WHITE, 7);
@@ -654,9 +682,14 @@ void draw_watch(char* path)
   g2d_text(10, 30, g2dbuf, batt_col, G2D_WHITE, 3);
 }
 
-void draw_notes(char* path) {
+void draw_notes(char* path, uint8_t sprid) {
 
-
+  if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
+    g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_GREEN);
+    snprintf(g2dbuf, 64, "%s|", typed);
+    g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_GREEN, 2);
+    return;
+  }
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
   g2d_text(10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
@@ -666,10 +699,17 @@ void draw_notes(char* path) {
   g2d_keyboard(key_hit);
 }
 
-void draw_about(char* path) {
+void draw_about(char* path, uint8_t sprid) {
 
   snprintf(pathbuf, 64, "%s:cpu", path);
   char* cpu=object_property(user, pathbuf);
+
+  if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
+    g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_CYAN);
+    snprintf(g2dbuf, 64, "cpu: %s", cpu);
+    g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_CYAN, 3);
+    return;
+  }
 
   snprintf(pathbuf, 64, "%s:build-info", path);
   char* bnf=object_property_values(user, pathbuf);
@@ -684,7 +724,7 @@ void draw_about(char* path) {
   g2d_text(10, 190, g2dbuf, G2D_BLUE, G2D_WHITE, 1);
 }
 
-void draw_default(char* path)
+void draw_default(char* path, uint8_t sprid)
 {
   snprintf(pathbuf, 64, "%s:is", path);
   char* is=object_property(user, pathbuf);

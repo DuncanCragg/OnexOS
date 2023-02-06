@@ -12,6 +12,7 @@
 // ---------------------------------
 
 // drawing into huge buffer, plus basic fonts, from ATC1441
+// XXX using ST7789_* here!
 
 #define LCD_BUFFER_SIZE ((ST7789_WIDTH * ST7789_HEIGHT) * 2)
 static uint8_t lcd_buffer[LCD_BUFFER_SIZE + 4];
@@ -223,11 +224,150 @@ void g2d_clear_screen(uint8_t colour) {
   memset(lcd_buffer, colour, LCD_BUFFER_SIZE);
 }
 
+// ------------
+
+
+typedef struct sg_node sg_node;
+
+typedef struct sg_node {
+
+ uint16_t x;
+ uint16_t y;
+ // rot scale // not in parent like in the 3D stuff
+ uint16_t w;
+ uint16_t h;
+ // bounding box set and clips, or set by g2d as max
+ bool boost;   // give 25% extra bounding box on touch
+
+ g2d_sprite_cb cb;
+ void* cb_args;
+
+ uint8_t parent;   // back up to parent from any child
+ uint8_t siblings; // list of parent's children
+ uint8_t children; // first in siblings list
+
+} sg_node;
+
+static sg_node scenegraph[256]; // 1..255
+
+static uint8_t next_node=1; // index is same as sprite id, 0th not used
+
+uint8_t g2d_sprite_create(uint16_t parent_id,
+                          uint16_t x,
+                          uint16_t y,
+                          uint16_t w,
+                          uint16_t h,
+                          g2d_sprite_cb cb,
+                          void* cb_args){
+
+  if(next_node==256) return 0;
+
+  scenegraph[next_node].x=x;
+  scenegraph[next_node].y=y;
+  scenegraph[next_node].w=w;
+  scenegraph[next_node].h=h;
+  scenegraph[next_node].boost=false;
+  scenegraph[next_node].cb=cb;
+  scenegraph[next_node].cb_args=cb_args;
+
+  scenegraph[next_node].parent=parent_id;
+  scenegraph[next_node].siblings=0;
+  scenegraph[next_node].children=0;
+
+  if(parent_id){
+    uint8_t siblings=scenegraph[parent_id].children;
+    if(!siblings){
+      scenegraph[parent_id].children=next_node;
+    }
+    else{
+      do{
+        uint8_t sibling=scenegraph[siblings].siblings;
+        if(!sibling){
+          scenegraph[siblings].siblings=next_node;
+          break;
+        }
+        siblings=sibling;
+      } while(true);
+    }
+  }
+
+  return next_node++;
+}
+
+static void get_offsets(uint8_t sprite_id, uint16_t* x, uint16_t* y){
+  // climb the ancestor tree
+  *x=scenegraph[sprite_id].x;
+  *y=scenegraph[sprite_id].y;
+}
+
+uint8_t g2d_sprite_text(uint8_t sprite_id, uint16_t x, uint16_t y, char* text,
+                        uint16_t colour, uint16_t bg, uint8_t size){
+
+  uint16_t offx, offy;
+  get_offsets(sprite_id, &offx, &offy);
+  g2d_text(offx+x,offy+y, text, colour, bg, size);
+
+  return G2D_OK;
+}
+
+void g2d_sprite_rectangle(uint8_t sprite_id,
+                          uint16_t x, uint16_t y,
+                          uint16_t w, uint16_t h,
+                          uint16_t colour) {
+  uint8_t r;
+  for(int py = y; py < (y + h); py++){
+    for(int px = x; px < (x + w); px++){
+      r=g2d_sprite_pixel(sprite_id, px, py, colour);
+      if(r!=G2D_OK) break;
+    }
+    if(r==G2D_Y_OUTSIDE) break;
+  }
+}
+
+uint8_t g2d_sprite_pixel(uint8_t sprite_id,
+                         uint16_t x, uint16_t y,
+                         uint16_t colour){
+
+  if(x<0) return G2D_X_OUTSIDE;
+  if(y<0) return G2D_Y_OUTSIDE;
+  if(x>=scenegraph[sprite_id].w) return G2D_X_OUTSIDE;
+  if(y>=scenegraph[sprite_id].h) return G2D_Y_OUTSIDE;
+
+  uint16_t offx, offy;
+  get_offsets(sprite_id, &offx, &offy);
+
+  int32_t i = 2 * ((offx + x) + ((offy + y) * ST7789_WIDTH));
+
+  if(i+1 >= sizeof(lcd_buffer)) return G2D_OK;
+
+  lcd_buffer[i]   = colour >> 8;
+  lcd_buffer[i+1] = colour & 0xff;
+
+  return G2D_OK;
+}
+
+uint16_t g2d_sprite_width(uint8_t sprite_id){
+  return scenegraph[sprite_id].w;
+}
+
+uint16_t g2d_sprite_height(uint8_t sprite_id){
+  return scenegraph[sprite_id].h;
+}
+
 void g2d_render() {
 
+  next_node=1;
   display_fast_write_out_buffer(lcd_buffer, LCD_BUFFER_SIZE);
 }
 
 // ------------
+
+
+
+
+
+
+
+
 
 

@@ -24,9 +24,7 @@
 #include "g2d.h"
 
 static object* user;
-#if defined(DO_LATER)
 static object* battery;
-#endif
 static object* touch;
 #if defined(DO_LATER)
 static object* motion;
@@ -42,9 +40,7 @@ static object* about;
 
 static char* deviceuid;
 static char* useruid;
-#if defined(DO_LATER)
 static char* batteryuid;
-#endif
 static char* touchuid;
 #if defined(DO_LATER)
 static char* motionuid;
@@ -72,9 +68,7 @@ static void every_second(){
 }
 
 static void every_10s(){
-#if defined(DO_LATER)
   onex_run_evaluators(batteryuid, 0);
-#endif
 }
 
 static bool user_active=true;
@@ -155,11 +149,9 @@ static void button_changed(uint8_t pin, uint8_t type){
   onex_run_evaluators(buttonuid, 0);
 }
 
-#if defined(DO_LATER)
 static void charging_changed(uint8_t pin, uint8_t type){
   onex_run_evaluators(batteryuid, 0);
 }
-#endif
 
 static uint8_t fps = 111;
 
@@ -191,13 +183,12 @@ void key_hit(unsigned char ch, uint8_t command){
   }
 }
 
+#define ADC_CHANNEL 0
+
 static void set_up_gpio(void)
 {
-  gpio_mode_cb(BUTTON_1, INPUT_PULLDOWN, RISING_AND_FALLING, button_changed);
-#if defined(DO_LATER)
   gpio_mode_cb(CHARGE_SENSE, INPUT, RISING_AND_FALLING, charging_changed);
   gpio_adc_init(BATTERY_V, ADC_CHANNEL);
-#endif
   gpio_mode_cb(BUTTON_1, INPUT_PULLDOWN, RISING_AND_FALLING, button_changed);
   gpio_mode(I2C_ENABLE, OUTPUT);
   gpio_set( I2C_ENABLE, 1);
@@ -207,9 +198,7 @@ static void set_up_gpio(void)
 
 static bool evaluate_default(object* o, void* d);
 static bool evaluate_user(object* o, void* d);
-#if defined(DO_LATER)
 static bool evaluate_battery_in(object* o, void* d);
-#endif
 static bool evaluate_touch_in(object* o, void* d);
 #if defined(DO_LATER)
 static bool evaluate_motion_in(object* o, void* d);
@@ -222,8 +211,6 @@ static bool evaluate_backlight_out(object* o, void* d);
 extern volatile char* event_log_buffer;
 static void draw_log();
 #endif
-
-#define ADC_CHANNEL 0
 
 int main()
 {
@@ -248,9 +235,7 @@ int main()
   onex_set_evaluators("default",   evaluate_default, 0);
   onex_set_evaluators("device",    evaluate_device_logic, 0);
   onex_set_evaluators("user",      evaluate_user, 0);
-#if defined(DO_LATER)
   onex_set_evaluators("battery",   evaluate_battery_in, 0);
-#endif
   onex_set_evaluators("touch",     evaluate_touch_in, 0);
 #if defined(DO_LATER)
   onex_set_evaluators("motion",    evaluate_motion_in, 0);
@@ -264,9 +249,7 @@ int main()
   object_set_evaluator(onex_device_object, "device");
 
   user     =object_new(0, "user",      "user", 8);
-#if defined(DO_LATER)
   battery  =object_new(0, "battery",   "battery", 4);
-#endif
   touch    =object_new(0, "touch",     "touch", 6);
 #if defined(DO_LATER)
   motion   =object_new(0, "motion",    "motion", 8);
@@ -282,9 +265,7 @@ int main()
 
   deviceuid   =object_property(onex_device_object, "UID");
   useruid     =object_property(user, "UID");
-#if defined(DO_LATER)
   batteryuid  =object_property(battery, "UID");
-#endif
   touchuid    =object_property(touch, "UID");
 #if defined(DO_LATER)
   motionuid   =object_property(motion, "UID");
@@ -319,17 +300,13 @@ int main()
   object_property_add(home, (char*)"list", notesuid);
   object_property_add(home, (char*)"list", aboutuid);
 
-#if defined(DO_LATER)
   object_property_set(watch, (char*)"battery",   batteryuid);
-#endif
   object_property_set(watch, (char*)"watchface", watchfaceuid);
 
   object_property_set(user, "viewing", watchuid);
 
   object_property_add(onex_device_object, (char*)"user", useruid);
-#if defined(DO_LATER)
   object_property_add(onex_device_object, (char*)"io",   batteryuid);
-#endif
   object_property_add(onex_device_object, (char*)"io",   touchuid);
 #if defined(DO_LATER)
   object_property_add(onex_device_object, (char*)"io",   motionuid);
@@ -339,9 +316,7 @@ int main()
   object_property_add(onex_device_object, (char*)"io",   clockuid);
 
   onex_run_evaluators(useruid, 0);
-#if defined(DO_LATER)
   onex_run_evaluators(batteryuid, 0);
-#endif
   onex_run_evaluators(clockuid, 0);
   onex_run_evaluators(backlightuid, 0);
   onex_run_evaluators(aboutuid, 0);
@@ -447,7 +422,6 @@ bool evaluate_default(object* o, void* d)
   return true;
 }
 
-#if defined(DO_LATER)
 #define BATTERY_ZERO_PERCENT 3400
 #define BATTERY_100_PERCENT 4000
 #define BATTERY_PERCENT_STEPS 2
@@ -468,7 +442,6 @@ bool evaluate_battery_in(object* o, void* d)
 
   return true;
 }
-#endif
 
 bool evaluate_touch_in(object* o, void* d)
 {
@@ -628,10 +601,10 @@ void draw_list(char* p) {
 
 }
 
-#define BATTERY_LOW      0x0 // RED
-#define BATTERY_MED      0x0 // ORANGE
-#define BATTERY_HIGH     0x0 // GREEN
-#define BATTERY_CHARGING 0x0 // WHITE
+#define BATTERY_LOW      G2D_RED
+#define BATTERY_MED      G2D_YELLOW
+#define BATTERY_HIGH     G2D_GREEN
+#define BATTERY_CHARGING G2D_BLUE
 
 void draw_watch(char* path)
 {
@@ -676,6 +649,9 @@ void draw_watch(char* path)
   if(pcnum>67) batt_col=BATTERY_HIGH;     else
   if(pcnum>33) batt_col=BATTERY_MED;
   else         batt_col=BATTERY_LOW;
+
+  snprintf(g2dbuf, 64, "%d", pcnum);
+  g2d_text(10, 30, g2dbuf, batt_col, G2D_WHITE, 3);
 }
 
 void draw_notes(char* path) {

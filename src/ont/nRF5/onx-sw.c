@@ -189,17 +189,7 @@ void add_char(unsigned char c)
   typed[cursor]=0;
 }
 
-void key_hit(unsigned char ch, uint8_t command){
-
-  if(ch){
-    add_char(ch);
-    return;
-  }
-  if(command==G2D_KEYBOARD_COMMAND_DELETE){
-    del_char();
-    return;
-  }
-}
+// --------------------------------------------------------
 
 #define ADC_CHANNEL 0
 
@@ -700,6 +690,123 @@ void draw_watch(char* path, uint8_t sprid)
   g2d_text(10, 30, g2dbuf, batt_col, G2D_WHITE, 3);
 }
 
+// ---------------------- keyboard ------------------------
+
+static uint8_t kbpg=1;
+
+static unsigned char key_pages[7][20]={
+
+  { "     " },
+  { "ERTIO"
+    "ASDGH"
+    "CBNM>"
+    "^#  ~" },
+  { "QWYUP"
+    "FJKL "
+    " ZXV<"
+    "^#  ~" },
+  { "+ ()-"
+    "/'#@*"
+    "%!;:>"
+    "^#,.~" },
+  { "^&[]_"
+    " \"{}~"
+    " ?<><"
+    "^#,.~" },
+  { "+123-"
+    "/456*"
+    "%789>"
+    "^#0.=" },
+  { "^123e"
+    " 456 "
+    " 789<"
+    "^#0.=" }
+};
+
+
+#define SELECT_TYPE 15
+#define SELECT_PAGE 14
+#define DELETE_LAST 16
+
+void key_hit(uint8_t key_sprid, void* kiv){
+
+  uint32_t ki=(uint32_t)kiv;
+
+  if(ki==SELECT_TYPE){
+    if(kbpg==1 || kbpg==2) kbpg=3;
+    else
+    if(kbpg==3 || kbpg==4) kbpg=5;
+    else
+    if(kbpg==5 || kbpg==6) kbpg=1;
+  }
+  else
+  if(ki==SELECT_PAGE){
+    if(kbpg==1) kbpg=2;
+    else
+    if(kbpg==2) kbpg=1;
+    else
+    if(kbpg==3) kbpg=4;
+    else
+    if(kbpg==4) kbpg=3;
+    else
+    if(kbpg==5) kbpg=6;
+    else
+    if(kbpg==6) kbpg=5;
+  }
+  else
+  if(ki==DELETE_LAST){
+
+    del_char();
+  }
+  else {
+
+    add_char(key_pages[kbpg][ki]);
+
+    if(kbpg==2 || kbpg==6) kbpg--;
+    else
+    if(kbpg==3 || kbpg==4) kbpg=1;
+  }
+}
+
+#define KEY_SIZE  40
+#define KEY_H_SPACE 7
+#define KEY_V_SPACE 1
+
+static void build_keyboard(uint8_t kbd_sprid){
+
+  uint16_t kx=0;
+  uint16_t ky=0;
+
+  unsigned char pressed=0;
+
+  for(uint8_t j=0; j<4; j++){
+    for(uint8_t i=0; i<5; i++){
+
+      uint32_t ki = i + j*5;
+
+      unsigned char key = key_pages[kbpg][ki];
+
+      uint8_t key_sprid = g2d_sprite_create(kbd_sprid, kx,ky, KEY_SIZE,KEY_SIZE, key_hit,(void*)ki);
+
+      uint16_t key_bg=(pressed==key)? G2D_GREEN: G2D_YELLOW;
+
+      g2d_sprite_rectangle(key_sprid, 0,0, KEY_SIZE,KEY_SIZE, key_bg);
+
+      snprintf(g2dbuf, 64, "%c", key);
+      g2d_sprite_text(key_sprid, 10,7, g2dbuf, G2D_BLACK, key_bg, 4);
+
+      kx+=KEY_SIZE+KEY_H_SPACE;
+    }
+    kx=0;
+    ky+=KEY_SIZE+KEY_V_SPACE;
+  }
+}
+
+// --------------------------------------------------------
+
+#define KBDSTART_X 7
+#define KBDSTART_Y 105
+
 void draw_notes(char* path, uint8_t sprid) {
 
   if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
@@ -708,6 +815,7 @@ void draw_notes(char* path, uint8_t sprid) {
     g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_GREEN, 2);
     return;
   }
+
   uint8_t typed_sprid = g2d_sprite_create(sprid, 5,5, 200,80, 0,0);
 
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
@@ -716,7 +824,14 @@ void draw_notes(char* path, uint8_t sprid) {
   snprintf(g2dbuf, 64, "%s|", typed);
   g2d_sprite_text(typed_sprid, 5,25, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
-  g2d_keyboard(key_hit);
+
+  uint8_t kbd_sprid = g2d_sprite_create(sprid,
+                                        KBDSTART_X, KBDSTART_Y,
+                                        (g2d_sprite_width(sprid) - KBDSTART_X * 2),
+                                        (g2d_sprite_height(sprid) - KBDSTART_Y),
+                                        0, 0);
+
+  build_keyboard(kbd_sprid);
 }
 
 void draw_about(char* path, uint8_t sprid) {

@@ -206,7 +206,7 @@ onx-wear-magic3: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
 
 onx-sw-magic3: INCLUDES=$(INCLUDES_MAGIC3)
 onx-sw-magic3: COMPILER_DEFINES=$(COMPILER_DEFINES_MAGIC3)
-onx-sw-magic3: $(EXTERNAL_SOURCES:.c=.o) $(SW_SOURCES:.c=.o)
+onx-sw-magic3: $(SW_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-magic3.a --output okolo

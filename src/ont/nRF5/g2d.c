@@ -242,7 +242,7 @@ typedef struct sg_node {
  g2d_sprite_cb cb;
  void* cb_args;
 
- uint8_t parent;   // back up to parent from any child
+ uint8_t parent;
  uint8_t siblings; // list of parent's children
  uint8_t children; // first in siblings list
 
@@ -250,15 +250,17 @@ typedef struct sg_node {
 
 static sg_node scenegraph[256]; // 1..255
 
-static uint8_t next_node=1; // index is same as sprite id, 0th not used
+static volatile uint8_t next_node=1; // index is same as sprite id, 0th not used
 
-uint8_t g2d_sprite_create(uint16_t parent_id,
+uint8_t g2d_sprite_create(uint8_t  parent_id,
                           uint16_t x,
                           uint16_t y,
                           uint16_t w,
                           uint16_t h,
                           g2d_sprite_cb cb,
                           void* cb_args){
+
+  if(!parent_id) next_node=1;
 
   if(next_node==256) return 0;
 
@@ -328,17 +330,15 @@ uint8_t g2d_sprite_pixel(uint8_t sprite_id,
                          uint16_t x, uint16_t y,
                          uint16_t colour){
 
-  if(x<0) return G2D_X_OUTSIDE;
-  if(y<0) return G2D_Y_OUTSIDE;
-  if(x>=scenegraph[sprite_id].w) return G2D_X_OUTSIDE;
-  if(y>=scenegraph[sprite_id].h) return G2D_Y_OUTSIDE;
+  if(y<0 || y>=scenegraph[sprite_id].h) return G2D_Y_OUTSIDE;
+  if(x<0 || x>=scenegraph[sprite_id].w) return G2D_X_OUTSIDE;
 
   uint16_t offx, offy;
   get_offsets(sprite_id, &offx, &offy);
 
   int32_t i = 2 * ((offx + x) + ((offy + y) * ST7789_WIDTH));
 
-  if(i+1 >= sizeof(lcd_buffer)) return G2D_OK;
+  if(i+1 >= sizeof(lcd_buffer)) return G2D_Y_OUTSIDE;
 
   lcd_buffer[i]   = colour >> 8;
   lcd_buffer[i+1] = colour & 0xff;
@@ -356,7 +356,6 @@ uint16_t g2d_sprite_height(uint8_t sprite_id){
 
 void g2d_render() {
 
-  next_node=1;
   display_fast_write_out_buffer(lcd_buffer, LCD_BUFFER_SIZE);
 }
 

@@ -33,7 +33,14 @@ void g2d_render();
 
 typedef void (*g2d_sprite_cb)(uint8_t sprite_id, void* args);
 
-uint8_t g2d_sprite_create(uint16_t parent_id,
+/*
+ Create sprite at (x,y) size (w,h) with cb(id, args).
+ Returns id (which increments from 1)
+ If parent_id==0 then it's the root sprite and the
+ whole previous tree is discarded so can be rebuilt.
+ max # sprites: 255
+*/
+uint8_t g2d_sprite_create(uint8_t  parent_id,
                           uint16_t x,
                           uint16_t y,
                           uint16_t w,

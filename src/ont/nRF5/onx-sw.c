@@ -54,6 +54,7 @@ static char* watchuid;
 static char* notesuid;
 static char* aboutuid;
 
+#define LONG_PRESS_MS 250
 static volatile bool          button_pressed=false;
 static volatile touch_info_t  touch_info={ 120, 140 };
 static volatile bool          new_touch_down=false;
@@ -384,7 +385,7 @@ int main()
     else
     if(button_pressed && pressed_ts){
       if(button_action == BUTTON_ACTION_WAIT){
-        if((ct - pressed_ts) > 300){
+        if((ct - pressed_ts) > LONG_PRESS_MS){
           button_action = BUTTON_ACTION_LONG;
           onex_run_evaluators(useruid, 0);
         }
@@ -562,7 +563,7 @@ bool evaluate_user(object* o, void* d)
   if(!user_active) return true;
 
   if(button_action==BUTTON_ACTION_SHORT){
-    object_property_set(user, "viewing", notesuid);
+    object_property_set(user, "viewing", watchuid);
     button_action=BUTTON_ACTION_NONE;
   }
   else
@@ -615,7 +616,7 @@ void draw_list(char* p, uint8_t sprid) {
 
     char* uid=object_property(user, pathbufrec);
 
-    uint8_t child_sprid = g2d_sprite_create(sprid, 20,y, 200,60, list_cb, (void*)uid);
+    uint8_t child_sprid = g2d_sprite_create(sprid, 20,y, 200,60, list_cb, uid);
 
     draw_by_type(pathbufrec, child_sprid);
 
@@ -728,6 +729,7 @@ void draw_default(char* path, uint8_t sprid)
 {
   snprintf(pathbuf, 64, "%s:is", path);
   char* is=object_property(user, pathbuf);
+  g2d_text(10, 190, "no show", G2D_BLUE, G2D_WHITE, 1);
 }
 
 #if defined(LOG_TO_GFX)

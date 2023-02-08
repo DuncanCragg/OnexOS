@@ -156,6 +156,8 @@ static void charging_changed(uint8_t pin, uint8_t type){
 
 static uint8_t fps = 111;
 
+// ---------------------- notes buffer --------------------
+
 static char    typed[64];
 static uint8_t cursor=0;
 
@@ -165,7 +167,7 @@ void del_char()
   typed[--cursor]=0;
 }
 
-void add_char(char c)
+void add_char(unsigned char c)
 {
   if(cursor==62) return;
   typed[cursor++]=c;
@@ -572,7 +574,7 @@ bool evaluate_user(object* o, void* d)
     button_action=BUTTON_ACTION_NONE;
   }
 
-  uint8_t root_sprid = g2d_sprite_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0, 0);
+  uint8_t root_sprid = g2d_sprite_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0);
 
   g2d_clear_screen(0xff); // XXX don't clear screen just fill all the space
 
@@ -595,8 +597,8 @@ void draw_by_type(char* p, uint8_t sprid)
                                                        draw_default(p, sprid);
 }
 
-void list_cb(uint8_t sprid, void* args){
-  object_property_set(user, "viewing", (char*)args);
+void list_cb(uint8_t child_sprid, void* uid){
+  object_property_set(user, "viewing", (char*)uid);
 }
 
 static char pathbufrec[64];
@@ -691,11 +693,13 @@ void draw_notes(char* path, uint8_t sprid) {
     g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_GREEN, 2);
     return;
   }
+  uint8_t typed_sprid = g2d_sprite_create(sprid, 5,5, 200,80, 0,0);
+
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_text(10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  g2d_sprite_text(typed_sprid, 10,5, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
   snprintf(g2dbuf, 64, "%s|", typed);
-  g2d_text(10, 40, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  g2d_sprite_text(typed_sprid, 5,25, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
   g2d_keyboard(key_hit);
 }

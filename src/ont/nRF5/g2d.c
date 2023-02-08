@@ -243,8 +243,6 @@ typedef struct sg_node {
  void* cb_args;
 
  uint8_t parent;
- uint8_t siblings; // list of parent's children
- uint8_t children; // first in siblings list
 
 } sg_node;
 
@@ -264,49 +262,30 @@ uint8_t g2d_sprite_create(uint8_t  parent_id,
 
   if(next_node==256) return 0;
 
-  scenegraph[next_node].x=x;
-  scenegraph[next_node].y=y;
+  uint16_t offx=0;
+  uint16_t offy=0;
+  if(parent_id){
+    offx=scenegraph[parent_id].x;
+    offy=scenegraph[parent_id].y;
+  }
+  scenegraph[next_node].x=offx+x;
+  scenegraph[next_node].y=offy+y;
   scenegraph[next_node].w=w;
   scenegraph[next_node].h=h;
   scenegraph[next_node].boost=false;
   scenegraph[next_node].cb=cb;
   scenegraph[next_node].cb_args=cb_args;
-
   scenegraph[next_node].parent=parent_id;
-  scenegraph[next_node].siblings=0;
-  scenegraph[next_node].children=0;
-
-  if(parent_id){
-    uint8_t siblings=scenegraph[parent_id].children;
-    if(!siblings){
-      scenegraph[parent_id].children=next_node;
-    }
-    else{
-      do{
-        uint8_t sibling=scenegraph[siblings].siblings;
-        if(!sibling){
-          scenegraph[siblings].siblings=next_node;
-          break;
-        }
-        siblings=sibling;
-      } while(true);
-    }
-  }
 
   return next_node++;
-}
-
-static void get_offsets(uint8_t sprite_id, uint16_t* x, uint16_t* y){
-  // climb the ancestor tree
-  *x=scenegraph[sprite_id].x;
-  *y=scenegraph[sprite_id].y;
 }
 
 uint8_t g2d_sprite_text(uint8_t sprite_id, uint16_t x, uint16_t y, char* text,
                         uint16_t colour, uint16_t bg, uint8_t size){
 
-  uint16_t offx, offy;
-  get_offsets(sprite_id, &offx, &offy);
+  uint16_t offx=scenegraph[sprite_id].x;
+  uint16_t offy=scenegraph[sprite_id].y;
+
   g2d_text(offx+x,offy+y, text, colour, bg, size);
 
   return G2D_OK;
@@ -333,8 +312,8 @@ uint8_t g2d_sprite_pixel(uint8_t sprite_id,
   if(y<0 || y>=scenegraph[sprite_id].h) return G2D_Y_OUTSIDE;
   if(x<0 || x>=scenegraph[sprite_id].w) return G2D_X_OUTSIDE;
 
-  uint16_t offx, offy;
-  get_offsets(sprite_id, &offx, &offy);
+  uint16_t offx=scenegraph[sprite_id].x;
+  uint16_t offy=scenegraph[sprite_id].y;
 
   int32_t i = 2 * ((offx + x) + ((offy + y) * ST7789_WIDTH));
 

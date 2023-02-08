@@ -333,6 +333,32 @@ uint16_t g2d_sprite_height(uint8_t sprite_id){
   return scenegraph[sprite_id].h;
 }
 
+static bool is_inside(uint8_t n, uint16_t x, uint16_t y){
+  uint16_t bbx=scenegraph[n].x;
+  uint16_t bby=scenegraph[n].y;
+  uint16_t bbw=scenegraph[n].w;
+  uint16_t bbh=scenegraph[n].h;
+  if(x<bbx || x>bbx+bbw) return false;
+  if(y<bby || y>bby+bbh) return false;
+  return true;
+}
+
+bool g2d_sprite_touch_event(uint16_t tx, uint16_t ty){
+
+  for(uint8_t n=next_node-1; n; n--){
+
+    if(!is_inside(n, tx, ty)) continue;
+
+    uint8_t cbn=n;
+    while(cbn && !scenegraph[cbn].cb) cbn=scenegraph[cbn].parent;
+    if(!cbn) continue;
+
+    scenegraph[cbn].cb(cbn, scenegraph[cbn].cb_args);
+    return true;
+  }
+  return false;
+}
+
 void g2d_render() {
 
   display_fast_write_out_buffer(lcd_buffer, LCD_BUFFER_SIZE);

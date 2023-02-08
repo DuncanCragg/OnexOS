@@ -404,7 +404,7 @@ int main()
 
     if(new_touch_down){
       new_touch_down=false;
-      g2d_touch_event(touch_info.x, touch_info.y);
+      g2d_sprite_touch_event(touch_info.x, touch_info.y);
       onex_run_evaluators(useruid, 0);
     }
   }

@@ -63,4 +63,9 @@ uint8_t g2d_sprite_pixel(uint8_t sprite_id, uint16_t x, uint16_t y, uint16_t col
 uint16_t g2d_sprite_width(uint8_t sprite_id);
 uint16_t g2d_sprite_height(uint8_t sprite_id);
 
+/*
+ Fire callback for touch events in deepest/newest bounding box.
+*/
+bool g2d_sprite_touch_event(uint16_t tx, uint16_t ty);
+
 #endif

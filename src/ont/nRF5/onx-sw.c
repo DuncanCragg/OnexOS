@@ -220,13 +220,17 @@ extern volatile char* event_log_buffer;
 static void draw_log();
 #endif
 
+extern char __BUILD_TIMESTAMP;
+extern char __BUILD_TIME;
+extern char __BOOTLOADER_NUMBER;
+
 int main()
 {
   boot_init();
 #if defined(DO_LATER)
   log_init();
 #endif
-  time_init();
+  time_init_set((unsigned long)&__BUILD_TIMESTAMP);
   gpio_init();
 
   set_up_gpio();
@@ -502,12 +506,9 @@ bool evaluate_button_in(object* o, void* d)
   return true;
 }
 
-extern char __BUILD_TIMESTAMP;
-extern char __BOOTLOADER_NUMBER;
-
 bool evaluate_about_in(object* o, void* d)
 {
-  snprintf(valuebuf, 64, "%lu %lu", (unsigned long)&__BUILD_TIMESTAMP, (unsigned long)&__BOOTLOADER_NUMBER);
+  snprintf(valuebuf, 64, "%lu %lu", (unsigned long)&__BUILD_TIME, (unsigned long)&__BOOTLOADER_NUMBER);
   object_property_set(about, "build-info", valuebuf);
 
   snprintf(valuebuf, 64, "%d%%", boot_cpu());

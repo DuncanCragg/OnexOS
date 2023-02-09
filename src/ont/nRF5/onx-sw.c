@@ -789,7 +789,7 @@ static void build_keyboard(uint8_t kbd_sprid){
 
       uint8_t key_sprid = g2d_sprite_create(kbd_sprid, kx,ky, KEY_SIZE,KEY_SIZE, key_hit,(void*)ki);
 
-      uint16_t key_bg=(pressed==key)? G2D_GREEN: G2D_YELLOW;
+      uint16_t key_bg=(pressed==key)? G2D_GREEN: G2D_GREY_1A;
 
       g2d_sprite_rectangle(key_sprid, 0,0, KEY_SIZE,KEY_SIZE, key_bg);
 

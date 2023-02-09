@@ -3,6 +3,7 @@
 
 #define G2D_WHITE   0xffff
 #define G2D_BLACK   0x0000
+#define G2D_GREY_1A 0xd69a // 1.1.0.1:0/1.1.0:1.0.0/1:1.0.1.0
 #define G2D_GREY_F  0x7bef // 0.1.1.1:1/0.1.1:1.1.1/0:1.1.1.1
 #define G2D_GREY_7  0x39e7 // 0.0.1.1:1/0.0.1:1.1.1/0:0.1.1.1
 #define G2D_GREY_3  0x18e3 // 0.0.0.1:1/0.0.0:1.1.1/0:0.0.1.1

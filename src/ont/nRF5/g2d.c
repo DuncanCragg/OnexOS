@@ -205,6 +205,25 @@ static bool is_inside(uint8_t n, uint16_t x, uint16_t y){
 
 bool g2d_sprite_touch_event(bool down, uint16_t tx, uint16_t ty){
 
+  static uint16_t last_tx=0;
+  static uint16_t last_ty=0;
+
+  int16_t dx=0;
+  int16_t dy=0;
+
+  if(down){
+    if(last_tx + last_ty){
+      dx = (tx - last_tx);
+      dy = (ty - last_ty);
+    }
+    last_tx=tx;
+    last_ty=ty;
+  }
+  else{
+    last_tx=0;
+    last_ty=0;
+  }
+
   for(uint8_t n=next_node-1; n; n--){
 
     if(!is_inside(n, tx, ty)) continue;
@@ -213,7 +232,7 @@ bool g2d_sprite_touch_event(bool down, uint16_t tx, uint16_t ty){
     while(cbn && !scenegraph[cbn].cb) cbn=scenegraph[cbn].parent;
     if(!cbn) continue;
 
-    scenegraph[cbn].cb(down, cbn, scenegraph[cbn].cb_args);
+    scenegraph[cbn].cb(down, dx, dy, cbn, scenegraph[cbn].cb_args);
     return true;
   }
   return false;

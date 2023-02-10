@@ -23,7 +23,9 @@ void g2d_clear_screen(uint8_t colour);
      // 8 bits * 2, so 0x00 => 0x0000, 0x77 => 0x7777, etc
 void g2d_render();
 
-typedef void (*g2d_sprite_cb)(bool down, uint8_t sprite_id, void* args);
+typedef void (*g2d_sprite_cb)(bool down,
+                              uint16_t dx, uint16_t dy,
+                              uint8_t sprite_id, void* args);
 
 /*
  Create sprite at (x,y) size (w,h) with cb(id, args).

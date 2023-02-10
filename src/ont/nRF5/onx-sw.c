@@ -586,10 +586,10 @@ void draw_by_type(char* p, uint8_t sprid)
                                                        draw_default(p, sprid);
 }
 
-static uint16_t scroll_offset=0;
-static bool     scrolling=false;
+static int16_t scroll_offset=0;
+static bool    scrolling=false;
 
-void list_cb(bool down, uint16_t dx, uint16_t dy, uint8_t child_sprid, void* uid){
+void list_cb(bool down, int16_t dx, int16_t dy, uint8_t child_sprid, void* uid){
 
   if(down){
     if(dx+dy){
@@ -732,7 +732,7 @@ static unsigned char key_pages[7][20]={
 #define SELECT_PAGE 14
 #define DELETE_LAST 16
 
-void key_hit(bool down, uint16_t dx, uint16_t dy, uint8_t key_sprid, void* kiv){
+void key_hit(bool down, int16_t dx, int16_t dy, uint8_t key_sprid, void* kiv){
 
   if(down) return;
 

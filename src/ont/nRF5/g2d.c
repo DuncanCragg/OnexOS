@@ -82,8 +82,8 @@ typedef struct sg_node sg_node;
 
 typedef struct sg_node {
 
- uint16_t x;
- uint16_t y;
+ int16_t x;
+ int16_t y;
  // rot scale // not in parent like in the 3D stuff
  uint16_t w;
  uint16_t h;
@@ -102,8 +102,8 @@ static sg_node scenegraph[256]; // 1..255
 static volatile uint8_t next_node=1; // index is same as sprite id, 0th not used
 
 uint8_t g2d_sprite_create(uint8_t  parent_id,
-                          uint16_t x,
-                          uint16_t y,
+                          int16_t x,
+                          int16_t y,
                           uint16_t w,
                           uint16_t h,
                           g2d_sprite_cb cb,
@@ -113,8 +113,8 @@ uint8_t g2d_sprite_create(uint8_t  parent_id,
 
   if(next_node==256) return 0;
 
-  uint16_t offx=0;
-  uint16_t offy=0;
+  int16_t offx=0;
+  int16_t offy=0;
   if(parent_id){
     offx=scenegraph[parent_id].x;
     offy=scenegraph[parent_id].y;
@@ -131,7 +131,7 @@ uint8_t g2d_sprite_create(uint8_t  parent_id,
   return next_node++;
 }
 
-uint8_t g2d_sprite_text(uint8_t sprite_id, uint16_t x, uint16_t y, char* text,
+uint8_t g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
                         uint16_t colour, uint16_t bg, uint8_t size){
 
   int32_t ox=scenegraph[sprite_id].x+x;
@@ -152,32 +152,30 @@ uint8_t g2d_sprite_text(uint8_t sprite_id, uint16_t x, uint16_t y, char* text,
 }
 
 void g2d_sprite_rectangle(uint8_t sprite_id,
-                          uint16_t x, uint16_t y,
+                          int16_t x, int16_t y,
                           uint16_t w, uint16_t h,
                           uint16_t colour) {
-  uint8_t r;
+
   for(int py = y; py < (y + h); py++){
     for(int px = x; px < (x + w); px++){
-      r=g2d_sprite_pixel(sprite_id, px, py, colour);
-      if(r!=G2D_OK) break;
+      g2d_sprite_pixel(sprite_id, px, py, colour);
     }
-    if(r==G2D_Y_OUTSIDE) break;
   }
 }
 
 uint8_t g2d_sprite_pixel(uint8_t sprite_id,
-                         uint16_t x, uint16_t y,
+                         int16_t x, int16_t y,
                          uint16_t colour){
 
   if(y<0 || y>=scenegraph[sprite_id].h) return G2D_Y_OUTSIDE;
   if(x<0 || x>=scenegraph[sprite_id].w) return G2D_X_OUTSIDE;
 
-  uint16_t offx=scenegraph[sprite_id].x;
-  uint16_t offy=scenegraph[sprite_id].y;
+  int16_t offx=scenegraph[sprite_id].x;
+  int16_t offy=scenegraph[sprite_id].y;
 
   int32_t i = 2 * ((offx + x) + ((offy + y) * ST7789_WIDTH));
 
-  if(i+1 >= sizeof(lcd_buffer)) return G2D_Y_OUTSIDE;
+  if(i<0 || i+1 >= sizeof(lcd_buffer)) return G2D_Y_OUTSIDE;
 
   lcd_buffer[i]   = colour >> 8;
   lcd_buffer[i+1] = colour & 0xff;
@@ -193,9 +191,9 @@ uint16_t g2d_sprite_height(uint8_t sprite_id){
   return scenegraph[sprite_id].h;
 }
 
-static bool is_inside(uint8_t n, uint16_t x, uint16_t y){
-  uint16_t bbx=scenegraph[n].x;
-  uint16_t bby=scenegraph[n].y;
+static bool is_inside(uint8_t n, int16_t x, int16_t y){
+  int16_t bbx=scenegraph[n].x;
+  int16_t bby=scenegraph[n].y;
   uint16_t bbw=scenegraph[n].w;
   uint16_t bbh=scenegraph[n].h;
   if(x<bbx || x>bbx+bbw) return false;

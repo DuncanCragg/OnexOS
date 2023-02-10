@@ -154,6 +154,8 @@ void g2d_sprite_rectangle(uint8_t sprite_id,
                           uint16_t w, uint16_t h,
                           uint16_t colour) {
 
+  if(y+h<0 || y>ST7789_HEIGHT) return;
+
   for(int py = y; py < (y + h); py++){
     for(int px = x; px < (x + w); px++){
       g2d_sprite_pixel(sprite_id, px, py, colour);

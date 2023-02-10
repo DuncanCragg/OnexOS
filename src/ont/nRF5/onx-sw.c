@@ -104,30 +104,12 @@ static void touched(touch_info_t ti) {
   else
   if(touch_down && !is_down_event){ touch_down=false; touch_event=true; }
 
-  if(is_down_event)  touch_event=true;
+  if(is_down_event) touch_event=true;
 
   touch_info=ti;
 
   onex_run_evaluators(touchuid, 0);
 
-
-#if defined(DO_LATER)
-  // XXX all in main loop not here
-  static uint16_t swipe_start_x=0;
-  static uint16_t swipe_start_y=0;
-
-  if(touch_info.action==TOUCH_ACTION_CONTACT){
-    swipe_start_x=touch_info.x;
-    swipe_start_y=touch_info.y;
-    touch_info_stroke=0;
-  }
-  else
-  if(touch_info.action!=TOUCH_ACTION_CONTACT){
-    int16_t dx=touch_info.x-swipe_start_x;
-    int16_t dy=touch_info.y-swipe_start_y;
-    touch_info_stroke=(uint16_t)sqrtf(dx*dx+dy*dy);
-  }
-#endif
 
 #if defined(DO_LATER)
   // XXX all in main loop not here

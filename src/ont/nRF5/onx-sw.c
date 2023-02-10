@@ -586,8 +586,9 @@ void draw_by_type(char* p, uint8_t sprid)
                                                        draw_default(p, sprid);
 }
 
-static int16_t scroll_offset=0;
-static bool    scrolling=false;
+static uint16_t scroll_height=0;
+static int16_t  scroll_offset=0;
+static bool     scrolling=false;
 
 void list_cb(bool down, int16_t dx, int16_t dy, uint8_t child_sprid, void* uid){
 
@@ -611,13 +612,17 @@ void draw_list(char* p, uint8_t sprid) {
 
   snprintf(pathbuf, 64, "%s:list", p);
 
-  uint8_t scroll_sprid = g2d_sprite_create(sprid, 0,scroll_offset,
-                                           g2d_sprite_width(sprid),
-                                           g2d_sprite_height(sprid),
-                                           0, 0);
-
   uint8_t ll=object_property_length(user, pathbuf);
 
+  #define CHILD_HEIGHT 70
+
+  scroll_height = 10+ll*CHILD_HEIGHT+10;
+
+  uint8_t scroll_sprid = g2d_sprite_create(sprid,
+                                           0, scroll_offset,
+                                           g2d_sprite_width(sprid),
+                                           scroll_height,
+                                           0, 0);
   uint16_t y=10;
 
   for(uint8_t i=1; i<=ll; i++){
@@ -627,11 +632,11 @@ void draw_list(char* p, uint8_t sprid) {
 
     char* uid=object_property(user, pathbufrec);
 
-    uint8_t child_sprid = g2d_sprite_create(scroll_sprid, 20,y, 200,60, list_cb, uid);
+    uint8_t child_sprid = g2d_sprite_create(scroll_sprid, 20,y, 200,CHILD_HEIGHT-10, list_cb, uid);
 
     draw_by_type(pathbufrec, child_sprid);
 
-    y+=70;
+    y+=CHILD_HEIGHT;
   }
 }
 

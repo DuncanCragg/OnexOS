@@ -56,8 +56,10 @@ static char* aboutuid;
 
 #define LONG_PRESS_MS 250
 static volatile bool          button_pressed=false;
+
 static volatile touch_info_t  touch_info={ 120, 140 };
-static volatile bool          new_touch_down=false;
+static volatile bool          touch_down=false;
+static volatile bool          touch_event=false;
 #if defined(DO_LATER)
 static volatile uint16_t      touch_info_stroke=0;
 static volatile motion_info_t motion_info;
@@ -74,25 +76,10 @@ static void every_10s(){
 
 static bool user_active=true;
 
-
 static void touched(touch_info_t ti) {
 
-  bool is_down_event = ti.action==TOUCH_ACTION_DOWN ||
-                       ti.action==TOUCH_ACTION_CONTACT;
-
-  static volatile bool down=false;
-
-  if(!down && is_down_event){
-    down=true;
-    new_touch_down=true;
-  }
-  else
-  if(down && !is_down_event){
-    down=false;
-  }
-
-  // maybe drive touch chip differently
-  // or put these into the touch api
+  // maybe need to drive touch chip differently
+  // or put this logic into the touch api
   #define TOUCH_OFFSET_X -35
   #define TOUCH_SCALE_X  135/100
   #define TOUCH_OFFSET_Y 0
@@ -106,7 +93,23 @@ static void touched(touch_info_t ti) {
   ti.x=(uint16_t)x;
   ti.y=(uint16_t)y;
 
+  // ---------------------------------------
+
+  // XXX move this "down state" logic to the touch API?
+
+  bool is_down_event = ti.action==TOUCH_ACTION_DOWN ||
+                       ti.action==TOUCH_ACTION_CONTACT;
+
+  if(!touch_down && is_down_event) touch_down=true;
+  else
+  if(touch_down && !is_down_event){ touch_down=false; touch_event=true; }
+
+  if(is_down_event)  touch_event=true;
+
   touch_info=ti;
+
+  onex_run_evaluators(touchuid, 0);
+
 
 #if defined(DO_LATER)
   // XXX all in main loop not here
@@ -125,8 +128,6 @@ static void touched(touch_info_t ti) {
     touch_info_stroke=(uint16_t)sqrtf(dx*dx+dy*dy);
   }
 #endif
-
-  onex_run_evaluators(touchuid, 0);
 
 #if defined(DO_LATER)
   // XXX all in main loop not here
@@ -413,9 +414,9 @@ int main()
 
     // --------------------
 
-    if(new_touch_down){
-      new_touch_down=false;
-      g2d_sprite_touch_event(touch_info.x, touch_info.y);
+    if(touch_event){
+      touch_event=false;
+      g2d_sprite_touch_event(touch_down, touch_info.x, touch_info.y);
       onex_run_evaluators(useruid, 0);
     }
   }
@@ -603,7 +604,10 @@ void draw_by_type(char* p, uint8_t sprid)
                                                        draw_default(p, sprid);
 }
 
-void list_cb(uint8_t child_sprid, void* uid){
+void list_cb(bool down, uint8_t child_sprid, void* uid){
+
+  if(down) return;
+
   object_property_set(user, "viewing", (char*)uid);
 }
 
@@ -729,7 +733,9 @@ static unsigned char key_pages[7][20]={
 #define SELECT_PAGE 14
 #define DELETE_LAST 16
 
-void key_hit(uint8_t key_sprid, void* kiv){
+void key_hit(bool down, uint8_t key_sprid, void* kiv){
+
+  if(down) return;
 
   uint32_t ki=(uint32_t)kiv;
 

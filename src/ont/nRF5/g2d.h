@@ -23,7 +23,7 @@ void g2d_clear_screen(uint8_t colour);
      // 8 bits * 2, so 0x00 => 0x0000, 0x77 => 0x7777, etc
 void g2d_render();
 
-typedef void (*g2d_sprite_cb)(uint8_t sprite_id, void* args);
+typedef void (*g2d_sprite_cb)(bool down, uint8_t sprite_id, void* args);
 
 /*
  Create sprite at (x,y) size (w,h) with cb(id, args).
@@ -57,7 +57,8 @@ uint16_t g2d_sprite_height(uint8_t sprite_id);
 
 /*
  Fire callback for touch events in deepest/newest bounding box.
+ Set "down" true while touched plus one more set to false for up
 */
-bool g2d_sprite_touch_event(uint16_t tx, uint16_t ty);
+bool g2d_sprite_touch_event(bool down, uint16_t tx, uint16_t ty);
 
 #endif

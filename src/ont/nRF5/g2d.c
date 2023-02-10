@@ -203,7 +203,7 @@ static bool is_inside(uint8_t n, uint16_t x, uint16_t y){
   return true;
 }
 
-bool g2d_sprite_touch_event(uint16_t tx, uint16_t ty){
+bool g2d_sprite_touch_event(bool down, uint16_t tx, uint16_t ty){
 
   for(uint8_t n=next_node-1; n; n--){
 
@@ -213,7 +213,7 @@ bool g2d_sprite_touch_event(uint16_t tx, uint16_t ty){
     while(cbn && !scenegraph[cbn].cb) cbn=scenegraph[cbn].parent;
     if(!cbn) continue;
 
-    scenegraph[cbn].cb(cbn, scenegraph[cbn].cb_args);
+    scenegraph[cbn].cb(down, cbn, scenegraph[cbn].cb_args);
     return true;
   }
   return false;

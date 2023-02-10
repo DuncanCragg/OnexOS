@@ -93,16 +93,16 @@ static void touched(touch_info_t ti) {
 
   // maybe drive touch chip differently
   // or put these into the touch api
-  #define TOUCH_OFFSET_X -25
+  #define TOUCH_OFFSET_X -35
   #define TOUCH_SCALE_X  135/100
   #define TOUCH_OFFSET_Y 0
   #define TOUCH_SCALE_Y  95/100
   int16_t x=TOUCH_OFFSET_X+ti.x*TOUCH_SCALE_X;
   int16_t y=TOUCH_OFFSET_Y+ti.y*TOUCH_SCALE_Y;
   if(x<0) x=0;
-  if(x>ST7789_WIDTH) x=ST7789_WIDTH;
+  if(x>=ST7789_WIDTH) x=ST7789_WIDTH-1;
   if(y<0) y=0;
-  if(y>ST7789_HEIGHT) y=ST7789_HEIGHT;
+  if(y>=ST7789_HEIGHT) y=ST7789_HEIGHT-1;
   ti.x=(uint16_t)x;
   ti.y=(uint16_t)y;
 

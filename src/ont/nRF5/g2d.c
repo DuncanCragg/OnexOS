@@ -87,7 +87,7 @@ uint8_t g2d_sprite_create(uint8_t  parent_id,
   return next_node++;
 }
 
-void g2d_set_pixel(int32_t x, int32_t y, uint16_t colour) {
+static void set_pixel(int32_t x, int32_t y, uint16_t colour) {
 
   if(x<0 || y<0) return;
 
@@ -99,11 +99,11 @@ void g2d_set_pixel(int32_t x, int32_t y, uint16_t colour) {
   lcd_buffer[i+1] = colour & 0xff;
 }
 
-void g2d_display_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint16_t colour) {
+static void display_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint16_t colour) {
 
   for(int px = x; px < (x + w); px++){
     for(int py = y; py < (y + h); py++){
-      g2d_set_pixel(px, py,  colour);
+      set_pixel(px, py,  colour);
     }
   }
 }
@@ -121,12 +121,12 @@ static bool draw_char(int32_t x, int32_t y,
 
     for (int8_t j = 0; j < 8; j++, line >>= 1){
 
-      if(line & 1)     g2d_display_rect(x + i * size, y + j * size, size, size, colour);
+      if(line & 1)     display_rect(x + i * size, y + j * size, size, size, colour);
       else
-      if(bg != colour) g2d_display_rect(x + i * size, y + j * size, size, size, bg);
+      if(bg != colour) display_rect(x + i * size, y + j * size, size, size, bg);
     }
   }
-  if(bg != colour) g2d_display_rect(x + 5 * size, y, size, 8 * size, bg);
+  if(bg != colour) display_rect(x + 5 * size, y, size, 8 * size, bg);
 
   return true;
 }

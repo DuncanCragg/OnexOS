@@ -46,8 +46,8 @@ uint8_t g2d_sprite_create(uint8_t  parent_id,
 #define G2D_X_OUTSIDE  1
 #define G2D_Y_OUTSIDE  2
 
-uint8_t g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
-                        uint16_t colour, uint16_t bg, uint8_t size);
+void g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
+                     uint16_t colour, uint16_t bg, uint8_t size);
 
 void g2d_sprite_rectangle(uint8_t sprite_id, int16_t x, int16_t y,
                           uint16_t w, uint16_t h, uint16_t colour);

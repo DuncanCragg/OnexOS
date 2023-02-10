@@ -131,8 +131,8 @@ uint8_t g2d_sprite_create(uint8_t  parent_id,
   return next_node++;
 }
 
-uint8_t g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
-                        uint16_t colour, uint16_t bg, uint8_t size){
+void g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
+                     uint16_t colour, uint16_t bg, uint8_t size){
 
   int32_t ox=scenegraph[sprite_id].x+x;
   int32_t oy=scenegraph[sprite_id].y+y;
@@ -147,8 +147,6 @@ uint8_t g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
       p++;
     }
   }
-
-  return G2D_OK;
 }
 
 void g2d_sprite_rectangle(uint8_t sprite_id,

@@ -19,50 +19,6 @@ static uint8_t lcd_buffer[LCD_BUFFER_SIZE + 4];
 
 // ---------------------------------
 
-void g2d_set_pixel(int32_t x, int32_t y, uint16_t colour) {
-
-  if(x<0 || y<0) return;
-
-  int32_t i = 2 * (x + (y * ST7789_WIDTH));
-
-  if(i+1 >= sizeof(lcd_buffer)) return;
-
-  lcd_buffer[i]   = colour >> 8;
-  lcd_buffer[i+1] = colour & 0xff;
-}
-
-void g2d_display_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint16_t colour) {
-
-  for(int px = x; px < (x + w); px++){
-    for(int py = y; py < (y + h); py++){
-      g2d_set_pixel(px, py,  colour);
-    }
-  }
-}
-
-static bool draw_char(int32_t x, int32_t y,
-                      unsigned char c,
-                      uint16_t colour, uint16_t bg, uint32_t size) {
-
-  if (c < 32) return false;
-  if (c >= 127) return false;
-
-  for (int8_t i = 0; i < 5; i++) {
-
-    uint8_t line = font57[c * 5 + i];
-
-    for (int8_t j = 0; j < 8; j++, line >>= 1){
-
-      if(line & 1)     g2d_display_rect(x + i * size, y + j * size, size, size, colour);
-      else
-      if(bg != colour) g2d_display_rect(x + i * size, y + j * size, size, size, bg);
-    }
-  }
-  if(bg != colour) g2d_display_rect(x + 5 * size, y, size, 8 * size, bg);
-
-  return true;
-}
-
 // ------------
 
 void g2d_init() {
@@ -129,6 +85,50 @@ uint8_t g2d_sprite_create(uint8_t  parent_id,
   scenegraph[next_node].parent=parent_id;
 
   return next_node++;
+}
+
+void g2d_set_pixel(int32_t x, int32_t y, uint16_t colour) {
+
+  if(x<0 || y<0) return;
+
+  int32_t i = 2 * (x + (y * ST7789_WIDTH));
+
+  if(i+1 >= sizeof(lcd_buffer)) return;
+
+  lcd_buffer[i]   = colour >> 8;
+  lcd_buffer[i+1] = colour & 0xff;
+}
+
+void g2d_display_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint16_t colour) {
+
+  for(int px = x; px < (x + w); px++){
+    for(int py = y; py < (y + h); py++){
+      g2d_set_pixel(px, py,  colour);
+    }
+  }
+}
+
+static bool draw_char(int32_t x, int32_t y,
+                      unsigned char c,
+                      uint16_t colour, uint16_t bg, uint32_t size) {
+
+  if (c < 32) return false;
+  if (c >= 127) return false;
+
+  for (int8_t i = 0; i < 5; i++) {
+
+    uint8_t line = font57[c * 5 + i];
+
+    for (int8_t j = 0; j < 8; j++, line >>= 1){
+
+      if(line & 1)     g2d_display_rect(x + i * size, y + j * size, size, size, colour);
+      else
+      if(bg != colour) g2d_display_rect(x + i * size, y + j * size, size, size, bg);
+    }
+  }
+  if(bg != colour) g2d_display_rect(x + 5 * size, y, size, 8 * size, bg);
+
+  return true;
 }
 
 void g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,

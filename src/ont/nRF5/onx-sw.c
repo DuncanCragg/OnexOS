@@ -424,7 +424,7 @@ int main()
 // ------------------- evaluators ----------------
 
 // XXX separated out to remind me to extend the respective APIs to allow sprintf-style
-// XXX varargs for path segments, value construction and g2d_text()
+// XXX varargs for path segments, value construction and g2d_sprite_text()
 static char pathbuf[64];
 static char valuebuf[64];
 static char g2dbuf[64];
@@ -672,10 +672,10 @@ void draw_watch(char* path, uint8_t sprid)
   }
 
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
-  g2d_text(10, 90, g2dbuf, G2D_BLUE, G2D_WHITE, 7);
+  g2d_sprite_text(sprid, 10, 90, g2dbuf, G2D_BLUE, G2D_WHITE, 7);
 
   strftime(g2dbuf, 64, h24? "24 %a %d %h": "%p %a %d %h", &tms);
-  g2d_text(10, 170, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+  g2d_sprite_text(sprid, 10, 170, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
@@ -688,7 +688,7 @@ void draw_watch(char* path, uint8_t sprid)
   else         batt_col=BATTERY_LOW;
 
   snprintf(g2dbuf, 64, "%d", pcnum);
-  g2d_text(10, 30, g2dbuf, batt_col, G2D_WHITE, 3);
+  g2d_sprite_text(sprid, 10, 30, g2dbuf, batt_col, G2D_WHITE, 3);
 }
 
 // ---------------------- keyboard ------------------------
@@ -851,20 +851,20 @@ void draw_about(char* path, uint8_t sprid) {
   char* bnf=object_property_values(user, pathbuf);
 
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_text(10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  g2d_sprite_text(sprid, 10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
   snprintf(g2dbuf, 64, "cpu: %s", cpu);
-  g2d_text(10, 70, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+  g2d_sprite_text(sprid, 10, 70, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
 
   snprintf(g2dbuf, 64, "build: %s", bnf);
-  g2d_text(10, 190, g2dbuf, G2D_BLUE, G2D_WHITE, 1);
+  g2d_sprite_text(sprid, 10, 190, g2dbuf, G2D_BLUE, G2D_WHITE, 1);
 }
 
 void draw_default(char* path, uint8_t sprid)
 {
   snprintf(pathbuf, 64, "%s:is", path);
   char* is=object_property(user, pathbuf);
-  g2d_text(10, 190, "no show", G2D_BLUE, G2D_WHITE, 1);
+  g2d_sprite_text(sprid, 10, 190, "no show", G2D_BLUE, G2D_WHITE, 1);
 }
 
 #if defined(LOG_TO_GFX)

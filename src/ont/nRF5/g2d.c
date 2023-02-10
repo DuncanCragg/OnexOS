@@ -40,7 +40,9 @@ void g2d_display_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint16_t col
   }
 }
 
-bool g2d_draw_char(int32_t x, int32_t y, unsigned char c, uint16_t colour, uint16_t bg, uint32_t size) {
+static bool draw_char(int32_t x, int32_t y,
+                      unsigned char c,
+                      uint16_t colour, uint16_t bg, uint32_t size) {
 
   if (c < 32) return false;
   if (c >= 127) return false;
@@ -51,29 +53,14 @@ bool g2d_draw_char(int32_t x, int32_t y, unsigned char c, uint16_t colour, uint1
 
     for (int8_t j = 0; j < 8; j++, line >>= 1){
 
-      if(line & 1)          g2d_display_rect(x + i * size, y + j * size, size, size, colour);
-      else if(bg != colour) g2d_display_rect(x + i * size, y + j * size, size, size, bg);
+      if(line & 1)     g2d_display_rect(x + i * size, y + j * size, size, size, colour);
+      else
+      if(bg != colour) g2d_display_rect(x + i * size, y + j * size, size, size, bg);
     }
   }
   if(bg != colour) g2d_display_rect(x + 5 * size, y, size, 8 * size, bg);
 
   return true;
-}
-
-// ------------
-
-void g2d_text(int32_t x, int32_t y, char* text, uint16_t colour, uint16_t bg, uint32_t size) {
-
-  int p = 0;
-  for(int i = 0; i < strlen(text); i++){
-    if(x + (p * 6 * size) >= (ST7789_WIDTH - 6)){
-      x = -(p * 6 * size);
-      y += (8 * size);
-    }
-    if(g2d_draw_char(x + (p * 6 * size), y, text[i], colour, bg, size)) {
-      p++;
-    }
-  }
 }
 
 // ------------
@@ -147,10 +134,19 @@ uint8_t g2d_sprite_create(uint8_t  parent_id,
 uint8_t g2d_sprite_text(uint8_t sprite_id, uint16_t x, uint16_t y, char* text,
                         uint16_t colour, uint16_t bg, uint8_t size){
 
-  uint16_t offx=scenegraph[sprite_id].x;
-  uint16_t offy=scenegraph[sprite_id].y;
+  int32_t ox=scenegraph[sprite_id].x+x;
+  int32_t oy=scenegraph[sprite_id].y+y;
 
-  g2d_text(offx+x,offy+y, text, colour, bg, size);
+  int p = 0;
+  for(int i = 0; i < strlen(text); i++){
+    if(ox + (p * 6 * size) >= (ST7789_WIDTH - 6)){
+      ox = -(p * 6 * size);
+      oy += (8 * size);
+    }
+    if(draw_char(ox + (p * 6 * size), oy, text[i], colour, bg, size)) {
+      p++;
+    }
+  }
 
   return G2D_OK;
 }

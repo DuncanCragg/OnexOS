@@ -592,15 +592,21 @@ static bool     scrolling=false;
 
 void list_cb(bool down, int16_t dx, int16_t dy, uint8_t sprid, void* uid){
 
+  #define BOTTOM_MARGIN 20
+  int16_t bottom_limit = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;
   if(down){
     if(dx+dy){
-      scroll_offset+=dy;
       scrolling=true;
+      bool stretching = (scroll_offset > 0 && dy>0) ||
+                        (scroll_offset < bottom_limit && dy<0);
+      scroll_offset+= stretching? dy/3: dy;
     }
     return;
   }
   if(scrolling){
     scrolling=false;
+    if(scroll_offset> 0) scroll_offset=0;
+    if(scroll_offset< bottom_limit) scroll_offset=bottom_limit;
     return;
   }
   if(uid) object_property_set(user, "viewing", (char*)uid);

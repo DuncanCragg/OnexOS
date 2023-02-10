@@ -769,7 +769,7 @@ void key_hit(uint8_t key_sprid, void* kiv){
   }
 }
 
-#define KEY_SIZE  40
+#define KEY_SIZE  41
 #define KEY_H_SPACE 7
 #define KEY_V_SPACE 1
 
@@ -787,14 +787,17 @@ static void build_keyboard(uint8_t kbd_sprid){
 
       unsigned char key = key_pages[kbpg][ki];
 
-      uint8_t key_sprid = g2d_sprite_create(kbd_sprid, kx,ky, KEY_SIZE,KEY_SIZE, key_hit,(void*)ki);
+      uint8_t key_sprid = g2d_sprite_create(kbd_sprid,
+                                            kx, ky,
+                                            KEY_SIZE+KEY_H_SPACE, KEY_SIZE+KEY_V_SPACE,
+                                            key_hit, (void*)ki);
 
       uint16_t key_bg=(pressed==key)? G2D_GREEN: G2D_GREY_1A;
 
-      g2d_sprite_rectangle(key_sprid, 0,0, KEY_SIZE,KEY_SIZE, key_bg);
+      g2d_sprite_rectangle(key_sprid, KEY_H_SPACE/2,KEY_V_SPACE/2, KEY_SIZE,KEY_SIZE, key_bg);
 
       snprintf(g2dbuf, 64, "%c", key);
-      g2d_sprite_text(key_sprid, 10,7, g2dbuf, G2D_BLACK, key_bg, 4);
+      g2d_sprite_text(key_sprid, 13,7, g2dbuf, G2D_BLACK, key_bg, 4);
 
       kx+=KEY_SIZE+KEY_H_SPACE;
     }
@@ -805,7 +808,7 @@ static void build_keyboard(uint8_t kbd_sprid){
 
 // --------------------------------------------------------
 
-#define KBDSTART_X 7
+#define KBDSTART_X 0
 #define KBDSTART_Y 105
 
 void draw_notes(char* path, uint8_t sprid) {

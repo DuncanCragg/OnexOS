@@ -590,7 +590,7 @@ static uint16_t scroll_height=0;
 static int16_t  scroll_offset=0;
 static bool     scrolling=false;
 
-void list_cb(bool down, int16_t dx, int16_t dy, uint8_t child_sprid, void* uid){
+void list_cb(bool down, int16_t dx, int16_t dy, uint8_t sprid, void* uid){
 
   if(down){
     if(dx+dy){
@@ -603,7 +603,7 @@ void list_cb(bool down, int16_t dx, int16_t dy, uint8_t child_sprid, void* uid){
     scrolling=false;
     return;
   }
-  object_property_set(user, "viewing", (char*)uid);
+  if(uid) object_property_set(user, "viewing", (char*)uid);
 }
 
 static char pathbufrec[64];
@@ -622,7 +622,7 @@ void draw_list(char* p, uint8_t sprid) {
                                            0, scroll_offset,
                                            g2d_sprite_width(sprid),
                                            scroll_height,
-                                           0, 0);
+                                           list_cb, 0);
   uint16_t y=10;
 
   for(uint8_t i=1; i<=ll; i++){

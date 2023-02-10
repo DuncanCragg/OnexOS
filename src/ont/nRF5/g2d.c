@@ -19,8 +19,6 @@ static uint8_t lcd_buffer[LCD_BUFFER_SIZE + 4];
 
 // ---------------------------------
 
-// ------------
-
 void g2d_init() {
 
   display_fast_init();
@@ -31,8 +29,12 @@ void g2d_clear_screen(uint8_t colour) {
   memset(lcd_buffer, colour, LCD_BUFFER_SIZE);
 }
 
-// ------------
+void g2d_render() {
 
+  display_fast_write_out_buffer(lcd_buffer, LCD_BUFFER_SIZE);
+}
+
+// ------------
 
 typedef struct sg_node sg_node;
 
@@ -99,11 +101,45 @@ static void set_pixel(int32_t x, int32_t y, uint16_t colour) {
   lcd_buffer[i+1] = colour & 0xff;
 }
 
+uint8_t g2d_sprite_pixel(uint8_t sprite_id,
+                         int16_t x, int16_t y,
+                         uint16_t colour){
+
+  if(y<0 || y>=scenegraph[sprite_id].h) return G2D_Y_OUTSIDE;
+  if(x<0 || x>=scenegraph[sprite_id].w) return G2D_X_OUTSIDE;
+
+  int16_t offx=scenegraph[sprite_id].x;
+  int16_t offy=scenegraph[sprite_id].y;
+
+  int32_t i = 2 * ((offx + x) + ((offy + y) * ST7789_WIDTH));
+
+  if(i<0 || i+1 >= sizeof(lcd_buffer)) return G2D_Y_OUTSIDE;
+
+  lcd_buffer[i]   = colour >> 8;
+  lcd_buffer[i+1] = colour & 0xff;
+
+  return G2D_OK;
+}
+
 static void display_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint16_t colour) {
 
   for(int px = x; px < (x + w); px++){
     for(int py = y; py < (y + h); py++){
       set_pixel(px, py,  colour);
+    }
+  }
+}
+
+void g2d_sprite_rectangle(uint8_t sprite_id,
+                          int16_t x, int16_t y,
+                          uint16_t w, uint16_t h,
+                          uint16_t colour) {
+
+  if(y+h<0 || y>ST7789_HEIGHT) return;
+
+  for(int py = y; py < (y + h); py++){
+    for(int px = x; px < (x + w); px++){
+      g2d_sprite_pixel(sprite_id, px, py, colour);
     }
   }
 }
@@ -147,40 +183,6 @@ void g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
       p++;
     }
   }
-}
-
-void g2d_sprite_rectangle(uint8_t sprite_id,
-                          int16_t x, int16_t y,
-                          uint16_t w, uint16_t h,
-                          uint16_t colour) {
-
-  if(y+h<0 || y>ST7789_HEIGHT) return;
-
-  for(int py = y; py < (y + h); py++){
-    for(int px = x; px < (x + w); px++){
-      g2d_sprite_pixel(sprite_id, px, py, colour);
-    }
-  }
-}
-
-uint8_t g2d_sprite_pixel(uint8_t sprite_id,
-                         int16_t x, int16_t y,
-                         uint16_t colour){
-
-  if(y<0 || y>=scenegraph[sprite_id].h) return G2D_Y_OUTSIDE;
-  if(x<0 || x>=scenegraph[sprite_id].w) return G2D_X_OUTSIDE;
-
-  int16_t offx=scenegraph[sprite_id].x;
-  int16_t offy=scenegraph[sprite_id].y;
-
-  int32_t i = 2 * ((offx + x) + ((offy + y) * ST7789_WIDTH));
-
-  if(i<0 || i+1 >= sizeof(lcd_buffer)) return G2D_Y_OUTSIDE;
-
-  lcd_buffer[i]   = colour >> 8;
-  lcd_buffer[i+1] = colour & 0xff;
-
-  return G2D_OK;
 }
 
 uint16_t g2d_sprite_width(uint8_t sprite_id){
@@ -234,11 +236,6 @@ bool g2d_sprite_touch_event(bool down, uint16_t tx, uint16_t ty){
     return true;
   }
   return false;
-}
-
-void g2d_render() {
-
-  display_fast_write_out_buffer(lcd_buffer, LCD_BUFFER_SIZE);
 }
 
 // ------------

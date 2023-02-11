@@ -59,7 +59,7 @@ static sg_node scenegraph[256]; // 1..255
 
 static volatile uint8_t next_node=1; // index is same as sprite id, 0th not used
 
-uint8_t g2d_sprite_create(uint8_t  parent_id,
+uint8_t g2d_sprite_create(uint8_t parent_id,
                           int16_t x,
                           int16_t y,
                           uint16_t w,

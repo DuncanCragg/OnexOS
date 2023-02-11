@@ -552,8 +552,8 @@ static void draw_about(char* p, uint8_t sprid);
 static void draw_list(char* p, uint8_t sprid);
 static void draw_default(char* p, uint8_t sprid);
 
-bool evaluate_user(object* o, void* d)
-{
+bool evaluate_user(object* o, void* d) {
+
   if(!user_active) return true;
 
   if(button_action==BUTTON_ACTION_SHORT){

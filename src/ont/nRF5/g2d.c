@@ -77,6 +77,10 @@ uint8_t g2d_sprite_create(uint8_t parent_id,
     offx=scenegraph[parent_id].x;
     offy=scenegraph[parent_id].y;
   }
+
+  if(offy+y+h < 0)             return 0;
+  if(offy+y   > ST7789_HEIGHT) return 0;
+
   scenegraph[next_node].x=offx+x;
   scenegraph[next_node].y=offy+y;
   scenegraph[next_node].w=w;

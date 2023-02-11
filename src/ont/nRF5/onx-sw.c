@@ -642,7 +642,7 @@ void draw_list(char* p, uint8_t sprid) {
 
     uint8_t child_sprid = g2d_sprite_create(scroll_sprid, 20,y, 200,CHILD_HEIGHT-10, list_cb, uid);
 
-    draw_by_type(pathbufrec, child_sprid);
+    if(child_sprid) draw_by_type(pathbufrec, child_sprid);
 
     y+=CHILD_HEIGHT;
   }

@@ -402,7 +402,7 @@ int main()
     if(touch_event){
       touch_event=false;
       g2d_sprite_touch_event(touch_down, touch_info.x, touch_info.y);
-      onex_run_evaluators(useruid, 0);
+      onex_run_evaluators(useruid, (void*)1);
     }
   }
 }
@@ -553,6 +553,10 @@ static void draw_list(char* p, uint8_t sprid);
 static void draw_default(char* p, uint8_t sprid);
 
 bool evaluate_user(object* o, void* d) {
+
+  bool is_a_touch_triggered_eval=!!d;
+
+  if(touch_down && !is_a_touch_triggered_eval) return true;
 
   if(!user_active) return true;
 

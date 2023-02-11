@@ -255,7 +255,7 @@ int main()
   watchface=object_new(0, "editable",  "watchface editable", 6);
   home     =object_new(0, "editable",  "list editable", 4);
   watch    =object_new(0, "default",   "watch", 4);
-  notes    =object_new(0, "editable",  "note list editable", 4);
+  notes    =object_new(0, "editable",  "note editable", 4);
   about    =object_new(0, "about",     "about", 4);
 
   deviceuid   =object_property(onex_device_object, "UID");
@@ -579,8 +579,7 @@ void draw_by_type(char* p, uint8_t sprid)
   snprintf(pathbuf, 64, "%s:is", p);
 
   if(object_property_contains(user, pathbuf, "watch")) draw_watch(p, sprid);   else
-  if(object_property_contains(user, pathbuf, "note") &&
-     object_property_contains(user, pathbuf, "list") ) draw_notes(p, sprid);   else
+  if(object_property_contains(user, pathbuf, "note" )) draw_notes(p, sprid);   else
   if(object_property_contains(user, pathbuf, "about")) draw_about(p, sprid);   else
   if(object_property_contains(user, pathbuf, "list"))  draw_list(p, sprid);    else
                                                        draw_default(p, sprid);
@@ -882,7 +881,12 @@ void draw_about(char* path, uint8_t sprid) {
 void draw_default(char* path, uint8_t sprid)
 {
   snprintf(pathbuf, 64, "%s:is", path);
-  char* is=object_property(user, pathbuf);
+  char* is=object_property_values(user, pathbuf);
+  if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
+    g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_MAGENTA);
+    g2d_sprite_text(sprid, 10,20, is, G2D_BLACK, G2D_MAGENTA, 3);
+    return;
+  }
   g2d_sprite_text(sprid, 10, 190, "no show", G2D_BLUE, G2D_WHITE, 1);
 }
 

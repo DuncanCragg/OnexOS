@@ -121,9 +121,6 @@ void g2d_sprite_rectangle(uint8_t sprite_id,
                           uint16_t w, uint16_t h,
                           uint16_t colour) {
 
-  if(y+h<0 || y>ST7789_HEIGHT) return;
-  if(x+w<0 || x>ST7789_WIDTH) return;
-
   for(int py = y; py < (y + h); py++){
     for(int px = x; px < (x + w); px++){
       g2d_sprite_pixel(sprite_id, px, py, colour);
@@ -132,6 +129,9 @@ void g2d_sprite_rectangle(uint8_t sprite_id,
 }
 
 static void display_rect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t colour) {
+
+  if(y+h<0 || y>ST7789_HEIGHT) return;
+  if(x+w<0 || x>ST7789_WIDTH) return;
 
   for(int px = x; px < (x + w); px++){
     for(int py = y; py < (y + h); py++){

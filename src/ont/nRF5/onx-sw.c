@@ -297,6 +297,9 @@ int main()
   object_property_add(home, (char*)"list", notesuid);
   object_property_add(home, (char*)"list", watchuid);
   object_property_add(home, (char*)"list", aboutuid);
+  object_property_add(home, (char*)"list", notesuid);
+  object_property_add(home, (char*)"list", watchuid);
+  object_property_add(home, (char*)"list", aboutuid);
 
   object_property_set(watch, (char*)"battery",   batteryuid);
   object_property_set(watch, (char*)"watchface", watchfaceuid);

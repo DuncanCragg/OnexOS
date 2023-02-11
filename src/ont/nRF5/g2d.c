@@ -116,15 +116,6 @@ uint8_t g2d_sprite_pixel(uint8_t sprite_id,
   return G2D_OK;
 }
 
-static void display_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint16_t colour) {
-
-  for(int px = x; px < (x + w); px++){
-    for(int py = y; py < (y + h); py++){
-      set_pixel(px, py,  colour);
-    }
-  }
-}
-
 void g2d_sprite_rectangle(uint8_t sprite_id,
                           int16_t x, int16_t y,
                           uint16_t w, uint16_t h,
@@ -135,6 +126,15 @@ void g2d_sprite_rectangle(uint8_t sprite_id,
   for(int py = y; py < (y + h); py++){
     for(int px = x; px < (x + w); px++){
       g2d_sprite_pixel(sprite_id, px, py, colour);
+    }
+  }
+}
+
+static void display_rect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t colour) {
+
+  for(int px = x; px < (x + w); px++){
+    for(int py = y; py < (y + h); py++){
+      set_pixel(px, py,  colour);
     }
   }
 }

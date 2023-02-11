@@ -383,6 +383,7 @@ int main()
       if(button_action == BUTTON_ACTION_WAIT){
         if((ct - pressed_ts) > LONG_PRESS_MS){
           button_action = BUTTON_ACTION_LONG;
+          touch_down=false; // button seems to send touch events after reboot
           onex_run_evaluators(useruid, 0);
         }
       }
@@ -391,6 +392,7 @@ int main()
     if(pressed_ts && !button_pressed){
       if(button_action == BUTTON_ACTION_WAIT){
         button_action = BUTTON_ACTION_SHORT;
+        touch_down=false; // ditto
         onex_run_evaluators(useruid, 0);
       }
       pressed_ts=0;

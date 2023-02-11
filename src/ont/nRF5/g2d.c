@@ -122,6 +122,7 @@ void g2d_sprite_rectangle(uint8_t sprite_id,
                           uint16_t colour) {
 
   if(y+h<0 || y>ST7789_HEIGHT) return;
+  if(x+w<0 || x>ST7789_WIDTH) return;
 
   for(int py = y; py < (y + h); py++){
     for(int px = x; px < (x + w); px++){
@@ -139,9 +140,9 @@ static void display_rect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t 
   }
 }
 
-static bool draw_char(int32_t x, int32_t y,
+static bool draw_char(int16_t x, int16_t y,
                       unsigned char c,
-                      uint16_t colour, uint16_t bg, uint32_t size) {
+                      uint16_t colour, uint16_t bg, uint16_t size) {
 
   if (c < 32) return false;
   if (c >= 127) return false;
@@ -165,8 +166,8 @@ static bool draw_char(int32_t x, int32_t y,
 void g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
                      uint16_t colour, uint16_t bg, uint8_t size){
 
-  int32_t ox=scenegraph[sprite_id].x+x;
-  int32_t oy=scenegraph[sprite_id].y+y;
+  int16_t ox=scenegraph[sprite_id].x+x;
+  int16_t oy=scenegraph[sprite_id].y+y;
 
   int p = 0;
   for(int i = 0; i < strlen(text); i++){

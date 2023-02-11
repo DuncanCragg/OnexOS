@@ -59,7 +59,7 @@ static volatile bool          button_pressed=false;
 
 static volatile touch_info_t  touch_info={ 120, 140 };
 static volatile bool          touch_down=false;
-static volatile bool          touch_event=false;
+static volatile bool          touch_pending=false;
 #if defined(DO_LATER)
 static volatile uint16_t      touch_info_stroke=0;
 static volatile motion_info_t motion_info;
@@ -102,9 +102,9 @@ static void touched(touch_info_t ti) {
 
   if(!touch_down && is_down_event) touch_down=true;
   else
-  if(touch_down && !is_down_event){ touch_down=false; touch_event=true; }
+  if(touch_down && !is_down_event){ touch_down=false; touch_pending=true; }
 
-  if(is_down_event) touch_event=true;
+  if(is_down_event) touch_pending=true;
 
   touch_info=ti;
 
@@ -399,8 +399,8 @@ int main()
 
     // --------------------
 
-    if(touch_event){
-      touch_event=false;
+    if(touch_pending){
+      touch_pending=false;
       g2d_sprite_touch_event(touch_down, touch_info.x, touch_info.y);
       onex_run_evaluators(useruid, (void*)1);
     }

@@ -89,11 +89,11 @@ uint8_t g2d_sprite_create(uint8_t  parent_id,
   return next_node++;
 }
 
-static void set_pixel(int32_t x, int32_t y, uint16_t colour) {
+static void set_pixel(int16_t x, int16_t y, uint16_t colour) {
 
   if(x<0 || y<0) return;
 
-  int32_t i = 2 * (x + (y * ST7789_WIDTH));
+  uint32_t i = 2 * (x + (y * ST7789_WIDTH));
 
   if(i+1 >= sizeof(lcd_buffer)) return;
 
@@ -111,12 +111,7 @@ uint8_t g2d_sprite_pixel(uint8_t sprite_id,
   int16_t offx=scenegraph[sprite_id].x;
   int16_t offy=scenegraph[sprite_id].y;
 
-  int32_t i = 2 * ((offx + x) + ((offy + y) * ST7789_WIDTH));
-
-  if(i<0 || i+1 >= sizeof(lcd_buffer)) return G2D_Y_OUTSIDE;
-
-  lcd_buffer[i]   = colour >> 8;
-  lcd_buffer[i+1] = colour & 0xff;
+  set_pixel(offx + x, offy + y, colour);
 
   return G2D_OK;
 }

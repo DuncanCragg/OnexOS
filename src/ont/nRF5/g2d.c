@@ -181,6 +181,8 @@ void g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
   }
 }
 
+// ---------------------------------------------------
+
 uint16_t g2d_sprite_width(uint8_t sprite_id){
   return scenegraph[sprite_id].w;
 }
@@ -188,6 +190,8 @@ uint16_t g2d_sprite_width(uint8_t sprite_id){
 uint16_t g2d_sprite_height(uint8_t sprite_id){
   return scenegraph[sprite_id].h;
 }
+
+// ---------------------------------------------------
 
 static bool is_inside(uint8_t n, int16_t x, int16_t y){
   int16_t bbx=scenegraph[n].x;

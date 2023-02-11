@@ -695,8 +695,13 @@ void draw_watch(char* path, uint8_t sprid)
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
   g2d_sprite_text(sprid, 10, 90, g2dbuf, G2D_BLUE, G2D_WHITE, 7);
 
-  strftime(g2dbuf, 64, h24? "24 %a %d %h": "%p %a %d %h", &tms);
-  g2d_sprite_text(sprid, 10, 170, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+  if(!h24){
+    strftime(g2dbuf, 64, "%p", &tms);
+    g2d_sprite_text(sprid, 100, 150, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+  }
+
+  strftime(g2dbuf, 64, "%a %d %h", &tms);
+  g2d_sprite_text(sprid, 30, 210, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;

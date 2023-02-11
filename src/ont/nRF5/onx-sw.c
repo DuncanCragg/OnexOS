@@ -94,7 +94,6 @@ static void touched(touch_info_t ti) {
   ti.y=(uint16_t)y;
 
   // ---------------------------------------
-
   // XXX move this "down state" logic to the touch API?
 
   bool is_down_event = ti.action==TOUCH_ACTION_DOWN ||
@@ -109,7 +108,7 @@ static void touched(touch_info_t ti) {
   touch_info=ti;
 
   onex_run_evaluators(touchuid, 0);
-
+}
 
 #if defined(DO_LATER)
   // XXX all in main loop not here
@@ -126,7 +125,7 @@ static void touched(touch_info_t ti) {
     onex_run_evaluators(useruid, 0);
   }
 #endif
-}
+
 
 #if defined(DO_LATER)
 static void moved(motion_info_t mi)

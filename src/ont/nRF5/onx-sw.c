@@ -76,7 +76,12 @@ static void every_10s(){
 
 static bool user_active=true;
 
+static uint32_t touch_events=0;
+static uint32_t touch_events_seen=0;
+
 static void touched(touch_info_t ti) {
+
+  touch_events++;
 
   // maybe need to drive touch chip differently
   // or put this logic into the touch api
@@ -405,6 +410,7 @@ int main()
 
     if(touch_pending){
       touch_pending=false;
+      touch_events_seen++;
       g2d_sprite_touch_event(touch_down, touch_info.x, touch_info.y);
       onex_run_evaluators(useruid, (void*)1);
     }
@@ -885,7 +891,7 @@ void draw_about(char* path, uint8_t sprid) {
 
   if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
     g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_CYAN);
-    snprintf(g2dbuf, 64, "cpu: %s", cpu);
+    snprintf(g2dbuf, 64, "%ld%% %ldms", (100*touch_events_seen)/(1+touch_events), loop_time);
     g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_CYAN, 3);
     return;
   }

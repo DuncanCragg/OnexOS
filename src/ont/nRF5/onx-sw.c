@@ -639,6 +639,11 @@ void draw_list(char* p, uint8_t sprid) {
                                            g2d_sprite_width(sprid),
                                            scroll_height,
                                            list_cb, 0);
+
+  uint16_t stretch_height=g2d_sprite_height(sprid)/3;
+  if(scroll_top) g2d_sprite_rectangle(sprid, 20,0,                200,stretch_height, G2D_GREY_1D);
+  if(scroll_bot) g2d_sprite_rectangle(sprid, 20,2*stretch_height, 200,stretch_height, G2D_GREY_1D);
+
   uint16_t y=10;
 
   for(uint8_t i=1; i<=ll; i++){

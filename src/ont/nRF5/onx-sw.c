@@ -156,8 +156,6 @@ static void charging_changed(uint8_t pin, uint8_t type){
   onex_run_evaluators(batteryuid, 0);
 }
 
-static uint8_t fps = 111;
-
 // --------------------------------------------------------
 
 #define ADC_CHANNEL 0
@@ -346,19 +344,6 @@ int main()
 
     // --------------------
 
-    // XXX put this in g2d to count actual frames shifted/s
-    static uint8_t  frame_count = 0;
-    static uint64_t tm_last = 0;
-
-    frame_count++;
-    if(ct > tm_last + 1000) {
-      tm_last = ct;
-      fps = frame_count;
-      frame_count = 0;
-    }
-
-    // --------------------
-
     static uint64_t pressed_ts=0;
     if(button_pressed && !pressed_ts){
       button_action = BUTTON_ACTION_WAIT;
@@ -539,6 +524,7 @@ void show_touch_point(uint8_t sprid){
   g2d_sprite_rectangle(touch_sprid, 0,0, 5,5, G2D_MAGENTA);
 }
 
+static uint8_t fps = 111;
 
 static void draw_by_type(char* p, uint8_t sprid);
 static void draw_watch(char* p, uint8_t sprid);
@@ -572,6 +558,20 @@ bool evaluate_user(object* o, void* d) {
   draw_by_type("viewing", root_sprid);
 
   g2d_render();
+
+  uint64_t post_render_time=time_ms();
+
+  static uint8_t renders = 0;
+  renders++;
+
+  static uint64_t last_render_time = 0;
+
+  uint64_t time_since_last = post_render_time - last_render_time;
+  if(time_since_last > 1000){
+     fps = renders * 1000 / time_since_last;
+     renders = 0;
+     last_render_time = post_render_time;
+  }
 
   return true;
 }
@@ -895,8 +895,9 @@ void draw_about(char* path, uint8_t sprid) {
 
   if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
     g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_CYAN);
-    uint32_t touch_events_percent = (100*touch_events_seen)/(1+touch_events);
-    snprintf(g2dbuf, 64, "%ld%% %ldms", touch_events_percent, loop_time);
+//  uint32_t touch_events_percent = (100*touch_events_seen)/(1+touch_events);
+//  snprintf(g2dbuf, 64, "%ld%% %ldms", touch_events_percent, loop_time);
+    snprintf(g2dbuf, 64, "%dfps %ldms", fps, loop_time);
     g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_CYAN, 3);
     return;
   }

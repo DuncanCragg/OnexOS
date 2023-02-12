@@ -158,24 +158,6 @@ static void charging_changed(uint8_t pin, uint8_t type){
 
 static uint8_t fps = 111;
 
-// ---------------------- notes buffer --------------------
-
-static char    typed[64];
-static uint8_t cursor=0;
-
-void del_char()
-{
-  if(cursor==0) return;
-  typed[--cursor]=0;
-}
-
-void add_char(unsigned char c)
-{
-  if(cursor==62) return;
-  typed[cursor++]=c;
-  typed[cursor]=0;
-}
-
 // --------------------------------------------------------
 
 #define ADC_CHANNEL 0
@@ -734,6 +716,22 @@ void draw_watch(char* path, uint8_t sprid)
 }
 
 // ---------------------- keyboard ------------------------
+
+static char    typed[64];
+static uint8_t cursor=0;
+
+void del_char()
+{
+  if(cursor==0) return;
+  typed[--cursor]=0;
+}
+
+void add_char(unsigned char c)
+{
+  if(cursor==62) return;
+  typed[cursor++]=c;
+  typed[cursor]=0;
+}
 
 static uint8_t kbpg=1;
 

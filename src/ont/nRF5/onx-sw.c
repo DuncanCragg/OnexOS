@@ -549,6 +549,13 @@ bool evaluate_backlight_out(object* o, void* d)
 
 // -------------------- User --------------------------
 
+
+void show_touch_point(uint8_t sprid){
+  uint8_t touch_sprid = g2d_sprite_create(sprid, touch_info.x, touch_info.y, 5,5, 0,0);
+  g2d_sprite_rectangle(touch_sprid, 0,0, 5,5, G2D_MAGENTA);
+}
+
+
 static void draw_by_type(char* p, uint8_t sprid);
 static void draw_watch(char* p, uint8_t sprid);
 static void draw_notes(char* p, uint8_t sprid);
@@ -867,6 +874,8 @@ void draw_notes(char* path, uint8_t sprid) {
                                         0, 0);
 
   build_keyboard(kbd_sprid);
+
+  show_touch_point(sprid);
 }
 
 void draw_about(char* path, uint8_t sprid) {

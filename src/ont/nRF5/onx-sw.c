@@ -591,27 +591,27 @@ void draw_by_type(char* p, uint8_t sprid)
                                                        draw_default(p, sprid);
 }
 
-static uint16_t scroll_height=0;
-static int16_t  scroll_offset=0;
+static int16_t  scroll_bot_lim=0;
+static bool     scroll_top=false;
+static bool     scroll_bot=false;
 static bool     scrolling=false;
+static int16_t  scroll_offset=0;
 
 void list_cb(bool down, int16_t dx, int16_t dy, uint8_t sprid, void* uid){
 
-  #define BOTTOM_MARGIN 20
-  int16_t bottom_limit = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;
   if(down){
     if(dx+dy){
       scrolling=true;
-      bool stretching = (scroll_offset > 0 && dy>0) ||
-                        (scroll_offset < bottom_limit && dy<0);
+      bool stretching = (scroll_top && dy>0) ||
+                        (scroll_bot && dy<0);
       scroll_offset+= stretching? dy/3: dy;
     }
     return;
   }
   if(scrolling){
     scrolling=false;
-    if(scroll_offset> 0) scroll_offset=0;
-    if(scroll_offset< bottom_limit) scroll_offset=bottom_limit;
+    if(scroll_top) scroll_offset=0;
+    if(scroll_bot) scroll_offset=scroll_bot_lim;
     return;
   }
   if(uid) object_property_set(user, "viewing", (char*)uid);
@@ -626,8 +626,13 @@ void draw_list(char* p, uint8_t sprid) {
   uint8_t ll=object_property_length(user, pathbuf);
 
   #define CHILD_HEIGHT 70
+  #define BOTTOM_MARGIN 20
 
-  scroll_height = 10+ll*CHILD_HEIGHT+10;
+  uint16_t scroll_height=10+ll*CHILD_HEIGHT+10;
+
+  scroll_bot_lim = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;
+  scroll_top = (scroll_offset > 0);
+  scroll_bot = (scroll_offset < scroll_bot_lim);
 
   uint8_t scroll_sprid = g2d_sprite_create(sprid,
                                            0, scroll_offset,

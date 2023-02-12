@@ -315,14 +315,10 @@ int main()
 
   while(1){
 
-    uint64_t ct=time_ms(); // XXX every loop?!
-
-#define TRACK_LOOP_TIME
-#if defined(TRACK_LOOP_TIME)
+    uint64_t ct=time_ms();
     static uint64_t lt=0;
     if(lt) loop_time=(uint32_t)(ct-lt);
     lt=ct;
-#endif
 
     if(!onex_loop()){
       gpio_sleep(); // will gpio_wake() when ADC read
@@ -571,7 +567,7 @@ bool evaluate_user(object* o, void* d) {
 
   uint8_t root_sprid = g2d_sprite_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0);
 
-  g2d_clear_screen(0xff); // XXX don't clear screen just fill all the space
+  g2d_clear_screen(0xff);
 
   draw_by_type("viewing", root_sprid);
 
@@ -899,7 +895,8 @@ void draw_about(char* path, uint8_t sprid) {
 
   if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
     g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_CYAN);
-    snprintf(g2dbuf, 64, "%ld%% %ldms", (100*touch_events_seen)/(1+touch_events), loop_time);
+    uint32_t touch_events_percent = (100*touch_events_seen)/(1+touch_events);
+    snprintf(g2dbuf, 64, "%ld%% %ldms", touch_events_percent, loop_time);
     g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_CYAN, 3);
     return;
   }
@@ -907,8 +904,8 @@ void draw_about(char* path, uint8_t sprid) {
   snprintf(pathbuf, 64, "%s:build-info", path);
   char* bnf=object_property_values(user, pathbuf);
 
-  snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_sprite_text(sprid, 10, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  snprintf(g2dbuf, 64, "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
+  g2d_sprite_text(sprid, 20, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
   snprintf(g2dbuf, 64, "cpu: %s", cpu);
   g2d_sprite_text(sprid, 10, 70, g2dbuf, G2D_BLUE, G2D_WHITE, 3);

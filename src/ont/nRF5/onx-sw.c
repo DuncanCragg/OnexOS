@@ -206,6 +206,8 @@ extern char __BUILD_TIMESTAMP;
 extern char __BUILD_TIME;
 extern char __BOOTLOADER_NUMBER;
 
+static uint32_t loop_time=0;
+
 int main()
 {
   boot_init();
@@ -328,9 +330,10 @@ int main()
 
     uint64_t ct=time_ms(); // XXX every loop?!
 
-#if defined(LOG_LOOP_TIME)
+#define TRACK_LOOP_TIME
+#if defined(TRACK_LOOP_TIME)
     static uint64_t lt=0;
-    if(lt) log_write("loop time %ldms", (uint32_t)(ct-lt));
+    if(lt) loop_time=(uint32_t)(ct-lt);
     lt=ct;
 #endif
 

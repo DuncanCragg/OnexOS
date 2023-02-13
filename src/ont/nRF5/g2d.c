@@ -107,6 +107,8 @@ void g2d_node_pixel(uint8_t node_id,
                     int16_t x, int16_t y,
                     uint16_t colour){
 
+  if(!node_id) return;
+
   if(y<0 || y>=scenegraph[node_id].h) return;
   if(x<0 || x>=scenegraph[node_id].w) return;
 
@@ -120,6 +122,7 @@ void g2d_node_rectangle(uint8_t node_id,
                         int16_t x, int16_t y,
                         uint16_t w, uint16_t h,
                         uint16_t colour) {
+  if(!node_id) return;
 
   for(int py = y; py < (y + h); py++){
     for(int px = x; px < (x + w); px++){
@@ -165,6 +168,8 @@ static bool draw_char(int16_t x, int16_t y,
 
 void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
                    uint16_t colour, uint16_t bg, uint8_t size){
+
+  if(!node_id) return;
 
   int16_t ox=scenegraph[node_id].x+x;
   int16_t oy=scenegraph[node_id].y+y;

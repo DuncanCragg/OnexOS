@@ -203,7 +203,7 @@ static bool is_inside(uint8_t n, int16_t x, int16_t y){
   return true;
 }
 
-bool g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
+void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
 
   static uint16_t last_tx=0;
   static uint16_t last_ty=0;
@@ -233,9 +233,8 @@ bool g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
     if(!cbn) continue;
 
     scenegraph[cbn].cb(down, dx, dy, cbn, scenegraph[cbn].cb_args);
-    return true;
+    return;
   }
-  return false;
 }
 
 // ------------

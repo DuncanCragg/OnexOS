@@ -44,11 +44,7 @@ uint8_t g2d_node_create(uint8_t  parent_id,
                         g2d_node_cb cb,
                         void* cb_args);
 
-#define G2D_OK         0
-#define G2D_X_OUTSIDE  1
-#define G2D_Y_OUTSIDE  2
-
-uint8_t g2d_node_pixel(uint8_t node_id, int16_t x, int16_t y, uint16_t colour);
+void g2d_node_pixel(uint8_t node_id, int16_t x, int16_t y, uint16_t colour);
 
 void g2d_node_rectangle(uint8_t node_id, int16_t x, int16_t y,
                         uint16_t w, uint16_t h, uint16_t colour);

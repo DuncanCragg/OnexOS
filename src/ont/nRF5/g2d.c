@@ -103,19 +103,17 @@ static void set_pixel(int16_t x, int16_t y, uint16_t colour) {
   lcd_buffer[i+1] = colour & 0xff;
 }
 
-uint8_t g2d_node_pixel(uint8_t node_id,
-                       int16_t x, int16_t y,
-                       uint16_t colour){
+void g2d_node_pixel(uint8_t node_id,
+                    int16_t x, int16_t y,
+                    uint16_t colour){
 
-  if(y<0 || y>=scenegraph[node_id].h) return G2D_Y_OUTSIDE;
-  if(x<0 || x>=scenegraph[node_id].w) return G2D_X_OUTSIDE;
+  if(y<0 || y>=scenegraph[node_id].h) return;
+  if(x<0 || x>=scenegraph[node_id].w) return;
 
   int16_t offx=scenegraph[node_id].x;
   int16_t offy=scenegraph[node_id].y;
 
   set_pixel(offx + x, offy + y, colour);
-
-  return G2D_OK;
 }
 
 void g2d_node_rectangle(uint8_t node_id,

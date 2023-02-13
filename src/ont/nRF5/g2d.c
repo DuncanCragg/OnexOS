@@ -94,6 +94,7 @@ uint8_t g2d_node_create(uint8_t parent_id,
 static void set_pixel(int16_t x, int16_t y, uint16_t colour) {
 
   if(x<0 || y<0) return;
+  if(x>ST7789_WIDTH || y>ST7789_HEIGHT) return;
 
   uint32_t i = 2 * (x + (y * ST7789_WIDTH));
 
@@ -174,12 +175,7 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
   int16_t ox=scenegraph[node_id].x+x;
   int16_t oy=scenegraph[node_id].y+y;
 
-  int p = 0;
-  for(int i = 0; i < strlen(text); i++){
-    if(ox + (p * 6 * size) >= (ST7789_WIDTH - 6)){
-      ox = -(p * 6 * size);
-      oy += (8 * size);
-    }
+  for(int i = 0, p = 0; i < strlen(text); i++){
     if(draw_char(ox + (p * 6 * size), oy, text[i], colour, bg, size)) {
       p++;
     }

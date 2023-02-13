@@ -23,48 +23,46 @@
 
 void g2d_init();
 
-void g2d_clear_screen(uint8_t colour);
-     // 8 bits * 2, so 0x00 => 0x0000, 0x77 => 0x7777, etc
+void g2d_clear_screen(uint8_t colour); // 8 bits * 2
+
 void g2d_render();
 
-typedef void (*g2d_sprite_cb)(bool down,
-                              int16_t dx, int16_t dy,
-                              uint8_t sprite_id, void* args);
+typedef void (*g2d_node_cb)(bool down,
+                            int16_t dx, int16_t dy,
+                            uint8_t node_id, void* args);
 
 /*
- Create sprite at (x,y) size (w,h) with cb(id, args).
+ Create node at (x,y) size (w,h) with cb(id, args).
  Returns id (which increments from 1)
- If parent_id==0 then it's the root sprite and the
+ If parent_id==0 then it's the root node and the
  whole previous tree is discarded so can be rebuilt.
- max # sprites: 255
+ max # nodes: 255
 */
-uint8_t g2d_sprite_create(uint8_t  parent_id,
-                          int16_t x,
-                          int16_t y,
-                          uint16_t w,
-                          uint16_t h,
-                          g2d_sprite_cb cb,
-                          void* cb_args);
+uint8_t g2d_node_create(uint8_t  parent_id,
+                        int16_t x, int16_t y,
+                        uint16_t w, uint16_t h,
+                        g2d_node_cb cb,
+                        void* cb_args);
 
 #define G2D_OK         0
 #define G2D_X_OUTSIDE  1
 #define G2D_Y_OUTSIDE  2
 
-uint8_t g2d_sprite_pixel(uint8_t sprite_id, int16_t x, int16_t y, uint16_t colour);
+uint8_t g2d_node_pixel(uint8_t node_id, int16_t x, int16_t y, uint16_t colour);
 
-void g2d_sprite_rectangle(uint8_t sprite_id, int16_t x, int16_t y,
-                          uint16_t w, uint16_t h, uint16_t colour);
+void g2d_node_rectangle(uint8_t node_id, int16_t x, int16_t y,
+                        uint16_t w, uint16_t h, uint16_t colour);
 
-void g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
-                     uint16_t colour, uint16_t bg, uint8_t size);
+void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
+                   uint16_t colour, uint16_t bg, uint8_t size);
 
-uint16_t g2d_sprite_width(uint8_t sprite_id);
-uint16_t g2d_sprite_height(uint8_t sprite_id);
+uint16_t g2d_node_width(uint8_t node_id);
+uint16_t g2d_node_height(uint8_t node_id);
 
 /*
  Fire callback for touch events in deepest/newest bounding box.
  Set "down" true while touched plus one more set to false for up
 */
-bool g2d_sprite_touch_event(bool down, uint16_t tx, uint16_t ty);
+bool g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty);
 
 #endif

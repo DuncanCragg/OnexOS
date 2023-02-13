@@ -36,36 +36,34 @@ void g2d_render() {
 
 // ------------
 
-typedef struct sg_node sg_node;
+typedef struct g2d_node g2d_node;
 
-typedef struct sg_node {
+typedef struct g2d_node {
 
  int16_t x;
  int16_t y;
  // rot scale // not in parent like in the 3D stuff
  uint16_t w;
  uint16_t h;
- // bounding box set and clips, or set by g2d as max
+
  bool boost;   // give 25% extra bounding box on touch
 
- g2d_sprite_cb cb;
- void* cb_args;
+ g2d_node_cb cb;
+ void*       cb_args;
 
  uint8_t parent;
 
-} sg_node;
+} g2d_node;
 
-static sg_node scenegraph[256]; // 1..255
+static g2d_node scenegraph[256]; // 1..255
 
-static volatile uint8_t next_node=1; // index is same as sprite id, 0th not used
+static volatile uint8_t next_node=1; // index is same as node id, 0th not used
 
-uint8_t g2d_sprite_create(uint8_t parent_id,
-                          int16_t x,
-                          int16_t y,
-                          uint16_t w,
-                          uint16_t h,
-                          g2d_sprite_cb cb,
-                          void* cb_args){
+uint8_t g2d_node_create(uint8_t parent_id,
+                        int16_t x, int16_t y,
+                        uint16_t w, uint16_t h,
+                        g2d_node_cb cb,
+                        void* cb_args){
 
   if(!parent_id) next_node=1;
 
@@ -105,29 +103,29 @@ static void set_pixel(int16_t x, int16_t y, uint16_t colour) {
   lcd_buffer[i+1] = colour & 0xff;
 }
 
-uint8_t g2d_sprite_pixel(uint8_t sprite_id,
-                         int16_t x, int16_t y,
-                         uint16_t colour){
+uint8_t g2d_node_pixel(uint8_t node_id,
+                       int16_t x, int16_t y,
+                       uint16_t colour){
 
-  if(y<0 || y>=scenegraph[sprite_id].h) return G2D_Y_OUTSIDE;
-  if(x<0 || x>=scenegraph[sprite_id].w) return G2D_X_OUTSIDE;
+  if(y<0 || y>=scenegraph[node_id].h) return G2D_Y_OUTSIDE;
+  if(x<0 || x>=scenegraph[node_id].w) return G2D_X_OUTSIDE;
 
-  int16_t offx=scenegraph[sprite_id].x;
-  int16_t offy=scenegraph[sprite_id].y;
+  int16_t offx=scenegraph[node_id].x;
+  int16_t offy=scenegraph[node_id].y;
 
   set_pixel(offx + x, offy + y, colour);
 
   return G2D_OK;
 }
 
-void g2d_sprite_rectangle(uint8_t sprite_id,
-                          int16_t x, int16_t y,
-                          uint16_t w, uint16_t h,
-                          uint16_t colour) {
+void g2d_node_rectangle(uint8_t node_id,
+                        int16_t x, int16_t y,
+                        uint16_t w, uint16_t h,
+                        uint16_t colour) {
 
   for(int py = y; py < (y + h); py++){
     for(int px = x; px < (x + w); px++){
-      g2d_sprite_pixel(sprite_id, px, py, colour);
+      g2d_node_pixel(node_id, px, py, colour);
     }
   }
 }
@@ -167,11 +165,11 @@ static bool draw_char(int16_t x, int16_t y,
   return true;
 }
 
-void g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
-                     uint16_t colour, uint16_t bg, uint8_t size){
+void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
+                   uint16_t colour, uint16_t bg, uint8_t size){
 
-  int16_t ox=scenegraph[sprite_id].x+x;
-  int16_t oy=scenegraph[sprite_id].y+y;
+  int16_t ox=scenegraph[node_id].x+x;
+  int16_t oy=scenegraph[node_id].y+y;
 
   int p = 0;
   for(int i = 0; i < strlen(text); i++){
@@ -187,12 +185,12 @@ void g2d_sprite_text(uint8_t sprite_id, int16_t x, int16_t y, char* text,
 
 // ---------------------------------------------------
 
-uint16_t g2d_sprite_width(uint8_t sprite_id){
-  return scenegraph[sprite_id].w;
+uint16_t g2d_node_width(uint8_t node_id){
+  return scenegraph[node_id].w;
 }
 
-uint16_t g2d_sprite_height(uint8_t sprite_id){
-  return scenegraph[sprite_id].h;
+uint16_t g2d_node_height(uint8_t node_id){
+  return scenegraph[node_id].h;
 }
 
 // ---------------------------------------------------
@@ -207,7 +205,7 @@ static bool is_inside(uint8_t n, int16_t x, int16_t y){
   return true;
 }
 
-bool g2d_sprite_touch_event(bool down, uint16_t tx, uint16_t ty){
+bool g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
 
   static uint16_t last_tx=0;
   static uint16_t last_ty=0;

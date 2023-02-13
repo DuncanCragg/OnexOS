@@ -374,7 +374,7 @@ int main()
     if(touch_pending){
       touch_pending=false;
       touch_events_seen++;
-      g2d_sprite_touch_event(touch_down, touch_info.x, touch_info.y);
+      g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
       onex_run_evaluators(useruid, (void*)1);
     }
   }
@@ -383,7 +383,7 @@ int main()
 // ------------------- evaluators ----------------
 
 // XXX separated out to remind me to extend the respective APIs to allow sprintf-style
-// XXX varargs for path segments, value construction and g2d_sprite_text()
+// XXX varargs for path segments, value construction and g2d_node_text()
 static char pathbuf[64];
 static char valuebuf[64];
 static char g2dbuf[64];
@@ -519,19 +519,19 @@ bool evaluate_backlight_out(object* o, void* d)
 // -------------------- User --------------------------
 
 
-void show_touch_point(uint8_t sprid){
-  uint8_t touch_sprid = g2d_sprite_create(sprid, touch_info.x, touch_info.y, 5,5, 0,0);
-  g2d_sprite_rectangle(touch_sprid, 0,0, 5,5, G2D_MAGENTA);
+void show_touch_point(uint8_t g2d_node){
+  uint8_t touch_g2d_node = g2d_node_create(g2d_node, touch_info.x, touch_info.y, 5,5, 0,0);
+  g2d_node_rectangle(touch_g2d_node, 0,0, 5,5, G2D_MAGENTA);
 }
 
 static uint8_t fps = 111;
 
-static void draw_by_type(char* p, uint8_t sprid);
-static void draw_watch(char* p, uint8_t sprid);
-static void draw_notes(char* p, uint8_t sprid);
-static void draw_about(char* p, uint8_t sprid);
-static void draw_list(char* p, uint8_t sprid);
-static void draw_default(char* p, uint8_t sprid);
+static void draw_by_type(char* p, uint8_t g2d_node);
+static void draw_watch(char* p, uint8_t g2d_node);
+static void draw_notes(char* p, uint8_t g2d_node);
+static void draw_about(char* p, uint8_t g2d_node);
+static void draw_list(char* p, uint8_t g2d_node);
+static void draw_default(char* p, uint8_t g2d_node);
 
 bool evaluate_user(object* o, void* d) {
 
@@ -551,11 +551,11 @@ bool evaluate_user(object* o, void* d) {
     button_action=BUTTON_ACTION_NONE;
   }
 
-  uint8_t root_sprid = g2d_sprite_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0);
+  uint8_t root_g2d_node = g2d_node_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0);
 
   g2d_clear_screen(0xff);
 
-  draw_by_type("viewing", root_sprid);
+  draw_by_type("viewing", root_g2d_node);
 
   g2d_render();
 
@@ -576,15 +576,15 @@ bool evaluate_user(object* o, void* d) {
   return true;
 }
 
-void draw_by_type(char* p, uint8_t sprid)
+void draw_by_type(char* p, uint8_t g2d_node)
 {
   snprintf(pathbuf, 64, "%s:is", p);
 
-  if(object_property_contains(user, pathbuf, "watch")) draw_watch(p, sprid);   else
-  if(object_property_contains(user, pathbuf, "note" )) draw_notes(p, sprid);   else
-  if(object_property_contains(user, pathbuf, "about")) draw_about(p, sprid);   else
-  if(object_property_contains(user, pathbuf, "list"))  draw_list(p, sprid);    else
-                                                       draw_default(p, sprid);
+  if(object_property_contains(user, pathbuf, "watch")) draw_watch(p, g2d_node);   else
+  if(object_property_contains(user, pathbuf, "note" )) draw_notes(p, g2d_node);   else
+  if(object_property_contains(user, pathbuf, "about")) draw_about(p, g2d_node);   else
+  if(object_property_contains(user, pathbuf, "list"))  draw_list(p, g2d_node);    else
+                                                       draw_default(p, g2d_node);
 }
 
 static int16_t  scroll_bot_lim=0;
@@ -593,7 +593,7 @@ static bool     scroll_bot=false;
 static bool     scrolling=false;
 static int16_t  scroll_offset=0;
 
-void list_cb(bool down, int16_t dx, int16_t dy, uint8_t sprid, void* uid){
+void list_cb(bool down, int16_t dx, int16_t dy, uint8_t g2d_node, void* uid){
 
   if(down){
     if(dx+dy){
@@ -615,7 +615,7 @@ void list_cb(bool down, int16_t dx, int16_t dy, uint8_t sprid, void* uid){
 
 static char pathbufrec[64];
 
-void draw_list(char* p, uint8_t sprid) {
+void draw_list(char* p, uint8_t g2d_node) {
 
   snprintf(pathbuf, 64, "%s:list", p);
 
@@ -630,15 +630,15 @@ void draw_list(char* p, uint8_t sprid) {
   scroll_top = (scroll_offset > 0);
   scroll_bot = (scroll_offset < scroll_bot_lim);
 
-  uint8_t scroll_sprid = g2d_sprite_create(sprid,
-                                           0, scroll_offset,
-                                           g2d_sprite_width(sprid),
-                                           scroll_height,
-                                           list_cb, 0);
+  uint8_t scroll_g2d_node = g2d_node_create(g2d_node,
+                                            0, scroll_offset,
+                                            g2d_node_width(g2d_node),
+                                            scroll_height,
+                                            list_cb, 0);
 
-  uint16_t stretch_height=g2d_sprite_height(sprid)/3;
-  if(scroll_top) g2d_sprite_rectangle(sprid, 20,0,                200,stretch_height, G2D_GREY_1D);
-  if(scroll_bot) g2d_sprite_rectangle(sprid, 20,2*stretch_height, 200,stretch_height, G2D_GREY_1D);
+  uint16_t stretch_height=g2d_node_height(g2d_node)/3;
+  if(scroll_top) g2d_node_rectangle(g2d_node, 20,0,                200,stretch_height, G2D_GREY_1D);
+  if(scroll_bot) g2d_node_rectangle(g2d_node, 20,2*stretch_height, 200,stretch_height, G2D_GREY_1D);
 
   uint16_t y=10;
 
@@ -649,9 +649,9 @@ void draw_list(char* p, uint8_t sprid) {
 
     char* uid=object_property(user, pathbufrec);
 
-    uint8_t child_sprid = g2d_sprite_create(scroll_sprid, 20,y, 200,CHILD_HEIGHT-10, list_cb, uid);
+    uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10, list_cb, uid);
 
-    if(child_sprid) draw_by_type(pathbufrec, child_sprid);
+    if(child_g2d_node) draw_by_type(pathbufrec, child_g2d_node);
 
     y+=CHILD_HEIGHT;
   }
@@ -662,7 +662,7 @@ void draw_list(char* p, uint8_t sprid) {
 #define BATTERY_HIGH     G2D_GREEN
 #define BATTERY_CHARGING G2D_BLUE
 
-void draw_watch(char* path, uint8_t sprid)
+void draw_watch(char* path, uint8_t g2d_node)
 {
   snprintf(pathbuf, 64, "%s:battery:percent", path);
   char* pc=object_property(   user, pathbuf);
@@ -689,23 +689,23 @@ void draw_watch(char* path, uint8_t sprid)
   struct tm tms={0};
   localtime_r(&est, &tms);
 
-  if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
-    g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_YELLOW);
+  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_YELLOW);
     strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
-    g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_YELLOW, 3);
+    g2d_node_text(g2d_node, 10,20, g2dbuf, G2D_BLUE, G2D_YELLOW, 3);
     return;
   }
 
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
-  g2d_sprite_text(sprid, 10, 90, g2dbuf, G2D_BLUE, G2D_WHITE, 7);
+  g2d_node_text(g2d_node, 10, 90, g2dbuf, G2D_BLUE, G2D_WHITE, 7);
 
   if(!h24){
     strftime(g2dbuf, 64, "%p", &tms);
-    g2d_sprite_text(sprid, 100, 150, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+    g2d_node_text(g2d_node, 100, 150, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
   }
 
   strftime(g2dbuf, 64, "%a %d %h", &tms);
-  g2d_sprite_text(sprid, 30, 210, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+  g2d_node_text(g2d_node, 30, 210, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
@@ -718,7 +718,7 @@ void draw_watch(char* path, uint8_t sprid)
   else         batt_col=BATTERY_LOW;
 
   snprintf(g2dbuf, 64, "%d", pcnum);
-  g2d_sprite_text(sprid, 10, 30, g2dbuf, batt_col, G2D_WHITE, 3);
+  g2d_node_text(g2d_node, 10, 30, g2dbuf, batt_col, G2D_WHITE, 3);
 }
 
 // ---------------------- keyboard ------------------------
@@ -775,7 +775,7 @@ static unsigned char key_pages[7][20]={
 #define SELECT_PAGE 14
 #define DELETE_LAST 16
 
-void key_hit(bool down, int16_t dx, int16_t dy, uint8_t key_sprid, void* kiv){
+void key_hit(bool down, int16_t dx, int16_t dy, uint8_t key_g2d_node, void* kiv){
 
   if(down) return;
 
@@ -821,7 +821,7 @@ void key_hit(bool down, int16_t dx, int16_t dy, uint8_t key_sprid, void* kiv){
 #define KEY_H_SPACE 7
 #define KEY_V_SPACE 1
 
-static void build_keyboard(uint8_t kbd_sprid){
+static void build_keyboard(uint8_t kbd_g2d_node){
 
   uint16_t kx=0;
   uint16_t ky=0;
@@ -835,17 +835,17 @@ static void build_keyboard(uint8_t kbd_sprid){
 
       unsigned char key = key_pages[kbpg][ki];
 
-      uint8_t key_sprid = g2d_sprite_create(kbd_sprid,
-                                            kx, ky,
-                                            KEY_SIZE+KEY_H_SPACE, KEY_SIZE+KEY_V_SPACE,
-                                            key_hit, (void*)ki);
+      uint8_t key_g2d_node = g2d_node_create(kbd_g2d_node,
+                                             kx, ky,
+                                             KEY_SIZE+KEY_H_SPACE, KEY_SIZE+KEY_V_SPACE,
+                                             key_hit, (void*)ki);
 
       uint16_t key_bg=(pressed==key)? G2D_GREEN: G2D_GREY_1A;
 
-      g2d_sprite_rectangle(key_sprid, KEY_H_SPACE/2,KEY_V_SPACE/2, KEY_SIZE,KEY_SIZE, key_bg);
+      g2d_node_rectangle(key_g2d_node, KEY_H_SPACE/2,KEY_V_SPACE/2, KEY_SIZE,KEY_SIZE, key_bg);
 
       snprintf(g2dbuf, 64, "%c", key);
-      g2d_sprite_text(key_sprid, 13,7, g2dbuf, G2D_BLACK, key_bg, 4);
+      g2d_node_text(key_g2d_node, 13,7, g2dbuf, G2D_BLACK, key_bg, 4);
 
       kx+=KEY_SIZE+KEY_H_SPACE;
     }
@@ -859,46 +859,46 @@ static void build_keyboard(uint8_t kbd_sprid){
 #define KBDSTART_X 0
 #define KBDSTART_Y 105
 
-void draw_notes(char* path, uint8_t sprid) {
+void draw_notes(char* path, uint8_t g2d_node) {
 
-  if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
-    g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_GREEN);
+  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_GREEN);
     snprintf(g2dbuf, 64, "%s|", typed);
-    g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_GREEN, 2);
+    g2d_node_text(g2d_node, 10,20, g2dbuf, G2D_BLUE, G2D_GREEN, 2);
     return;
   }
 
-  uint8_t typed_sprid = g2d_sprite_create(sprid, 5,5, 200,80, 0,0);
+  uint8_t typed_g2d_node = g2d_node_create(g2d_node, 5,5, 200,80, 0,0);
 
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_sprite_text(typed_sprid, 10,5, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  g2d_node_text(typed_g2d_node, 10,5, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
   snprintf(g2dbuf, 64, "%s|", typed);
-  g2d_sprite_text(typed_sprid, 5,25, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  g2d_node_text(typed_g2d_node, 5,25, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
 
-  uint8_t kbd_sprid = g2d_sprite_create(sprid,
-                                        KBDSTART_X, KBDSTART_Y,
-                                        (g2d_sprite_width(sprid) - KBDSTART_X * 2),
-                                        (g2d_sprite_height(sprid) - KBDSTART_Y),
-                                        0, 0);
+  uint8_t kbd_g2d_node = g2d_node_create(g2d_node,
+                                         KBDSTART_X, KBDSTART_Y,
+                                         (g2d_node_width(g2d_node) - KBDSTART_X * 2),
+                                         (g2d_node_height(g2d_node) - KBDSTART_Y),
+                                         0, 0);
 
-  build_keyboard(kbd_sprid);
+  build_keyboard(kbd_g2d_node);
 
-  show_touch_point(sprid);
+  show_touch_point(g2d_node);
 }
 
-void draw_about(char* path, uint8_t sprid) {
+void draw_about(char* path, uint8_t g2d_node) {
 
   snprintf(pathbuf, 64, "%s:cpu", path);
   char* cpu=object_property(user, pathbuf);
 
-  if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
-    g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_CYAN);
+  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_CYAN);
 //  uint32_t touch_events_percent = (100*touch_events_seen)/(1+touch_events);
 //  snprintf(g2dbuf, 64, "%ld%% %ldms", touch_events_percent, loop_time);
     snprintf(g2dbuf, 64, "%dfps %ldms", fps, loop_time);
-    g2d_sprite_text(sprid, 10,20, g2dbuf, G2D_BLUE, G2D_CYAN, 3);
+    g2d_node_text(g2d_node, 10,20, g2dbuf, G2D_BLUE, G2D_CYAN, 3);
     return;
   }
 
@@ -906,25 +906,25 @@ void draw_about(char* path, uint8_t sprid) {
   char* bnf=object_property_values(user, pathbuf);
 
   snprintf(g2dbuf, 64, "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_sprite_text(sprid, 20, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  g2d_node_text(g2d_node, 20, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
 
   snprintf(g2dbuf, 64, "cpu: %s", cpu);
-  g2d_sprite_text(sprid, 10, 70, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+  g2d_node_text(g2d_node, 10, 70, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
 
   snprintf(g2dbuf, 64, "build: %s", bnf);
-  g2d_sprite_text(sprid, 10, 190, g2dbuf, G2D_BLUE, G2D_WHITE, 1);
+  g2d_node_text(g2d_node, 10, 190, g2dbuf, G2D_BLUE, G2D_WHITE, 1);
 }
 
-void draw_default(char* path, uint8_t sprid)
+void draw_default(char* path, uint8_t g2d_node)
 {
   snprintf(pathbuf, 64, "%s:is", path);
   char* is=object_property_values(user, pathbuf);
-  if(g2d_sprite_height(sprid) < ST7789_HEIGHT){
-    g2d_sprite_rectangle(sprid, 0,0, g2d_sprite_width(sprid),g2d_sprite_height(sprid), G2D_MAGENTA);
-    g2d_sprite_text(sprid, 10,20, is, G2D_BLACK, G2D_MAGENTA, 3);
+  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_MAGENTA);
+    g2d_node_text(g2d_node, 10,20, is, G2D_BLACK, G2D_MAGENTA, 3);
     return;
   }
-  g2d_sprite_text(sprid, 10, 190, "no show", G2D_BLUE, G2D_WHITE, 1);
+  g2d_node_text(g2d_node, 10, 190, "no show", G2D_BLUE, G2D_WHITE, 1);
 }
 
 #if defined(LOG_TO_GFX)

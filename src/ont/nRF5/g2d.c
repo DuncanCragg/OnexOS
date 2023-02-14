@@ -94,9 +94,9 @@ uint8_t g2d_node_create(uint8_t parent_id,
 static void show_overflow_warning(){
   #define WARNING_X 100
   #define WARNING_Y 100
-  #define WARNING_S 10
-  for(int py = WARNING_Y; py < WARNING_Y+WARNING_S; py++){
-    for(int px = WARNING_X; px < WARNING_X+WARNING_S; px++){
+  #define WARNING_S 50
+  for(uint16_t py = WARNING_Y; py < WARNING_Y+WARNING_S; py++){
+    for(uint16_t px = WARNING_X; px < WARNING_X+WARNING_S; px++){
       uint32_t i = 2 * (px + (py * ST7789_WIDTH));
       uint16_t colour = G2D_RED;
       lcd_buffer[i]   = colour >> 8;

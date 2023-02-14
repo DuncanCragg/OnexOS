@@ -11,6 +11,18 @@
 
 // ---------------------------------
 
+#define min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+      __typeof__ (b) _b = (b); \
+      _a < _b ? _a : _b; })
+
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+      __typeof__ (b) _b = (b); \
+      _a > _b ? _a : _b; })
+
+// ---------------------------------
+
 // drawing into huge buffer, plus basic fonts, from ATC1441
 // XXX using ST7789_* here!
 
@@ -40,11 +52,15 @@ typedef struct g2d_node g2d_node;
 
 typedef struct g2d_node {
 
- int16_t x;
- int16_t y;
- uint16_t w;
- uint16_t h;
+ int16_t xtl;
+ int16_t ytl;
+ int16_t xbr;
+ int16_t ybr;
 
+ uint16_t clip_xtl;
+ uint16_t clip_ytl;
+ uint16_t clip_xbr;
+ uint16_t clip_ybr;
 
  g2d_node_cb cb;
  void*       cb_args;
@@ -67,20 +83,38 @@ uint8_t g2d_node_create(uint8_t parent_id,
 
   if(!next_node) return 0; // wrapped over 255 to 0
 
-  int16_t offx=0;
-  int16_t offy=0;
+  int16_t  parent_xtl=0;
+  int16_t  parent_ytl=0;
+  uint16_t parent_clip_xtl=0;
+  uint16_t parent_clip_ytl=0;
+  uint16_t parent_clip_xbr=32000;
+  uint16_t parent_clip_ybr=32000;
   if(parent_id){
-    offx=scenegraph[parent_id].x;
-    offy=scenegraph[parent_id].y;
+    parent_xtl=scenegraph[parent_id].xtl;
+    parent_ytl=scenegraph[parent_id].ytl;
+    parent_clip_xtl=scenegraph[parent_id].clip_xtl;
+    parent_clip_ytl=scenegraph[parent_id].clip_ytl;
+    parent_clip_xbr=scenegraph[parent_id].clip_xbr;
+    parent_clip_ybr=scenegraph[parent_id].clip_ybr;
   }
 
-  if(offy+y+h < 0)             return 0;
-  if(offy+y   > ST7789_HEIGHT) return 0;
+// XXX
+//if(parent_y+y+h < 0)             return 0;
+//if(parent_y+y   > ST7789_HEIGHT) return 0;
+// XXX
 
-  scenegraph[next_node].x=offx+x;
-  scenegraph[next_node].y=offy+y;
-  scenegraph[next_node].w=w;
-  scenegraph[next_node].h=h;
+  int16_t xtl=parent_xtl+x;
+  int16_t ytl=parent_ytl+y;
+  int16_t xbr=parent_xtl+x+w;
+  int16_t ybr=parent_ytl+y+h;
+  scenegraph[next_node].xtl=xtl;
+  scenegraph[next_node].ytl=ytl;
+  scenegraph[next_node].xbr=xbr;
+  scenegraph[next_node].ybr=ybr;
+  scenegraph[next_node].clip_xtl=max(parent_clip_xtl, max(xtl,0));
+  scenegraph[next_node].clip_ytl=max(parent_clip_ytl, max(ytl,0));
+  scenegraph[next_node].clip_xbr=min(parent_clip_xbr, max(xbr,0));
+  scenegraph[next_node].clip_ybr=min(parent_clip_ybr, max(ybr,0));
   scenegraph[next_node].cb=cb;
   scenegraph[next_node].cb_args=cb_args;
   scenegraph[next_node].parent=parent_id;
@@ -102,15 +136,13 @@ static void show_overflow_warning(){
   }
 }
 
-static void set_pixel(int16_t x, int16_t y, uint16_t colour) {
+static void set_pixel(uint16_t x, uint16_t y, uint16_t colour) {
 
   uint32_t i = 2 * (x + (y * ST7789_WIDTH));
 
 #define CHECK_BUFFER_OVERFLOW
 #if defined(CHECK_BUFFER_OVERFLOW)  // can drop this once clipping in place
-  if(x<0 || y<0 || x>=ST7789_WIDTH || y>=ST7789_HEIGHT ||
-     i<0 || i+1 >= sizeof(lcd_buffer)  ){
-
+  if(x>=ST7789_WIDTH || y>=ST7789_HEIGHT || i+1 >= sizeof(lcd_buffer)){
     show_overflow_warning();
     return;
   }
@@ -120,20 +152,6 @@ static void set_pixel(int16_t x, int16_t y, uint16_t colour) {
 }
 
 // ------------- geometry
-void g2d_node_pixel(uint8_t node_id,
-                    int16_t x, int16_t y,
-                    uint16_t colour){
-
-  if(!node_id) return;
-
-  if(y<0 || y>=scenegraph[node_id].h) return;
-  if(x<0 || x>=scenegraph[node_id].w) return;
-
-  int16_t offx=scenegraph[node_id].x;
-  int16_t offy=scenegraph[node_id].y;
-
-  set_pixel(offx + x, offy + y, colour);
-}
 
 void g2d_node_rectangle(uint8_t node_id,
                         int16_t x, int16_t y,
@@ -141,9 +159,18 @@ void g2d_node_rectangle(uint8_t node_id,
                         uint16_t colour) {
   if(!node_id) return;
 
-  for(int py = y; py < (y + h); py++){
-    for(int px = x; px < (x + w); px++){
-      g2d_node_pixel(node_id, px, py, colour);
+  uint16_t xtlx=max(scenegraph[node_id].xtl+x,0);
+  uint16_t ytly=max(scenegraph[node_id].ytl+y,0);
+  uint16_t xbrw=max(xtlx+w,0);
+  uint16_t ybrh=max(ytly+h,0);
+  uint16_t cxtl=max(xtlx, scenegraph[node_id].clip_xtl);
+  uint16_t cytl=max(ytly, scenegraph[node_id].clip_ytl);
+  uint16_t cxbr=min(xbrw, scenegraph[node_id].clip_xbr);
+  uint16_t cybr=min(ybrh, scenegraph[node_id].clip_ybr);
+
+  for(uint16_t py = cytl; py < cybr; py++){
+    for(uint16_t px = cxtl; px < cxbr; px++){
+      set_pixel(px, py, colour);
     }
   }
 }
@@ -152,12 +179,12 @@ void g2d_node_rectangle(uint8_t node_id,
 
 static void draw_rect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t colour) {
 
-  if(y+h<0 || y>ST7789_HEIGHT) return;
-  if(x+w<0 || x>ST7789_WIDTH) return;
+  uint16_t yh=min(max(y+h,0), ST7789_HEIGHT);
+  uint16_t xw=min(max(x+w,0), ST7789_WIDTH);
 
-  for(int px = x; px < (x + w); px++){
-    for(int py = y; py < (y + h); py++){
-      set_pixel(px, py,  colour);
+  for(uint16_t py = y; py < yh; py++){
+    for(uint16_t px = x; px < xw; px++){
+      set_pixel(px, py, colour);
     }
   }
 }
@@ -189,8 +216,8 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
 
   if(!node_id) return;
 
-  int16_t ox=scenegraph[node_id].x+x;
-  int16_t oy=scenegraph[node_id].y+y;
+  int16_t ox=scenegraph[node_id].xtl+x;
+  int16_t oy=scenegraph[node_id].ytl+y;
 
   for(uint16_t i = 0, p = 0; i < strlen(text); i++){
     if(draw_char(ox + (p * 6 * size), oy, text[i], colour, bg, size)) {
@@ -202,22 +229,18 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
 // ---------------------------------------------------
 
 uint16_t g2d_node_width(uint8_t node_id){
-  return scenegraph[node_id].w;
+  return scenegraph[node_id].xbr - scenegraph[node_id].xtl;
 }
 
 uint16_t g2d_node_height(uint8_t node_id){
-  return scenegraph[node_id].h;
+  return scenegraph[node_id].ybr - scenegraph[node_id].ytl;
 }
 
 // ---------------------------------------------------
 
 static bool is_inside(uint8_t n, int16_t x, int16_t y){
-  int16_t bbx=scenegraph[n].x;
-  int16_t bby=scenegraph[n].y;
-  uint16_t bbw=scenegraph[n].w;
-  uint16_t bbh=scenegraph[n].h;
-  if(x<bbx || x>bbx+bbw) return false;
-  if(y<bby || y>bby+bbh) return false;
+  if(x<scenegraph[n].xtl || x>scenegraph[n].xbr) return false;
+  if(y<scenegraph[n].ytl || y>scenegraph[n].ybr) return false;
   return true;
 }
 

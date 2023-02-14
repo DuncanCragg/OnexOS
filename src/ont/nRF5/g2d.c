@@ -210,8 +210,10 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
 
         uint16_t col=(line & 1)? colour: bg;
 
-        uint16_t yh=min(ry+size, ST7789_HEIGHT);
-        uint16_t xw=min(rx+size, ST7789_WIDTH);
+        uint16_t yh=ry+size;
+        uint16_t xw=rx+size;
+        if(yh > cybr) yh=cybr;
+        if(xw > cxbr) xw=cxbr;
 
         for(uint16_t py = ry; py < yh; py++){
           for(uint16_t px = rx; px < xw; px++){

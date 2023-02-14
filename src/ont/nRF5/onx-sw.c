@@ -553,7 +553,7 @@ bool evaluate_user(object* o, void* d) {
 
   uint8_t root_g2d_node = g2d_node_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0);
 
-  g2d_clear_screen(0xff);
+  g2d_clear_screen(0x00);
 
   draw_by_type("viewing", root_g2d_node);
 
@@ -697,15 +697,15 @@ void draw_watch(char* path, uint8_t g2d_node)
   }
 
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
-  g2d_node_text(g2d_node, 10, 90, g2dbuf, G2D_BLUE, G2D_WHITE, 7);
+  g2d_node_text(g2d_node, 10, 90, g2dbuf, G2D_BLUE, G2D_BLACK, 7);
 
   if(!h24){
     strftime(g2dbuf, 64, "%p", &tms);
-    g2d_node_text(g2d_node, 100, 150, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+    g2d_node_text(g2d_node, 100, 150, g2dbuf, G2D_BLUE, G2D_BLACK, 3);
   }
 
   strftime(g2dbuf, 64, "%a %d %h", &tms);
-  g2d_node_text(g2d_node, 30, 210, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+  g2d_node_text(g2d_node, 30, 210, g2dbuf, G2D_BLUE, G2D_BLACK, 3);
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
@@ -718,7 +718,7 @@ void draw_watch(char* path, uint8_t g2d_node)
   else         batt_col=BATTERY_LOW;
 
   snprintf(g2dbuf, 64, "%d", pcnum);
-  g2d_node_text(g2d_node, 10, 30, g2dbuf, batt_col, G2D_WHITE, 3);
+  g2d_node_text(g2d_node, 10, 30, g2dbuf, batt_col, G2D_BLACK, 3);
 }
 
 // ---------------------- keyboard ------------------------
@@ -871,10 +871,10 @@ void draw_notes(char* path, uint8_t g2d_node) {
   uint8_t typed_g2d_node = g2d_node_create(g2d_node, 5,5, 200,80, 0,0);
 
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_node_text(typed_g2d_node, 10,5, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  g2d_node_text(typed_g2d_node, 10,5, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
 
   snprintf(g2dbuf, 64, "%s|", typed);
-  g2d_node_text(typed_g2d_node, 5,25, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  g2d_node_text(typed_g2d_node, 5,25, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
 
 
   uint8_t kbd_g2d_node = g2d_node_create(g2d_node,
@@ -906,13 +906,13 @@ void draw_about(char* path, uint8_t g2d_node) {
   char* bnf=object_property_values(user, pathbuf);
 
   snprintf(g2dbuf, 64, "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_node_text(g2d_node, 20, 20, g2dbuf, G2D_BLUE, G2D_WHITE, 2);
+  g2d_node_text(g2d_node, 20, 20, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
 
   snprintf(g2dbuf, 64, "cpu: %s", cpu);
-  g2d_node_text(g2d_node, 10, 70, g2dbuf, G2D_BLUE, G2D_WHITE, 3);
+  g2d_node_text(g2d_node, 10, 70, g2dbuf, G2D_BLUE, G2D_BLACK, 3);
 
   snprintf(g2dbuf, 64, "build: %s", bnf);
-  g2d_node_text(g2d_node, 10, 190, g2dbuf, G2D_BLUE, G2D_WHITE, 1);
+  g2d_node_text(g2d_node, 10, 190, g2dbuf, G2D_BLUE, G2D_BLACK, 1);
 }
 
 void draw_default(char* path, uint8_t g2d_node)
@@ -924,7 +924,7 @@ void draw_default(char* path, uint8_t g2d_node)
     g2d_node_text(g2d_node, 10,20, is, G2D_BLACK, G2D_MAGENTA, 3);
     return;
   }
-  g2d_node_text(g2d_node, 10, 190, "no show", G2D_BLUE, G2D_WHITE, 1);
+  g2d_node_text(g2d_node, 10, 190, "no show", G2D_BLUE, G2D_BLACK, 1);
 }
 
 #if defined(LOG_TO_GFX)

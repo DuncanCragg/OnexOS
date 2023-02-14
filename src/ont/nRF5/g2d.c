@@ -42,11 +42,9 @@ typedef struct g2d_node {
 
  int16_t x;
  int16_t y;
- // rot scale // not in parent like in the 3D stuff
  uint16_t w;
  uint16_t h;
 
- bool boost;   // give 25% extra bounding box on touch
 
  g2d_node_cb cb;
  void*       cb_args;
@@ -67,7 +65,7 @@ uint8_t g2d_node_create(uint8_t parent_id,
 
   if(!parent_id) next_node=1;
 
-  if(next_node==256) return 0;
+  if(!next_node) return 0; // wrapped over 255 to 0
 
   int16_t offx=0;
   int16_t offy=0;
@@ -83,7 +81,6 @@ uint8_t g2d_node_create(uint8_t parent_id,
   scenegraph[next_node].y=offy+y;
   scenegraph[next_node].w=w;
   scenegraph[next_node].h=h;
-  scenegraph[next_node].boost=false;
   scenegraph[next_node].cb=cb;
   scenegraph[next_node].cb_args=cb_args;
   scenegraph[next_node].parent=parent_id;
@@ -122,6 +119,7 @@ static void set_pixel(int16_t x, int16_t y, uint16_t colour) {
   lcd_buffer[i+1] = colour & 0xff;
 }
 
+// ------------- geometry
 void g2d_node_pixel(uint8_t node_id,
                     int16_t x, int16_t y,
                     uint16_t colour){
@@ -150,7 +148,9 @@ void g2d_node_rectangle(uint8_t node_id,
   }
 }
 
-static void display_rect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t colour) {
+// ------------- text
+
+static void draw_rect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t colour) {
 
   if(y+h<0 || y>ST7789_HEIGHT) return;
   if(x+w<0 || x>ST7789_WIDTH) return;
@@ -166,21 +166,20 @@ static bool draw_char(int16_t x, int16_t y,
                       unsigned char c,
                       uint16_t colour, uint16_t bg, uint16_t size) {
 
-  if (c < 32) return false;
-  if (c >= 127) return false;
+  if(c < 32 || c >= 127) return false;
 
-  for (int8_t i = 0; i < 5; i++) {
+  for(uint8_t i = 0; i < 5; i++) {
 
     uint8_t line = font57[c * 5 + i];
 
-    for (int8_t j = 0; j < 8; j++, line >>= 1){
+    for(uint8_t j = 0; j < 8; j++, line >>= 1){
 
-      if(line & 1)     display_rect(x + i * size, y + j * size, size, size, colour);
+      if(line & 1)     draw_rect(x + i * size, y + j * size, size, size, colour);
       else
-      if(bg != colour) display_rect(x + i * size, y + j * size, size, size, bg);
+      if(bg != colour) draw_rect(x + i * size, y + j * size, size, size, bg);
     }
   }
-  if(bg != colour) display_rect(x + 5 * size, y, size, 8 * size, bg);
+  if(bg != colour) draw_rect(x + 5 * size, y, size, 8 * size, bg);
 
   return true;
 }
@@ -193,7 +192,7 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
   int16_t ox=scenegraph[node_id].x+x;
   int16_t oy=scenegraph[node_id].y+y;
 
-  for(int i = 0, p = 0; i < strlen(text); i++){
+  for(uint16_t i = 0, p = 0; i < strlen(text); i++){
     if(draw_char(ox + (p * 6 * size), oy, text[i], colour, bg, size)) {
       p++;
     }

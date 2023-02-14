@@ -1,3 +1,4 @@
+#define CHECK_BUFFER_OVERFLOW
 
 #include <string.h>
 #include <stdint.h>
@@ -24,7 +25,7 @@
 // ---------------------------------
 
 // drawing into huge buffer, plus basic fonts, from ATC1441
-// XXX using ST7789_* here!
+// XXX using ST7789_* here! define SCREEN_WIDTH in board file
 
 #define LCD_BUFFER_SIZE ((ST7789_WIDTH * ST7789_HEIGHT) * 2)
 static uint8_t lcd_buffer[LCD_BUFFER_SIZE + 4];
@@ -138,7 +139,6 @@ static void set_pixel(uint16_t x, uint16_t y, uint16_t colour) {
 
   uint32_t i = 2 * (x + (y * ST7789_WIDTH));
 
-#define CHECK_BUFFER_OVERFLOW
 #if defined(CHECK_BUFFER_OVERFLOW)  // can drop this once clipping in place
   if(x>=ST7789_WIDTH || y>=ST7789_HEIGHT || i+1 >= sizeof(lcd_buffer)){
     show_overflow_warning();

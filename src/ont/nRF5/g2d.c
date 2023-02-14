@@ -98,10 +98,8 @@ uint8_t g2d_node_create(uint8_t parent_id,
     parent_clip_ybr=scenegraph[parent_id].clip_ybr;
   }
 
-// XXX
-//if(parent_y+y+h < 0)             return 0;
-//if(parent_y+y   > ST7789_HEIGHT) return 0;
-// XXX
+  if(parent_ytl+y+h < 0)             return 0;
+  if(parent_ytl+y   > ST7789_HEIGHT) return 0;
 
   int16_t xtl=parent_xtl+x;
   int16_t ytl=parent_ytl+y;

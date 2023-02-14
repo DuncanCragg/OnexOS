@@ -189,28 +189,6 @@ static void draw_rect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t col
   }
 }
 
-static bool draw_char(int16_t x, int16_t y,
-                      unsigned char c,
-                      uint16_t colour, uint16_t bg, uint16_t size) {
-
-  if(c < 32 || c >= 127) return false;
-
-  for(uint8_t i = 0; i < 5; i++) {
-
-    uint8_t line = font57[c * 5 + i];
-
-    for(uint8_t j = 0; j < 8; j++, line >>= 1){
-
-      if(line & 1)     draw_rect(x + i * size, y + j * size, size, size, colour);
-      else
-      if(bg != colour) draw_rect(x + i * size, y + j * size, size, size, bg);
-    }
-  }
-  if(bg != colour) draw_rect(x + 5 * size, y, size, 8 * size, bg);
-
-  return true;
-}
-
 void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
                    uint16_t colour, uint16_t bg, uint8_t size){
 
@@ -219,10 +197,26 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
   int16_t ox=scenegraph[node_id].xtl+x;
   int16_t oy=scenegraph[node_id].ytl+y;
 
-  for(uint16_t i = 0, p = 0; i < strlen(text); i++){
-    if(draw_char(ox + (p * 6 * size), oy, text[i], colour, bg, size)) {
-      p++;
+  for(uint16_t p = 0; p < strlen(text); p++){
+
+    int16_t xx = ox + (p * 6 * size);
+
+    unsigned char c=text[p];
+
+    if(c < 32 || c >= 127) c=' ';
+
+    for(uint8_t i = 0; i < 5; i++) {
+
+      uint8_t line = font57[c * 5 + i];
+
+      for(uint8_t j = 0; j < 8; j++, line >>= 1){
+
+        if(line & 1)     draw_rect(xx + i * size, oy + j * size, size, size, colour);
+        else
+        if(bg != colour) draw_rect(xx + i * size, oy + j * size, size, size, bg);
+      }
     }
+    if(bg != colour) draw_rect(xx + 5 * size, oy, size, 8 * size, bg);
   }
 }
 

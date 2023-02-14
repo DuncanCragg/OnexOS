@@ -175,10 +175,10 @@ void g2d_node_rectangle(uint8_t node_id,
 
 // ------------- text
 
-static void draw_rect(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t colour) {
+static void draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t colour) {
 
-  uint16_t yh=min(max(y+h,0), ST7789_HEIGHT);
-  uint16_t xw=min(max(x+w,0), ST7789_WIDTH);
+  uint16_t yh=min(y+h, ST7789_HEIGHT);
+  uint16_t xw=min(x+w, ST7789_WIDTH);
 
   for(uint16_t py = y; py < yh; py++){
     for(uint16_t px = x; px < xw; px++){
@@ -220,9 +220,8 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
         int16_t ry=oy + j * size;
         if(ry<cytl || ry>=cybr) continue;
 
-        if(line & 1)     draw_rect(rx, ry, size, size, colour);
-        else
-        if(bg != colour) draw_rect(rx, ry, size, size, bg);
+        uint16_t col=(line & 1)? colour: bg;
+        draw_rect(rx, ry, size, size, col);
       }
     }
   }

@@ -887,8 +887,7 @@ void draw_notes(char* path, uint8_t g2d_node) {
 
   uint8_t kbd_g2d_node = g2d_node_create(g2d_node,
                                          kbd_x, kbd_y,
-                                         (g2d_node_width(g2d_node) - KBDSTART_X * 2),
-                                         (g2d_node_height(g2d_node) - KBDSTART_Y + 10),
+                                         g2d_node_width(g2d_node), 215,
                                          kbd_drag, 0);
   g2d_node_rectangle(kbd_g2d_node, 0,0,
                      g2d_node_width(kbd_g2d_node),g2d_node_height(kbd_g2d_node),

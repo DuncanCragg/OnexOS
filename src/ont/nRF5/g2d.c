@@ -243,16 +243,30 @@ void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
     last_ty=0;
   }
 
-  for(uint8_t n=next_node-1; n; n--){
+  static uint8_t     cb_node=0;
+  static g2d_node_cb drag_cb=0;
+  static void*       drag_cb_args=0;
+
+  for(uint8_t n=next_node-1; n && !cb_node; n--){
 
     if(!is_inside(n, tx, ty)) continue;
 
-    uint8_t cbn=n;
-    while(cbn && !scenegraph[cbn].cb) cbn=scenegraph[cbn].parent;
-    if(!cbn) continue;
+    cb_node=n;
+    while(cb_node && !scenegraph[cb_node].cb) cb_node=scenegraph[cb_node].parent;
+  }
 
-    scenegraph[cbn].cb(down, dx, dy, cbn, scenegraph[cbn].cb_args);
-    return;
+  if(cb_node){
+    if(!drag_cb){
+      drag_cb=scenegraph[cb_node].cb;
+      drag_cb_args=scenegraph[cb_node].cb_args;
+    }
+    drag_cb(down, dx, dy, drag_cb_args);
+  }
+
+  if(!down){
+    cb_node=0;
+    drag_cb=0;
+    drag_cb_args=0;
   }
 }
 

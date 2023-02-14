@@ -29,7 +29,7 @@ void g2d_render();
 
 typedef void (*g2d_node_cb)(bool down,
                             int16_t dx, int16_t dy,
-                            uint8_t node_id, void* args);
+                            void* args);
 
 /*
  Create node at (x,y) size (w,h) with cb(id, args).

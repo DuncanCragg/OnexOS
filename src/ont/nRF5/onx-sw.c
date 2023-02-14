@@ -593,7 +593,7 @@ static bool     scroll_bot=false;
 static bool     scrolling=false;
 static int16_t  scroll_offset=0;
 
-void list_cb(bool down, int16_t dx, int16_t dy, uint8_t g2d_node, void* uid){
+void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
 
   if(down){
     if(dx+dy){
@@ -775,7 +775,7 @@ static unsigned char key_pages[7][20]={
 #define SELECT_PAGE 14
 #define DELETE_LAST 16
 
-void key_hit(bool down, int16_t dx, int16_t dy, uint8_t key_g2d_node, void* kiv){
+void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
 
   if(down) return;
 

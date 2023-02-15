@@ -244,8 +244,8 @@ uint16_t g2d_node_height(uint8_t node_id){
 // ---------------------------------------------------
 
 static bool is_inside(uint8_t n, int16_t x, int16_t y){
-  if(x<scenegraph[n].xtl || x>scenegraph[n].xbr) return false;
-  if(y<scenegraph[n].ytl || y>scenegraph[n].ybr) return false;
+  if(x<scenegraph[n].clip_xtl || x>scenegraph[n].clip_xbr) return false;
+  if(y<scenegraph[n].clip_ytl || y>scenegraph[n].clip_ybr) return false;
   return true;
 }
 

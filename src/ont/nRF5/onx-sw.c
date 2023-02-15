@@ -241,7 +241,7 @@ int main()
   watchface=object_new(0, "editable",  "watchface editable", 6);
   home     =object_new(0, "editable",  "list editable", 4);
   watch    =object_new(0, "default",   "watch", 4);
-  notes    =object_new(0, "editable",  "note editable", 4);
+  notes    =object_new(0, "editable",  "text editable", 4);
   about    =object_new(0, "about",     "about", 4);
 
   deviceuid   =object_property(onex_device_object, "UID");
@@ -277,6 +277,29 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
+  object_property_add(notes, "text", "Welcome to OnexOS!");
+  object_property_add(notes, "text", "and the Object Network");
+  object_property_add(notes, "text", "A Smartwatch OS");
+  object_property_add(notes, "text", "Without Apps");
+  object_property_add(notes, "text", "app-killer, inversion");
+  object_property_add(notes, "text", "only see data in HX");
+  object_property_add(notes, "text", "no apps, like the Web");
+  object_property_add(notes, "text", "all our data");
+  object_property_add(notes, "text", "just stuff - objects");
+  object_property_add(notes, "text", "you can link to and list");
+  object_property_add(notes, "text", "little objects");
+  object_property_add(notes, "text", "of all kinds of data");
+  object_property_add(notes, "text", "linked together");
+  object_property_add(notes, "text", "semantic");
+  object_property_add(notes, "text", "on our own devices");
+  object_property_add(notes, "text", "hosted by you (including you)");
+  object_property_add(notes, "text", "sewn together");
+  object_property_add(notes, "text", "into a global, shared fabric");
+  object_property_add(notes, "text", "which we can all Link up");
+  object_property_add(notes, "text", "into a shared global data fabric");
+  object_property_add(notes, "text", "like the Web");
+  object_property_add(notes, "text", "mesh");
+  object_property_add(notes, "text", "see objects inside other watches");
 
   object_property_add(home, "list", notesuid);
   object_property_add(home, "list", watchuid);
@@ -582,7 +605,7 @@ void draw_by_type(char* p, uint8_t g2d_node)
   snprintf(pathbuf, 64, "%s:is", p);
 
   if(object_property_contains(user, pathbuf, "watch")) draw_watch(p, g2d_node);   else
-  if(object_property_contains(user, pathbuf, "note" )) draw_notes(p, g2d_node);   else
+  if(object_property_contains(user, pathbuf, "text" )) draw_notes(p, g2d_node);   else
   if(object_property_contains(user, pathbuf, "about")) draw_about(p, g2d_node);   else
   if(object_property_contains(user, pathbuf, "list"))  draw_list(p, g2d_node);    else
                                                        draw_default(p, g2d_node);
@@ -879,25 +902,47 @@ static void show_keyboard(uint8_t g2d_node){
 
 // --------------------------------------------------------
 
+static int16_t text_scroll_offset=0;
 
+void text_cb(bool down, int16_t dx, int16_t dy, void* uid){
+  if(!down || dx+dy==0) return;
+  text_scroll_offset+=dy;
+}
 
 void draw_notes(char* path, uint8_t g2d_node) {
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+    snprintf(pathbuf, 64, "%s:text:1", path);
+    char* line1=object_property(user, pathbuf);
+    snprintf(pathbuf, 64, "%s:text:2", path);
+    char* line2=object_property(user, pathbuf);
     g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_GREEN/6);
-    snprintf(g2dbuf, 64, "%s|", typed);
-    g2d_node_text(g2d_node, 10,20, g2dbuf, G2D_WHITE, G2D_GREEN/6, 2);
+    g2d_node_text(g2d_node, 10,20, line1, G2D_WHITE, G2D_GREEN/6, 2);
+    g2d_node_text(g2d_node, 10,40, line2, G2D_WHITE, G2D_GREEN/6, 2);
     return;
   }
 
-  uint8_t typed_g2d_node = g2d_node_create(g2d_node, 5,5, 200,80, 0,0);
-
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_node_text(typed_g2d_node, 10,5, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
+  g2d_node_text(g2d_node, 10,5, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
 
-  snprintf(g2dbuf, 64, "%s|", typed);
-  g2d_node_text(typed_g2d_node, 5,25, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
+  #define LINE_HEIGHT 20
 
+  snprintf(pathbuf, 64, "%s:text", path);
+  uint16_t lines=object_property_length(user, pathbuf);
+
+  uint16_t scroll_height=lines*LINE_HEIGHT;
+
+  uint8_t text_scroll_g2d_node = g2d_node_create(g2d_node,
+                                                 5, text_scroll_offset,
+                                                 g2d_node_width(g2d_node),
+                                                 scroll_height,
+                                                 text_cb, 0);
+  if(!text_scroll_g2d_node) return;
+
+  for(uint16_t j=1; j<=lines; j++){
+    char* line=object_property_get_n(user, pathbuf, j);
+    g2d_node_text(text_scroll_g2d_node, 0,(j-1)*LINE_HEIGHT, line, G2D_WHITE, G2D_BLACK, 2);
+  }
 
   show_keyboard(g2d_node);
 

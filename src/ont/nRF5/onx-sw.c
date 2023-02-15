@@ -277,30 +277,31 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
-  object_property_add(home, (char*)"list", notesuid);
-  object_property_add(home, (char*)"list", watchuid);
-  object_property_add(home, (char*)"list", aboutuid);
-  object_property_add(home, (char*)"list", notesuid);
-  object_property_add(home, (char*)"list", watchuid);
-  object_property_add(home, (char*)"list", aboutuid);
-  object_property_add(home, (char*)"list", notesuid);
-  object_property_add(home, (char*)"list", watchuid);
-  object_property_add(home, (char*)"list", aboutuid);
 
-  object_property_set(watch, (char*)"battery",   batteryuid);
-  object_property_set(watch, (char*)"watchface", watchfaceuid);
+  object_property_add(home, "list", notesuid);
+  object_property_add(home, "list", watchuid);
+  object_property_add(home, "list", aboutuid);
+  object_property_add(home, "list", notesuid);
+  object_property_add(home, "list", watchuid);
+  object_property_add(home, "list", aboutuid);
+  object_property_add(home, "list", notesuid);
+  object_property_add(home, "list", watchuid);
+  object_property_add(home, "list", aboutuid);
+
+  object_property_set(watch, "battery",   batteryuid);
+  object_property_set(watch, "watchface", watchfaceuid);
 
   object_property_set(user, "viewing", watchuid);
 
-  object_property_add(onex_device_object, (char*)"user", useruid);
-  object_property_add(onex_device_object, (char*)"io",   batteryuid);
-  object_property_add(onex_device_object, (char*)"io",   touchuid);
+  object_property_add(onex_device_object, "user", useruid);
+  object_property_add(onex_device_object, "io",   batteryuid);
+  object_property_add(onex_device_object, "io",   touchuid);
 #if defined(DO_LATER)
-  object_property_add(onex_device_object, (char*)"io",   motionuid);
+  object_property_add(onex_device_object, "io",   motionuid);
 #endif
-  object_property_add(onex_device_object, (char*)"io",   buttonuid);
-  object_property_add(onex_device_object, (char*)"io",   backlightuid);
-  object_property_add(onex_device_object, (char*)"io",   clockuid);
+  object_property_add(onex_device_object, "io",   buttonuid);
+  object_property_add(onex_device_object, "io",   backlightuid);
+  object_property_add(onex_device_object, "io",   clockuid);
 
   onex_run_evaluators(useruid, 0);
   onex_run_evaluators(batteryuid, 0);
@@ -610,7 +611,7 @@ void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
     if(scroll_bot) scroll_offset=scroll_bot_lim;
     return;
   }
-  if(uid) object_property_set(user, "viewing", (char*)uid);
+  if(uid) object_property_set(user, "viewing", uid);
 }
 
 static char pathbufrec[64];

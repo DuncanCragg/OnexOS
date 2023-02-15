@@ -626,15 +626,16 @@ void draw_list(char* p, uint8_t g2d_node) {
 
   uint16_t scroll_height=10+ll*CHILD_HEIGHT+10;
 
-  scroll_bot_lim = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;
-  scroll_top = (scroll_offset > 0);
-  scroll_bot = (scroll_offset < scroll_bot_lim);
-
   uint8_t scroll_g2d_node = g2d_node_create(g2d_node,
                                             0, scroll_offset,
                                             g2d_node_width(g2d_node),
                                             scroll_height,
                                             list_cb, 0);
+  if(!scroll_g2d_node) return;
+
+  scroll_bot_lim = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;
+  scroll_top = (scroll_offset > 0);
+  scroll_bot = (scroll_offset < scroll_bot_lim);
 
   uint16_t stretch_height=g2d_node_height(g2d_node)/3;
   if(scroll_top) g2d_node_rectangle(g2d_node, 20,0,                200,stretch_height, G2D_GREY_1D);
@@ -841,7 +842,6 @@ static void build_keyboard(uint8_t kbd_g2d_node){
                                              key_hit, (void*)ki);
 
       uint16_t key_bg=(pressed==key)? G2D_GREEN: G2D_GREY_1A;
-
       g2d_node_rectangle(key_g2d_node, KEY_H_SPACE/2,KEY_V_SPACE/2, KEY_SIZE,KEY_SIZE, key_bg);
 
       snprintf(g2dbuf, 64, "%c", key);
@@ -893,7 +893,7 @@ void draw_notes(char* path, uint8_t g2d_node) {
                      g2d_node_width(kbd_g2d_node),g2d_node_height(kbd_g2d_node),
                      G2D_GREY_F);
 
-  build_keyboard(kbd_g2d_node);
+  if(kbd_g2d_node) build_keyboard(kbd_g2d_node);
 
   show_touch_point(g2d_node);
 }

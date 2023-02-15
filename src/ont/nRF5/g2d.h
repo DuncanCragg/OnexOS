@@ -34,9 +34,12 @@ typedef void (*g2d_node_cb)(bool down,
 /*
  Create node at (x,y) size (w,h) with cb(id, args).
  Returns id (which increments from 1)
+ Max # nodes: 255
+ Caller must check return id=0 which means either
+ no more nodes free or the node would be invisible
  If parent_id==0 then it's the root node and the
  whole previous tree is discarded so can be rebuilt.
- max # nodes: 255
+ .. so beware of using a 0 return id as the next parent!
 */
 uint8_t g2d_node_create(uint8_t  parent_id,
                         int16_t x, int16_t y,

@@ -98,22 +98,26 @@ uint8_t g2d_node_create(uint8_t parent_id,
     parent_clip_xbr=scenegraph[parent_id].clip_xbr;
     parent_clip_ybr=scenegraph[parent_id].clip_ybr;
   }
-
-  if(parent_ytl+y+h < 0)             return 0;
-  if(parent_ytl+y   > ST7789_HEIGHT) return 0;
-
   int16_t xtl=parent_xtl+x;
   int16_t ytl=parent_ytl+y;
   int16_t xbr=parent_xtl+x+w;
   int16_t ybr=parent_ytl+y+h;
+
+  if(xtl > parent_clip_xbr) return 0;
+  if(ytl > parent_clip_ybr) return 0;
+  if(xbr < parent_clip_xtl) return 0;
+  if(ybr < parent_clip_ytl) return 0;
+
   scenegraph[next_node].xtl=xtl;
   scenegraph[next_node].ytl=ytl;
   scenegraph[next_node].xbr=xbr;
   scenegraph[next_node].ybr=ybr;
+
   scenegraph[next_node].clip_xtl=max(parent_clip_xtl, max(xtl,0));
   scenegraph[next_node].clip_ytl=max(parent_clip_ytl, max(ytl,0));
   scenegraph[next_node].clip_xbr=min(parent_clip_xbr, max(xbr,0));
   scenegraph[next_node].clip_ybr=min(parent_clip_ybr, max(ybr,0));
+
   scenegraph[next_node].cb=cb;
   scenegraph[next_node].cb_args=cb_args;
   scenegraph[next_node].parent=parent_id;

@@ -823,7 +823,29 @@ void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
 #define KEY_H_SPACE 7
 #define KEY_V_SPACE 1
 
-static void build_keyboard(uint8_t kbd_g2d_node){
+#define KBDSTART_X 0
+#define KBDSTART_Y 75
+
+static int16_t kbd_x=KBDSTART_X;
+static int16_t kbd_y=KBDSTART_Y;
+
+void kbd_drag(bool down, int16_t dx, int16_t dy, void* arg){
+  if(!down || dx+dy==0) return;
+  kbd_x+=dx;
+  kbd_y+=dy;
+}
+
+static void show_keyboard(uint8_t g2d_node){
+
+  uint8_t kbd_g2d_node = g2d_node_create(g2d_node,
+                                         kbd_x, kbd_y,
+                                         g2d_node_width(g2d_node), 215,
+                                         kbd_drag, 0);
+  if(!kbd_g2d_node) return;
+
+  g2d_node_rectangle(kbd_g2d_node, 0,0,
+                     g2d_node_width(kbd_g2d_node),g2d_node_height(kbd_g2d_node),
+                     G2D_GREY_F);
 
   uint16_t kx=0;
   uint16_t ky=30;
@@ -857,17 +879,7 @@ static void build_keyboard(uint8_t kbd_g2d_node){
 
 // --------------------------------------------------------
 
-#define KBDSTART_X 0
-#define KBDSTART_Y 75
 
-static int16_t kbd_x=KBDSTART_X;
-static int16_t kbd_y=KBDSTART_Y;
-
-void kbd_drag(bool down, int16_t dx, int16_t dy, void* arg){
-  if(!down || dx+dy==0) return;
-  kbd_x+=dx;
-  kbd_y+=dy;
-}
 
 void draw_notes(char* path, uint8_t g2d_node) {
 
@@ -886,15 +898,8 @@ void draw_notes(char* path, uint8_t g2d_node) {
   snprintf(g2dbuf, 64, "%s|", typed);
   g2d_node_text(typed_g2d_node, 5,25, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
 
-  uint8_t kbd_g2d_node = g2d_node_create(g2d_node,
-                                         kbd_x, kbd_y,
-                                         g2d_node_width(g2d_node), 215,
-                                         kbd_drag, 0);
-  g2d_node_rectangle(kbd_g2d_node, 0,0,
-                     g2d_node_width(kbd_g2d_node),g2d_node_height(kbd_g2d_node),
-                     G2D_GREY_F);
 
-  if(kbd_g2d_node) build_keyboard(kbd_g2d_node);
+  show_keyboard(g2d_node);
 
   show_touch_point(g2d_node);
 }

@@ -300,7 +300,26 @@ int main()
                             "like the Web "
                             "mesh "
                             "see objects inside other watches "
-                            "---------------------------------";
+                            "add their objects to your lists "
+                            "internet after mesh "
+                            "we create a global data fabric "
+                            "from all our objects linked up "
+                            "a two-way dynamic data Web "
+                            "a global Meshaverse "
+                            "chat Freedom Meshaverse "
+                            "spanning the planet "
+                            "animated by us "
+                            "internally-animated "
+                            "programmed like a spreadsheet "
+                            "objects are live - you see them change "
+                            "you have live presence as an object yourself "
+                            "SS-like PL over objects as objects themselves "
+                            "can share rule object set objects "
+                            "like 'downloading an app' "
+                            "internally-animated "
+                            "with behaviour rules you can write yourself "
+                            "and animate ourselves with spreadsheet-like rules "
+                            "----- ----- ----- ----- -----";
   char* strtok_state = 0;
   char* word = strtok_r(note_text, " ", &strtok_state);
   while(word){

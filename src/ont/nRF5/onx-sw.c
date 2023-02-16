@@ -277,29 +277,36 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
-  object_property_add(notes, "text", "Welcome to OnexOS!");
-  object_property_add(notes, "text", "and the Object Network");
-  object_property_add(notes, "text", "A Smartwatch OS");
-  object_property_add(notes, "text", "Without Apps");
-  object_property_add(notes, "text", "app-killer, inversion");
-  object_property_add(notes, "text", "only see data in HX");
-  object_property_add(notes, "text", "no apps, like the Web");
-  object_property_add(notes, "text", "all our data");
-  object_property_add(notes, "text", "just stuff - objects");
-  object_property_add(notes, "text", "you can link to and list");
-  object_property_add(notes, "text", "little objects");
-  object_property_add(notes, "text", "of all kinds of data");
-  object_property_add(notes, "text", "linked together");
-  object_property_add(notes, "text", "semantic");
-  object_property_add(notes, "text", "on our own devices");
-  object_property_add(notes, "text", "hosted by you (including you)");
-  object_property_add(notes, "text", "sewn together");
-  object_property_add(notes, "text", "into a global, shared fabric");
-  object_property_add(notes, "text", "which we can all Link up");
-  object_property_add(notes, "text", "into a shared global data fabric");
-  object_property_add(notes, "text", "like the Web");
-  object_property_add(notes, "text", "mesh");
-  object_property_add(notes, "text", "see objects inside other watches");
+  static char note_text[] = "Welcome to OnexOS! "
+                            "and the Object Network "
+                            "A Smartwatch OS "
+                            "Without Apps "
+                            "app-killer, inversion "
+                            "only see data in HX "
+                            "no apps, like the Web "
+                            "all our data "
+                            "just stuff - objects "
+                            "you can link to and list "
+                            "little objects "
+                            "of all kinds of data "
+                            "linked together "
+                            "semantic "
+                            "on our own devices "
+                            "hosted by you (including you) "
+                            "sewn together "
+                            "into a global, shared fabric "
+                            "which we can all Link up "
+                            "into a shared global data fabric "
+                            "like the Web "
+                            "mesh "
+                            "see objects inside other watches "
+                            "---------------------------------";
+  char* strtok_state = 0;
+  char* word = strtok_r(note_text, " ", &strtok_state);
+  while(word){
+    object_property_add(notes, "text", word);
+    word = strtok_r(0, " ", &strtok_state);
+  }
 
   object_property_add(home, "list", notesuid);
   object_property_add(home, "list", watchuid);
@@ -922,38 +929,47 @@ void draw_notes(char* path, uint8_t g2d_node) {
     return;
   }
 
+  #define SIDE_MARGIN 20
+  #define TOP_MARGIN 30
+  #define LINE_HEIGHT 20
+  #define WORD_SPACING 8
+
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
   g2d_node_text(g2d_node, 10,5, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
 
-  #define LINE_HEIGHT 20
+  int16_t wd=g2d_node_width(g2d_node)-2*SIDE_MARGIN;
+  int16_t ht=g2d_node_height(g2d_node)-2*TOP_MARGIN;
+  if(wd<0 || ht<0) return;
+
+  uint8_t text_container_g2d_node = g2d_node_create(g2d_node,
+                                                    SIDE_MARGIN,TOP_MARGIN, wd,ht,
+                                                    text_cb, 0);
+  if(!text_container_g2d_node) return;
 
   snprintf(pathbuf, 64, "%s:text", path);
-  uint16_t lines=object_property_length(user, pathbuf);
+  uint16_t words=object_property_length(user, pathbuf);
 
-  uint16_t scroll_height=lines*LINE_HEIGHT;
+  uint16_t scroll_height=(words*2/5)*LINE_HEIGHT;
 
-  uint8_t text_scroll_g2d_node = g2d_node_create(g2d_node,
-                                                 5, text_scroll_offset,
-                                                 g2d_node_width(g2d_node),
-                                                 scroll_height,
+  uint8_t text_scroll_g2d_node = g2d_node_create(text_container_g2d_node,
+                                                 0, text_scroll_offset,
+                                                 wd, scroll_height,
                                                  text_cb, 0);
-  if(!text_scroll_g2d_node) return;
-
-  for(uint16_t j=1; j<=lines; j++){
-    snprintf(valuebuf, 64, "%s", object_property_get_n(user, pathbuf, j));
-    char* strtok_state = 0;
-    char* word = strtok_r(valuebuf, " ", &strtok_state);
+  if(text_scroll_g2d_node){
     uint16_t k=0;
-    while(word){
+    uint16_t j=0;
+    for(uint16_t w=1; w<=words; w++){
+      char* word = object_property_get_n(user, pathbuf, w);
       uint16_t word_width=g2d_text_width(word, 2);
+      if(k+word_width > wd){
+        k=0; j++;
+      }
       uint8_t word_g2d_node = g2d_node_create(text_scroll_g2d_node,
-                                              k, (j-1)*LINE_HEIGHT,
+                                              k, j*LINE_HEIGHT,
                                               word_width, LINE_HEIGHT,
                                               0,0);
       g2d_node_text(word_g2d_node, 0,0, word, G2D_WHITE, G2D_BLACK, 2);
-      #define WORD_SPACING 8
       k+=word_width+WORD_SPACING;
-      word = strtok_r(0, " ", &strtok_state);
     }
   }
 

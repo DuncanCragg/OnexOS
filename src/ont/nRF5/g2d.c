@@ -1,4 +1,6 @@
 
+// drawing into huge buffer, plus basic fonts, based on code from ATC1441
+
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -22,8 +24,6 @@
       _a > _b ? _a : _b; })
 
 // ---------------------------------
-
-// drawing into huge buffer, plus basic fonts, from ATC1441
 // XXX using ST7789_* here! define SCREEN_WIDTH in board file
 
 #define LCD_BUFFER_SIZE ((ST7789_WIDTH * ST7789_HEIGHT) * 2)

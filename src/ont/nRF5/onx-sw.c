@@ -940,8 +940,21 @@ void draw_notes(char* path, uint8_t g2d_node) {
   if(!text_scroll_g2d_node) return;
 
   for(uint16_t j=1; j<=lines; j++){
-    char* line=object_property_get_n(user, pathbuf, j);
-    g2d_node_text(text_scroll_g2d_node, 0,(j-1)*LINE_HEIGHT, line, G2D_WHITE, G2D_BLACK, 2);
+    snprintf(valuebuf, 64, "%s", object_property_get_n(user, pathbuf, j));
+    char* strtok_state = 0;
+    char* word = strtok_r(valuebuf, " ", &strtok_state);
+    uint16_t k=0;
+    while(word){
+      uint16_t word_width=g2d_text_width(word, 2);
+      uint8_t word_g2d_node = g2d_node_create(text_scroll_g2d_node,
+                                              k, (j-1)*LINE_HEIGHT,
+                                              word_width, LINE_HEIGHT,
+                                              0,0);
+      g2d_node_text(word_g2d_node, 0,0, word, G2D_WHITE, G2D_BLACK, 2);
+      #define WORD_SPACING 8
+      k+=word_width+WORD_SPACING;
+      word = strtok_r(0, " ", &strtok_state);
+    }
   }
 
   show_keyboard(g2d_node);

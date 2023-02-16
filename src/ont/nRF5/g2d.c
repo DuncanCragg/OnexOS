@@ -1,4 +1,3 @@
-#define CHECK_BUFFER_OVERFLOW
 
 #include <string.h>
 #include <stdint.h>
@@ -125,30 +124,8 @@ uint8_t g2d_node_create(uint8_t parent_id,
   return next_node++;
 }
 
-static void show_overflow_warning(){
-  #define WARNING_X 100
-  #define WARNING_Y 100
-  #define WARNING_S 50
-  for(uint16_t py = WARNING_Y; py < WARNING_Y+WARNING_S; py++){
-    for(uint16_t px = WARNING_X; px < WARNING_X+WARNING_S; px++){
-      uint32_t i = 2 * (px + (py * ST7789_WIDTH));
-      uint16_t colour = G2D_RED;
-      lcd_buffer[i]   = colour >> 8;
-      lcd_buffer[i+1] = colour & 0xff;
-    }
-  }
-}
-
 static void set_pixel(uint16_t x, uint16_t y, uint16_t colour) {
-
   uint32_t i = 2 * (x + (y * ST7789_WIDTH));
-
-#if defined(CHECK_BUFFER_OVERFLOW)  // can drop this once clipping in place
-  if(x>=ST7789_WIDTH || y>=ST7789_HEIGHT || i+1 >= sizeof(lcd_buffer)){
-    show_overflow_warning();
-    return;
-  }
-#endif
   lcd_buffer[i]   = colour >> 8;
   lcd_buffer[i+1] = colour & 0xff;
 }

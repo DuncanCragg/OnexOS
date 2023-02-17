@@ -937,7 +937,16 @@ void text_cb(bool down, int16_t dx, int16_t dy, void* arg){
 }
 
 void word_cb(bool down, int16_t dx, int16_t dy, void* wi){
-  word_index=(uint16_t)(uint32_t)wi;
+  static bool scrolled=false;
+  if(!down){
+    if(!scrolled) word_index=(uint16_t)(uint32_t)wi;
+    else scrolled=false;
+  }
+  else
+  if(dx+dy!=0){
+    text_scroll_offset+=dy;
+    scrolled=true;
+  }
 }
 
 void draw_notes(char* path, uint8_t g2d_node) {

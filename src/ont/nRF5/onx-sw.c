@@ -774,6 +774,7 @@ void draw_watch(char* path, uint8_t g2d_node)
 
 // ---------------------- keyboard ------------------------
 
+static uint16_t word_index=1;
 static char    typed[64];
 static uint8_t cursor=0;
 
@@ -873,7 +874,7 @@ void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
 #define KEY_V_SPACE 1
 
 #define KBDSTART_X 0
-#define KBDSTART_Y 75
+#define KBDSTART_Y 200
 
 static int16_t kbd_x=KBDSTART_X;
 static int16_t kbd_y=KBDSTART_Y;
@@ -930,9 +931,13 @@ static void show_keyboard(uint8_t g2d_node){
 
 static int16_t text_scroll_offset=0;
 
-void text_cb(bool down, int16_t dx, int16_t dy, void* uid){
+void text_cb(bool down, int16_t dx, int16_t dy, void* arg){
   if(!down || dx+dy==0) return;
   text_scroll_offset+=dy;
+}
+
+void word_cb(bool down, int16_t dx, int16_t dy, void* wi){
+  word_index=(uint16_t)(uint32_t)wi;
 }
 
 void draw_notes(char* path, uint8_t g2d_node) {
@@ -948,10 +953,11 @@ void draw_notes(char* path, uint8_t g2d_node) {
     return;
   }
 
-  #define SIDE_MARGIN 20
-  #define TOP_MARGIN 30
-  #define LINE_HEIGHT 20
-  #define WORD_SPACING 8
+  #define SIDE_MARGIN  20
+  #define TOP_MARGIN   30
+  #define LINE_HEIGHT  20
+  #define WORD_SPACING  7
+  #define CURSOR_WIDTH  3
 
   snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
   g2d_node_text(g2d_node, 10,5, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
@@ -975,18 +981,24 @@ void draw_notes(char* path, uint8_t g2d_node) {
                                                  wd, scroll_height,
                                                  text_cb, 0);
   if(text_scroll_g2d_node){
-    uint16_t k=0;
+    uint16_t k=WORD_SPACING;
     uint16_t j=0;
     for(uint16_t w=1; w<=words; w++){
       char* word = object_property_get_n(user, pathbuf, w);
       uint16_t word_width=g2d_text_width(word, 2);
       if(k+word_width > wd){
-        k=0; j++;
+        k=WORD_SPACING; j++;
+      }
+      if(w==word_index){
+        g2d_node_rectangle(text_scroll_g2d_node,
+                           k-6, j*LINE_HEIGHT-2,
+                           CURSOR_WIDTH, LINE_HEIGHT+1,
+                           G2D_MAGENTA);
       }
       uint8_t word_g2d_node = g2d_node_create(text_scroll_g2d_node,
                                               k, j*LINE_HEIGHT,
                                               word_width, LINE_HEIGHT,
-                                              0,0);
+                                              word_cb,(void*)(uint32_t)w);
       g2d_node_text(word_g2d_node, 0,0, word, G2D_WHITE, G2D_BLACK, 2);
       k+=word_width+WORD_SPACING;
     }

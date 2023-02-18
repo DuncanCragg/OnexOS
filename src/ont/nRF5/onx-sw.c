@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <boards.h>
+#include <items.h>
 #include <onex-kernel/boot.h>
 #if defined(DO_LATER)
 #include <onex-kernel/log.h>
@@ -214,6 +215,7 @@ int main()
   onex_init("");
 
   onex_set_evaluators("default",   evaluate_default, 0);
+  onex_set_evaluators("notes",     evaluate_object_setter, evaluate_edit_rule, 0);
   onex_set_evaluators("device",    evaluate_device_logic, 0);
   onex_set_evaluators("user",      evaluate_user, 0);
   onex_set_evaluators("battery",   evaluate_battery_in, 0);
@@ -241,7 +243,7 @@ int main()
   watchface=object_new(0, "editable",  "watchface editable", 6);
   home     =object_new(0, "editable",  "list editable", 4);
   watch    =object_new(0, "default",   "watch", 4);
-  notes    =object_new(0, "editable",  "text editable", 4);
+  notes    =object_new(0, "notes",     "text editable", 4);
   about    =object_new(0, "about",     "about", 4);
 
   deviceuid   =object_property(onex_device_object, "UID");
@@ -586,6 +588,16 @@ bool evaluate_backlight_out(object* o, void* d)
 
 // -------------------- User --------------------------
 
+void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
+  properties* update = properties_new(1);
+  list*       li     = list_new(i+1);
+  if(!val || !*val){
+    for(uint16_t x=1; x<i; x++) list_add(li, value_new("something"));
+    list_add(li, value_new("(=>)"));
+  }
+  properties_set(update, key, li);
+  onex_run_evaluators(uid, update);
+}
 
 void show_touch_point(uint8_t g2d_node){
   uint8_t touch_g2d_node = g2d_node_create(g2d_node, touch_info.x, touch_info.y, 5,5, 0,0);
@@ -793,10 +805,21 @@ void draw_watch(char* path, uint8_t g2d_node)
 // ---------------------- keyboard ------------------------
 
 static uint16_t word_index=1;
+static bool     in_word=false;
 static char    typed[64];
 static uint8_t cursor=0;
 
+void del_word(){
+  if(word_index==1) return;
+  eval_update_list(notesuid, "text", word_index-1, 0);
+  word_index--;
+}
+
 void del_char() {
+  if(!in_word){
+    del_word();
+    return;
+  }
   if(cursor==0) return;
   typed[--cursor]=0;
 }

@@ -478,7 +478,7 @@ bool evaluate_battery_in(object* o, void* d)
 
   object_property_set(battery, "percent", valuebuf);
 
-  int batt=gpio_get(CHARGE_SENSE);
+  uint8_t batt=gpio_get(CHARGE_SENSE);
   snprintf(valuebuf, 64, "%s", batt? "powering": "charging");
   object_property_set(battery, "status", valuebuf);
 
@@ -796,14 +796,12 @@ static uint16_t word_index=1;
 static char    typed[64];
 static uint8_t cursor=0;
 
-void del_char()
-{
+void del_char() {
   if(cursor==0) return;
   typed[--cursor]=0;
 }
 
-void add_char(unsigned char c)
-{
+void add_char(unsigned char c) {
   if(cursor==62) return;
   typed[cursor++]=c;
   typed[cursor]=0;

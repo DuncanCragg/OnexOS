@@ -807,8 +807,8 @@ void draw_watch(char* path, uint8_t g2d_node)
 
 static uint16_t word_index=1;
 static bool     in_word=false;
-static char    typed[64];
-static uint8_t cursor=0;
+static char     edit_word[64];
+static uint8_t  cursor=0;
 
 void del_word(){
   if(word_index==1) return;
@@ -817,18 +817,18 @@ void del_word(){
 }
 
 void del_char() {
-  if(!in_word){
-    del_word();
+  if(in_word){
+    if(cursor==0) return;
+    edit_word[--cursor]=0;
     return;
   }
-  if(cursor==0) return;
-  typed[--cursor]=0;
+  del_word();
 }
 
 void add_char(unsigned char c) {
   if(cursor==62) return;
-  typed[cursor++]=c;
-  typed[cursor]=0;
+  edit_word[cursor++]=c;
+  edit_word[cursor]=0;
 }
 
 static uint8_t kbpg=1;

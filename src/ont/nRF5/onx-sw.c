@@ -1018,6 +1018,11 @@ void draw_notes(char* path, uint8_t g2d_node) {
 
       int16_t available_width = wd-k;
       if(k && word_width > available_width){
+        // not fab way to "extend" the prev word out to full width for touch
+        g2d_node_create(text_scroll_g2d_node,
+                        k, j*LINE_HEIGHT,
+                        available_width, LINE_HEIGHT,
+                        word_cb,(void*)(uint32_t)w-1);
         k=0;
         j++;
       }

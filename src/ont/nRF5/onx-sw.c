@@ -983,7 +983,8 @@ void draw_notes(char* path, uint8_t g2d_node) {
   snprintf(pathbuf, 64, "%s:text", path);
   uint16_t words=object_property_length(user, pathbuf);
 
-  uint16_t scroll_height=(words*2/5)*LINE_HEIGHT;
+  uint16_t lines=(words/2);
+  uint16_t scroll_height=lines*LINE_HEIGHT;
 
   uint8_t text_scroll_g2d_node = g2d_node_create(text_container_g2d_node,
                                                  0, text_scroll_offset,
@@ -993,8 +994,10 @@ void draw_notes(char* path, uint8_t g2d_node) {
     uint16_t k=WORD_SPACING;
     uint16_t j=0;
     for(uint16_t w=1; w<=words; w++){
+
       char* word = object_property_get_n(user, pathbuf, w);
       uint16_t word_width=g2d_text_width(word, 2);
+
       if(k+word_width > wd){
         k=WORD_SPACING; j++;
       }
@@ -1008,6 +1011,7 @@ void draw_notes(char* path, uint8_t g2d_node) {
                                               k, j*LINE_HEIGHT,
                                               word_width, LINE_HEIGHT,
                                               word_cb,(void*)(uint32_t)w);
+
       g2d_node_text(word_g2d_node, 0,0, word, G2D_WHITE, G2D_BLACK, 2);
       k+=word_width+WORD_SPACING;
     }

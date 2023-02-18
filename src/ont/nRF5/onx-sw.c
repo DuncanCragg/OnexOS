@@ -1009,20 +1009,22 @@ void draw_notes(char* path, uint8_t g2d_node) {
                                                  wd, scroll_height,
                                                  text_cb, 0);
   if(text_scroll_g2d_node){
-    uint16_t k=WORD_SPACING;
+    uint16_t k=0;
     uint16_t j=0;
     for(uint16_t w=1; w<=words; w++){
 
       char* word = object_property_get_n(user, pathbuf, w);
-      uint16_t word_width=g2d_text_width(word, 2);
+      uint16_t word_width=WORD_SPACING+g2d_text_width(word, 2);
 
-      if(k+word_width > wd){
-        k=WORD_SPACING; j++;
+      int16_t available_width = wd-k;
+      if(k && word_width > available_width){
+        k=0;
+        j++;
       }
       if(w==word_index){
         g2d_node_rectangle(text_scroll_g2d_node,
-                           k-6, j*LINE_HEIGHT-2,
-                           CURSOR_WIDTH, LINE_HEIGHT+1,
+                           k, j*LINE_HEIGHT,
+                           CURSOR_WIDTH, LINE_HEIGHT,
                            G2D_MAGENTA);
       }
       uint8_t word_g2d_node = g2d_node_create(text_scroll_g2d_node,
@@ -1030,8 +1032,8 @@ void draw_notes(char* path, uint8_t g2d_node) {
                                               word_width, LINE_HEIGHT,
                                               word_cb,(void*)(uint32_t)w);
 
-      g2d_node_text(word_g2d_node, 0,0, word, G2D_WHITE, G2D_BLACK, 2);
-      k+=word_width+WORD_SPACING;
+      g2d_node_text(word_g2d_node, 6,2, word, G2D_WHITE, G2D_BLACK, 2);
+      k+=word_width;
     }
   }
 

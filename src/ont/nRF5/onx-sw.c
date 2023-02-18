@@ -949,16 +949,11 @@ static void show_keyboard(uint8_t g2d_node){
 
 static int16_t text_scroll_offset=0;
 
-void text_cb(bool down, int16_t dx, int16_t dy, void* arg){
-  if(!down || dx+dy==0) return;
-  text_scroll_offset+=dy;
-}
-
 void word_cb(bool down, int16_t dx, int16_t dy, void* wi){
   static bool scrolled=false;
   if(!down){
-    if(!scrolled) word_index=(uint16_t)(uint32_t)wi;
-    else scrolled=false;
+    if(!scrolled && wi) word_index=(uint16_t)(uint32_t)wi;
+    scrolled=false;
   }
   else
   if(dx+dy!=0){
@@ -995,7 +990,7 @@ void draw_notes(char* path, uint8_t g2d_node) {
 
   uint8_t text_container_g2d_node = g2d_node_create(g2d_node,
                                                     SIDE_MARGIN,TOP_MARGIN, wd,ht,
-                                                    text_cb, 0);
+                                                    word_cb, 0);
   if(!text_container_g2d_node) return;
 
   snprintf(pathbuf, 64, "%s:text", path);
@@ -1007,7 +1002,7 @@ void draw_notes(char* path, uint8_t g2d_node) {
   uint8_t text_scroll_g2d_node = g2d_node_create(text_container_g2d_node,
                                                  0, text_scroll_offset,
                                                  wd, scroll_height,
-                                                 text_cb, 0);
+                                                 word_cb, 0);
   if(text_scroll_g2d_node){
     uint16_t k=0;
     uint16_t j=0;

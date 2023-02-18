@@ -1011,12 +1011,16 @@ void draw_notes(char* path, uint8_t g2d_node) {
   if(text_scroll_g2d_node){
     uint16_t k=0;
     uint16_t j=0;
-    for(uint16_t w=1; w<=words; w++){
-
-      char* word = object_property_get_n(user, pathbuf, w);
-      uint16_t word_width=WORD_SPACING+g2d_text_width(word, 2);
+    for(uint16_t w=1; w<=words+1; w++){
 
       int16_t available_width = wd-k;
+
+      char*    word = "";
+      uint16_t word_width=available_width;
+      if(w<=words){
+        word = object_property_get_n(user, pathbuf, w);
+        word_width=WORD_SPACING+g2d_text_width(word, 2);
+      }
       if(k && word_width > available_width){
         // not fab way to "extend" the prev word out to full width for cursor
         g2d_node_create(text_scroll_g2d_node,

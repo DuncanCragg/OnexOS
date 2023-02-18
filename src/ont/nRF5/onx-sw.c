@@ -280,7 +280,10 @@ int main()
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
-  static char note_text[] = "xxxxxxxxxxxxxxxxxxx "
+  static char note_text[] = "the fat cat sat on me";
+
+  static char note_text_big[] =
+                            "xxxxxxxxxxxxxxxxxxx "
                             "xxxxxxxxxxxxxxxxxx "
                             "xxxxxxxxxxxxxxxx "
                             "xxxxxxxxxxxxxxx "
@@ -591,10 +594,21 @@ bool evaluate_backlight_out(object* o, void* d)
 
 void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
   properties* update = properties_new(1);
-  list*       li     = list_new(i+1);
-  if(!val || !*val){
-    for(uint16_t x=1; x<i; x++) list_add(li, value_new("something"));
-    list_add(li, value_new("(=>)"));
+  list* li=0;
+  if(i){
+    li=list_new(i+1);
+    if(!val || !*val){
+      for(uint16_t x=1; x<i; x++) list_add(li, value_new("something"));
+      list_add(li, value_new("(=>)"));
+    }
+  }
+  else{
+    if(val && *val){
+      li=list_new(3);
+      list_add(li, value_new((char*)"=>"));
+      list_add(li, value_new((char*)"@."));
+      list_add(li, value_new(val));
+    }
   }
   properties_set(update, key, li);
   onex_run_evaluators(uid, update);
@@ -816,17 +830,31 @@ void del_word(){
   word_index--;
 }
 
+void add_word(){
+  eval_update_list(notesuid, "text", 0, edit_word);
+  word_index++;
+}
+
 void del_char() {
   if(in_word){
     if(cursor==0) return;
     edit_word[--cursor]=0;
+    if(cursor==0) in_word=false;
     return;
   }
   del_word();
 }
 
 void add_char(unsigned char c) {
+  if(c==' '){
+    in_word=false;
+    add_word();
+    cursor=0;
+    edit_word[cursor]=0;
+    return;
+  }
   if(cursor==62) return;
+  in_word=true;
   edit_word[cursor++]=c;
   edit_word[cursor]=0;
 }
@@ -1021,6 +1049,10 @@ void draw_notes(char* path, uint8_t g2d_node) {
   uint16_t lines=(words/2)+1;
   uint16_t scroll_height=lines*LINE_HEIGHT;
 
+  if(in_word){
+    word_index=words+1;
+  }
+
   uint8_t text_scroll_g2d_node = g2d_node_create(text_container_g2d_node,
                                                  0, text_scroll_offset,
                                                  wd, scroll_height,
@@ -1032,7 +1064,7 @@ void draw_notes(char* path, uint8_t g2d_node) {
 
       int16_t available_width = wd-k;
 
-      char*    word = "";
+      char*    word = 0;
       uint16_t word_width=available_width;
       if(w<=words){
         word = object_property_get_n(user, pathbuf, w);
@@ -1059,7 +1091,7 @@ void draw_notes(char* path, uint8_t g2d_node) {
                                               word_width, LINE_HEIGHT,
                                               word_cb,(void*)(uint32_t)w);
 
-      g2d_node_text(word_g2d_node, 6,2, word, G2D_WHITE, G2D_BLACK, 2);
+      g2d_node_text(word_g2d_node, 6,2, word? word: edit_word, G2D_WHITE, G2D_BLACK, 2);
       k+=word_width;
     }
   }

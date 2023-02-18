@@ -1018,7 +1018,7 @@ void draw_notes(char* path, uint8_t g2d_node) {
   snprintf(pathbuf, 64, "%s:text", path);
   uint16_t words=object_property_length(user, pathbuf);
 
-  uint16_t lines=(words/2);
+  uint16_t lines=(words/2)+1;
   uint16_t scroll_height=lines*LINE_HEIGHT;
 
   uint8_t text_scroll_g2d_node = g2d_node_create(text_container_g2d_node,

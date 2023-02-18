@@ -214,20 +214,21 @@ int main()
 
   onex_init("");
 
-  onex_set_evaluators("default",   evaluate_default, 0);
+  //                               setters and editors                         inputs              logic                                outputs
+  onex_set_evaluators("default",   evaluate_object_setter,                                         evaluate_default, 0);
+  onex_set_evaluators("editable",  evaluate_object_setter, evaluate_edit_rule, 0);
+  onex_set_evaluators("clock",     evaluate_object_setter,                                         evaluate_clock_sync, evaluate_clock, 0);
+  onex_set_evaluators("device",                                                                    evaluate_device_logic, 0);
+  onex_set_evaluators("user",                                                                      evaluate_user, 0);
   onex_set_evaluators("notes",     evaluate_object_setter, evaluate_edit_rule, 0);
-  onex_set_evaluators("device",    evaluate_device_logic, 0);
-  onex_set_evaluators("user",      evaluate_user, 0);
-  onex_set_evaluators("battery",   evaluate_battery_in, 0);
-  onex_set_evaluators("touch",     evaluate_touch_in, 0);
+  onex_set_evaluators("battery",                                               evaluate_battery_in, 0);
+  onex_set_evaluators("touch",                                                 evaluate_touch_in, 0);
 #if defined(DO_LATER)
-  onex_set_evaluators("motion",    evaluate_motion_in, 0);
+  onex_set_evaluators("motion",                                                evaluate_motion_in, 0);
 #endif
-  onex_set_evaluators("button",    evaluate_button_in, 0);
-  onex_set_evaluators("about",     evaluate_about_in, 0);
-  onex_set_evaluators("backlight", evaluate_edit_rule, evaluate_light_logic, evaluate_backlight_out, 0);
-  onex_set_evaluators("clock",     evaluate_clock_sync, evaluate_clock, 0);
-  onex_set_evaluators("editable",  evaluate_edit_rule, 0);
+  onex_set_evaluators("button",                                                evaluate_button_in, 0);
+  onex_set_evaluators("about",                                                 evaluate_about_in, 0);
+  onex_set_evaluators("backlight", evaluate_object_setter, evaluate_edit_rule,                     evaluate_light_logic,                evaluate_backlight_out, 0);
 
   object_set_evaluator(onex_device_object, "device");
 

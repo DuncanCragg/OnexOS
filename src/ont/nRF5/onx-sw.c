@@ -36,6 +36,8 @@ static object* oclock;
 static object* watchface;
 static object* home;
 static object* watch;
+static object* note1;
+static object* note2;
 static object* notes;
 static object* about;
 
@@ -52,6 +54,8 @@ static char* clockuid;
 static char* watchfaceuid;
 static char* homeuid;
 static char* watchuid;
+static char* note1uid;
+static char* note2uid;
 static char* notesuid;
 static char* aboutuid;
 
@@ -244,7 +248,9 @@ int main()
   watchface=object_new(0, "editable",  "watchface editable", 6);
   home     =object_new(0, "editable",  "list editable", 4);
   watch    =object_new(0, "default",   "watch", 4);
-  notes    =object_new(0, "notes",     "text editable", 4);
+  note1    =object_new(0, "notes",     "text editable", 4);
+  note2    =object_new(0, "notes",     "text editable", 4);
+  notes    =object_new(0, "notes",     "text list editable", 4);
   about    =object_new(0, "about",     "about", 4);
 
   deviceuid   =object_property(onex_device_object, "UID");
@@ -260,6 +266,8 @@ int main()
   watchfaceuid=object_property(watchface, "UID");
   homeuid     =object_property(home, "UID");
   watchuid    =object_property(watch, "UID");
+  note1uid    =object_property(note1, "UID");
+  note2uid    =object_property(note2, "UID");
   notesuid    =object_property(notes, "UID");
   aboutuid    =object_property(about, "UID");
 
@@ -347,17 +355,25 @@ int main()
   char* strtok_state = 0;
   char* word = strtok_r(note_text, " ", &strtok_state);
   while(word){
-    object_property_add(notes, "text", word);
+    object_property_add(note1, "text", word);
     word = strtok_r(0, " ", &strtok_state);
   }
+  strtok_state = 0;
+  word = strtok_r(note_text_big, " ", &strtok_state);
+  while(word){
+    object_property_add(note2, "text", word);
+    word = strtok_r(0, " ", &strtok_state);
+  }
+  object_property_add(notes, "list", note1uid);
+  object_property_add(notes, "list", note2uid);
 
   object_property_add(home, "list", notesuid);
   object_property_add(home, "list", watchuid);
   object_property_add(home, "list", aboutuid);
-  object_property_add(home, "list", notesuid);
+  object_property_add(home, "list", note1uid);
   object_property_add(home, "list", watchuid);
   object_property_add(home, "list", aboutuid);
-  object_property_add(home, "list", notesuid);
+  object_property_add(home, "list", note2uid);
   object_property_add(home, "list", watchuid);
   object_property_add(home, "list", aboutuid);
 
@@ -675,10 +691,10 @@ void draw_by_type(char* p, uint8_t g2d_node)
 {
   snprintf(pathbuf, 64, "%s:is", p);
 
+  if(object_property_contains(user, pathbuf, "list"))  draw_list(p, g2d_node);    else
   if(object_property_contains(user, pathbuf, "watch")) draw_watch(p, g2d_node);   else
   if(object_property_contains(user, pathbuf, "text" )) draw_notes(p, g2d_node);   else
   if(object_property_contains(user, pathbuf, "about")) draw_about(p, g2d_node);   else
-  if(object_property_contains(user, pathbuf, "list"))  draw_list(p, g2d_node);    else
                                                        draw_default(p, g2d_node);
 }
 
@@ -716,6 +732,11 @@ void draw_list(char* p, uint8_t g2d_node) {
 
   uint8_t ll=object_property_length(user, pathbuf);
 
+  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_GREY_1D/13);
+    g2d_node_text(g2d_node, 10,20, "list", G2D_WHITE, G2D_GREY_1D/13, 3);
+    return;
+  }
   #define CHILD_HEIGHT 70
   #define BOTTOM_MARGIN 20
 
@@ -741,7 +762,6 @@ void draw_list(char* p, uint8_t g2d_node) {
   for(uint8_t i=1; i<=ll; i++){
 
     snprintf(pathbufrec, 64, "%s:list:%d", p, i);
-    // XXX all goes wrong if this recurses (list inside a list)
 
     char* uid=object_property(user, pathbufrec);
 
@@ -826,12 +846,12 @@ static uint8_t  cursor=0;
 
 void del_word(){
   if(word_index==1) return;
-  eval_update_list(notesuid, "text", word_index-1, 0);
+  // eval_update_list(notesuid, "text", word_index-1, 0);
   word_index--;
 }
 
 void add_word(){
-  eval_update_list(notesuid, "text", 0, edit_word);
+  // eval_update_list(notesuid, "text", 0, edit_word);
   word_index++;
 }
 

@@ -623,6 +623,45 @@ static char* list_selected_uid=0;
 static uint16_t del_this_word=0;
 static char*    add_this_word=0;
 
+static int16_t  scroll_bot_lim=0;
+static bool     scroll_top=false;
+static bool     scroll_bot=false;
+static bool     scrolling=false;
+static int16_t  scroll_offset=0;
+
+static uint16_t word_index=1;
+static bool     in_word=false;
+static char     edit_word[64];
+static uint8_t  cursor=0;
+
+#define KBDSTART_X 0
+#define KBDSTART_Y 200
+static uint8_t kbd_page=1;
+static int16_t kbd_x=KBDSTART_X;
+static int16_t kbd_y=KBDSTART_Y;
+
+static int16_t text_scroll_offset=0;
+
+static void reset_viewing_state_variables(){
+
+  scroll_bot_lim=0;
+  scroll_top=false;
+  scroll_bot=false;
+  scrolling=false;
+  scroll_offset=0;
+
+  word_index=1;
+  in_word=false;
+  edit_word[0]=0;
+  cursor=0;
+
+  kbd_page=1;
+  kbd_x=KBDSTART_X;
+  kbd_y=KBDSTART_Y;
+
+  text_scroll_offset=0;
+}
+
 static uint8_t fps = 111;
 
 static void draw_by_type(char* p, uint8_t g2d_node);
@@ -642,16 +681,19 @@ static bool evaluate_user(object* o, void* d) {
 
   if(button_action==BUTTON_ACTION_SHORT){
     object_property_set(user, "viewing", watchuid);
+    reset_viewing_state_variables();
     button_action=BUTTON_ACTION_NONE;
   }
   else
   if(button_action==BUTTON_ACTION_LONG){
     object_property_set(user, "viewing", homeuid);
+    reset_viewing_state_variables();
     button_action=BUTTON_ACTION_NONE;
   }
 
   if(list_selected_uid){
     object_property_set(user, "viewing", list_selected_uid);
+    reset_viewing_state_variables();
     list_selected_uid=0;
   }
 
@@ -723,12 +765,6 @@ void draw_by_type(char* p, uint8_t g2d_node)
   if(object_property_contains(user, pathbuf, "about")) draw_about(p, g2d_node);   else
                                                        draw_default(p, g2d_node);
 }
-
-static int16_t  scroll_bot_lim=0;
-static bool     scroll_top=false;
-static bool     scroll_bot=false;
-static bool     scrolling=false;
-static int16_t  scroll_offset=0;
 
 static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
 
@@ -865,11 +901,6 @@ static void draw_watch(char* path, uint8_t g2d_node) {
 
 // ---------------------- keyboard ------------------------
 
-static uint16_t word_index=1;
-static bool     in_word=false;
-static char     edit_word[64];
-static uint8_t  cursor=0;
-
 static void del_word(){
   if(word_index==1) return;
   del_this_word=word_index-1;
@@ -906,9 +937,7 @@ static void add_char(unsigned char c) {
   cursor=0;
 }
 
-static uint8_t kbpg=1;
-
-static unsigned char key_pages[7][20]={
+static unsigned char kbd_pages[7][20]={
 
   { "     " },
   { "ERTIO"
@@ -949,25 +978,25 @@ static void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
   uint32_t ki=(uint32_t)kiv;
 
   if(ki==SELECT_TYPE){
-    if(kbpg==1 || kbpg==2) kbpg=3;
+    if(kbd_page==1 || kbd_page==2) kbd_page=3;
     else
-    if(kbpg==3 || kbpg==4) kbpg=5;
+    if(kbd_page==3 || kbd_page==4) kbd_page=5;
     else
-    if(kbpg==5 || kbpg==6) kbpg=1;
+    if(kbd_page==5 || kbd_page==6) kbd_page=1;
   }
   else
   if(ki==SELECT_PAGE){
-    if(kbpg==1) kbpg=2;
+    if(kbd_page==1) kbd_page=2;
     else
-    if(kbpg==2) kbpg=1;
+    if(kbd_page==2) kbd_page=1;
     else
-    if(kbpg==3) kbpg=4;
+    if(kbd_page==3) kbd_page=4;
     else
-    if(kbpg==4) kbpg=3;
+    if(kbd_page==4) kbd_page=3;
     else
-    if(kbpg==5) kbpg=6;
+    if(kbd_page==5) kbd_page=6;
     else
-    if(kbpg==6) kbpg=5;
+    if(kbd_page==6) kbd_page=5;
   }
   else
   if(ki==DELETE_LAST){
@@ -976,23 +1005,17 @@ static void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
   }
   else {
 
-    add_char(key_pages[kbpg][ki]);
+    add_char(kbd_pages[kbd_page][ki]);
 
-    if(kbpg==2 || kbpg==6) kbpg--;
+    if(kbd_page==2 || kbd_page==6) kbd_page--;
     else
-    if(kbpg==3 || kbpg==4) kbpg=1;
+    if(kbd_page==3 || kbd_page==4) kbd_page=1;
   }
 }
 
 #define KEY_SIZE  41
 #define KEY_H_SPACE 7
 #define KEY_V_SPACE 1
-
-#define KBDSTART_X 0
-#define KBDSTART_Y 200
-
-static int16_t kbd_x=KBDSTART_X;
-static int16_t kbd_y=KBDSTART_Y;
 
 static void kbd_drag(bool down, int16_t dx, int16_t dy, void* arg){
   if(!down || dx+dy==0) return;
@@ -1022,7 +1045,7 @@ static void show_keyboard(uint8_t g2d_node){
 
       uint32_t ki = i + j*5;
 
-      unsigned char key = key_pages[kbpg][ki];
+      unsigned char key = kbd_pages[kbd_page][ki];
 
       uint8_t key_g2d_node = g2d_node_create(kbd_g2d_node,
                                              kx, ky,
@@ -1043,8 +1066,6 @@ static void show_keyboard(uint8_t g2d_node){
 }
 
 // --------------------------------------------------------
-
-static int16_t text_scroll_offset=0;
 
 static void word_cb(bool down, int16_t dx, int16_t dy, void* wi){
   static bool scrolled=false;

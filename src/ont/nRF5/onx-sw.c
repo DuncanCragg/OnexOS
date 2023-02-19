@@ -6,9 +6,7 @@
 #include <boards.h>
 #include <items.h>
 #include <onex-kernel/boot.h>
-#if defined(DO_LATER)
 #include <onex-kernel/log.h>
-#endif
 #include <onex-kernel/time.h>
 #include <onex-kernel/gpio.h>
 #include <onex-kernel/i2c.h>
@@ -130,9 +128,7 @@ static void touched(touch_info_t ti) {
   if(disable_user_touch==2 && touch_info.action==TOUCH_ACTION_CONTACT) disable_user_touch=0;
 
   if(!disable_user_touch){
-#if defined(DO_LATER)
     log_write("eval user from touched\n");
-#endif
     onex_run_evaluators(useruid, 0);
   }
 #endif
@@ -202,9 +198,7 @@ static uint32_t loop_time=0;
 int main()
 {
   boot_init();
-#if defined(DO_LATER)
   log_init();
-#endif
   time_init_set((unsigned long)&__BUILD_TIMESTAMP);
   gpio_init();
 
@@ -418,15 +412,6 @@ int main()
 
     // --------------------
 
-#if defined(LOG_TO_GFX)
-    if(event_log_buffer){
-      draw_log();
-      event_log_buffer=0;
-    }
-#endif
-
-    // --------------------
-
     static uint64_t feeding_time=0;
     if(ct>feeding_time && !button_pressed){
       boot_feed_watchdog();
@@ -481,9 +466,7 @@ static char g2dbuf[64];
 
 bool evaluate_default(object* o, void* d)
 {
-#if defined(DO_LATER)
   log_write("evaluate_default data=%p\n", d); object_log(o);
-#endif
   return true;
 }
 
@@ -836,6 +819,20 @@ void draw_watch(char* path, uint8_t g2d_node)
 
   snprintf(g2dbuf, 64, "%d", pcnum);
   g2d_node_text(g2d_node, 10, 30, g2dbuf, batt_col, G2D_BLACK, 3);
+
+#if defined(LOG_TO_GFX)
+  static char*   log_lines[3];
+  static uint8_t log_lines_index=0;
+  if(event_log_buffer){
+    if(log_lines[log_lines_index]) free(log_lines[log_lines_index]);
+    log_lines[log_lines_index]=strndup((char*)event_log_buffer, 40);
+    log_lines_index=(log_lines_index+1)%3;
+    event_log_buffer=0;
+  }
+  g2d_node_text(g2d_node, 20, 8, log_lines[0], G2D_RED, G2D_BLACK, 1);
+  g2d_node_text(g2d_node, 20,16, log_lines[1], G2D_RED, G2D_BLACK, 1);
+  g2d_node_text(g2d_node, 20,24, log_lines[2], G2D_RED, G2D_BLACK, 1);
+#endif
 }
 
 // ---------------------- keyboard ------------------------
@@ -1160,11 +1157,4 @@ void draw_default(char* path, uint8_t g2d_node)
   }
   g2d_node_text(g2d_node, 10, 190, "no show", G2D_BLUE, G2D_BLACK, 1);
 }
-
-#if defined(LOG_TO_GFX)
-void draw_log()
-{
-  // render (const char*)event_log_buffer);
-}
-#endif
 

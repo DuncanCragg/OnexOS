@@ -1019,8 +1019,8 @@ static void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
 
 static void kbd_drag(bool down, int16_t dx, int16_t dy, void* arg){
   if(!down || dx+dy==0) return;
-  kbd_x+=dx;
-  kbd_y+=dy;
+  if(dx*dx>dy*dy) kbd_x+=dx;
+  else            kbd_y+=dy;
 }
 
 static void show_keyboard(uint8_t g2d_node){

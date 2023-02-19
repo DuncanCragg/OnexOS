@@ -653,17 +653,17 @@ bool evaluate_user(object* o, void* d) {
   draw_by_type("viewing", root_g2d_node);
 
 #if defined(LOG_TO_GFX)
-  static char*   log_lines[3];
-  static uint8_t log_lines_index=0;
+  #define LOG_LINES_MAX 3
+  static char*    log_lines[LOG_LINES_MAX];
+  static uint8_t  log_lines_index=0;
   if(event_log_buffer){
     if(log_lines[log_lines_index]) free(log_lines[log_lines_index]);
     log_lines[log_lines_index]=strndup((char*)event_log_buffer, 40);
-    log_lines_index=(log_lines_index+1)%3;
+    log_lines_index=(log_lines_index+1)%LOG_LINES_MAX;
     event_log_buffer=0;
+  for(uint8_t i=0; i<LOG_LINES_MAX; i++){
+    if(log_lines[i]) g2d_node_text(root_g2d_node, 20, 8+i*8, log_lines[i], G2D_RED, G2D_BLACK, 1);
   }
-  g2d_node_text(root_g2d_node, 20, 8, log_lines[0], G2D_RED, G2D_BLACK, 1);
-  g2d_node_text(root_g2d_node, 20,16, log_lines[1], G2D_RED, G2D_BLACK, 1);
-  g2d_node_text(root_g2d_node, 20,24, log_lines[2], G2D_RED, G2D_BLACK, 1);
 #endif
 
   g2d_render();

@@ -186,7 +186,6 @@ static bool evaluate_backlight_out(object* o, void* d);
 
 #if defined(LOG_TO_GFX)
 extern volatile char* event_log_buffer;
-static void draw_log();
 #endif
 
 extern char __BUILD_TIMESTAMP;
@@ -195,8 +194,8 @@ extern char __BOOTLOADER_NUMBER;
 
 static uint32_t loop_time=0;
 
-int main()
-{
+int main() {
+
   boot_init();
   log_init();
   time_init_set((unsigned long)&__BUILD_TIMESTAMP);
@@ -592,7 +591,7 @@ bool evaluate_backlight_out(object* o, void* d)
 
 // -------------------- User --------------------------
 
-void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
+static void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
   properties* update = properties_new(1);
   list* li=0;
   if(i){
@@ -614,7 +613,7 @@ void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
   onex_run_evaluators(uid, update);
 }
 
-void show_touch_point(uint8_t g2d_node){
+static void show_touch_point(uint8_t g2d_node){
   uint8_t touch_g2d_node = g2d_node_create(g2d_node, touch_info.x, touch_info.y, 5,5, 0,0);
   g2d_node_rectangle(touch_g2d_node, 0,0, 5,5, G2D_MAGENTA);
 }
@@ -633,7 +632,7 @@ static void draw_notes(char* p, uint8_t g2d_node);
 static void draw_about(char* p, uint8_t g2d_node);
 static void draw_default(char* p, uint8_t g2d_node);
 
-bool evaluate_user(object* o, void* d) {
+static bool evaluate_user(object* o, void* d) {
 
   bool is_a_touch_triggered_eval=!!d;
 
@@ -731,7 +730,7 @@ static bool     scroll_bot=false;
 static bool     scrolling=false;
 static int16_t  scroll_offset=0;
 
-void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
+static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
 
   if(down){
     if(dx+dy){
@@ -751,9 +750,7 @@ void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
   list_selected_uid=uid;
 }
 
-static char pathbufrec[64];
-
-void draw_list(char* p, uint8_t g2d_node) {
+static void draw_list(char* p, uint8_t g2d_node) {
 
   snprintf(pathbuf, 64, "%s:list", p);
 
@@ -788,6 +785,8 @@ void draw_list(char* p, uint8_t g2d_node) {
 
   for(uint8_t i=1; i<=ll; i++){
 
+    static char pathbufrec[64];
+
     snprintf(pathbufrec, 64, "%s:list:%d", p, i);
 
     char* uid=object_property(user, pathbufrec);
@@ -805,7 +804,7 @@ void draw_list(char* p, uint8_t g2d_node) {
 #define BATTERY_HIGH     G2D_GREEN
 #define BATTERY_CHARGING G2D_BLUE
 
-void draw_watch(char* path, uint8_t g2d_node) {
+static void draw_watch(char* path, uint8_t g2d_node) {
 
   snprintf(pathbuf, 64, "%s:battery:percent", path);
   char* pc=object_property(   user, pathbuf);
@@ -871,20 +870,20 @@ static bool     in_word=false;
 static char     edit_word[64];
 static uint8_t  cursor=0;
 
-void del_word(){
+static void del_word(){
   if(word_index==1) return;
   del_this_word=word_index-1;
   add_this_word=0;
   word_index--;
 }
 
-void add_word(){
+static void add_word(){
   del_this_word=0;
   add_this_word=edit_word;
   word_index++;
 }
 
-void del_char() {
+static void del_char() {
   if(in_word){
     if(cursor==0) return;
     edit_word[--cursor]=0;
@@ -894,7 +893,7 @@ void del_char() {
   del_word();
 }
 
-void add_char(unsigned char c) {
+static void add_char(unsigned char c) {
   if(c!=' '){
     if(cursor==62) return;
     in_word=true;
@@ -943,7 +942,7 @@ static unsigned char key_pages[7][20]={
 #define SELECT_PAGE 14
 #define DELETE_LAST 16
 
-void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
+static void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
 
   if(down) return;
 
@@ -995,7 +994,7 @@ void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
 static int16_t kbd_x=KBDSTART_X;
 static int16_t kbd_y=KBDSTART_Y;
 
-void kbd_drag(bool down, int16_t dx, int16_t dy, void* arg){
+static void kbd_drag(bool down, int16_t dx, int16_t dy, void* arg){
   if(!down || dx+dy==0) return;
   kbd_x+=dx;
   kbd_y+=dy;
@@ -1047,7 +1046,7 @@ static void show_keyboard(uint8_t g2d_node){
 
 static int16_t text_scroll_offset=0;
 
-void word_cb(bool down, int16_t dx, int16_t dy, void* wi){
+static void word_cb(bool down, int16_t dx, int16_t dy, void* wi){
   static bool scrolled=false;
   if(!down){
     if(!scrolled && wi) word_index=(uint16_t)(uint32_t)wi;
@@ -1060,7 +1059,7 @@ void word_cb(bool down, int16_t dx, int16_t dy, void* wi){
   }
 }
 
-void draw_notes(char* path, uint8_t g2d_node) {
+static void draw_notes(char* path, uint8_t g2d_node) {
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     snprintf(pathbuf, 64, "%s:text:1", path);
@@ -1150,7 +1149,7 @@ void draw_notes(char* path, uint8_t g2d_node) {
   show_touch_point(g2d_node);
 }
 
-void draw_about(char* path, uint8_t g2d_node) {
+static void draw_about(char* path, uint8_t g2d_node) {
 
   snprintf(pathbuf, 64, "%s:cpu", path);
   char* cpu=object_property(user, pathbuf);

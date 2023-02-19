@@ -622,10 +622,10 @@ void show_touch_point(uint8_t g2d_node){
 static uint8_t fps = 111;
 
 static void draw_by_type(char* p, uint8_t g2d_node);
+static void draw_list(char* p, uint8_t g2d_node);
 static void draw_watch(char* p, uint8_t g2d_node);
 static void draw_notes(char* p, uint8_t g2d_node);
 static void draw_about(char* p, uint8_t g2d_node);
-static void draw_list(char* p, uint8_t g2d_node);
 static void draw_default(char* p, uint8_t g2d_node);
 
 bool evaluate_user(object* o, void* d) {
@@ -762,8 +762,8 @@ void draw_list(char* p, uint8_t g2d_node) {
 #define BATTERY_HIGH     G2D_GREEN
 #define BATTERY_CHARGING G2D_BLUE
 
-void draw_watch(char* path, uint8_t g2d_node)
-{
+void draw_watch(char* path, uint8_t g2d_node) {
+
   snprintf(pathbuf, 64, "%s:battery:percent", path);
   char* pc=object_property(   user, pathbuf);
   snprintf(pathbuf, 64, "%s:battery:status", path);

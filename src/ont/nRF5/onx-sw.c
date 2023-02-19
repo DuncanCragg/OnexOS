@@ -652,6 +652,20 @@ bool evaluate_user(object* o, void* d) {
 
   draw_by_type("viewing", root_g2d_node);
 
+#if defined(LOG_TO_GFX)
+  static char*   log_lines[3];
+  static uint8_t log_lines_index=0;
+  if(event_log_buffer){
+    if(log_lines[log_lines_index]) free(log_lines[log_lines_index]);
+    log_lines[log_lines_index]=strndup((char*)event_log_buffer, 40);
+    log_lines_index=(log_lines_index+1)%3;
+    event_log_buffer=0;
+  }
+  g2d_node_text(root_g2d_node, 20, 8, log_lines[0], G2D_RED, G2D_BLACK, 1);
+  g2d_node_text(root_g2d_node, 20,16, log_lines[1], G2D_RED, G2D_BLACK, 1);
+  g2d_node_text(root_g2d_node, 20,24, log_lines[2], G2D_RED, G2D_BLACK, 1);
+#endif
+
   g2d_render();
 
   uint64_t post_render_time=time_ms();
@@ -819,20 +833,6 @@ void draw_watch(char* path, uint8_t g2d_node) {
 
   snprintf(g2dbuf, 64, "%d", pcnum);
   g2d_node_text(g2d_node, 10, 30, g2dbuf, batt_col, G2D_BLACK, 3);
-
-#if defined(LOG_TO_GFX)
-  static char*   log_lines[3];
-  static uint8_t log_lines_index=0;
-  if(event_log_buffer){
-    if(log_lines[log_lines_index]) free(log_lines[log_lines_index]);
-    log_lines[log_lines_index]=strndup((char*)event_log_buffer, 40);
-    log_lines_index=(log_lines_index+1)%3;
-    event_log_buffer=0;
-  }
-  g2d_node_text(g2d_node, 20, 8, log_lines[0], G2D_RED, G2D_BLACK, 1);
-  g2d_node_text(g2d_node, 20,16, log_lines[1], G2D_RED, G2D_BLACK, 1);
-  g2d_node_text(g2d_node, 20,24, log_lines[2], G2D_RED, G2D_BLACK, 1);
-#endif
 }
 
 // ---------------------- keyboard ------------------------
@@ -1137,10 +1137,10 @@ void draw_about(char* path, uint8_t g2d_node) {
   char* bnf=object_property_values(user, pathbuf);
 
   snprintf(g2dbuf, 64, "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_node_text(g2d_node, 20, 20, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
+  g2d_node_text(g2d_node, 20, 40, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
 
   snprintf(g2dbuf, 64, "cpu: %s", cpu);
-  g2d_node_text(g2d_node, 10, 70, g2dbuf, G2D_BLUE, G2D_BLACK, 3);
+  g2d_node_text(g2d_node, 10, 110, g2dbuf, G2D_BLUE, G2D_BLACK, 3);
 
   snprintf(g2dbuf, 64, "build: %s", bnf);
   g2d_node_text(g2d_node, 10, 190, g2dbuf, G2D_BLUE, G2D_BLACK, 1);

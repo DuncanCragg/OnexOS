@@ -8,20 +8,9 @@
 
 #include <onex-kernel/display.h>
 
+#include "mathlib.h"
 #include "g2d.h"
 #include "font57.h"
-
-// ---------------------------------
-
-#define min(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-      __typeof__ (b) _b = (b); \
-      _a < _b ? _a : _b; })
-
-#define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-      __typeof__ (b) _b = (b); \
-      _a > _b ? _a : _b; })
 
 // ---------------------------------
 // XXX using ST7789_* here! define SCREEN_WIDTH in board file

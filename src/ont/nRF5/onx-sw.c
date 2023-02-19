@@ -619,6 +619,11 @@ void show_touch_point(uint8_t g2d_node){
   g2d_node_rectangle(touch_g2d_node, 0,0, 5,5, G2D_MAGENTA);
 }
 
+static char* list_selected_uid=0;
+
+static uint16_t del_this_word=0;
+static char*    add_this_word=0;
+
 static uint8_t fps = 111;
 
 static void draw_by_type(char* p, uint8_t g2d_node);
@@ -644,6 +649,17 @@ bool evaluate_user(object* o, void* d) {
   if(button_action==BUTTON_ACTION_LONG){
     object_property_set(user, "viewing", homeuid);
     button_action=BUTTON_ACTION_NONE;
+  }
+
+  if(list_selected_uid){
+    object_property_set(user, "viewing", list_selected_uid);
+    list_selected_uid=0;
+  }
+
+  if(del_this_word || add_this_word){
+    char* viewing_uid=object_property(user, "viewing");
+    eval_update_list(viewing_uid, "text", del_this_word, add_this_word);
+    del_this_word=0; add_this_word=0;
   }
 
   uint8_t root_g2d_node = g2d_node_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0);
@@ -732,7 +748,7 @@ void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
     if(scroll_bot) scroll_offset=scroll_bot_lim;
     return;
   }
-  if(uid) object_property_set(user, "viewing", uid);
+  list_selected_uid=uid;
 }
 
 static char pathbufrec[64];
@@ -857,12 +873,14 @@ static uint8_t  cursor=0;
 
 void del_word(){
   if(word_index==1) return;
-  // eval_update_list(notesuid, "text", word_index-1, 0);
+  del_this_word=word_index-1;
+  add_this_word=0;
   word_index--;
 }
 
 void add_word(){
-  // eval_update_list(notesuid, "text", 0, edit_word);
+  del_this_word=0;
+  add_this_word=edit_word;
   word_index++;
 }
 
@@ -887,7 +905,6 @@ void add_char(unsigned char c) {
   add_word();
   in_word=false;
   cursor=0;
-  edit_word[cursor]=0;
 }
 
 static uint8_t kbpg=1;
@@ -1122,7 +1139,8 @@ void draw_notes(char* path, uint8_t g2d_node) {
                                               word_width, LINE_HEIGHT,
                                               word_cb,(void*)(uint32_t)w);
 
-      g2d_node_text(word_g2d_node, 6,2, word? word: edit_word, G2D_WHITE, G2D_BLACK, 2);
+      char* word_to_show = word? word: (in_word? edit_word: "");
+      g2d_node_text(word_g2d_node, 6,2, word_to_show, G2D_WHITE, G2D_BLACK, 2);
       k+=word_width;
     }
   }

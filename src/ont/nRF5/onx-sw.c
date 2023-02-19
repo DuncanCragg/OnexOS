@@ -877,16 +877,16 @@ void del_char() {
 }
 
 void add_char(unsigned char c) {
-  if(c==' '){
-    in_word=false;
-    add_word();
-    cursor=0;
+  if(c!=' '){
+    if(cursor==62) return;
+    in_word=true;
+    edit_word[cursor++]=c;
     edit_word[cursor]=0;
     return;
   }
-  if(cursor==62) return;
-  in_word=true;
-  edit_word[cursor++]=c;
+  add_word();
+  in_word=false;
+  cursor=0;
   edit_word[cursor]=0;
 }
 

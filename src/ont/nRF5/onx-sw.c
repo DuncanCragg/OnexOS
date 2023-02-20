@@ -24,38 +24,13 @@
 #include "g2d.h"
 
 static object* user;
-static object* battery;
-static object* touch;
-#if defined(DO_LATER)
-static object* motion;
-#endif
-static object* button;
-static object* backlight;
-static object* oclock;
-static object* watchface;
-static object* home;
-static object* watch;
-static object* note1;
-static object* note2;
-static object* notes;
-static object* about;
 
-static char* deviceuid;
 static char* useruid;
 static char* batteryuid;
 static char* touchuid;
-#if defined(DO_LATER)
-static char* motionuid;
-#endif
 static char* buttonuid;
-static char* backlightuid;
 static char* clockuid;
-static char* watchfaceuid;
 static char* homeuid;
-static char* watchuid;
-static char* note1uid;
-static char* note2uid;
-static char* notesuid;
 static char* aboutuid;
 
 #define LONG_PRESS_MS 250
@@ -229,6 +204,33 @@ int main() {
   onex_set_evaluators("backlight", evaluate_object_setter, evaluate_edit_rule,                     evaluate_light_logic,                evaluate_backlight_out, 0);
 
   object_set_evaluator(onex_device_object, "device");
+
+  object* battery;
+  object* touch;
+#if defined(DO_LATER)
+  object* motion;
+#endif
+  object* button;
+  object* backlight;
+  object* oclock;
+  object* watchface;
+  object* home;
+  object* watch;
+  object* note1;
+  object* note2;
+  object* notes;
+  object* about;
+
+  char* deviceuid;
+#if defined(DO_LATER)
+  char* motionuid;
+#endif
+  char* backlightuid;
+  char* watchfaceuid;
+  char* watchuid;
+  char* note1uid;
+  char* note2uid;
+  char* notesuid;
 
   user     =object_new(0, "user",      "user", 8);
   battery  =object_new(0, "battery",   "battery", 4);

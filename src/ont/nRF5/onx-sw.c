@@ -834,8 +834,12 @@ static void draw_list(char* p, uint8_t g2d_node) {
   scroll_bot = (scroll_offset < scroll_bot_lim);
 
   uint16_t stretch_height=g2d_node_height(g2d_node)/3;
-  if(scroll_top) g2d_node_rectangle(g2d_node, 20,0,                200,stretch_height, G2D_GREY_7);
-  if(scroll_bot) g2d_node_rectangle(g2d_node, 20,2*stretch_height, 200,stretch_height, G2D_GREY_7);
+  if(scroll_top) g2d_node_rectangle(g2d_node,
+                                    20,0,
+                                    200,stretch_height, G2D_GREY_7);
+  if(scroll_bot) g2d_node_rectangle(g2d_node,
+                                    20,2*stretch_height,
+                                    200,stretch_height, G2D_GREY_7);
 
   uint16_t y=10;
 
@@ -847,7 +851,10 @@ static void draw_list(char* p, uint8_t g2d_node) {
 
     char* uid=object_property(user, pathbufrec);
 
-    uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10, list_cb, uid);
+    uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
+                                             20,y,
+                                             200,CHILD_HEIGHT-10,
+                                             list_cb, uid);
 
     if(child_g2d_node) draw_by_type(pathbufrec, child_g2d_node);
 

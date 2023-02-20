@@ -842,7 +842,10 @@ static void draw_list(char* p, uint8_t g2d_node) {
   uint8_t ll=object_property_length(user, pathbuf);
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
-    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_GREY_1D/13);
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_GREY_1D/13);
     g2d_node_text(g2d_node, 10,20, "list", G2D_WHITE, G2D_GREY_1D/13, 3);
     return;
   }
@@ -931,7 +934,10 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   localtime_r(&est, &tms);
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
-    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_YELLOW/6);
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_YELLOW/6);
     strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
     g2d_node_text(g2d_node, 10,20, g2dbuf, G2D_WHITE, G2D_YELLOW/6, 3);
     return;

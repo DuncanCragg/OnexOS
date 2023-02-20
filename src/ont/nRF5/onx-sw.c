@@ -613,6 +613,11 @@ static void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
   onex_run_evaluators(uid, update);
 }
 
+static object* create_new_object_like_others(char* path) {
+  object* r=0;
+  return r;
+}
+
 static void show_touch_point(uint8_t g2d_node){
   uint8_t touch_g2d_node = g2d_node_create(g2d_node, touch_info.x, touch_info.y, 5,5, 0,0);
   g2d_node_rectangle(touch_g2d_node, 0,0, 5,5, G2D_MAGENTA);
@@ -701,9 +706,15 @@ static bool evaluate_user(object* o, void* d) {
 
   if(list_selected_uid){
     char* viewing_uid=object_property(user, "viewing");
-    object_property_add(user, "history", viewing_uid);
-    object_property_set(user, "viewing", list_selected_uid);
-    reset_viewing_state_variables();
+    if(!strcmp(list_selected_uid, "new-at-top")){
+      object* o = create_new_object_like_others("viewing:list");
+      if(o) eval_update_list(viewing_uid, "list", 0, object_property(o, "UID"));
+    }
+    else{
+      object_property_add(user, "history", viewing_uid);
+      object_property_set(user, "viewing", list_selected_uid);
+      reset_viewing_state_variables();
+    }
     list_selected_uid=0;
   }
 

@@ -470,9 +470,9 @@ static char pathbuf[64];
 static char valuebuf[64];
 static char g2dbuf[64];
 
-bool evaluate_default(object* o, void* d)
-{
-  log_write("evaluate_default data=%p\n", d); object_log(o);
+bool evaluate_default(object* o, void* d) {
+  log_write("evaluate_default d=%p\n", d);
+//object_log(o);
   return true;
 }
 

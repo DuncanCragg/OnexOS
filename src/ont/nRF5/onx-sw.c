@@ -750,6 +750,7 @@ static bool evaluate_user(object* o, void* d) {
 #if defined(LOG_TO_GFX)
   uint64_t pre_render_time=time_ms();
 
+  #define LOG_DECAY_TIME 5
   #define LOG_LINES_MAX 5
   #define LOG_LEN 40
   static char*    log_lines[LOG_LINES_MAX];
@@ -769,7 +770,7 @@ static bool evaluate_user(object* o, void* d) {
     log_last=pre_render_time;
   }
   else
-  if(log_last && pre_render_time > log_last+2000){
+  if(log_last && pre_render_time > log_last+LOG_DECAY_TIME*1000){
     for(uint8_t i=0; i<LOG_LINES_MAX-1; i++){
       log_lines[i]=log_lines[i+1];
     }

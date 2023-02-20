@@ -1252,15 +1252,31 @@ static void draw_about(char* path, uint8_t g2d_node) {
   g2d_node_text(g2d_node, 10, 190, g2dbuf, G2D_BLUE, G2D_BLACK, 1);
 }
 
-void draw_default(char* path, uint8_t g2d_node)
-{
+void draw_default(char* path, uint8_t g2d_node) {
+
   snprintf(pathbuf, 64, "%s:is", path);
   char* is=object_property_values(user, pathbuf);
+
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
-    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_MAGENTA);
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_MAGENTA);
     g2d_node_text(g2d_node, 10,20, is, G2D_BLACK, G2D_MAGENTA, 3);
     return;
   }
-  g2d_node_text(g2d_node, 10, 190, "no show", G2D_BLUE, G2D_BLACK, 1);
+  snprintf(pathbuf, 64, "%s", path);
+  char* uid=object_property(user, pathbuf);
+  object* o=onex_get_from_cache(uid);
+  static char bigvaluebuf[256];
+  object_to_text(o, bigvaluebuf, 256, OBJECT_TO_TEXT_LOG);
+
+  uint16_t p=0;
+  uint16_t l=strlen(bigvaluebuf);
+  uint16_t y=30;
+  while(y<280 && p < l){
+    g2d_node_text(g2d_node, 10, y, bigvaluebuf+p, G2D_BLUE, G2D_BLACK, 2);
+    y+=20; p+=19;
+  }
 }
 

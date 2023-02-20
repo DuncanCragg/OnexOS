@@ -841,14 +841,21 @@ static void draw_list(char* p, uint8_t g2d_node) {
                                     20,2*stretch_height,
                                     200,stretch_height, G2D_GREY_7);
 
-  uint16_t y=10;
+  uint8_t new_top_g2d_node = g2d_node_create(scroll_g2d_node,
+                                             20,10,
+                                             200,CHILD_HEIGHT-30,
+                                             list_cb, "new-at-top");
+  g2d_node_rectangle(new_top_g2d_node, 0,0,
+                     g2d_node_width(new_top_g2d_node),g2d_node_height(new_top_g2d_node),
+                     G2D_GREY_F);
+  g2d_node_text(new_top_g2d_node, 10,10, "add new", G2D_WHITE, G2D_GREY_F, 2);
+
+  uint16_t y=g2d_node_height(new_top_g2d_node)+20;
 
   for(uint8_t i=1; i<=ll; i++){
 
     static char pathbufrec[64];
-
     snprintf(pathbufrec, 64, "%s:list:%d", p, i);
-
     char* uid=object_property(user, pathbufrec);
 
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,

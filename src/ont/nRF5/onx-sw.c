@@ -680,18 +680,28 @@ static bool evaluate_user(object* o, void* d) {
   if(!user_active) return true;
 
   if(button_action==BUTTON_ACTION_SHORT){
-    object_property_set(user, "viewing", watchuid);
-    reset_viewing_state_variables();
+    uint16_t histlen=object_property_length(user, "history");
+    if(histlen){
+      snprintf(pathbuf, 64, "history:%d", histlen);
+      char* viewing = object_property(user, pathbuf);
+      object_property_set(user, pathbuf, 0);
+      object_property_set(user, "viewing", viewing);
+      reset_viewing_state_variables();
+    }
     button_action=BUTTON_ACTION_NONE;
   }
   else
   if(button_action==BUTTON_ACTION_LONG){
+    char* viewing_uid=object_property(user, "viewing");
+    object_property_add(user, "history", viewing_uid);
     object_property_set(user, "viewing", homeuid);
     reset_viewing_state_variables();
     button_action=BUTTON_ACTION_NONE;
   }
 
   if(list_selected_uid){
+    char* viewing_uid=object_property(user, "viewing");
+    object_property_add(user, "history", viewing_uid);
     object_property_set(user, "viewing", list_selected_uid);
     reset_viewing_state_variables();
     list_selected_uid=0;

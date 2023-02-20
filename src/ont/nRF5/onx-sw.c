@@ -952,7 +952,7 @@ static void add_char(unsigned char c) {
     edit_word[cursor]=0;
     return;
   }
-  add_word();
+  if(in_word) add_word();
   in_word=false;
   cursor=0;
 }

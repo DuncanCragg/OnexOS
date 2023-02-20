@@ -722,14 +722,21 @@ static bool evaluate_user(object* o, void* d) {
 #if defined(LOG_TO_GFX)
   uint64_t pre_render_time=time_ms();
 
-  #define LOG_LINES_MAX 3
+  #define LOG_LINES_MAX 5
+  #define LOG_LEN 40
   static char*    log_lines[LOG_LINES_MAX];
   static uint8_t  log_lines_index=0;
   static uint64_t log_last=0;
   if(event_log_buffer){
     if(log_lines[log_lines_index]) free(log_lines[log_lines_index]);
-    log_lines[log_lines_index]=strndup((char*)event_log_buffer, 40);
+    log_lines[log_lines_index]=strndup((char*)event_log_buffer, LOG_LEN);
     log_lines_index=(log_lines_index+1)%LOG_LINES_MAX;
+    uint8_t linelen=strlen((char*)event_log_buffer);
+    if(linelen>LOG_LEN){
+      char* lastbit=(char*)event_log_buffer+linelen-LOG_LEN;
+      log_lines[log_lines_index]=strndup(lastbit, LOG_LEN);
+      log_lines_index=(log_lines_index+1)%LOG_LINES_MAX;
+    }
     event_log_buffer=0;
     log_last=pre_render_time;
   }
@@ -739,10 +746,13 @@ static bool evaluate_user(object* o, void* d) {
       log_lines[i]=log_lines[i+1];
     }
     log_lines[LOG_LINES_MAX-1]=0;
+    log_lines_index=max(log_lines_index-1, 0);
     log_last=pre_render_time-1;
   }
   for(uint8_t i=0; i<LOG_LINES_MAX; i++){
-    if(log_lines[i]) g2d_node_text(root_g2d_node, 20, 8+i*8, log_lines[i], G2D_RED, G2D_BLACK, 1);
+    if(log_lines[i]){
+      g2d_node_text(root_g2d_node, 20,8+i*8, log_lines[i], G2D_RED, G2D_BLACK, 1);
+    }
   }
 #endif
 

@@ -365,19 +365,19 @@ int main() {
 
   object_property_add(home, "list", notesuid);
   object_property_add(home, "list", aboutuid);
-  object_property_add(home, "list", note1uid);
-  object_property_add(home, "list", note2uid);
   object_property_add(home, "list", watchuid);
   object_property_add(home, "list", clockuid);
-  object_property_add(home, "list", homeuid);
-  object_property_add(home, "list", useruid);
-  object_property_add(home, "list", watchfaceuid);
-  object_property_add(home, "list", backlightuid);
-  object_property_add(home, "list", batteryuid);
-  object_property_add(home, "list", touchuid);
-  object_property_add(home, "list", buttonuid);
+//object_property_add(home, "list", note1uid);
+//object_property_add(home, "list", note2uid);
+//object_property_add(home, "list", homeuid);
+//object_property_add(home, "list", useruid);
+//object_property_add(home, "list", watchfaceuid);
+//object_property_add(home, "list", backlightuid);
+//object_property_add(home, "list", batteryuid);
+//object_property_add(home, "list", touchuid);
+//object_property_add(home, "list", buttonuid);
 #if defined(DO_LATER)
-  object_property_add(home, "list", motionuid);
+//object_property_add(home, "list", motionuid);
 #endif
 
   object_property_set(watch, "battery",   batteryuid);

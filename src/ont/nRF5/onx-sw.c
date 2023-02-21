@@ -677,7 +677,7 @@ static char     edit_word[64];
 static uint8_t  cursor=0;
 
 #define KBDSTART_X 0
-#define KBDSTART_Y 200
+#define KBDSTART_Y 250
 static uint8_t kbd_page=1;
 static int16_t kbd_x=KBDSTART_X;
 static int16_t kbd_y=KBDSTART_Y;
@@ -924,8 +924,16 @@ static bool evaluate_user(object* usr, void* d) {
   }
 
   if(del_this_word || add_this_word){
-    char* viewing_uid=object_property(user, "viewing");
-    eval_update_list(viewing_uid, "text", del_this_word, add_this_word);
+    // hack alert - setting epoch ts from kbd
+    if(add_this_word && object_property_contains(user, "viewing:is", "watch")){
+        char* e; uint64_t tsnum=strtoull(add_this_word,&e,10);
+        if(!(*e)) time_es_set(tsnum);
+    }
+    // hack alert - setting epoch ts from kbd
+    else{
+      char* viewing_uid=object_property(user, "viewing");
+      eval_update_list(viewing_uid, "text", del_this_word, add_this_word);
+    }
     del_this_word=0; add_this_word=0;
   }
 
@@ -1157,6 +1165,17 @@ static void draw_watch(char* path, uint8_t g2d_node) {
 
   snprintf(g2dbuf, 64, "%d", pcnum);
   g2d_node_text(g2d_node, 10, 30, g2dbuf, batt_col, G2D_BLACK, 3);
+
+  // hack alert - setting epoch ts from kbd
+  if(cursor==0){
+    snprintf(edit_word, 64, "%ld", (uint32_t)time_es());
+    cursor=strlen(edit_word);
+    in_word=true;
+  }
+  g2d_node_text(g2d_node, 110,20, edit_word, G2D_GREY_F, G2D_BLACK, 2);
+
+  show_keyboard(g2d_node);
+  // hack alert - setting epoch ts from kbd
 }
 
 static void word_cb(bool down, int16_t dx, int16_t dy, void* wi){

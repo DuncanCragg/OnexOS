@@ -942,9 +942,12 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
   g2d_node_text(g2d_node, 10, 90, g2dbuf, G2D_WHITE, G2D_BLACK, 7);
 
+  strftime(g2dbuf, 64, "%S", &tms);
+  g2d_node_text(g2d_node, 105, 130, g2dbuf, G2D_GREY_1A, G2D_BLACK, 1);
+
   if(!h24){
     strftime(g2dbuf, 64, "%p", &tms);
-    g2d_node_text(g2d_node, 100, 150, g2dbuf, G2D_BLUE, G2D_BLACK, 3);
+    g2d_node_text(g2d_node, 180, 150, g2dbuf, G2D_BLUE, G2D_BLACK, 3);
   }
 
   strftime(g2dbuf, 64, "%a %d %h", &tms);

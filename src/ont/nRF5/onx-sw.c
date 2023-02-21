@@ -618,15 +618,6 @@ static void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
 
 static object* create_new_object_like_others(char* path) {
   object* r=0;
-  int16_t ll = object_property_length(user, path);
-
-  int8_t maxsz=0;
-  for(int i=1; i<=ll; i++){
-    snprintf(pathbuf, 64, "%s:%d:", path, i);
-    int8_t sz=object_property_size(user, pathbuf);
-    if(sz>maxsz) maxsz=sz;
-  }
-  if(maxsz<4) maxsz=4;
 
   return r;
 }

@@ -562,9 +562,7 @@ static bool evaluate_backlight_out(object* blt, void* d) {
 
   if(light_on && !user_active){
 
-#if defined(DO_LATER)
-    display_wake();
-#endif
+    display_fast_wake();
 
     bool mid =object_property_is(blt, "level", "mid");
     bool high=object_property_is(blt, "level", "high");
@@ -589,9 +587,7 @@ static bool evaluate_backlight_out(object* blt, void* d) {
 
     gpio_set(LCD_BACKLIGHT,      !LEDS_ACTIVE_STATE);
 
-#if defined(DO_LATER)
-    display_sleep();
-#endif
+    display_fast_sleep();
   }
   return true;
 }

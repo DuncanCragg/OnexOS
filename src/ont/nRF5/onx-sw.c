@@ -616,8 +616,41 @@ static void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
   onex_run_evaluators(uid, update);
 }
 
-static object* create_new_object_like_others(char* path) {
-  object* r=0;
+static object* create_new_object_like_others() {
+
+  char* newtype="list editable";
+
+  snprintf(pathbuf, 64, "viewing:is");
+  if(object_property_contains(user, pathbuf, "text")){
+    newtype="text editable";
+  }
+  else{
+    int16_t ll = object_property_length(user, "viewing:list");
+    if(ll==0){
+      newtype="text editable";
+    }
+    else{
+      snprintf(pathbuf, 64, "viewing:list:1:is");
+      if( object_property_contains(user, pathbuf, "text") &&
+         !object_property_contains(user, pathbuf, "list")    ){
+
+        newtype="text editable";
+      }
+    }
+  }
+
+  object* r=object_new(0, 0, newtype, 4);
+
+  if(!strcmp(newtype, "text editable")){
+    object_set_evaluator(r, "notes");
+    object_property_set(r, "text", "--");
+  }
+  else{
+    object_set_evaluator(r, "editable");
+  //object_property_set(r, "list", "--");
+  }
+
+  if(r) onex_run_evaluators(object_property(r, "UID"), 0);
 
   return r;
 }
@@ -711,7 +744,7 @@ static bool evaluate_user(object* usr, void* d) {
   if(list_selected_uid){
     char* viewing_uid=object_property(user, "viewing");
     if(!strcmp(list_selected_uid, "new-at-top")){
-      object* o = create_new_object_like_others("viewing:list");
+      object* o = create_new_object_like_others();
       if(o) eval_update_list(viewing_uid, "list", 0, object_property(o, "UID"));
     }
     else{

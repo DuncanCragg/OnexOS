@@ -568,9 +568,7 @@ static bool evaluate_backlight_out(object* blt, void* d) {
     bool high=object_property_is(blt, "level", "high");
     gpio_set(LCD_BACKLIGHT,      (mid||high)? LEDS_ACTIVE_STATE: !LEDS_ACTIVE_STATE);
 
-#if defined(DO_LATER)
     touch_wake();
-#endif
 
     user_active=true;
 
@@ -581,9 +579,7 @@ static bool evaluate_backlight_out(object* blt, void* d) {
 
     user_active=false;
 
-#if defined(DO_LATER)
-  //touch_sleep();
-#endif
+    touch_sleep();
 
     gpio_set(LCD_BACKLIGHT,      !LEDS_ACTIVE_STATE);
 

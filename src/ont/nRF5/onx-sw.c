@@ -566,7 +566,7 @@ static bool evaluate_backlight_out(object* blt, void* d) {
 
     bool mid =object_property_is(blt, "level", "mid");
     bool high=object_property_is(blt, "level", "high");
-    gpio_set(LCD_BACKLIGHT,      (mid||high)? LEDS_ACTIVE_STATE: !LEDS_ACTIVE_STATE);
+    gpio_set(LCD_BACKLIGHT, (mid||high)? LEDS_ACTIVE_STATE: !LEDS_ACTIVE_STATE);
 
     touch_wake();
 
@@ -581,7 +581,7 @@ static bool evaluate_backlight_out(object* blt, void* d) {
 
     touch_sleep();
 
-    gpio_set(LCD_BACKLIGHT,      !LEDS_ACTIVE_STATE);
+    gpio_set(LCD_BACKLIGHT, !LEDS_ACTIVE_STATE);
 
     display_fast_sleep();
   }

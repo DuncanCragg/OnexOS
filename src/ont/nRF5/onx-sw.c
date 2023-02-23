@@ -173,7 +173,7 @@ int main() {
 
   boot_init();
   log_init();
-  time_init_set((unsigned long)&__BUILD_TIMESTAMP);
+  time_init_set(3+(unsigned long)&__BUILD_TIMESTAMP);
   gpio_init();
 
   set_up_gpio();

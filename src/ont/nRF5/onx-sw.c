@@ -155,21 +155,8 @@ extern bool evaluate_button_in(object* o, void* d);
 extern bool evaluate_about_in(object* o, void* d);
 extern bool evaluate_backlight_out(object* o, void* d);
 
-int main() {
 
-  boot_init();
-  log_init();
-  time_init_set(3+(unsigned long)&__BUILD_TIMESTAMP);
-  gpio_init();
-
-  set_up_gpio();
-
-  touch_init(touched);
-#if defined(DO_LATER)
-  motion_init(moved);
-#endif
-
-  g2d_init();
+static void init_onex(){
 
   onex_init("");
 
@@ -386,6 +373,25 @@ int main() {
   onex_run_evaluators(clockuid, 0);
   onex_run_evaluators(backlightuid, 0);
   onex_run_evaluators(aboutuid, 0);
+}
+
+int main() {
+
+  boot_init();
+  log_init();
+  time_init_set(3+(unsigned long)&__BUILD_TIMESTAMP);
+  gpio_init();
+
+  set_up_gpio();
+
+  touch_init(touched);
+#if defined(DO_LATER)
+  motion_init(moved);
+#endif
+
+  g2d_init();
+
+  init_onex();
 
   time_ticker(every_second,  1000);
   time_ticker(every_10s,    10000);

@@ -1,5 +1,6 @@
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,9 +9,8 @@
 #include <boards.h>
 
 #include <items.h>
-
 #include <onex-kernel/time.h>
-#include <onex-kernel/log.h>
+
 #include <onex-kernel/touch.h>
 
 #include <onn.h>
@@ -19,6 +19,24 @@
 #include "g2d.h"
 
 // -------------------- User --------------------------
+
+extern uint16_t word_index;
+extern bool     in_word;
+extern char     edit_word[];
+extern uint8_t  cursor;
+
+#define KBDSTART_X 0
+#define KBDSTART_Y 250
+extern uint8_t kbd_page;
+extern int16_t kbd_x;
+extern int16_t kbd_y;
+
+extern int16_t text_scroll_offset;
+
+extern uint16_t del_this_word;
+extern char*    add_this_word;
+
+extern void show_keyboard(uint8_t g2d_node);
 
 extern char* event_log_buffer;
 
@@ -108,27 +126,11 @@ static void show_touch_point(uint8_t g2d_node){
 
 static char* list_selected_uid=0;
 
-static uint16_t del_this_word=0;
-static char*    add_this_word=0;
-
 static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
 static bool     scroll_bot=false;
 static bool     scrolling=false;
 static int16_t  scroll_offset=0;
-
-static uint16_t word_index=1;
-static bool     in_word=false;
-static char     edit_word[64];
-static uint8_t  cursor=0;
-
-#define KBDSTART_X 0
-#define KBDSTART_Y 250
-static uint8_t kbd_page=1;
-static int16_t kbd_x=KBDSTART_X;
-static int16_t kbd_y=KBDSTART_Y;
-
-static int16_t text_scroll_offset=0;
 
 static void reset_viewing_state_variables(){
 
@@ -150,176 +152,6 @@ static void reset_viewing_state_variables(){
   text_scroll_offset=0;
 }
 
-// ---------------------- keyboard ------------------------ {
-
-static void del_word(){
-  if(word_index==1) return;
-  del_this_word=word_index-1;
-  add_this_word=0;
-  word_index--;
-}
-
-static void add_word(){
-  del_this_word=0;
-  add_this_word=edit_word;
-  word_index++;
-}
-
-static void del_char() {
-  if(in_word){
-    if(cursor==0) return;
-    edit_word[--cursor]=0;
-    if(cursor==0) in_word=false;
-    return;
-  }
-  del_word();
-}
-
-static void add_char(unsigned char c) {
-  if(c!=' '){
-    if(cursor==62) return;
-    in_word=true;
-    edit_word[cursor++]=c;
-    edit_word[cursor]=0;
-    return;
-  }
-  if(in_word) add_word();
-  in_word=false;
-  cursor=0;
-}
-
-static unsigned char kbd_pages[7][20]={
-
-  { "     " },
-  { "ERTIO"
-    "ASDGH"
-    "CBNM>"
-    "^#  ~" },
-  { "QWYUP"
-    "FJKL "
-    " ZXV<"
-    "^#  ~" },
-  { "+ ()-"
-    "/'#@*"
-    "%!;:>"
-    "^#,.~" },
-  { "^&[]_"
-    " \"{}~"
-    " ?<><"
-    "^#,.~" },
-  { "+123-"
-    "/456*"
-    "%789>"
-    "^#0.=" },
-  { "^123e"
-    " 456 "
-    " 789<"
-    "^#0.=" }
-};
-
-
-#define SELECT_TYPE 15
-#define SELECT_PAGE 14
-#define DELETE_LAST 16
-
-static void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
-
-  if(down) return;
-
-  uint32_t ki=(uint32_t)kiv;
-
-  if(ki==SELECT_TYPE){
-    if(kbd_page==1 || kbd_page==2) kbd_page=3;
-    else
-    if(kbd_page==3 || kbd_page==4) kbd_page=5;
-    else
-    if(kbd_page==5 || kbd_page==6) kbd_page=1;
-  }
-  else
-  if(ki==SELECT_PAGE){
-    if(kbd_page==1) kbd_page=2;
-    else
-    if(kbd_page==2) kbd_page=1;
-    else
-    if(kbd_page==3) kbd_page=4;
-    else
-    if(kbd_page==4) kbd_page=3;
-    else
-    if(kbd_page==5) kbd_page=6;
-    else
-    if(kbd_page==6) kbd_page=5;
-  }
-  else
-  if(ki==DELETE_LAST){
-
-    del_char();
-  }
-  else {
-
-    add_char(kbd_pages[kbd_page][ki]);
-
-    if(kbd_page==2 || kbd_page==6) kbd_page--;
-    else
-    if(kbd_page==3 || kbd_page==4) kbd_page=1;
-  }
-}
-
-#define KEY_SIZE  41
-#define KEY_H_SPACE 7
-#define KEY_V_SPACE 1
-
-static void kbd_drag(bool down, int16_t dx, int16_t dy, void* arg){
-  if(!down || dx+dy==0) return;
-  if(dx*dx>dy*dy) kbd_x+=dx;
-  else            kbd_y+=dy;
-}
-
-static void show_keyboard(uint8_t g2d_node){
-
-  uint8_t kbd_g2d_node = g2d_node_create(g2d_node,
-                                         kbd_x, kbd_y,
-                                         g2d_node_width(g2d_node), 215,
-                                         kbd_drag, 0);
-  if(!kbd_g2d_node) return;
-
-  g2d_node_rectangle(kbd_g2d_node, 0,0,
-                     g2d_node_width(kbd_g2d_node),g2d_node_height(kbd_g2d_node),
-                     G2D_GREY_F);
-
-  uint16_t kx=0;
-  uint16_t ky=30;
-
-  unsigned char pressed=0;
-
-  for(uint8_t j=0; j<4; j++){
-    for(uint8_t i=0; i<5; i++){
-
-      uint32_t ki = i + j*5;
-
-      unsigned char key = kbd_pages[kbd_page][ki];
-
-      uint8_t key_g2d_node = g2d_node_create(kbd_g2d_node,
-                                             kx, ky,
-                                             KEY_SIZE+KEY_H_SPACE, KEY_SIZE+KEY_V_SPACE,
-                                             key_hit, (void*)ki);
-
-      uint16_t key_bg=(pressed==key)? G2D_GREEN: G2D_GREY_1A;
-      g2d_node_rectangle(key_g2d_node,
-                         KEY_H_SPACE/2,KEY_V_SPACE/2,
-                         KEY_SIZE,KEY_SIZE, key_bg);
-
-      snprintf(g2dbuf, 64, "%c", key);
-      g2d_node_text(key_g2d_node, 13,7, g2dbuf, G2D_BLACK, key_bg, 4);
-
-      kx+=KEY_SIZE+KEY_H_SPACE;
-    }
-    kx=0;
-    ky+=KEY_SIZE+KEY_V_SPACE;
-  }
-}
-
-// }--------------------------------------------------------
-
 bool user_active=true;
 
 static uint8_t fps = 111;
@@ -331,7 +163,14 @@ static void draw_notes(char* p, uint8_t g2d_node);
 static void draw_about(char* p, uint8_t g2d_node);
 static void draw_default(char* p, uint8_t g2d_node);
 
+static bool first_time=true;
+
 bool evaluate_user(object* usr, void* d) {
+
+  if(first_time){
+    reset_viewing_state_variables();
+    first_time=false;
+  }
 
   bool is_a_touch_triggered_eval=!!d;
 

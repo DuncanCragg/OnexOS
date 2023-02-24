@@ -155,6 +155,29 @@ extern bool evaluate_button_in(object* o, void* d);
 extern bool evaluate_about_in(object* o, void* d);
 extern bool evaluate_backlight_out(object* o, void* d);
 
+static char note_text[] = "the fat cat sat on me";
+
+static char note_text_big[] =
+  "xxxxxxxxxxxxxxxxxxx " "xxxxxxxxxxxxxxxxxx " "xxxxxxxxxxxxxxxx " "xxxxxxxxxxxxxxx "
+  "xxxxxxxxxxxxxx " "xxxxxxxxxxxxx " "xxxxxxxxxxxx " "xxxxxxxxxxx " "xxxxxxxxxx "
+  "xxxxxxxxx " "xxxxxxxx " "xxxxxxx " "xxxxxx " "xxxxx " "xxxx " "xxx " "xx " "x "
+  "Welcome to OnexOS! " "and the Object Network " "A Smartwatch OS " "Without Apps "
+  "app-killer, inversion " "only see data in HX " "no apps, like the Web " "all our data "
+  "just stuff - objects " "you can link to and list " "little objects "
+  "of all kinds of data " "linked together " "semantic " "on our own devices "
+  "hosted by you (including you) " "sewn together " "into a global, shared fabric "
+  "which we can all Link up " "into a shared global data fabric " "like the Web " "mesh "
+  "see objects inside other watches " "add their objects to your lists "
+  "internet after mesh " "we create a global data fabric "
+  "from all our objects linked up " "a two-way dynamic data Web " "a global Meshaverse "
+  "chat Freedom Meshaverse " "spanning the planet " "animated by us "
+  "internally-animated " "programmed like a spreadsheet "
+  "objects are live - you see them change " "you have live presence as an object yourself "
+  "SS-like PL over objects as objects themselves " "can share rule object set objects "
+  "like 'downloading an app' " "internally-animated "
+  "with behaviour rules you can write yourself "
+  "and animate ourselves with spreadsheet-like rules "
+  "----- ----- ----- ----- -----";
 
 static void init_onex(){
 
@@ -257,70 +280,6 @@ static void init_onex(){
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");
 
-  static char note_text[] = "the fat cat sat on me";
-
-  static char note_text_big[] =
-                            "xxxxxxxxxxxxxxxxxxx "
-                            "xxxxxxxxxxxxxxxxxx "
-                            "xxxxxxxxxxxxxxxx "
-                            "xxxxxxxxxxxxxxx "
-                            "xxxxxxxxxxxxxx "
-                            "xxxxxxxxxxxxx "
-                            "xxxxxxxxxxxx "
-                            "xxxxxxxxxxx "
-                            "xxxxxxxxxx "
-                            "xxxxxxxxx "
-                            "xxxxxxxx "
-                            "xxxxxxx "
-                            "xxxxxx "
-                            "xxxxx "
-                            "xxxx "
-                            "xxx "
-                            "xx "
-                            "x "
-                            "Welcome to OnexOS! "
-                            "and the Object Network "
-                            "A Smartwatch OS "
-                            "Without Apps "
-                            "app-killer, inversion "
-                            "only see data in HX "
-                            "no apps, like the Web "
-                            "all our data "
-                            "just stuff - objects "
-                            "you can link to and list "
-                            "little objects "
-                            "of all kinds of data "
-                            "linked together "
-                            "semantic "
-                            "on our own devices "
-                            "hosted by you (including you) "
-                            "sewn together "
-                            "into a global, shared fabric "
-                            "which we can all Link up "
-                            "into a shared global data fabric "
-                            "like the Web "
-                            "mesh "
-                            "see objects inside other watches "
-                            "add their objects to your lists "
-                            "internet after mesh "
-                            "we create a global data fabric "
-                            "from all our objects linked up "
-                            "a two-way dynamic data Web "
-                            "a global Meshaverse "
-                            "chat Freedom Meshaverse "
-                            "spanning the planet "
-                            "animated by us "
-                            "internally-animated "
-                            "programmed like a spreadsheet "
-                            "objects are live - you see them change "
-                            "you have live presence as an object yourself "
-                            "SS-like PL over objects as objects themselves "
-                            "can share rule object set objects "
-                            "like 'downloading an app' "
-                            "internally-animated "
-                            "with behaviour rules you can write yourself "
-                            "and animate ourselves with spreadsheet-like rules "
-                            "----- ----- ----- ----- -----";
   char* strtok_state = 0;
   char* word = strtok_r(note_text, " ", &strtok_state);
   while(word){

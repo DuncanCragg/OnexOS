@@ -47,6 +47,13 @@ static volatile motion_info_t motion_info;
 static void every_second(){
   onex_run_evaluators(clockuid, 0);
   onex_run_evaluators(aboutuid, 0);
+
+#if defined(EPOCH_ADJUST)
+  static uint16_t period=EPOCH_ADJUST < 0? -EPOCH_ADJUST: EPOCH_ADJUST;
+  static  int16_t amount=EPOCH_ADJUST < 0? -1: 1;
+  static uint32_t seconds_adjust=0;
+  if(period && !(++seconds_adjust % period)) time_es_set(time_es()+amount);
+#endif
 }
 
 static void every_10s(){

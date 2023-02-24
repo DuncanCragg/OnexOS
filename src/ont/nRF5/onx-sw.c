@@ -101,20 +101,6 @@ static void touched(touch_info_t ti) {
   onex_run_evaluators(touchuid, 0);
 }
 
-#if defined(DO_LATER)
-  // XXX all in main loop not here
-  static uint8_t  disable_user_touch=0;
-
-  if(!user_active          && touch_info.action==TOUCH_ACTION_CONTACT) disable_user_touch=1;
-  if(disable_user_touch==1 && touch_info.action!=TOUCH_ACTION_CONTACT) disable_user_touch=2;
-  if(disable_user_touch==2 && touch_info.action==TOUCH_ACTION_CONTACT) disable_user_touch=0;
-
-  if(!disable_user_touch){
-    log_write("eval user from touched\n");
-    onex_run_evaluators(useruid, 0);
-  }
-#endif
-
 
 #if defined(DO_LATER)
 static void moved(motion_info_t mi)

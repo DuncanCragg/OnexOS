@@ -110,6 +110,8 @@ WEAR_SOURCES = \
 
 SW_SOURCES = \
 ./src/ont/nRF5/g2d.c \
+./src/ont/nRF5/evaluators.c \
+./src/ont/nRF5/user.c \
 ./src/ont/nRF5/onx-sw.c \
 
 

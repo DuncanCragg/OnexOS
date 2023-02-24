@@ -1,6 +1,9 @@
 #ifndef G2D_H
 #define G2D_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #define G2D_WHITE   0xffff
 #define G2D_BLACK   0x0000
 #define G2D_GREY_1E 0xf79e // 1.1.1.1:0/1.1.1:1.0.0/1:1.1.1.0

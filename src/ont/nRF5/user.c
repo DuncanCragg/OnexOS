@@ -219,9 +219,8 @@ bool evaluate_user(object* usr, void* d) {
   if(button_action==BUTTON_ACTION_SHORT){
     uint16_t histlen=object_property_length(user, "history");
     if(histlen){
-      snprintf(pathbuf, 64, "history:%d", histlen);
-      char* viewing_uid = object_property(user, pathbuf);
-      object_property_set(user, pathbuf, 0);
+      char* viewing_uid = object_property_get_n(user, "history", histlen);
+      object_property_set_n(user, "history", histlen, 0);
       object_property_set(user, "viewing", viewing_uid);
       reset_viewing_state_variables();
     }

@@ -222,9 +222,9 @@ bool evaluate_user(object* usr, void* d) {
     uint16_t histlen=object_property_length(user, "history");
     if(histlen){
       snprintf(pathbuf, 64, "history:%d", histlen);
-      char* viewing = object_property(user, pathbuf);
+      char* viewing_uid = object_property(user, pathbuf);
       object_property_set(user, pathbuf, 0);
-      object_property_set(user, "viewing", viewing);
+      object_property_set(user, "viewing", viewing_uid);
       reset_viewing_state_variables();
     }
     button_action=BUTTON_ACTION_NONE;

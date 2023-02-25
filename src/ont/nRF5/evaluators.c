@@ -35,7 +35,7 @@ bool evaluate_default(object* obj, void* d) {
 }
 
 #define BATTERY_ZERO_PERCENT 3400
-#define BATTERY_100_PERCENT 4000
+#define BATTERY_100_PERCENT 4100
 #define BATTERY_PERCENT_STEPS 2
 bool evaluate_battery_in(object* bat, void* d) {
 

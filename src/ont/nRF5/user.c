@@ -454,8 +454,8 @@ static void draw_watch(char* path, uint8_t g2d_node) {
 
   uint16_t batt_col;
   if(ch)       batt_col=BATTERY_CHARGING; else
-  if(pcnum>67) batt_col=BATTERY_HIGH;     else
-  if(pcnum>33) batt_col=BATTERY_MED;
+  if(pcnum>30) batt_col=BATTERY_HIGH;     else
+  if(pcnum>17) batt_col=BATTERY_MED;
   else         batt_col=BATTERY_LOW;
 
   snprintf(g2dbuf, 64, "%d", pcnum);

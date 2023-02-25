@@ -399,7 +399,7 @@ static void draw_list(char* p, uint8_t g2d_node) {
 
 static void draw_watch(char* path, uint8_t g2d_node) {
 
-  snprintf(pathbuf, 64, "%s:battery:percent", path);
+  snprintf(pathbuf, 64, "%s:battery:percent:1", path);
   char* pc=object_property(   user, pathbuf);
   snprintf(pathbuf, 64, "%s:battery:status", path);
   bool  ch=object_property_is(user, pathbuf, "charging");

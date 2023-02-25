@@ -24,10 +24,6 @@ extern touch_info_t touch_info;
 
 // ------------------- evaluators ----------------
 
-// XXX separated out to remind me to extend the respective APIs to allow sprintf-style
-// XXX varargs for path segments, value construction and g2d_node_text()
-static char valuebuf[64];
-
 bool evaluate_default(object* obj, void* d) {
   log_write("evaluate_default d=%p\n", d);
 //object_log(obj);
@@ -47,28 +43,23 @@ bool evaluate_battery_in(object* bat, void* d) {
                ) * BATTERY_PERCENT_STEPS;
   if(pc<0) pc=0;
   if(pc>100) pc=100;
-  snprintf(valuebuf, 64, "%d%%(%ld)", pc, mv);
 
-  object_property_set(bat, "percent", valuebuf);
+  object_property_set_fmt(bat, "percent", "%d%% %ldmv", pc, mv);
 
   uint8_t batt=gpio_get(CHARGE_SENSE);
-  snprintf(valuebuf, 64, "%s", batt? "powering": "charging");
-  object_property_set(bat, "status", valuebuf);
+  object_property_set(bat, "status", batt? "powering": "charging");
 
   return true;
 }
 
 bool evaluate_touch_in(object* tch, void* d) {
 
-  snprintf(valuebuf, 64, "%3d %3d", touch_info.x, touch_info.y);
-  object_property_set(tch, "coords", valuebuf);
+  object_property_set_fmt(tch, "coords", "%3d %3d", touch_info.x, touch_info.y);
 
-  snprintf(valuebuf, 64, "%s", touch_actions[touch_info.action]);
-  object_property_set(tch, "action", valuebuf);
+  object_property_set(tch, "action", touch_actions[touch_info.action]);
 
 #if defined(DO_LATER)
-  snprintf(valuebuf, 64, "%d", touch_info_stroke);
-  object_property_set(tch, "stroke", valuebuf);
+  object_property_set_fmt(tch, "stroke", "%d", touch_info_stroke);
 #endif
 
   return true;
@@ -91,9 +82,8 @@ bool evaluate_motion_in(object* mtn, void* d) {
   ticks++;
   if(ticks%50 && !viewscreen) return true;
 
-  snprintf(valuebuf, 64, "%d %d %d %d",
+  object_property_set_fmt(mtn, "x-y-z-m", "%d %d %d %d",
                           motion_info.x, motion_info.y, motion_info.z, motion_info.m);
-  object_property_set(mtn, "x-y-z-m", valuebuf);
   object_property_set(mtn, "gesture", viewscreen? "view-screen": "none");
 
   return true;
@@ -107,14 +97,12 @@ bool evaluate_button_in(object* btn, void* d) {
 }
 
 bool evaluate_about_in(object* abt, void* d) {
-  snprintf(valuebuf, 64, "%lu %lu",
+
+  object_property_set_fmt(abt, "build-info", "%lu %lu",
                           (unsigned long)&__BUILD_TIME,
                           (unsigned long)&__BOOTLOADER_NUMBER);
 
-  object_property_set(abt, "build-info", valuebuf);
-
-  snprintf(valuebuf, 64, "%d%%", boot_cpu());
-  object_property_set(abt, "cpu", valuebuf);
+  object_property_set_fmt(abt, "cpu", "%d%%", boot_cpu());
 
   return true;
 }

@@ -194,12 +194,12 @@ bool user_active=true;
 
 static uint8_t fps = 111;
 
-static void draw_by_type(char* p, uint8_t g2d_node);
-static void draw_list(char* p, uint8_t g2d_node);
-static void draw_watch(char* p, uint8_t g2d_node);
-static void draw_notes(char* p, uint8_t g2d_node);
-static void draw_about(char* p, uint8_t g2d_node);
-static void draw_default(char* p, uint8_t g2d_node);
+static void draw_by_type(char* path, uint8_t g2d_node);
+static void draw_list(char* path, uint8_t g2d_node);
+static void draw_watch(char* path, uint8_t g2d_node);
+static void draw_notes(char* path, uint8_t g2d_node);
+static void draw_about(char* path, uint8_t g2d_node);
+static void draw_default(char* path, uint8_t g2d_node);
 
 static bool first_time=true;
 
@@ -293,15 +293,15 @@ bool evaluate_user(object* usr, void* d) {
   return true;
 }
 
-void draw_by_type(char* p, uint8_t g2d_node)
+void draw_by_type(char* path, uint8_t g2d_node)
 {
-  snprintf(pathbuf, 64, "%s:is", p);
+  snprintf(pathbuf, 64, "%s:is", path);
 
-  if(object_property_contains(user, pathbuf, "list"))  draw_list(p, g2d_node);    else
-  if(object_property_contains(user, pathbuf, "watch")) draw_watch(p, g2d_node);   else
-  if(object_property_contains(user, pathbuf, "text" )) draw_notes(p, g2d_node);   else
-  if(object_property_contains(user, pathbuf, "about")) draw_about(p, g2d_node);   else
-                                                       draw_default(p, g2d_node);
+  if(object_property_contains(user, pathbuf, "list"))  draw_list(path, g2d_node);    else
+  if(object_property_contains(user, pathbuf, "watch")) draw_watch(path, g2d_node);   else
+  if(object_property_contains(user, pathbuf, "text" )) draw_notes(path, g2d_node);   else
+  if(object_property_contains(user, pathbuf, "about")) draw_about(path, g2d_node);   else
+                                                       draw_default(path, g2d_node);
 }
 
 static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
@@ -324,9 +324,9 @@ static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
   list_selected_uid=uid;
 }
 
-static void draw_list(char* p, uint8_t g2d_node) {
+static void draw_list(char* path, uint8_t g2d_node) {
 
-  snprintf(pathbuf, 64, "%s:list", p);
+  snprintf(pathbuf, 64, "%s:list", path);
 
   uint8_t ll=object_property_length(user, pathbuf);
 
@@ -376,7 +376,7 @@ static void draw_list(char* p, uint8_t g2d_node) {
   for(uint8_t i=1; i<=ll; i++){
 
     static char pathbufrec[64];
-    snprintf(pathbufrec, 64, "%s:list:%d", p, i);
+    snprintf(pathbufrec, 64, "%s:list:%d", path, i);
     char* uid=object_property(user, pathbufrec);
 
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,

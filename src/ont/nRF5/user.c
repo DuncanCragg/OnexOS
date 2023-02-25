@@ -85,8 +85,7 @@ static object* create_new_object_like_others() {
 
   char* newtype="list editable";
 
-  snprintf(pathbuf, 64, "viewing:is");
-  if(object_property_contains(user, pathbuf, "text")){
+  if(object_property_contains(user, "viewing:is", "text")){
     newtype="text editable";
   }
   else{
@@ -95,9 +94,8 @@ static object* create_new_object_like_others() {
       newtype="text editable";
     }
     else{
-      snprintf(pathbuf, 64, "viewing:list:1:is");
-      if( object_property_contains(user, pathbuf, "text") &&
-         !object_property_contains(user, pathbuf, "list")    ){
+      if( object_property_contains(user, "viewing:list:1:is", "text") &&
+         !object_property_contains(user, "viewing:list:1:is", "list")    ){
 
         newtype="text editable";
       }
@@ -617,8 +615,7 @@ void draw_default(char* path, uint8_t g2d_node) {
     g2d_node_text(g2d_node, 10,20, is, G2D_BLACK, G2D_MAGENTA, 3);
     return;
   }
-  snprintf(pathbuf, 64, "%s", path);
-  char* uid=object_property(user, pathbuf);
+  char* uid=object_property(user, path);
   object* o=onex_get_from_cache(uid);
   static char bigvaluebuf[256];
   object_to_text(o, bigvaluebuf, 256, OBJECT_TO_TEXT_LOG);

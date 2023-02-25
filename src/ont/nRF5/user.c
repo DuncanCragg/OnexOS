@@ -592,23 +592,22 @@ static void draw_about(char* path, uint8_t g2d_node) {
     return;
   }
 
-  snprintf(pathbuf, 64, "%s:build-info", path);
-  char* bnf=object_property_values(user, pathbuf);
-
   snprintf(g2dbuf, 64, "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
   g2d_node_text(g2d_node, 20, 40, g2dbuf, G2D_BLUE, G2D_BLACK, 2);
 
   snprintf(g2dbuf, 64, "cpu: %s", cpu);
   g2d_node_text(g2d_node, 10, 110, g2dbuf, G2D_BLUE, G2D_BLACK, 3);
 
-  snprintf(g2dbuf, 64, "build: %s", bnf);
+  snprintf(pathbuf, 64, "%s:build-info", path);
+  snprintf(g2dbuf, 64, "build: %s %s", object_property_get_n(user, pathbuf, 1),
+                                       object_property_get_n(user, pathbuf, 2));
   g2d_node_text(g2d_node, 10, 190, g2dbuf, G2D_BLUE, G2D_BLACK, 1);
 }
 
 void draw_default(char* path, uint8_t g2d_node) {
 
-  snprintf(pathbuf, 64, "%s:is", path);
-  char* is=object_property_values(user, pathbuf);
+  snprintf(pathbuf, 64, "%s:is:1", path);
+  char* is=object_property(user, pathbuf);
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,

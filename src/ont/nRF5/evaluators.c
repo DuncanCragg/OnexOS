@@ -107,13 +107,15 @@ bool evaluate_about_in(object* abt, void* d) {
   return true;
 }
 
+#define DISPLAY_SLEEP_HARD true
+
 bool evaluate_backlight_out(object* blt, void* d) {
 
   bool light_on=object_property_is(blt, "light", "on");
 
   if(light_on && !user_active){
 
-    display_fast_wake();
+    display_fast_wake(DISPLAY_SLEEP_HARD);
 
     bool mid =object_property_is(blt, "level", "mid");
     bool high=object_property_is(blt, "level", "high");
@@ -134,7 +136,7 @@ bool evaluate_backlight_out(object* blt, void* d) {
 
     gpio_set(LCD_BACKLIGHT, !LEDS_ACTIVE_STATE);
 
-    display_fast_sleep();
+    display_fast_sleep(DISPLAY_SLEEP_HARD);
   }
   return true;
 }

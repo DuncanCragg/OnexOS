@@ -13,6 +13,8 @@
 #include <onn.h>
 #include <onr.h>
 
+#include "g2d.h"
+
 extern char __BUILD_TIME;
 extern char __BOOTLOADER_NUMBER;
 
@@ -136,6 +138,10 @@ bool evaluate_backlight_out(object* blt, void* d) {
 
     gpio_set(LCD_BACKLIGHT, !LEDS_ACTIVE_STATE);
 
+    if(!DISPLAY_SLEEP_HARD){
+      g2d_clear_screen(0x00);
+      g2d_render();
+    }
     display_fast_sleep(DISPLAY_SLEEP_HARD);
   }
   return true;

@@ -490,7 +490,10 @@ static void draw_notes(char* path, uint8_t g2d_node) {
     char* line1=object_property(user, pathbuf);
     snprintf(pathbuf, 64, "%s:text:2", path);
     char* line2=object_property(user, pathbuf);
-    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_GREEN/6);
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_GREEN/6);
     g2d_node_text(g2d_node, 10,20, line1, G2D_WHITE, G2D_GREEN/6, 2);
     g2d_node_text(g2d_node, 10,40, line2, G2D_WHITE, G2D_GREEN/6, 2);
     return;
@@ -581,7 +584,10 @@ static void draw_about(char* path, uint8_t g2d_node) {
   char* cpu=object_property(user, pathbuf);
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
-    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), G2D_CYAN/6);
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_CYAN/6);
 //  uint32_t touch_events_percent = (100*touch_events_seen)/(1+touch_events);
 //  snprintf(g2dbuf, 64, "%ld%% %ldms", touch_events_percent, loop_time);
     snprintf(g2dbuf, 64, "%dfps %ldms", fps, loop_time);

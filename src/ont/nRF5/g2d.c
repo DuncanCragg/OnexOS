@@ -145,8 +145,8 @@ void g2d_node_rectangle(uint8_t node_id,
 
 // ------------- text
 
-void g2d_node_text(uint8_t node_id, int16_t x, int16_t y, char* text,
-                   uint16_t colour, uint16_t bg, uint8_t size){
+void g2d_node_text(uint8_t node_id, int16_t x, int16_t y,
+                   uint16_t colour, uint16_t bg, uint8_t size, char* text){
 
   if(!node_id) return;
 

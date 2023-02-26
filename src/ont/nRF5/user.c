@@ -56,7 +56,6 @@ object* user;
 
 // XXX separated out to remind me to extend the respective APIs to allow sprintf-style
 // XXX varargs for path segments, value construction and g2d_node_text()
-static char pathbuf[64];
 static char g2dbuf[64];
 
 static void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
@@ -294,13 +293,11 @@ bool evaluate_user(object* usr, void* d) {
 
 void draw_by_type(char* path, uint8_t g2d_node)
 {
-  snprintf(pathbuf, 64, "%s:is", path);
-
-  if(object_property_contains(user, pathbuf, "list"))  draw_list(path, g2d_node);    else
-  if(object_property_contains(user, pathbuf, "watch")) draw_watch(path, g2d_node);   else
-  if(object_property_contains(user, pathbuf, "text" )) draw_notes(path, g2d_node);   else
-  if(object_property_contains(user, pathbuf, "about")) draw_about(path, g2d_node);   else
-                                                       draw_default(path, g2d_node);
+  if(object_pathpair_contains(user, path, "is", "list"))  draw_list(path, g2d_node);   else
+  if(object_pathpair_contains(user, path, "is", "watch")) draw_watch(path, g2d_node);  else
+  if(object_pathpair_contains(user, path, "is", "text" )) draw_notes(path, g2d_node);  else
+  if(object_pathpair_contains(user, path, "is", "about")) draw_about(path, g2d_node);  else
+                                                          draw_default(path, g2d_node);
 }
 
 static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
@@ -325,9 +322,7 @@ static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
 
 static void draw_list(char* path, uint8_t g2d_node) {
 
-  snprintf(pathbuf, 64, "%s:list", path);
-
-  uint8_t ll=object_property_length(user, pathbuf);
+  uint8_t ll=object_pathpair_length(user, path, "list");
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,
@@ -374,15 +369,15 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
   for(uint8_t i=1; i<=ll; i++){
 
-    static char pathbufrec[64];
-    snprintf(pathbufrec, 64, "%s:list:%d", path, i);
-    char* uid=object_property(user, pathbufrec);
+    char* uid=object_pathpair_get_n(user, path, "list", i);
 
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
                                              20,y,
                                              200,CHILD_HEIGHT-10,
                                              list_cb, uid);
 
+    static char pathbufrec[64];
+    snprintf(pathbufrec, 64, "%s:list:%d", path, i);
     if(child_g2d_node) draw_by_type(pathbufrec, child_g2d_node);
 
     y+=CHILD_HEIGHT;
@@ -396,16 +391,11 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
 static void draw_watch(char* path, uint8_t g2d_node) {
 
-  snprintf(pathbuf, 64, "%s:battery:percent:1", path);
-  char* pc=object_property(   user, pathbuf);
-  snprintf(pathbuf, 64, "%s:battery:status", path);
-  bool  ch=object_property_is(user, pathbuf, "charging");
-  snprintf(pathbuf, 64, "%s:watchface:clock:ts", path);
-  char* ts=object_property(   user, pathbuf);
-  snprintf(pathbuf, 64, "%s:watchface:clock:tz:2", path);
-  char* tz=object_property(   user, pathbuf);
-  snprintf(pathbuf, 64, "%s:watchface:ampm-24hr", path);
-  bool h24=object_property_is(user, pathbuf, "24hr");
+  char* pc=object_pathpair(   user, path, "battery:percent:1");
+  bool  ch=object_pathpair_is(user, path, "battery:status", "charging");
+  char* ts=object_pathpair(   user, path, "watchface:clock:ts");
+  char* tz=object_pathpair(   user, path, "watchface:clock:tz:2");
+  bool h24=object_pathpair_is(user, path, "watchface:ampm-24hr", "24hr");
 
   if(!ts) return;
 
@@ -486,16 +476,14 @@ static void word_cb(bool down, int16_t dx, int16_t dy, void* wi){
 static void draw_notes(char* path, uint8_t g2d_node) {
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
-    snprintf(pathbuf, 64, "%s:text:1", path);
-    char* line1=object_property(user, pathbuf);
-    snprintf(pathbuf, 64, "%s:text:2", path);
-    char* line2=object_property(user, pathbuf);
+    char* word1=object_pathpair(user, path, "text:1");
+    char* word2=object_pathpair(user, path, "text:2");
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_GREEN/6);
-    g2d_node_text(g2d_node, 10,20, line1, G2D_WHITE, G2D_GREEN/6, 2);
-    g2d_node_text(g2d_node, 10,40, line2, G2D_WHITE, G2D_GREEN/6, 2);
+    g2d_node_text(g2d_node, 10,20, word1, G2D_WHITE, G2D_GREEN/6, 2);
+    g2d_node_text(g2d_node, 10,40, word2, G2D_WHITE, G2D_GREEN/6, 2);
     return;
   }
 
@@ -517,8 +505,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
                                                     word_cb, 0);
   if(!text_container_g2d_node) return;
 
-  snprintf(pathbuf, 64, "%s:text", path);
-  uint16_t words=object_property_length(user, pathbuf);
+  uint16_t words=object_pathpair_length(user, path, "text");
 
   uint16_t lines=(words/2)+1;
   uint16_t scroll_height=lines*LINE_HEIGHT;
@@ -541,7 +528,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
       char*    word = 0;
       uint16_t word_width=available_width;
       if(w<=words){
-        word = object_property_get_n(user, pathbuf, w);
+        word = object_pathpair_get_n(user, path, "text", w);
         word_width=WORD_SPACING+g2d_text_width(word, 2);
       }
       if(k && word_width > available_width){
@@ -580,8 +567,7 @@ extern uint32_t loop_time;
 
 static void draw_about(char* path, uint8_t g2d_node) {
 
-  snprintf(pathbuf, 64, "%s:cpu", path);
-  char* cpu=object_property(user, pathbuf);
+  char* cpu=object_pathpair(user, path, "cpu");
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,
@@ -601,16 +587,15 @@ static void draw_about(char* path, uint8_t g2d_node) {
   snprintf(g2dbuf, 64, "cpu: %s", cpu);
   g2d_node_text(g2d_node, 10, 110, g2dbuf, G2D_BLUE, G2D_BLACK, 3);
 
-  snprintf(pathbuf, 64, "%s:build-info", path);
-  snprintf(g2dbuf, 64, "build: %s %s", object_property_get_n(user, pathbuf, 1),
-                                       object_property_get_n(user, pathbuf, 2));
+  snprintf(g2dbuf, 64, "build: %s %s", object_pathpair_get_n(user, path, "build-info", 1),
+                                       object_pathpair_get_n(user, path, "build-info", 2));
+
   g2d_node_text(g2d_node, 10, 190, g2dbuf, G2D_BLUE, G2D_BLACK, 1);
 }
 
 void draw_default(char* path, uint8_t g2d_node) {
 
-  snprintf(pathbuf, 64, "%s:is:1", path);
-  char* is=object_property(user, pathbuf);
+  char* is=object_pathpair(user, path, "is:1");
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,

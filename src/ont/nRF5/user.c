@@ -54,10 +54,6 @@ extern char* homeuid;
 
 object* user;
 
-// XXX separated out to remind me to extend the respective APIs to allow sprintf-style
-// XXX varargs for path segments, value construction and g2d_node_text()
-static char g2dbuf[64];
-
 static void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
   properties* update = properties_new(1);
   list* li=0;
@@ -411,6 +407,8 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   struct tm tms={0};
   localtime_r(&est, &tms);
 
+  char g2dbuf[64];
+
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
@@ -445,8 +443,7 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   if(pcnum>17) batt_col=BATTERY_MED;
   else         batt_col=BATTERY_LOW;
 
-  snprintf(g2dbuf, 64, "%d", pcnum);
-  g2d_node_text(g2d_node, 10, 30, batt_col, G2D_BLACK, 3, g2dbuf);
+  g2d_node_text(g2d_node, 10, 30, batt_col, G2D_BLACK, 3, "%d%%", pcnum);
 
   // hack alert - setting epoch ts from kbd
   if(cursor==0){
@@ -493,8 +490,8 @@ static void draw_notes(char* path, uint8_t g2d_node) {
   #define WORD_SPACING  7
   #define CURSOR_WIDTH  3
 
-  snprintf(g2dbuf, 64, "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_node_text(g2d_node, 10,5, G2D_BLUE, G2D_BLACK, 2, g2dbuf);
+  g2d_node_text(g2d_node, 10,5, G2D_BLUE, G2D_BLACK, 2,
+                "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
 
   int16_t wd=g2d_node_width(g2d_node)-2*SIDE_MARGIN;
   int16_t ht=g2d_node_height(g2d_node)-2*TOP_MARGIN;
@@ -567,30 +564,27 @@ extern uint32_t loop_time;
 
 static void draw_about(char* path, uint8_t g2d_node) {
 
-  char* cpu=object_pathpair(user, path, "cpu");
-
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_CYAN/6);
 //  uint32_t touch_events_percent = (100*touch_events_seen)/(1+touch_events);
-//  snprintf(g2dbuf, 64, "%ld%% %ldms", touch_events_percent, loop_time);
-    snprintf(g2dbuf, 64, "%dfps %ldms", fps, loop_time);
-    g2d_node_text(g2d_node, 10,20, G2D_WHITE, G2D_CYAN/6, 3, g2dbuf);
+//                "%ld%% %ldms", touch_events_percent, loop_time);
+    g2d_node_text(g2d_node, 10,20, G2D_WHITE, G2D_CYAN/6, 3,
+                  "%dfps %ldms", fps, loop_time);
     return;
   }
 
-  snprintf(g2dbuf, 64, "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
-  g2d_node_text(g2d_node, 20, 40, G2D_BLUE, G2D_BLACK, 2, g2dbuf);
+  g2d_node_text(g2d_node, 20, 40, G2D_BLUE, G2D_BLACK, 2,
+                "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
 
-  snprintf(g2dbuf, 64, "cpu: %s", cpu);
-  g2d_node_text(g2d_node, 10, 110, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
+  g2d_node_text(g2d_node, 10, 110, G2D_BLUE, G2D_BLACK, 3,
+                "cpu: %s", object_pathpair(user, path, "cpu"));
 
-  snprintf(g2dbuf, 64, "build: %s %s", object_pathpair_get_n(user, path, "build-info", 1),
-                                       object_pathpair_get_n(user, path, "build-info", 2));
-
-  g2d_node_text(g2d_node, 10, 190, G2D_BLUE, G2D_BLACK, 1, g2dbuf);
+  g2d_node_text(g2d_node, 10, 190, G2D_BLUE, G2D_BLACK, 1,
+                "build: %s %s", object_pathpair_get_n(user, path, "build-info", 1),
+                                object_pathpair_get_n(user, path, "build-info", 2));
 }
 
 void draw_default(char* path, uint8_t g2d_node) {
@@ -614,7 +608,7 @@ void draw_default(char* path, uint8_t g2d_node) {
   uint16_t l=strlen(bigvaluebuf);
   uint16_t y=30;
   while(y<280 && p < l){
-    g2d_node_text(g2d_node, 10, y, G2D_BLUE, G2D_BLACK, 2, bigvaluebuf+p);
+    g2d_node_text(g2d_node, 10, y, G2D_BLUE, G2D_BLACK, 2, "%s", bigvaluebuf+p);
     y+=20; p+=19;
   }
 }

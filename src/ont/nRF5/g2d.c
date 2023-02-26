@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdarg.h>
 #include <boards.h>
 
 #include <onex-kernel/display.h>
@@ -146,7 +147,13 @@ void g2d_node_rectangle(uint8_t node_id,
 // ------------- text
 
 void g2d_node_text(uint8_t node_id, int16_t x, int16_t y,
-                   uint16_t colour, uint16_t bg, uint8_t size, char* text){
+                   uint16_t colour, uint16_t bg, uint8_t size, char* fmt, ...){
+
+  char text[128]; // XXX
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(text, 128, fmt, args);
+  va_end(args);
 
   if(!node_id) return;
 

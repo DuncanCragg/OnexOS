@@ -52,28 +52,56 @@ extern bool         touch_down;
 
 extern char* homeuid;
 
-object* user;
+extern object* user;
+extern object* responses;
+extern char*   useruid;
 
-static void eval_update_list(char* uid, char* key, uint16_t i, char* val) {
-  properties* update = properties_new(1);
-  list* li=0;
-  if(i){
-    li=list_new(i+1);
-    if(!val || !*val){
-      for(uint16_t x=1; x<i; x++) list_add(li, value_new("something"));
-      list_add(li, value_new("(=>)"));
-    }
+static object* get_or_create_edit(char* uid) {
+
+  object* edit;
+  char* edit_uid=object_property(responses, uid);
+  if(edit_uid){
+    edit=onex_get_from_cache(edit_uid);
   }
   else{
-    if(val && *val){
-      li=list_new(3);
-      list_add(li, value_new((char*)"=>"));
-      list_add(li, value_new((char*)"@."));
-      list_add(li, value_new(val));
+    edit=object_new(0, 0, "edit rule", 5);
+
+    object_property_set(edit, "edit-target", uid);
+    object_property_set(edit, "edit-user",   useruid);
+    object_property_add(edit, "Notifying",   uid);
+
+    edit_uid=object_property(edit, (char*)"UID");
+    object_property_set(responses, uid, edit_uid);
+  }
+  return edit;
+}
+
+static void set_edit_object(char* uid, char* key, uint16_t i, char* val, bool append){
+
+  char upd[128];
+
+  bool val_something=(val && *val);
+  if(i){
+    size_t s=0;
+    for(uint16_t x=1; x<i; x++){
+      s+=snprintf(upd+s, 128, "something ");
+    }
+    snprintf(upd+s, 128, val_something? "(=> %s)": "(=>)", val);
+  }
+  else{
+    if(append && val_something){
+      snprintf(upd, 128, "=> @. %s", val);
+    }
+    else{
+      snprintf(upd, 128, "=> %s", val_something? val: "");
     }
   }
-  properties_set(update, key, li);
-  onex_run_evaluators(uid, update);
+  object* edit=get_or_create_edit(uid);
+
+  char* oldkey=object_property_key(edit, (char*)":", 4);
+  if(oldkey) object_property_set(edit, oldkey, (char*)"");
+
+  object_property_set(edit, key, upd);
 }
 
 static object* create_new_object_like_others() {
@@ -234,7 +262,7 @@ bool evaluate_user(object* usr, void* d) {
     char* viewing_uid=object_property(user, "viewing");
     if(!strcmp(list_selected_uid, "new-at-top")){
       object* o = create_new_object_like_others();
-      if(o) eval_update_list(viewing_uid, "list", 0, object_property(o, "UID"));
+      if(o) set_edit_object(viewing_uid, "list", 0, object_property(o, "UID"), true);
     }
     else{
       object_property_add(user, "history", viewing_uid);
@@ -253,7 +281,7 @@ bool evaluate_user(object* usr, void* d) {
     // hack alert - setting epoch ts from kbd
     else{
       char* viewing_uid=object_property(user, "viewing");
-      eval_update_list(viewing_uid, "text", del_this_word, add_this_word);
+      set_edit_object(viewing_uid, "text", del_this_word, add_this_word, true);
     }
     del_this_word=0; add_this_word=0;
   }

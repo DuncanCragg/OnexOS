@@ -26,7 +26,8 @@ static char* aboutuid;
 
 char* homeuid;
 
-extern object* user;
+object* user;
+object* responses;
 
 #define LONG_PRESS_MS 250
 static volatile bool          button_pressed=false;
@@ -183,21 +184,21 @@ static void init_onex(){
 
   onex_init("");
 
-  //                               setters and editors                         inputs              logic                                outputs
-  onex_set_evaluators("default",   evaluate_object_setter,                                         evaluate_default, 0);
-  onex_set_evaluators("editable",  evaluate_object_setter, evaluate_edit_rule, 0);
-  onex_set_evaluators("clock",     evaluate_object_setter,                                         evaluate_clock_sync, evaluate_clock, 0);
-  onex_set_evaluators("device",                                                                    evaluate_device_logic, 0);
-  onex_set_evaluators("user",                                                                      evaluate_user, 0);
-  onex_set_evaluators("notes",     evaluate_object_setter, evaluate_edit_rule, 0);
-  onex_set_evaluators("battery",                                               evaluate_battery_in, 0);
-  onex_set_evaluators("touch",                                                 evaluate_touch_in, 0);
+  //                               editor    inputs    logic                 outputs
+  onex_set_evaluators("default",   evaluate_edit_rule, evaluate_default, 0);
+  onex_set_evaluators("editable",  evaluate_edit_rule, 0);
+  onex_set_evaluators("clock",     evaluate_edit_rule, evaluate_clock_sync, evaluate_clock, 0);
+  onex_set_evaluators("device",                        evaluate_device_logic, 0);
+  onex_set_evaluators("user",                          evaluate_user, 0);
+  onex_set_evaluators("notes",     evaluate_edit_rule, 0);
+  onex_set_evaluators("battery",             evaluate_battery_in, 0);
+  onex_set_evaluators("touch",               evaluate_touch_in, 0);
 #if defined(DO_LATER)
-  onex_set_evaluators("motion",                                                evaluate_motion_in, 0);
+  onex_set_evaluators("motion",              evaluate_motion_in, 0);
 #endif
-  onex_set_evaluators("button",                                                evaluate_button_in, 0);
-  onex_set_evaluators("about",                                                 evaluate_about_in, 0);
-  onex_set_evaluators("backlight", evaluate_object_setter, evaluate_edit_rule,                     evaluate_light_logic,                evaluate_backlight_out, 0);
+  onex_set_evaluators("button",              evaluate_button_in, 0);
+  onex_set_evaluators("about",               evaluate_about_in, 0);
+  onex_set_evaluators("backlight", evaluate_edit_rule, evaluate_light_logic, evaluate_backlight_out, 0);
 
   object_set_evaluator(onex_device_object, "device");
 
@@ -217,6 +218,7 @@ static void init_onex(){
   object* notes;
   object* about;
 
+  char* responsesuid;
   char* deviceuid;
 #if defined(DO_LATER)
   char* motionuid;
@@ -229,6 +231,7 @@ static void init_onex(){
   char* notesuid;
 
   user     =object_new(0, "user",      "user", 8);
+  responses=object_new(0, "default",   "user responses", 12);
   battery  =object_new(0, "battery",   "battery", 4);
   touch    =object_new(0, "touch",     "touch", 6);
 #if defined(DO_LATER)
@@ -247,6 +250,7 @@ static void init_onex(){
 
   deviceuid   =object_property(onex_device_object, "UID");
   useruid     =object_property(user, "UID");
+  responsesuid=object_property(responses, "UID");
   batteryuid  =object_property(battery, "UID");
   touchuid    =object_property(touch, "UID");
 #if defined(DO_LATER)
@@ -262,6 +266,8 @@ static void init_onex(){
   note2uid    =object_property(note2, "UID");
   notesuid    =object_property(notes, "UID");
   aboutuid    =object_property(about, "UID");
+
+  object_property_set(user, "responses", responsesuid);
 
   object_property_set(backlight, "light", "on");
   object_property_set(backlight, "level", "high");

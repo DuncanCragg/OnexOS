@@ -425,8 +425,6 @@ static bool evaluate_default(object* o, void* d) {
 
 static bool evaluate_user(object* o, void* d) {
 
-  printf("evaluate_user\n");
-
   // model changes, vertex changes, text changes
 
   char* ts=object_property(user, (char*)"viewing:io:ts");
@@ -516,10 +514,10 @@ void set_mvp_uniforms() {
 
 static void init_onex() {
 
-  onex_set_evaluators((char*)"default", evaluate_object_setter, evaluate_default, 0);
-  onex_set_evaluators((char*)"device",                          evaluate_device_logic, 0);
-  onex_set_evaluators((char*)"user",                            evaluate_user, 0);
-  onex_set_evaluators((char*)"clock",   evaluate_object_setter, evaluate_clock, 0);
+  onex_set_evaluators((char*)"default", evaluate_default, 0);
+  onex_set_evaluators((char*)"device",  evaluate_device_logic, 0);
+  onex_set_evaluators((char*)"user",    evaluate_user, 0);
+  onex_set_evaluators((char*)"clock",   evaluate_clock, 0);
 
   onex_init((char*)"./onex.ondb");
 

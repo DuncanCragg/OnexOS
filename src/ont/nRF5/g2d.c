@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdarg.h>
+
 #include <boards.h>
 
 #include <onex-kernel/display.h>

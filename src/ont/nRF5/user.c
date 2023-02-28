@@ -150,20 +150,26 @@ static void show_gfx_log(uint8_t root_g2d_node){
 
   #define LOG_DECAY_TIME 5
   #define LOG_LINES_MAX 5
-  #define LOG_LEN 40
+  #define LOG_LEN 35
   static char*    log_lines[LOG_LINES_MAX];
   static uint8_t  log_lines_index=0;
   static uint64_t log_last=0;
   if(event_log_buffer){
-    if(log_lines[log_lines_index]) free(log_lines[log_lines_index]);
-    log_lines[log_lines_index]=strndup((char*)event_log_buffer, LOG_LEN);
-    log_lines_index=(log_lines_index+1)%LOG_LINES_MAX;
-    uint8_t linelen=strlen((char*)event_log_buffer);
-    if(linelen>LOG_LEN){
-      char* lastbit=(char*)event_log_buffer+linelen-LOG_LEN;
-      log_lines[log_lines_index]=strndup(lastbit, LOG_LEN);
+
+    char*   nextline=(char*)event_log_buffer;
+    uint8_t remaininglen=strlen(nextline);
+    do{
+      uint8_t nextlinelen=min(remaininglen, LOG_LEN);
+
+      if(log_lines[log_lines_index]) free(log_lines[log_lines_index]);
+      log_lines[log_lines_index]=strndup(nextline, nextlinelen);
       log_lines_index=(log_lines_index+1)%LOG_LINES_MAX;
-    }
+
+      nextline+=nextlinelen;
+      remaininglen-=nextlinelen;
+
+    } while(remaininglen);
+
     event_log_buffer=0;
     log_last=pre_render_time;
   }

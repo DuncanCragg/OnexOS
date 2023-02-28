@@ -78,22 +78,25 @@ static object* get_or_create_edit(char* uid) {
 
 static void set_edit_object(char* uid, char* key, uint16_t i, char* val, bool append){
 
-  char upd[128];
+  #define MAX_UPDATE_PROPERTY_LEN 2048
+  char upd[MAX_UPDATE_PROPERTY_LEN];
 
   bool val_something=(val && *val);
   if(i){
     size_t s=0;
     for(uint16_t x=1; x<i; x++){
-      s+=snprintf(upd+s, 128, "something ");
+      s+=snprintf(upd+s, MAX_UPDATE_PROPERTY_LEN-s, "something ");
+      if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
     }
-    snprintf(upd+s, 128, val_something? "(=> %s)": "(=>)", val);
+    s+=snprintf(upd+s, MAX_UPDATE_PROPERTY_LEN-s, val_something? "(=> %s)": "(=>)", val);
+    if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
   }
   else{
     if(append && val_something){
-      snprintf(upd, 128, "=> @. %s", val);
+      snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> @. %s", val);
     }
     else{
-      snprintf(upd, 128, "=> %s", val_something? val: "");
+      snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> %s", val_something? val: "");
     }
   }
   object* edit=get_or_create_edit(uid);

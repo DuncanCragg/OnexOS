@@ -70,7 +70,7 @@ static object* get_or_create_edit(char* uid) {
     object_property_set(edit, "edit-user",   useruid);
     object_property_add(edit, "Notifying",   uid);
 
-    edit_uid=object_property(edit, (char*)"UID");
+    edit_uid=object_property(edit, "UID");
     object_property_set(responses, uid, edit_uid);
   }
   return edit;
@@ -83,7 +83,7 @@ static void set_edit_object(char* uid, char* key, uint16_t i, char* val, bool ap
 
   bool val_something=(val && *val);
   if(i){
-    size_t s=0;
+  size_t s=0;
     for(uint16_t x=1; x<i; x++){
       s+=snprintf(upd+s, MAX_UPDATE_PROPERTY_LEN-s, "something ");
       if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
@@ -92,10 +92,10 @@ static void set_edit_object(char* uid, char* key, uint16_t i, char* val, bool ap
     if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
   }
   else{
-    if(append && val_something){
+  if(append && val_something){
       snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> @. %s", val);
-    }
-    else{
+  }
+  else{
       snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> %s", val_something? val: "");
     }
   }

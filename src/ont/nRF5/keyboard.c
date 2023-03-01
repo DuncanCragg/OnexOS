@@ -5,8 +5,6 @@
 
 #include "g2d.h"
 
-static char g2dbuf[64];
-
 uint16_t del_this_word=0;
 char*    add_this_word=0;
 
@@ -179,8 +177,7 @@ void show_keyboard(uint8_t g2d_node){
                          KEY_H_SPACE/2,KEY_V_SPACE/2,
                          KEY_SIZE,KEY_SIZE, key_bg);
 
-      snprintf(g2dbuf, 64, "%c", key);
-      g2d_node_text(key_g2d_node, 13,7, G2D_BLACK, key_bg, 4, g2dbuf);
+      g2d_node_text(key_g2d_node, 13,7, G2D_BLACK, key_bg, 4, "%c", key);
 
       kx+=KEY_SIZE+KEY_H_SPACE;
     }

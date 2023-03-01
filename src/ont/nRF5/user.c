@@ -9,6 +9,8 @@
 #include <boards.h>
 
 #include <items.h>
+#include <onex-kernel/mem.h>
+#include <onex-kernel/lib.h>
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
 
@@ -78,33 +80,33 @@ static object* get_or_create_edit(char* uid) {
 
 static void set_edit_object(char* uid, char* key, uint16_t i, char* val, bool append){
 
-  #define MAX_UPDATE_PROPERTY_LEN 2048
+  #define MAX_UPDATE_PROPERTY_LEN 256
   char upd[MAX_UPDATE_PROPERTY_LEN];
 
   bool val_something=(val && *val);
-  if(i){
   size_t s=0;
-    for(uint16_t x=1; x<i; x++){
-      s+=snprintf(upd+s, MAX_UPDATE_PROPERTY_LEN-s, "something ");
-      if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
-    }
-    s+=snprintf(upd+s, MAX_UPDATE_PROPERTY_LEN-s, val_something? "(=> %s)": "(=>)", val);
+  if(append && val_something){
+    s=snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> @. %s", val);
     if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
   }
   else{
-  if(append && val_something){
-      snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> @. %s", val);
-  }
-  else{
-      snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> %s", val_something? val: "");
-    }
+    s=snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> %s", val_something? val: "");
+    if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
   }
   object* edit=get_or_create_edit(uid);
 
-  char* oldkey=object_property_key(edit, (char*)":", 4);
-  if(oldkey) object_property_set(edit, oldkey, (char*)"");
+  char keypath[32];
+  if(i) snprintf(keypath, 32, "%s\\:%d", key, i);
+  else  snprintf(keypath, 32, "%s",      key);
 
-  object_property_set(edit, key, upd);
+  char* prevkey=object_property_key(edit, ":", 4); // XXX
+  if(prevkey){
+    char prevkeypath[128];
+    mem_strncpy(prevkeypath, prevkey, 128);
+    prefix_char_in_place(prevkeypath, '\\', ':');
+    object_property_set(edit, prevkeypath, 0);
+  }
+  object_property_set(edit, keypath, upd);
 }
 
 static object* create_new_object_like_others() {

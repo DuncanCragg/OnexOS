@@ -276,20 +276,9 @@ bool evaluate_user(object* usr, void* d) {
 
   if(list_selected_uid){
     char* viewing_uid=object_property(user, "viewing");
-    if(!strcmp(list_selected_uid, "new-at-top")){
-      object* o = create_new_object_like_others();
-      if(o) set_edit_object(viewing_uid, "list", 0, "=> %s @.", object_property(o, "UID"));
-    }
-    else
-    if(!strcmp(list_selected_uid, "new-at-bot")){
-      object* o = create_new_object_like_others();
-      if(o) set_edit_object(viewing_uid, "list", 0, "=> @. %s", object_property(o, "UID"));
-    }
-    else{
-      object_property_add(user, "history", viewing_uid);
-      object_property_set(user, "viewing", list_selected_uid);
-      reset_viewing_state_variables();
-    }
+    object_property_add(user, "history", viewing_uid);
+    object_property_set(user, "viewing", list_selected_uid);
+    reset_viewing_state_variables();
     list_selected_uid=0;
   }
 
@@ -413,6 +402,20 @@ static uint8_t make_in_scroll_button(uint8_t g2d_node, uint16_t y, uint16_t cont
 #define LIST_ADD_NEW_BOT 2
 
 static void draw_list(char* path, uint8_t g2d_node) {
+
+  if(list_selected_control){
+    char* viewing_uid=object_property(user, "viewing");
+    char* upd_fmt=(list_selected_control==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
+    object* o = create_new_object_like_others();
+    if(o) set_edit_object(viewing_uid, "list", 0, upd_fmt, object_property(o, "UID"));
+    list_selected_control=0;
+  }
+  else
+  if(list_selected_index){
+    list_selected_uid=object_pathpair_get_n(user, path, "list", list_selected_index);
+    list_selected_index=0;
+    return;
+  }
 
   uint8_t ll=object_pathpair_length(user, path, "list");
 

@@ -196,6 +196,7 @@ static void show_touch_point(uint8_t g2d_node){
 static uint16_t list_selected_control=0;
 static uint16_t list_selected_index=0;
 static char*    list_selected_uid=0;
+static uint16_t del_this_entry=0;
 
 static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
@@ -310,6 +311,14 @@ bool evaluate_user(object* usr, void* d) {
     set_edit_object(viewing_uid, "text", del_this_word, "=>");
     del_this_word=0;
   }
+  else
+  if(del_this_entry){
+    char* viewing_uid=object_property(user, "viewing");
+    set_edit_object(viewing_uid, "list", del_this_entry, "=>");
+    del_this_entry=0;
+  }
+
+  // -------------------------------------------------
 
   uint8_t root_g2d_node = g2d_node_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0,0);
 
@@ -374,6 +383,9 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     return;
   }
   if(swiping_index){
+    if(swipe_offset > 50){
+      del_this_entry=swiping_index;
+    }
     swiping_index=0;
     swipe_offset=0;
     return;

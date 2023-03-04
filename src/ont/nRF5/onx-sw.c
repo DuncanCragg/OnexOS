@@ -333,7 +333,6 @@ static void init_onex(){
   object_property_add(onex_device_object, "io",   backlightuid);
   object_property_add(onex_device_object, "io",   clockuid);
 
-  onex_run_evaluators(useruid, 0);
   onex_run_evaluators(batteryuid, 0);
   onex_run_evaluators(clockuid, 0);
   onex_run_evaluators(backlightuid, 0);
@@ -361,7 +360,16 @@ int main() {
   time_ticker(every_second,  1000);
   time_ticker(every_10s,    10000);
 
+  static uint8_t run_user_eval=1;
+
   while(1){
+
+    if(run_user_eval){
+      run_user_eval--;
+      onex_run_evaluators(useruid, 0);
+    }
+
+    // --------------------
 
     uint64_t ct=time_ms();
     static uint64_t lt=0;
@@ -396,7 +404,7 @@ int main() {
         if((ct - pressed_ts) > LONG_PRESS_MS){
           button_action = BUTTON_ACTION_LONG;
           touch_down=false; // button seems to send touch events after reboot
-          onex_run_evaluators(useruid, 0);
+          run_user_eval++;
         }
       }
     }
@@ -405,7 +413,7 @@ int main() {
       if(button_action == BUTTON_ACTION_WAIT){
         button_action = BUTTON_ACTION_SHORT;
         touch_down=false; // ditto
-        onex_run_evaluators(useruid, 0);
+        run_user_eval++;
       }
       pressed_ts=0;
     }
@@ -417,6 +425,7 @@ int main() {
       touch_events_seen++;
       g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
       onex_run_evaluators(useruid, (void*)1);
+      if(!touch_down) run_user_eval++;
     }
   }
 }

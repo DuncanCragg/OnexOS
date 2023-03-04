@@ -193,10 +193,11 @@ static void show_touch_point(uint8_t g2d_node){
   g2d_node_rectangle(touch_g2d_node, 0,0, 5,5, G2D_MAGENTA);
 }
 
+static uint16_t del_this_entry=0;
+static char*    list_selected_uid=0;
+
 static uint16_t list_selected_control=0;
 static uint16_t list_selected_index=0;
-static char*    list_selected_uid=0;
-static uint16_t del_this_entry=0;
 
 static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
@@ -398,10 +399,13 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 #define CHILD_HEIGHT 70
 #define BOTTOM_MARGIN 20
 
-static uint8_t make_in_scroll_button(uint8_t g2d_node, uint16_t y, uint16_t c, char* text){
-  uint8_t n=g2d_node_create(g2d_node, 20,y, 200,CHILD_HEIGHT-10, list_cb,c,0);
+static uint8_t make_in_scroll_button(uint8_t g2d_node, uint16_t y, uint16_t control, char* text){
+
+  uint8_t n=g2d_node_create(g2d_node, 20,y, 200,CHILD_HEIGHT-10, list_cb,control,0);
+
   g2d_node_rectangle(n, 0,0, g2d_node_width(n),g2d_node_height(n), G2D_GREY_F);
   g2d_node_text(n, 10,10, G2D_WHITE, G2D_GREY_F, 2, text);
+
   return n;
 }
 
@@ -445,6 +449,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
   uint16_t y=CHILD_HEIGHT-10+20;
 
   make_in_scroll_button(scroll_g2d_node, 10, LIST_ADD_NEW_TOP, "add new");
+
   for(uint8_t i=1; i<=ll; i++){
 
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,

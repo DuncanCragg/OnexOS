@@ -272,6 +272,11 @@ bool evaluate_user(object* usr, void* d) {
       object* o = create_new_object_like_others();
       if(o) set_edit_object(viewing_uid, "list", 0, "=> %s @.", object_property(o, "UID"));
     }
+    else
+    if(!strcmp(list_selected_uid, "new-at-bot")){
+      object* o = create_new_object_like_others();
+      if(o) set_edit_object(viewing_uid, "list", 0, "=> @. %s", object_property(o, "UID"));
+    }
     else{
       object_property_add(user, "history", viewing_uid);
       object_property_set(user, "viewing", list_selected_uid);
@@ -358,6 +363,16 @@ static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
   list_selected_uid=uid;
 }
 
+#define CHILD_HEIGHT 70
+#define BOTTOM_MARGIN 20
+
+static uint8_t make_in_scroll_button(uint8_t g2d_node, uint16_t y, char* arg, char* text){
+  uint8_t n=g2d_node_create(g2d_node, 20,y, 200,CHILD_HEIGHT-10, list_cb, arg);
+  g2d_node_rectangle(n, 0,0, g2d_node_width(n),g2d_node_height(n), G2D_GREY_F);
+  g2d_node_text(n, 10,10, G2D_WHITE, G2D_GREY_F, 2, text);
+  return n;
+}
+
 static void draw_list(char* path, uint8_t g2d_node) {
 
   uint8_t ll=object_pathpair_length(user, path, "list");
@@ -370,10 +385,8 @@ static void draw_list(char* path, uint8_t g2d_node) {
     g2d_node_text(g2d_node, 10,20, G2D_WHITE, G2D_GREY_1D/13, 3, "list");
     return;
   }
-  #define CHILD_HEIGHT 70
-  #define BOTTOM_MARGIN 20
 
-  uint16_t scroll_height=max(10+ll*CHILD_HEIGHT+10, ST7789_HEIGHT*4/3);
+  uint16_t scroll_height=max(10+(ll+2)*CHILD_HEIGHT+10, ST7789_HEIGHT*4/3);
 
   uint8_t scroll_g2d_node = g2d_node_create(g2d_node,
                                             0, scroll_offset,
@@ -394,17 +407,9 @@ static void draw_list(char* path, uint8_t g2d_node) {
                                     20,2*stretch_height,
                                     200,stretch_height, G2D_GREY_7);
 
-  uint8_t new_top_g2d_node = g2d_node_create(scroll_g2d_node,
-                                             20,10,
-                                             200,CHILD_HEIGHT-30,
-                                             list_cb, "new-at-top");
-  g2d_node_rectangle(new_top_g2d_node, 0,0,
-                     g2d_node_width(new_top_g2d_node),g2d_node_height(new_top_g2d_node),
-                     G2D_GREY_F);
-  g2d_node_text(new_top_g2d_node, 10,10, G2D_WHITE, G2D_GREY_F, 2, "add new");
+  uint16_t y=CHILD_HEIGHT-10+20;
 
-  uint16_t y=g2d_node_height(new_top_g2d_node)+20;
-
+  make_in_scroll_button(scroll_g2d_node, 10, "new-at-top", "add new");
   for(uint8_t i=1; i<=ll; i++){
 
     char* uid=object_pathpair_get_n(user, path, "list", i);
@@ -420,6 +425,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
     y+=CHILD_HEIGHT;
   }
+  make_in_scroll_button(scroll_g2d_node, y, "new-at-bot", "add new");
 }
 
 #define BATTERY_LOW      G2D_RED

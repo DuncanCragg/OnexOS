@@ -199,7 +199,9 @@ static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
 static bool     scroll_bot=false;
 static bool     scrolling=false;
+static char*    swiping_uid=false;
 static int16_t  scroll_offset=0;
+static int16_t  swipe_offset=0;
 
 static void reset_viewing_state_variables(){
 
@@ -207,7 +209,9 @@ static void reset_viewing_state_variables(){
   scroll_top=false;
   scroll_bot=false;
   scrolling=false;
+  swiping_uid=0;
   scroll_offset=0;
+  swipe_offset=0;
 
   word_index=1;
   in_word=false;
@@ -346,11 +350,16 @@ void draw_by_type(char* path, uint8_t g2d_node)
 static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
 
   if(down){
-    if(dx+dy){
+    if(!swiping_uid && dy && dy*dy>dx*dx){
       scrolling=true;
       bool stretching = (scroll_top && dy>0) ||
                         (scroll_bot && dy<0);
       scroll_offset+= stretching? dy/3: dy;
+    }
+    else
+    if(!scrolling && dx && dx*dx>dy*dy && uid){
+      swiping_uid=uid;
+      swipe_offset+= dx;
     }
     return;
   }
@@ -358,6 +367,11 @@ static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
     scrolling=false;
     if(scroll_top) scroll_offset=0;
     if(scroll_bot) scroll_offset=scroll_bot_lim;
+    return;
+  }
+  if(swiping_uid){
+    swiping_uid=0;
+    swipe_offset=0;
     return;
   }
   list_selected_uid=uid;
@@ -415,7 +429,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
     char* uid=object_pathpair_get_n(user, path, "list", i);
 
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
-                                             20,y,
+                                             (uid==swiping_uid? swipe_offset: 0)+20,y,
                                              200,CHILD_HEIGHT-10,
                                              list_cb, uid);
 

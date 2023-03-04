@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <time.h>
 
@@ -78,21 +79,17 @@ static object* get_or_create_edit(char* uid) {
   return edit;
 }
 
-static void set_edit_object(char* uid, char* key, uint16_t i, char* val, bool append){
+static void set_edit_object(char* uid, char* key, uint16_t i, char* fmt, ...){
 
   #define MAX_UPDATE_PROPERTY_LEN 256
   char upd[MAX_UPDATE_PROPERTY_LEN];
 
-  bool val_something=(val && *val);
-  size_t s=0;
-  if(append && val_something){
-    s=snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> @. %s", val);
-    if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
-  }
-  else{
-    s=snprintf(upd, MAX_UPDATE_PROPERTY_LEN, "=> %s", val_something? val: "");
-    if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
-  }
+  va_list args;
+  va_start(args, fmt);
+  size_t s=vsnprintf(upd, MAX_UPDATE_PROPERTY_LEN, fmt, args);
+  if(s>=MAX_UPDATE_PROPERTY_LEN){ log_write("edit o/f"); return; }
+  va_end(args);
+
   object* edit=get_or_create_edit(uid);
 
   char keypath[32];
@@ -273,7 +270,7 @@ bool evaluate_user(object* usr, void* d) {
     char* viewing_uid=object_property(user, "viewing");
     if(!strcmp(list_selected_uid, "new-at-top")){
       object* o = create_new_object_like_others();
-      if(o) set_edit_object(viewing_uid, "list", 0, object_property(o, "UID"), true);
+      if(o) set_edit_object(viewing_uid, "list", 0, "=> %s @.", object_property(o, "UID"));
     }
     else{
       object_property_add(user, "history", viewing_uid);
@@ -283,18 +280,24 @@ bool evaluate_user(object* usr, void* d) {
     list_selected_uid=0;
   }
 
-  if(del_this_word || add_this_word){
-    // hack alert - setting epoch ts from kbd
-    if(add_this_word && object_property_contains(user, "viewing:is", "watch")){
-        char* e; uint64_t tsnum=strtoull(add_this_word,&e,10);
-        if(!(*e)) time_es_set(tsnum);
-    }
-    // hack alert - setting epoch ts from kbd
-    else{
-      char* viewing_uid=object_property(user, "viewing");
-      set_edit_object(viewing_uid, "text", del_this_word, add_this_word, true);
-    }
-    del_this_word=0; add_this_word=0;
+  // hack alert - setting epoch ts from kbd
+  if(add_this_word && object_property_contains(user, "viewing:is", "watch")){
+      char* e; uint64_t tsnum=strtoull(add_this_word,&e,10);
+      if(!(*e)) time_es_set(tsnum);
+  }
+  else
+  // hack alert - setting epoch ts from kbd
+
+  if(add_this_word){
+    char* viewing_uid=object_property(user, "viewing");
+    set_edit_object(viewing_uid, "text", 0, "=> @. %s", add_this_word);
+    add_this_word=0;
+  }
+  else
+  if(del_this_word){
+    char* viewing_uid=object_property(user, "viewing");
+    set_edit_object(viewing_uid, "text", del_this_word, "=>");
+    del_this_word=0;
   }
 
   uint8_t root_g2d_node = g2d_node_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0);

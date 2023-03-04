@@ -91,11 +91,11 @@ static unsigned char kbd_pages[7][20]={
 #define SELECT_PAGE 14
 #define DELETE_LAST 16
 
-static void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
+static void key_hit(bool down,
+                    int16_t dx, int16_t dy,
+                    uint16_t cb_control, uint16_t ki){
 
   if(down) return;
-
-  uint32_t ki=(uint32_t)kiv;
 
   if(ki==SELECT_TYPE){
     if(kbd_page==1 || kbd_page==2) kbd_page=3;
@@ -137,7 +137,7 @@ static void key_hit(bool down, int16_t dx, int16_t dy, void* kiv){
 #define KEY_H_SPACE 7
 #define KEY_V_SPACE 1
 
-static void kbd_drag(bool down, int16_t dx, int16_t dy, void* arg){
+static void kbd_drag(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t d){
   if(!down || dx+dy==0) return;
   if(dx*dx>dy*dy) kbd_x+=dx;
   else            kbd_y+=dy;
@@ -148,7 +148,7 @@ void show_keyboard(uint8_t g2d_node){
   uint8_t kbd_g2d_node = g2d_node_create(g2d_node,
                                          kbd_x, kbd_y,
                                          g2d_node_width(g2d_node), 215,
-                                         kbd_drag, 0);
+                                         kbd_drag,0,0);
   if(!kbd_g2d_node) return;
 
   g2d_node_rectangle(kbd_g2d_node, 0,0,
@@ -163,14 +163,14 @@ void show_keyboard(uint8_t g2d_node){
   for(uint8_t j=0; j<4; j++){
     for(uint8_t i=0; i<5; i++){
 
-      uint32_t ki = i + j*5;
+      uint16_t ki = i + j*5;
 
       unsigned char key = kbd_pages[kbd_page][ki];
 
       uint8_t key_g2d_node = g2d_node_create(kbd_g2d_node,
                                              kx, ky,
                                              KEY_SIZE+KEY_H_SPACE, KEY_SIZE+KEY_V_SPACE,
-                                             key_hit, (void*)ki);
+                                             key_hit, 0,ki);
 
       uint16_t key_bg=(pressed==key)? G2D_GREEN: G2D_GREY_1A;
       g2d_node_rectangle(key_g2d_node,

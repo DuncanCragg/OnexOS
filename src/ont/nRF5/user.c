@@ -37,8 +37,8 @@ extern int16_t kbd_y;
 
 extern int16_t text_scroll_offset;
 
-extern uint16_t del_this_word;
 extern char*    add_this_word;
+extern uint16_t del_this_word;
 
 extern void show_keyboard(uint8_t g2d_node);
 
@@ -189,17 +189,19 @@ static void show_gfx_log(uint8_t root_g2d_node){
 }
 
 static void show_touch_point(uint8_t g2d_node){
-  uint8_t touch_g2d_node=g2d_node_create(g2d_node, touch_info.x, touch_info.y, 5,5, 0,0);
+  uint8_t touch_g2d_node=g2d_node_create(g2d_node, touch_info.x, touch_info.y, 5,5, 0,0,0);
   g2d_node_rectangle(touch_g2d_node, 0,0, 5,5, G2D_MAGENTA);
 }
 
-static char* list_selected_uid=0;
+static uint16_t list_selected_control=0;
+static uint16_t list_selected_index=0;
+static char*    list_selected_uid=0;
 
 static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
 static bool     scroll_bot=false;
 static bool     scrolling=false;
-static char*    swiping_uid=false;
+static uint16_t swiping_index=0;
 static int16_t  scroll_offset=0;
 static int16_t  swipe_offset=0;
 
@@ -209,7 +211,7 @@ static void reset_viewing_state_variables(){
   scroll_top=false;
   scroll_bot=false;
   scrolling=false;
-  swiping_uid=0;
+  swiping_index=0;
   scroll_offset=0;
   swipe_offset=0;
 
@@ -289,13 +291,13 @@ bool evaluate_user(object* usr, void* d) {
     list_selected_uid=0;
   }
 
-  // hack alert - setting epoch ts from kbd
+  //{ hack alert - setting epoch ts from kbd
   if(add_this_word && object_property_contains(user, "viewing:is", "watch")){
       char* e; uint64_t tsnum=strtoull(add_this_word,&e,10);
       if(!(*e)) time_es_set(tsnum);
   }
   else
-  // hack alert - setting epoch ts from kbd
+  //} hack alert - setting epoch ts from kbd
 
   if(add_this_word){
     char* viewing_uid=object_property(user, "viewing");
@@ -309,7 +311,7 @@ bool evaluate_user(object* usr, void* d) {
     del_this_word=0;
   }
 
-  uint8_t root_g2d_node = g2d_node_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0);
+  uint8_t root_g2d_node = g2d_node_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0,0);
 
   g2d_clear_screen(0x00);
 
@@ -335,6 +337,8 @@ bool evaluate_user(object* usr, void* d) {
      last_render_time = post_render_time;
   }
 
+  // -------------------------------------------------
+
   return true;
 }
 
@@ -347,18 +351,18 @@ void draw_by_type(char* path, uint8_t g2d_node)
                                                           draw_default(path, g2d_node);
 }
 
-static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
+static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
-    if(!swiping_uid && dy && dy*dy>dx*dx){
+    if(!swiping_index && dy && dy*dy>dx*dx){
       scrolling=true;
       bool stretching = (scroll_top && dy>0) ||
                         (scroll_bot && dy<0);
       scroll_offset+= stretching? dy/3: dy;
     }
     else
-    if(!scrolling && dx && dx*dx>dy*dy && uid){
-      swiping_uid=uid;
+    if(!scrolling && dx && dx*dx>dy*dy && index){
+      swiping_index=index;
       swipe_offset+= dx;
     }
     return;
@@ -369,23 +373,28 @@ static void list_cb(bool down, int16_t dx, int16_t dy, void* uid){
     if(scroll_bot) scroll_offset=scroll_bot_lim;
     return;
   }
-  if(swiping_uid){
-    swiping_uid=0;
+  if(swiping_index){
+    swiping_index=0;
     swipe_offset=0;
     return;
   }
-  list_selected_uid=uid;
+
+  list_selected_control=control;
+  list_selected_index=index;
 }
 
 #define CHILD_HEIGHT 70
 #define BOTTOM_MARGIN 20
 
-static uint8_t make_in_scroll_button(uint8_t g2d_node, uint16_t y, char* arg, char* text){
-  uint8_t n=g2d_node_create(g2d_node, 20,y, 200,CHILD_HEIGHT-10, list_cb, arg);
+static uint8_t make_in_scroll_button(uint8_t g2d_node, uint16_t y, uint16_t c, char* text){
+  uint8_t n=g2d_node_create(g2d_node, 20,y, 200,CHILD_HEIGHT-10, list_cb,c,0);
   g2d_node_rectangle(n, 0,0, g2d_node_width(n),g2d_node_height(n), G2D_GREY_F);
   g2d_node_text(n, 10,10, G2D_WHITE, G2D_GREY_F, 2, text);
   return n;
 }
+
+#define LIST_ADD_NEW_TOP 1
+#define LIST_ADD_NEW_BOT 2
 
 static void draw_list(char* path, uint8_t g2d_node) {
 
@@ -406,7 +415,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
                                             0, scroll_offset,
                                             g2d_node_width(g2d_node),
                                             scroll_height,
-                                            list_cb, 0);
+                                            list_cb,0,0);
   if(!scroll_g2d_node) return;
 
   scroll_bot_lim = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;
@@ -423,15 +432,13 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
   uint16_t y=CHILD_HEIGHT-10+20;
 
-  make_in_scroll_button(scroll_g2d_node, 10, "new-at-top", "add new");
+  make_in_scroll_button(scroll_g2d_node, 10, LIST_ADD_NEW_TOP, "add new");
   for(uint8_t i=1; i<=ll; i++){
 
-    char* uid=object_pathpair_get_n(user, path, "list", i);
-
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
-                                             (uid==swiping_uid? swipe_offset: 0)+20,y,
+                                             (i==swiping_index? swipe_offset: 0)+20,y,
                                              200,CHILD_HEIGHT-10,
-                                             list_cb, uid);
+                                             list_cb,0,i);
 
     static char pathbufrec[64];
     snprintf(pathbufrec, 64, "%s:list:%d", path, i);
@@ -439,7 +446,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
     y+=CHILD_HEIGHT;
   }
-  make_in_scroll_button(scroll_g2d_node, y, "new-at-bot", "add new");
+  make_in_scroll_button(scroll_g2d_node, y, LIST_ADD_NEW_BOT, "add new");
 }
 
 #define BATTERY_LOW      G2D_RED
@@ -519,10 +526,10 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   // hack alert - setting epoch ts from kbd
 }
 
-static void word_cb(bool down, int16_t dx, int16_t dy, void* wi){
+static void word_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t wi){
   static bool scrolled=false;
   if(!down){
-    if(!scrolled && wi) word_index=(uint16_t)(uint32_t)wi;
+    if(!scrolled && wi) word_index=wi;
     scrolled=false;
   }
   else
@@ -561,7 +568,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
 
   uint8_t text_container_g2d_node = g2d_node_create(g2d_node,
                                                     SIDE_MARGIN,TOP_MARGIN, wd,ht,
-                                                    word_cb, 0);
+                                                    word_cb,0,0);
   if(!text_container_g2d_node) return;
 
   uint16_t words=object_pathpair_length(user, path, "text");
@@ -576,7 +583,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
   uint8_t text_scroll_g2d_node = g2d_node_create(text_container_g2d_node,
                                                  0, text_scroll_offset,
                                                  wd, scroll_height,
-                                                 word_cb, 0);
+                                                 word_cb,0,0);
   if(text_scroll_g2d_node){
     uint16_t k=0;
     uint16_t j=0;
@@ -595,7 +602,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
         g2d_node_create(text_scroll_g2d_node,
                         k, j*LINE_HEIGHT,
                         available_width, LINE_HEIGHT,
-                        word_cb,(void*)(uint32_t)(w-1));
+                        word_cb,0,(w-1));
         k=0;
         j++;
       }
@@ -609,7 +616,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
       uint8_t word_g2d_node = g2d_node_create(text_scroll_g2d_node,
                                               k, j*LINE_HEIGHT,
                                               word_width, LINE_HEIGHT,
-                                              word_cb,(void*)(uint32_t)w);
+                                              word_cb,0,w);
 
       char* word_to_show = word? word: (in_word? edit_word: "");
       g2d_node_text(word_g2d_node, 6,2, G2D_WHITE, G2D_BLACK, 2, word_to_show);

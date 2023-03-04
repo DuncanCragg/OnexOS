@@ -43,20 +43,21 @@ typedef struct g2d_node g2d_node;
 
 typedef struct g2d_node {
 
- int16_t xtl;
- int16_t ytl;
- int16_t xbr;
- int16_t ybr;
+  int16_t xtl;
+  int16_t ytl;
+  int16_t xbr;
+  int16_t ybr;
 
- uint16_t clip_xtl;
- uint16_t clip_ytl;
- uint16_t clip_xbr;
- uint16_t clip_ybr;
+  uint16_t clip_xtl;
+  uint16_t clip_ytl;
+  uint16_t clip_xbr;
+  uint16_t clip_ybr;
 
- g2d_node_cb cb;
- void*       cb_args;
+  g2d_node_cb cb;
+  uint16_t    cb_control;
+  uint16_t    cb_data;
 
- uint8_t parent;
+  uint8_t parent;
 
 } g2d_node;
 
@@ -68,7 +69,7 @@ uint8_t g2d_node_create(uint8_t parent_id,
                         int16_t x, int16_t y,
                         uint16_t w, uint16_t h,
                         g2d_node_cb cb,
-                        void* cb_args){
+                        uint16_t cb_control, uint16_t cb_data){
 
   if(!parent_id) next_node=1;
 
@@ -109,7 +110,8 @@ uint8_t g2d_node_create(uint8_t parent_id,
   scenegraph[next_node].clip_ybr=min(parent_clip_ybr, max(ybr,0));
 
   scenegraph[next_node].cb=cb;
-  scenegraph[next_node].cb_args=cb_args;
+  scenegraph[next_node].cb_control=cb_control;
+  scenegraph[next_node].cb_data=cb_data;
   scenegraph[next_node].parent=parent_id;
 
   return next_node++;
@@ -251,7 +253,8 @@ void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
 
   static uint8_t     cb_node=0;
   static g2d_node_cb drag_cb=0;
-  static void*       drag_cb_args=0;
+  static uint16_t    drag_cb_control=0;
+  static uint16_t    drag_cb_data=0;
 
   for(uint8_t n=next_node-1; n && !cb_node; n--){
 
@@ -264,15 +267,17 @@ void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
   if(cb_node){
     if(!drag_cb){
       drag_cb=scenegraph[cb_node].cb;
-      drag_cb_args=scenegraph[cb_node].cb_args;
+      drag_cb_control=scenegraph[cb_node].cb_control;
+      drag_cb_data=scenegraph[cb_node].cb_data;
     }
-    drag_cb(down, dx, dy, drag_cb_args);
+    drag_cb(down, dx, dy, drag_cb_control, drag_cb_data);
   }
 
   if(!down){
     cb_node=0;
     drag_cb=0;
-    drag_cb_args=0;
+    drag_cb_control=0;
+    drag_cb_data=0;
   }
 }
 

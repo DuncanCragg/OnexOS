@@ -32,7 +32,7 @@ void g2d_render();
 
 typedef void (*g2d_node_cb)(bool down,
                             int16_t dx, int16_t dy,
-                            void* args);
+                            uint16_t cb_control, uint16_t cb_data);
 
 /*
  Create node at (x,y) size (w,h) with cb(id, args).
@@ -48,7 +48,7 @@ uint8_t g2d_node_create(uint8_t  parent_id,
                         int16_t x, int16_t y,
                         uint16_t w, uint16_t h,
                         g2d_node_cb cb,
-                        void* cb_args);
+                        uint16_t cb_control, uint16_t cb_data);
 
 void g2d_node_rectangle(uint8_t node_id, int16_t x, int16_t y,
                         uint16_t w, uint16_t h, uint16_t colour);

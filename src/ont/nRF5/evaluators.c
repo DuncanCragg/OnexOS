@@ -63,31 +63,6 @@ bool evaluate_touch_in(object* tch, void* d) {
   return true;
 }
 
-#if defined(HAS_MOTION)
-bool evaluate_motion_in(object* mtn, void* d) {
-
-  static int16_t prevx=0;
-  static int16_t prevm=0;
-  bool viewscreen=(prevx < -300 &&
-                   motion_info.x < -700 &&
-                   motion_info.x > -1200 &&
-                   abs(motion_info.y) < 600 &&
-                   abs(prevm) > 70);
-  prevx=motion_info.x;
-  prevm=motion_info.m;
-
-  static uint32_t ticks=0;
-  ticks++;
-  if(ticks%50 && !viewscreen) return true;
-
-  object_property_set_fmt(mtn, "x-y-z-m", "%d %d %d %d",
-                          motion_info.x, motion_info.y, motion_info.z, motion_info.m);
-  object_property_set(mtn, "gesture", viewscreen? "view-screen": "none");
-
-  return true;
-}
-#endif
-
 extern bool button_pressed;
 
 bool evaluate_button_in(object* btn, void* d) {
@@ -142,4 +117,29 @@ bool evaluate_backlight_out(object* blt, void* d) {
   }
   return true;
 }
+
+#if defined(HAS_MOTION)
+bool evaluate_motion_in(object* mtn, void* d) {
+
+  static int16_t prevx=0;
+  static int16_t prevm=0;
+  bool viewscreen=(prevx < -300 &&
+                   motion_info.x < -700 &&
+                   motion_info.x > -1200 &&
+                   abs(motion_info.y) < 600 &&
+                   abs(prevm) > 70);
+  prevx=motion_info.x;
+  prevm=motion_info.m;
+
+  static uint32_t ticks=0;
+  ticks++;
+  if(ticks%50 && !viewscreen) return true;
+
+  object_property_set_fmt(mtn, "x-y-z-m", "%d %d %d %d",
+                          motion_info.x, motion_info.y, motion_info.z, motion_info.m);
+  object_property_set(mtn, "gesture", viewscreen? "view-screen": "none");
+
+  return true;
+}
+#endif
 

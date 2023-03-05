@@ -20,7 +20,8 @@ extern char __BOOTLOADER_NUMBER;
 
 #define ADC_CHANNEL 0
 
-extern bool user_active;
+bool user_active=true;
+
 extern char* useruid;
 extern touch_info_t touch_info;
 

@@ -229,7 +229,7 @@ static void reset_viewing_state_variables(){
   text_scroll_offset=0;
 }
 
-bool user_active=true;
+extern bool user_active;
 
 static uint8_t fps = 111;
 
@@ -242,6 +242,7 @@ static void draw_default(char* path, uint8_t g2d_node);
 
 bool evaluate_user(object* usr, void* d) {
 
+  if(!user_active) return true;
 
   static bool first_time=true;
   if(first_time){
@@ -252,8 +253,6 @@ bool evaluate_user(object* usr, void* d) {
   bool is_a_touch_triggered_eval=!!d;
 
   if(touch_down && !is_a_touch_triggered_eval) return true;
-
-  if(!user_active) return true;
 
   if(button_action==BUTTON_ACTION_SHORT){
     uint16_t histlen=object_property_length(user, "history");

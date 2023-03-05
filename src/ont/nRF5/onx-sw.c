@@ -136,6 +136,8 @@ static void set_up_gpio(void)
   gpio_set(LCD_BACKLIGHT, LEDS_ACTIVE_STATE);
 }
 
+extern bool user_active;
+
 #if defined(LOG_TO_GFX)
 extern volatile char* event_log_buffer;
 #endif
@@ -393,7 +395,7 @@ int main() {
     // --------------------
 
     static uint64_t pressed_ts=0;
-    if(button_pressed && !pressed_ts){
+    if(user_active && button_pressed && !pressed_ts){
       button_action = BUTTON_ACTION_WAIT;
       pressed_ts=ct;
     }
@@ -419,7 +421,8 @@ int main() {
 
     // --------------------
 
-    if(touch_pending){
+    if(user_active && touch_pending){
+
       g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
 
       onex_run_evaluators(useruid, (void*)1);

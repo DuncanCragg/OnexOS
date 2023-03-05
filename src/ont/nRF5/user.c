@@ -240,10 +240,10 @@ static void draw_notes(char* path, uint8_t g2d_node);
 static void draw_about(char* path, uint8_t g2d_node);
 static void draw_default(char* path, uint8_t g2d_node);
 
-static bool first_time=true;
-
 bool evaluate_user(object* usr, void* d) {
 
+
+  static bool first_time=true;
   if(first_time){
     reset_viewing_state_variables();
     first_time=false;
@@ -414,7 +414,6 @@ static void draw_list(char* path, uint8_t g2d_node) {
   if(list_selected_index){
     list_selected_uid=object_pathpair_get_n(user, path, "list", list_selected_index);
     list_selected_index=0;
-    return;
   }
 
   uint8_t ll=object_pathpair_length(user, path, "list");

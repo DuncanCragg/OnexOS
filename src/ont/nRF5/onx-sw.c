@@ -30,16 +30,15 @@ object* user;
 object* responses;
 
 #define LONG_PRESS_MS 250
-static volatile bool          button_pressed=false;
+static volatile bool   button_pressed=false;
+
+static volatile bool   touch_pending=false;
 
 volatile touch_info_t  touch_info={ 120, 140 };
 volatile bool          touch_down=false;
 
-static volatile bool   touch_pending=false;
-
 #if defined(DO_LATER)
-static volatile uint16_t      touch_info_stroke=0;
-static volatile motion_info_t motion_info;
+volatile motion_info_t motion_info;
 #endif
 
 static void every_second(){
@@ -421,11 +420,13 @@ int main() {
     // --------------------
 
     if(touch_pending){
-      touch_pending=false;
-      touch_events_seen++;
       g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
+
       onex_run_evaluators(useruid, (void*)1);
       if(!touch_down) run_user_eval++;
+
+      touch_events_seen++;
+      touch_pending=false;
     }
   }
 }

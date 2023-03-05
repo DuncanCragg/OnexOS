@@ -57,12 +57,7 @@ bool evaluate_battery_in(object* bat, void* d) {
 bool evaluate_touch_in(object* tch, void* d) {
 
   object_property_set_fmt(tch, "coords", "%3d %3d", touch_info.x, touch_info.y);
-
-  object_property_set(tch, "action", touch_actions[touch_info.action]);
-
-#if defined(DO_LATER)
-  object_property_set_fmt(tch, "stroke", "%d", touch_info_stroke);
-#endif
+  object_property_set(    tch, "action",            touch_actions[touch_info.action]);
 
   return true;
 }

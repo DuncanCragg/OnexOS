@@ -37,7 +37,7 @@ static volatile bool   touch_pending=false;
 volatile touch_info_t  touch_info={ 120, 140 };
 volatile bool          touch_down=false;
 
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
 volatile motion_info_t motion_info;
 #endif
 
@@ -97,7 +97,7 @@ static void touched(touch_info_t ti) {
 }
 
 
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
 static void moved(motion_info_t mi)
 {
   motion_info=mi;
@@ -148,7 +148,7 @@ extern bool evaluate_default(object* o, void* d);
 extern bool evaluate_user(object* o, void* d);
 extern bool evaluate_battery_in(object* o, void* d);
 extern bool evaluate_touch_in(object* o, void* d);
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
 extern bool evaluate_motion_in(object* o, void* d);
 #endif
 extern bool evaluate_button_in(object* o, void* d);
@@ -192,7 +192,7 @@ static void init_onex(){
   onex_set_evaluators("notes",     evaluate_edit_rule, 0);
   onex_set_evaluators("battery",             evaluate_battery_in, 0);
   onex_set_evaluators("touch",               evaluate_touch_in, 0);
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
   onex_set_evaluators("motion",              evaluate_motion_in, 0);
 #endif
   onex_set_evaluators("button",              evaluate_button_in, 0);
@@ -203,7 +203,7 @@ static void init_onex(){
 
   object* battery;
   object* touch;
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
   object* motion;
 #endif
   object* button;
@@ -219,7 +219,7 @@ static void init_onex(){
 
   char* responsesuid;
   char* deviceuid;
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
   char* motionuid;
 #endif
   char* backlightuid;
@@ -233,7 +233,7 @@ static void init_onex(){
   responses=object_new(0, "default",   "user responses", 12);
   battery  =object_new(0, "battery",   "battery", 4);
   touch    =object_new(0, "touch",     "touch", 6);
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
   motion   =object_new(0, "motion",    "motion", 8);
 #endif
   button   =object_new(0, "button",    "button", 4);
@@ -252,7 +252,7 @@ static void init_onex(){
   responsesuid=object_property(responses, "UID");
   batteryuid  =object_property(battery, "UID");
   touchuid    =object_property(touch, "UID");
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
   motionuid   =object_property(motion, "UID");
 #endif
   buttonuid   =object_property(button, "UID");
@@ -272,7 +272,7 @@ static void init_onex(){
   object_property_set(backlight, "level", "high");
   object_property_set(backlight, "timeout", "10000");
   object_property_set(backlight, "touch", touchuid);
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
   object_property_set(backlight, "motion", motionuid);
 #endif
   object_property_set(backlight, "button", buttonuid);
@@ -313,7 +313,7 @@ static void init_onex(){
 //object_property_add(home, "list", backlightuid);
 //object_property_add(home, "list", touchuid);
 //object_property_add(home, "list", buttonuid);
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
 //object_property_add(home, "list", motionuid);
 #endif
 
@@ -325,7 +325,7 @@ static void init_onex(){
   object_property_add(onex_device_object, "user", useruid);
   object_property_add(onex_device_object, "io",   batteryuid);
   object_property_add(onex_device_object, "io",   touchuid);
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
   object_property_add(onex_device_object, "io",   motionuid);
 #endif
   object_property_add(onex_device_object, "io",   buttonuid);
@@ -348,7 +348,7 @@ int main() {
   set_up_gpio();
 
   touch_init(touched);
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
   motion_init(moved);
 #endif
 

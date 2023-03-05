@@ -62,7 +62,7 @@ bool evaluate_touch_in(object* tch, void* d) {
   return true;
 }
 
-#if defined(DO_LATER)
+#if defined(HAS_MOTION)
 bool evaluate_motion_in(object* mtn, void* d) {
 
   static int16_t prevx=0;

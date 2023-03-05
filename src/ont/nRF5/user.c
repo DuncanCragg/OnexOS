@@ -96,7 +96,8 @@ static void set_edit_object(char* uid, char* key, uint16_t i, char* fmt, ...){
   if(i) snprintf(keypath, 32, "%s\\:%d", key, i);
   else  snprintf(keypath, 32, "%s",      key);
 
-  char* prevkey=object_property_key(edit, ":", 4); // XXX
+  // XXX object_property_key_esc() would be handy here
+  char* prevkey=object_property_key(edit, ":", 4); // XXX and multiple lines!
   if(prevkey){
     char prevkeypath[128];
     mem_strncpy(prevkeypath, prevkey, 128);

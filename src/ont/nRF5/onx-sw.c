@@ -62,6 +62,10 @@ static uint32_t touch_events_seen=0;
 
 static void touched(touch_info_t ti) {
 
+  // this cb is spuriously called by button presses;
+  // luckily x+y are set to zero
+  if(!(ti.x+ti.y)) return;
+
   touch_events++;
 
   // ---------------------------------------
@@ -405,7 +409,6 @@ int main() {
       if(button_action == BUTTON_ACTION_WAIT){
         if((ct - pressed_ts) > LONG_PRESS_MS){
           button_action = BUTTON_ACTION_LONG;
-          touch_down=false; // button seems to send touch events after reboot
           run_user_eval++;
         }
       }
@@ -414,7 +417,6 @@ int main() {
     if(pressed_ts && !button_pressed){
       if(button_action == BUTTON_ACTION_WAIT){
         button_action = BUTTON_ACTION_SHORT;
-        touch_down=false; // ditto
         run_user_eval++;
       }
       pressed_ts=0;

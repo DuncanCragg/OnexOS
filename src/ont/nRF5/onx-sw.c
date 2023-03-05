@@ -87,8 +87,7 @@ static void touched(touch_info_t ti) {
   // ---------------------------------------
   // XXX move this "down state" logic to the touch API?
 
-  bool is_down_event = ti.action==TOUCH_ACTION_DOWN ||
-                       ti.action==TOUCH_ACTION_CONTACT;
+  bool is_down_event = ti.action==TOUCH_ACTION_CONTACT;
 
   if(!touch_down && is_down_event){ if(touch_pending) return; touch_down=true; }
   else

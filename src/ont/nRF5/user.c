@@ -239,6 +239,7 @@ static void draw_list(char* path, uint8_t g2d_node);
 static void draw_watch(char* path, uint8_t g2d_node);
 static void draw_notes(char* path, uint8_t g2d_node);
 static void draw_about(char* path, uint8_t g2d_node);
+static void draw_button(char* path, uint8_t g2d_node);
 static void draw_default(char* path, uint8_t g2d_node);
 
 bool evaluate_user(object* usr, void* d) {
@@ -341,13 +342,19 @@ bool evaluate_user(object* usr, void* d) {
   return true;
 }
 
-void draw_by_type(char* path, uint8_t g2d_node)
-{
-  if(object_pathpair_contains(user, path, "is", "list"))  draw_list(path, g2d_node);   else
-  if(object_pathpair_contains(user, path, "is", "watch")) draw_watch(path, g2d_node);  else
-  if(object_pathpair_contains(user, path, "is", "text" )) draw_notes(path, g2d_node);  else
-  if(object_pathpair_contains(user, path, "is", "about")) draw_about(path, g2d_node);  else
-                                                          draw_default(path, g2d_node);
+void draw_by_type(char* path, uint8_t g2d_node) {
+
+  if(object_pathpair_contains(user, path, "is", "list"))   draw_list(path, g2d_node);
+  else
+  if(object_pathpair_contains(user, path, "is", "watch"))  draw_watch(path, g2d_node);
+  else
+  if(object_pathpair_contains(user, path, "is", "text" ))  draw_notes(path, g2d_node);
+  else
+  if(object_pathpair_contains(user, path, "is", "about"))  draw_about(path, g2d_node);
+  else
+  if(object_pathpair_contains(user, path, "is", "button")) draw_button(path, g2d_node);
+  else
+                                                           draw_default(path, g2d_node);
 }
 
 static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
@@ -673,6 +680,20 @@ static void draw_about(char* path, uint8_t g2d_node) {
   g2d_node_text(g2d_node, 10, 190, G2D_BLUE, G2D_BLACK, 1,
                 "build: %s %s", object_pathpair_get_n(user, path, "build-info", 1),
                                 object_pathpair_get_n(user, path, "build-info", 2));
+}
+
+static void draw_button(char* path, uint8_t g2d_node) {
+
+  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_CYAN/6);
+    g2d_node_text(g2d_node, 10,20, G2D_WHITE, G2D_CYAN/6, 3,
+                      "%s", object_pathpair_is(user, path, "state", "down")? "down": "up");
+    return;
+  }
+  draw_default(path, g2d_node);
 }
 
 void draw_default(char* path, uint8_t g2d_node) {

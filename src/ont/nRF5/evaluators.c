@@ -88,8 +88,9 @@ bool evaluate_motion_in(object* mtn, void* d) {
 }
 #endif
 
+extern bool button_pressed;
+
 bool evaluate_button_in(object* btn, void* d) {
-  bool button_pressed=(gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
   object_property_set(btn, "state", button_pressed? "down": "up");
   return true;
 }

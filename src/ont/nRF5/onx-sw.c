@@ -30,7 +30,7 @@ object* user;
 object* responses;
 
 #define LONG_PRESS_MS 250
-static volatile bool   button_pressed=false;
+volatile bool          button_pressed=false;
 
 static volatile bool   touch_pending=false;
 

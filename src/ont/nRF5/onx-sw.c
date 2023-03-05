@@ -64,7 +64,8 @@ static void touched(touch_info_t ti) {
 
   touch_events++;
 
-  // maybe need to drive touch chip differently
+  // ---------------------------------------
+  // XXX maybe need to drive touch chip differently
   // or put this logic into the touch api
   #define TOUCH_OFFSET_X -35
   #define TOUCH_SCALE_X  135/100

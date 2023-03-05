@@ -373,7 +373,7 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     return;
   }
   if(swiping_index){
-    if(swipe_offset > 50){
+    if(swipe_offset < 50){
       del_this_entry=swiping_index;
     }
     swiping_index=0;

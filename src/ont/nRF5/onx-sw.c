@@ -96,7 +96,6 @@ static void touched(touch_info_t ti) {
   if(is_down_event) touch_pending=true;
 
   touch_info=ti;
-
   onex_run_evaluators(touchuid, 0);
 }
 
@@ -116,7 +115,6 @@ static void moved(motion_info_t mi)
 uint8_t button_action = BUTTON_ACTION_NONE;
 
 static void button_changed(uint8_t pin, uint8_t type){
-
   button_pressed = (gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
   onex_run_evaluators(buttonuid, 0);
 }

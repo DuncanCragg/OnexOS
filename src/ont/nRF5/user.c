@@ -356,27 +356,28 @@ void draw_by_type(char* path, uint8_t g2d_node) {
 static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
-    if(!swiping_index && dy && dy*dy>dx*dx){
+    bool vertical=dy*dy>dx*dx;
+    if(!swiping_index && dy && vertical){
       scrolling=true;
       bool stretching = (scroll_top && dy>0) ||
                         (scroll_bot && dy<0);
       scroll_offset+= stretching? dy/3: dy;
     }
     else
-    if(!scrolling && dx && dx*dx>dy*dy && index){
+    if(!scrolling && dx && !vertical && index){
       swiping_index=index;
       swipe_offset+= dx;
     }
     return;
   }
   if(scrolling){
-    scrolling=false;
     if(scroll_top) scroll_offset=0;
     if(scroll_bot) scroll_offset=scroll_bot_lim;
+    scrolling=false;
     return;
   }
   if(swiping_index){
-    if(swipe_offset < 50){
+    if(swipe_offset < -120){
       del_this_entry=swiping_index;
     }
     swiping_index=0;

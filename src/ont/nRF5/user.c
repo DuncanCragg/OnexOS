@@ -192,6 +192,7 @@ static void show_touch_point(uint8_t g2d_node){
 }
 
 static uint16_t del_this_entry=0;
+static uint16_t grab_this_entry=0;
 static char*    list_selected_uid=0;
 
 static uint16_t list_selected_control=0;
@@ -307,6 +308,13 @@ bool evaluate_user(object* usr, void* d) {
     del_this_entry=0;
     reset_swipe=true;
   }
+  else
+  if(grab_this_entry){
+    char grabpath[32]; snprintf(grabpath, 32, "viewing:list:%d", grab_this_entry);
+    char* grab_uid=object_property(user, grabpath);
+    grab_this_entry=0;
+    reset_swipe=true;
+  }
 
   // -------------------------------------------------
 
@@ -387,6 +395,10 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
   if(swiping_index){
     if(swipe_offset < -120){
       del_this_entry=swiping_index;
+    }
+    else
+    if(swipe_offset > 120){
+      grab_this_entry=swiping_index;
     }
     else {
       swiping_index=0;

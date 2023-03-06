@@ -63,11 +63,11 @@ volatile uint32_t touch_events_spurious=0;
 
 static void touched(touch_info_t ti) {
 
-  // this cb is spuriously called by button presses;
+  // ---------------------------------------
+  // XXX this cb is spuriously called by button presses;
   // luckily x+y are set to zero
   if(!(ti.x+ti.y)){ touch_events_spurious++; return; }
-
-  touch_events++;
+  // ---------------------------------------
 
   // ---------------------------------------
   // XXX maybe need to drive touch chip differently
@@ -88,7 +88,11 @@ static void touched(touch_info_t ti) {
   // ---------------------------------------
   // XXX move this "down state" logic to the touch API?
 
-  bool is_down_event = ti.action==TOUCH_ACTION_CONTACT;
+  touch_events++;
+
+  touch_info=ti;
+
+  bool is_down_event = touch_info.action==TOUCH_ACTION_CONTACT;
 
   if(!touch_down && is_down_event){ if(touch_pending) return; touch_down=true; }
   else
@@ -96,7 +100,6 @@ static void touched(touch_info_t ti) {
 
   if(is_down_event) touch_pending=true;
 
-  touch_info=ti;
   onex_run_evaluators(touchuid, 0);
 }
 

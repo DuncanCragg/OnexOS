@@ -287,9 +287,7 @@ bool evaluate_user(object* usr, void* d) {
       char* e; uint64_t tsnum=strtoull(add_this_word,&e,10);
       if(!(*e)) time_es_set(tsnum);
   }
-  else
-  //} hack alert - setting epoch ts from kbd
-
+  else //}
   if(add_this_word){
     char* viewing_uid=object_property(user, "viewing");
     set_edit_object(viewing_uid, "text", 0, "=> @. %s", add_this_word);

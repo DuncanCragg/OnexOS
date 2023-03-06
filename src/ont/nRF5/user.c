@@ -296,8 +296,8 @@ bool evaluate_user(object* usr, void* d) {
 
   //{ hack alert - setting epoch ts from kbd
   if(add_this_word && object_property_contains(user, "viewing:is", "watch")){
-      char* e; uint64_t tsnum=strtoull(add_this_word,&e,10);
-      if(!(*e)) time_es_set(tsnum);
+    char* e; uint64_t tsnum=strtoull(add_this_word,&e,10);
+    if(!(*e)) time_es_set(tsnum);
   }
   else //}
   if(add_this_word){

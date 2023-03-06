@@ -51,6 +51,7 @@ extern touch_info_t touch_info;
 extern bool         touch_down;
 
 extern char* homeuid;
+extern char* inventoryuid;
 
 extern object* user;
 extern object* responses;
@@ -312,15 +313,24 @@ bool evaluate_user(object* usr, void* d) {
   }
   else
   if(del_this_entry){
+
+    // if inventoryuid==viewing_uid then below grabber is overridden thus it really deletes
+
+    char* grab_uid=object_property_get_n(user, "viewing:list", del_this_entry);
+    set_edit_object(inventoryuid, "list", 0, "=> %s @.", grab_uid);
+
     char* viewing_uid=object_property(user, "viewing");
     set_edit_object(viewing_uid, "list", del_this_entry, "=>");
+
     del_this_entry=0;
     reset_swipe=true;
   }
   else
   if(grab_this_entry){
-    char grabpath[32]; snprintf(grabpath, 32, "viewing:list:%d", grab_this_entry);
-    char* grab_uid=object_property(user, grabpath);
+
+    char* grab_uid=object_property_get_n(user, "viewing:list", grab_this_entry);
+    set_edit_object(inventoryuid, "list", 0, "=> %s @.", grab_uid);
+
     grab_this_entry=0;
     reset_swipe=true;
   }

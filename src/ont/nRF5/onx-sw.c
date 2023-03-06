@@ -25,6 +25,7 @@ static char* clockuid;
 static char* aboutuid;
 
 char* homeuid;
+char* inventoryuid;
 
 object* user;
 object* responses;
@@ -215,6 +216,7 @@ static void init_onex(){
   object* oclock;
   object* watchface;
   object* home;
+  object* inventory;
   object* watch;
   object* note1;
   object* note2;
@@ -245,6 +247,7 @@ static void init_onex(){
   oclock   =object_new(0, "clock",     "clock event", 12);
   watchface=object_new(0, "editable",  "watchface editable", 6);
   home     =object_new(0, "editable",  "list editable", 4);
+  inventory=object_new(0, "editable",  "list editable", 4);
   watch    =object_new(0, "default",   "watch", 4);
   note1    =object_new(0, "notes",     "text editable", 4);
   note2    =object_new(0, "notes",     "text editable", 4);
@@ -264,6 +267,7 @@ static void init_onex(){
   clockuid    =object_property(oclock, "UID");
   watchfaceuid=object_property(watchface, "UID");
   homeuid     =object_property(home, "UID");
+  inventoryuid=object_property(inventory, "UID");
   watchuid    =object_property(watch, "UID");
   note1uid    =object_property(note1, "UID");
   note2uid    =object_property(note2, "UID");
@@ -304,6 +308,7 @@ static void init_onex(){
   object_property_add(notes, "list", note1uid);
   object_property_add(notes, "list", note2uid);
 
+  object_property_add(home, "list", inventoryuid);
   object_property_add(home, "list", notesuid);
   object_property_add(home, "list", aboutuid);
   object_property_add(home, "list", watchuid);

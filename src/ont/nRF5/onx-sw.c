@@ -30,6 +30,7 @@ object* user;
 object* responses;
 
 #define LONG_PRESS_MS 250
+bool                   button_pending =false;
 volatile bool          button_pressed=false;
 
 static volatile bool   touch_pending=false;
@@ -112,14 +113,9 @@ static void moved(motion_info_t mi)
 }
 #endif
 
-#define BUTTON_ACTION_NONE  0
-#define BUTTON_ACTION_WAIT  1
-#define BUTTON_ACTION_SHORT 2
-#define BUTTON_ACTION_LONG  3
-uint8_t button_action = BUTTON_ACTION_NONE;
-
 static void button_changed(uint8_t pin, uint8_t type){
   button_pressed = (gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
+  button_pending=true;
   onex_run_evaluators(buttonuid, 0);
 }
 
@@ -400,27 +396,8 @@ int main() {
 
     // --------------------
 
-    static uint64_t pressed_ts=0;
-    if(user_active && button_pressed && !pressed_ts){
-      button_action = BUTTON_ACTION_WAIT;
-      pressed_ts=ct;
-    }
-    else
-    if(button_pressed && pressed_ts){
-      if(button_action == BUTTON_ACTION_WAIT){
-        if((ct - pressed_ts) > LONG_PRESS_MS){
-          button_action = BUTTON_ACTION_LONG;
-          run_user_eval++;
-        }
-      }
-    }
-    else
-    if(pressed_ts && !button_pressed){
-      if(button_action == BUTTON_ACTION_WAIT){
-        button_action = BUTTON_ACTION_SHORT;
-        run_user_eval++;
-      }
-      pressed_ts=0;
+    if(user_active && button_pending){
+      run_user_eval++;
     }
 
     // --------------------

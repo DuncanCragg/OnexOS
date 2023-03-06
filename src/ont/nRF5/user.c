@@ -44,11 +44,8 @@ extern void show_keyboard(uint8_t g2d_node);
 
 extern char* event_log_buffer;
 
-#define BUTTON_ACTION_NONE  0
-#define BUTTON_ACTION_WAIT  1
-#define BUTTON_ACTION_SHORT 2
-#define BUTTON_ACTION_LONG  3
-extern uint8_t button_action;
+extern bool button_pending;
+extern bool button_pressed;
 
 extern touch_info_t touch_info;
 extern bool         touch_down;
@@ -256,23 +253,22 @@ bool evaluate_user(object* usr, void* d) {
 
   if(touch_down && !is_a_touch_triggered_eval) return true;
 
-  if(button_action==BUTTON_ACTION_SHORT){
-    uint16_t histlen=object_property_length(user, "history");
-    if(histlen){
-      char* viewing_uid = object_property_get_n(user, "history", histlen);
-      object_property_set_n(user, "history", histlen, 0);
-      object_property_set(user, "viewing", viewing_uid);
+  if(button_pending){
+    if(button_pressed){
+      uint16_t histlen=object_property_length(user, "history");
+      if(histlen){
+        char* viewing_uid = object_property_get_n(user, "history", histlen);
+        object_property_set_n(user, "history", histlen, 0);
+        object_property_set(user, "viewing", viewing_uid);
+      }
+      else{
+        char* viewing_uid=object_property(user, "viewing");
+        object_property_add(user, "history", viewing_uid);
+        object_property_set(user, "viewing", homeuid);
+      }
       reset_viewing_state_variables();
     }
-    button_action=BUTTON_ACTION_NONE;
-  }
-  else
-  if(button_action==BUTTON_ACTION_LONG){
-    char* viewing_uid=object_property(user, "viewing");
-    object_property_add(user, "history", viewing_uid);
-    object_property_set(user, "viewing", homeuid);
-    reset_viewing_state_variables();
-    button_action=BUTTON_ACTION_NONE;
+    button_pending=false;
   }
 
   if(list_selected_uid){

@@ -656,6 +656,9 @@ static void draw_notes(char* path, uint8_t g2d_node) {
 }
 
 extern uint32_t loop_time;
+extern uint32_t touch_events;
+extern uint32_t touch_events_seen;
+extern uint32_t touch_events_spurious;
 
 static void draw_about(char* path, uint8_t g2d_node) {
 
@@ -665,9 +668,9 @@ static void draw_about(char* path, uint8_t g2d_node) {
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_CYAN/6);
 //  uint32_t touch_events_percent = (100*touch_events_seen)/(1+touch_events);
-//                "%ld%% %ldms", touch_events_percent, loop_time);
     g2d_node_text(g2d_node, 10,20, G2D_WHITE, G2D_CYAN/6, 3,
                   "%dfps %ldms", fps, loop_time);
+//               "%ld%% %ld %ldms", touch_events_percent, touch_events_spurious, loop_time);
     return;
   }
 

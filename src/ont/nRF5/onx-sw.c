@@ -57,14 +57,15 @@ static void every_10s(){
   onex_run_evaluators(batteryuid, 0);
 }
 
-static uint32_t touch_events=0;
-static uint32_t touch_events_seen=0;
+volatile uint32_t touch_events=0;
+volatile uint32_t touch_events_seen=0;
+volatile uint32_t touch_events_spurious=0;
 
 static void touched(touch_info_t ti) {
 
   // this cb is spuriously called by button presses;
   // luckily x+y are set to zero
-  if(!(ti.x+ti.y)) return;
+  if(!(ti.x+ti.y)){ touch_events_spurious++; return; }
 
   touch_events++;
 

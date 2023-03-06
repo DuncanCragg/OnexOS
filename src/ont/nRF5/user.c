@@ -279,6 +279,8 @@ bool evaluate_user(object* usr, void* d) {
     list_selected_uid=0;
   }
 
+  bool reset_swipe=false;
+
   //{ hack alert - setting epoch ts from kbd
   if(add_this_word && object_property_contains(user, "viewing:is", "watch")){
       char* e; uint64_t tsnum=strtoull(add_this_word,&e,10);
@@ -303,6 +305,7 @@ bool evaluate_user(object* usr, void* d) {
     char* viewing_uid=object_property(user, "viewing");
     set_edit_object(viewing_uid, "list", del_this_entry, "=>");
     del_this_entry=0;
+    reset_swipe=true;
   }
 
   // -------------------------------------------------
@@ -334,6 +337,11 @@ bool evaluate_user(object* usr, void* d) {
   }
 
   // -------------------------------------------------
+
+  if(reset_swipe){
+    swiping_index=0;
+    swipe_offset=0;
+  }
 
   return true;
 }
@@ -380,8 +388,10 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     if(swipe_offset < -120){
       del_this_entry=swiping_index;
     }
-    swiping_index=0;
-    swipe_offset=0;
+    else {
+      swiping_index=0;
+      swipe_offset=0;
+    }
     return;
   }
 

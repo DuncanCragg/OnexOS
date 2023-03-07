@@ -202,7 +202,7 @@ static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
 static bool     scroll_bot=false;
 static bool     scrolling=false;
-static uint16_t swiping_index=0;
+static uint16_t swipe_index=0;
 static int16_t  scroll_offset=0;
 static int16_t  swipe_offset=0;
 
@@ -212,7 +212,7 @@ static void reset_viewing_state_variables(){
   scroll_top=false;
   scroll_bot=false;
   scrolling=false;
-  swiping_index=0;
+  swipe_index=0;
   scroll_offset=0;
   swipe_offset=0;
 
@@ -366,7 +366,7 @@ bool evaluate_user(object* usr, void* d) {
   // -------------------------------------------------
 
   if(reset_swipe){
-    swiping_index=0;
+    swipe_index=0;
     swipe_offset=0;
   }
 
@@ -392,7 +392,7 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 
   if(down){
     bool vertical=dy*dy>dx*dx;
-    if(!swiping_index && dy && vertical){
+    if(!swipe_index && dy && vertical){
       scrolling=true;
       bool stretching = (scroll_top && dy>0) ||
                         (scroll_bot && dy<0);
@@ -400,7 +400,7 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     }
     else
     if(!scrolling && dx && !vertical && index){
-      swiping_index=index;
+      swipe_index=index;
       swipe_offset+= dx;
     }
     return;
@@ -411,16 +411,16 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     scrolling=false;
     return;
   }
-  if(swiping_index){
+  if(swipe_index){
     if(swipe_offset < -120){
-      del_this_entry=swiping_index;
+      del_this_entry=swipe_index;
     }
     else
     if(swipe_offset > 120){
-      grab_this_entry=swiping_index;
+      grab_this_entry=swipe_index;
     }
     else {
-      swiping_index=0;
+      swipe_index=0;
       swipe_offset=0;
     }
     return;
@@ -484,7 +484,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
   for(uint8_t i=1; i<=ll; i++){
 
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
-                                             (i==swiping_index? swipe_offset: 0)+20,y,
+                                             (i==swipe_index? swipe_offset: 0)+20,y,
                                              200,CHILD_HEIGHT-10,
                                              list_cb,0,i);
 

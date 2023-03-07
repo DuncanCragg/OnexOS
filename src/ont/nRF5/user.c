@@ -199,6 +199,8 @@ static uint16_t grab_this_entry=0;
 static uint16_t list_selected_control=0;
 static uint16_t list_selected_index=0;
 
+static bool     showing_title_editor=false;
+
 static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
 static bool     scroll_bot=false;
@@ -225,6 +227,8 @@ static void reset_viewing_state_variables(){
   in_word=false;
   edit_word[0]=0;
   cursor=0;
+
+  showing_title_editor=false;
 
   kbd_page=1;
   kbd_x=KBDSTART_X;
@@ -299,6 +303,13 @@ bool evaluate_user(object* usr, void* d) {
 
   bool reset_swipe=false;
 
+  if(add_this_word && showing_title_editor){
+    char* viewing_uid=object_property(user, "viewing");
+    set_edit_object(viewing_uid, "title", 0, "=> %s", add_this_word);
+    add_this_word=0;
+    showing_title_editor=false;
+  }
+  else
   if(add_this_word){
     char* viewing_uid=object_property(user, "viewing");
     set_edit_object(viewing_uid, "text", 0, "=> @. %s", add_this_word);
@@ -449,6 +460,10 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
   list_selected_index=index;
 }
 
+static void title_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+  if(down) showing_title_editor=true;
+}
+
 #define CHILD_HEIGHT 70
 #define BOTTOM_MARGIN 20
 #define TITLE_HEIGHT 45
@@ -499,14 +514,21 @@ static void draw_list(char* path, uint8_t g2d_node) {
                                            0,0,
                                            g2d_node_width(g2d_node),
                                            TITLE_HEIGHT,
-                                           0,0,0);
+                                           title_cb,0,0);
   if(!title_g2d_node) return;
 
-  g2d_node_rectangle(title_g2d_node,
-                     0,0,
+  if(showing_title_editor && cursor==0){
+    snprintf(edit_word, 64, "%s", title);
+    cursor=strlen(edit_word);
+    in_word=true;
+  }
+  g2d_node_rectangle(title_g2d_node, 0,0,
                      g2d_node_width(title_g2d_node),g2d_node_height(title_g2d_node),
-                     G2D_GREY_1D/13);
-  g2d_node_text(title_g2d_node, 30,15, G2D_WHITE, G2D_GREY_1D/13, 2, title);
+                     showing_title_editor? G2D_GREY_1D/7: G2D_GREY_1D/13);
+
+  g2d_node_text(title_g2d_node, 30,15, G2D_WHITE,
+                showing_title_editor? G2D_GREY_1D/7: G2D_GREY_1D/13, 2,
+                showing_title_editor? edit_word: title);
 
   uint8_t list_container_g2d_node = g2d_node_create(g2d_node,
                                                     0,TITLE_HEIGHT,
@@ -560,6 +582,10 @@ static void draw_list(char* path, uint8_t g2d_node) {
     y+=CHILD_HEIGHT;
   }
   make_in_scroll_button(scroll_g2d_node, y, LIST_ADD_NEW_BOT, "+");
+
+  if(showing_title_editor){
+    show_keyboard(g2d_node);
+  }
 }
 
 #define BATTERY_LOW      G2D_RED

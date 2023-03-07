@@ -4,23 +4,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define G2D_WHITE   0xffff
-#define G2D_BLACK   0x0000
-#define G2D_GREY_1E 0xf79e // 1.1.1.1:0/1.1.1:1.0.0/1:1.1.1.0
-#define G2D_GREY_1D 0xef5d // 1.1.1.0:1/1.1.1:0.1.0/1:1.1.0.1
-#define G2D_GREY_1C 0xe71c // 1.1.1.0:0/1.1.1:0.0.0/1:1.1.0.0
-#define G2D_GREY_1B 0xdedb // 1.1.0.1:1/1.1.0:1.1.0/1:1.0.1.1
-#define G2D_GREY_1A 0xd69a // 1.1.0.1:0/1.1.0:1.0.0/1:1.0.1.0
-#define G2D_GREY_F  0x7bef // 0.1.1.1:1/0.1.1:1.1.1/0:1.1.1.1
-#define G2D_GREY_7  0x39e7 // 0.0.1.1:1/0.0.1:1.1.1/0:0.1.1.1
-#define G2D_GREY_3  0x18e3 // 0.0.0.1:1/0.0.0:1.1.1/0:0.0.1.1
-#define G2D_GREY_1  0x0861 // 0.0.0.0:1/0.0.0:0.1.1/0:0.0.0.1
-#define G2D_RED     0xf800 // 1.1.1.1:1/0.0.0:0.0.0/0:0.0.0.0
-#define G2D_GREEN   0x07e0 // 0.0.0.0:0/1.1.1:1.1.1/0:0.0.0.0
-#define G2D_BLUE    0x001f // 0.0.0.0:0/0.0.0:0.0.0/1:1.1.1.1
-#define G2D_YELLOW  0xffe0 // 1.1.1.1:1/1.1.1:1.1.1/0:0.0.0.0
-#define G2D_MAGENTA 0xf81f // 1.1.1.1:1/0.0.0:0.0.0/1:1.1.1.1
-#define G2D_CYAN    0x07ff // 0.0.0.0:0/1.1.1:1.1.1/1:1.1.1.1
+#define G2D_WHITE    0xffff
+#define G2D_BLACK    0x0000
+#define G2D_GREY_1E  0xf79e // 1.1.1.1:0/1.1.1:1.0.0/1:1.1.1.0
+#define G2D_GREY_1D  0xef5d // 1.1.1.0:1/1.1.1:0.1.0/1:1.1.0.1
+#define G2D_GREY_1C  0xe71c // 1.1.1.0:0/1.1.1:0.0.0/1:1.1.0.0
+#define G2D_GREY_1B  0xdedb // 1.1.0.1:1/1.1.0:1.1.0/1:1.0.1.1
+#define G2D_GREY_1A  0xd69a // 1.1.0.1:0/1.1.0:1.0.0/1:1.0.1.0
+#define G2D_GREY_F   0x7bef // 0.1.1.1:1/0.1.1:1.1.1/0:1.1.1.1
+#define G2D_GREY_7   0x39e7 // 0.0.1.1:1/0.0.1:1.1.1/0:0.1.1.1
+#define G2D_GREY_3   0x18e3 // 0.0.0.1:1/0.0.0:1.1.1/0:0.0.1.1
+#define G2D_GREY_1   0x0861 // 0.0.0.0:1/0.0.0:0.1.1/0:0.0.0.1
+#define G2D_RED      0xf800 // 1.1.1.1:1/0.0.0:0.0.0/0:0.0.0.0
+#define G2D_GREEN    0x07e0 // 0.0.0.0:0/1.1.1:1.1.1/0:0.0.0.0
+#define G2D_GREEN_18 0x0600 // 0.0.0.0:0/1.1.0:0.0.0/0:0.0.0.0
+#define G2D_BLUE     0x001f // 0.0.0.0:0/0.0.0:0.0.0/1:1.1.1.1
+#define G2D_YELLOW   0xffe0 // 1.1.1.1:1/1.1.1:1.1.1/0:0.0.0.0
+#define G2D_MAGENTA  0xf81f // 1.1.1.1:1/0.0.0:0.0.0/1:1.1.1.1
+#define G2D_CYAN     0x07ff // 0.0.0.0:0/1.1.1:1.1.1/1:1.1.1.1
 
 #define G2D_RGB256(r,g,b) ((((uint16_t)(r)&0xf8)<<8)|(((uint16_t)(g)&0xfc)<<3)|((uint16_t)(b)>>3))
 

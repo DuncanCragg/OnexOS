@@ -408,7 +408,7 @@ void draw_by_type(char* path, uint8_t g2d_node) {
 }
 
 #define DELETE_SWIPE_DISTANCE -120
-#define GRAB_SWIPE_DISTANCE    120
+#define GRAB_SWIPE_DISTANCE     90
 static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
@@ -481,14 +481,14 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
                             list_cb,control,0);
 
   g2d_node_rectangle(n, 0,0, g2d_node_width(n),g2d_node_height(n), G2D_GREY_F);
-  g2d_node_text(n, 10,10, G2D_WHITE, G2D_GREY_F, 2, text);
+  g2d_node_text(n, 10,15, G2D_WHITE, G2D_GREY_F, 4, text);
 
   return n;
 }
 
 static void draw_list(char* path, uint8_t g2d_node) {
 
-  char* title = object_pathpair(       user, path, "title");
+  char* title = object_pathpair(       user, path, "title:1");
   uint8_t ll  = object_pathpair_length(user, path, "list");
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
@@ -537,7 +537,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
   uint16_t y=CHILD_HEIGHT-10+20;
 
-  make_in_scroll_button(scroll_g2d_node, 10, LIST_ADD_NEW_TOP, "add new");
+  make_in_scroll_button(scroll_g2d_node, 10, LIST_ADD_NEW_TOP, "+");
 
   for(uint8_t i=1; i<=ll; i++){
 
@@ -556,7 +556,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
     y+=CHILD_HEIGHT;
   }
-  make_in_scroll_button(scroll_g2d_node, y, LIST_ADD_NEW_BOT, "add new");
+  make_in_scroll_button(scroll_g2d_node, y, LIST_ADD_NEW_BOT, "+");
 }
 
 #define BATTERY_LOW      G2D_RED

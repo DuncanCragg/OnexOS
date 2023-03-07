@@ -451,6 +451,7 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 
 #define CHILD_HEIGHT 70
 #define BOTTOM_MARGIN 20
+#define TITLE_HEIGHT 45
 
 static void draw_swipe_feedback(uint8_t scroll_g2d_node,
                                 uint16_t y, uint16_t del_colour, uint16_t grab_colour){
@@ -482,24 +483,30 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
 
 static void draw_list(char* path, uint8_t g2d_node) {
 
-  char* title = object_pathpair(       user, path, "title:1");
-  uint8_t ll  = object_pathpair_length(user, path, "list");
+  char* title = object_pathpair(user, path, "title:1");
+  if(!title) title="List";
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_GREY_1D/13);
-    g2d_node_text(g2d_node, 10,20, G2D_WHITE, G2D_GREY_1D/13, 2, title? title: "list");
+    g2d_node_text(g2d_node, 10,20, G2D_WHITE, G2D_GREY_1D/13, 2, title);
     return;
   }
 
-  #define TITLE_HEIGHT 45
-  g2d_node_rectangle(g2d_node,
+  uint8_t title_g2d_node = g2d_node_create(g2d_node,
+                                           0,0,
+                                           g2d_node_width(g2d_node),
+                                           TITLE_HEIGHT,
+                                           0,0,0);
+  if(!title_g2d_node) return;
+
+  g2d_node_rectangle(title_g2d_node,
                      0,0,
-                     g2d_node_width(g2d_node),TITLE_HEIGHT,
+                     g2d_node_width(title_g2d_node),g2d_node_height(title_g2d_node),
                      G2D_GREY_1D/13);
-  g2d_node_text(g2d_node, 30,15, G2D_WHITE, G2D_GREY_1D/13, 2, title? title: "list");
+  g2d_node_text(title_g2d_node, 30,15, G2D_WHITE, G2D_GREY_1D/13, 2, title);
 
   uint8_t list_container_g2d_node = g2d_node_create(g2d_node,
                                                     0,TITLE_HEIGHT,
@@ -507,6 +514,8 @@ static void draw_list(char* path, uint8_t g2d_node) {
                                                     g2d_node_height(g2d_node)-TITLE_HEIGHT,
                                                     0,0,0);
   if(!list_container_g2d_node) return;
+
+  uint8_t ll = object_pathpair_length(user, path, "list");
 
   uint16_t scroll_height=max(10+(ll+2)*CHILD_HEIGHT+10, ST7789_HEIGHT*4/3);
 

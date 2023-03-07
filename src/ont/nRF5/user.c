@@ -193,6 +193,7 @@ static void show_touch_point(uint8_t g2d_node){
 }
 
 static uint16_t del_this_entry=0;
+static uint16_t drop_new_entry=0;
 static uint16_t grab_this_entry=0;
 
 static uint16_t list_selected_control=0;
@@ -202,6 +203,7 @@ static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
 static bool     scroll_bot=false;
 static bool     scrolling=false;
+static uint16_t swipe_control=0;
 static uint16_t swipe_index=0;
 static int16_t  scroll_offset=0;
 static int16_t  swipe_offset=0;
@@ -212,6 +214,7 @@ static void reset_viewing_state_variables(){
   scroll_top=false;
   scroll_bot=false;
   scrolling=false;
+  swipe_control=0;
   swipe_index=0;
   scroll_offset=0;
   swipe_offset=0;
@@ -326,6 +329,19 @@ bool evaluate_user(object* usr, void* d) {
     reset_swipe=true;
   }
   else
+  if(drop_new_entry){
+
+    char* drop_uid = object_property_get_n(user, "inventory:list", 1);
+    if(drop_uid){
+      char* viewing_uid=object_property(user, "viewing");
+      char* upd_fmt=(drop_new_entry==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
+      set_edit_object(viewing_uid, "list", 0, upd_fmt, drop_uid);
+      set_edit_object(inventoryuid, "list", 1, "=>");
+    }
+    drop_new_entry=0;
+    reset_swipe=true;
+  }
+  else
   if(grab_this_entry){
 
     char* grab_uid=object_property_get_n(user, "viewing:list", grab_this_entry);
@@ -366,6 +382,7 @@ bool evaluate_user(object* usr, void* d) {
   // -------------------------------------------------
 
   if(reset_swipe){
+    swipe_control=0;
     swipe_index=0;
     swipe_offset=0;
   }
@@ -392,14 +409,15 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 
   if(down){
     bool vertical=dy*dy>dx*dx;
-    if(!swipe_index && dy && vertical){
+    if(!swipe_control && !swipe_index && dy && vertical){
       scrolling=true;
       bool stretching = (scroll_top && dy>0) ||
                         (scroll_bot && dy<0);
       scroll_offset+= stretching? dy/3: dy;
     }
     else
-    if(!scrolling && dx && !vertical && index){
+    if(!scrolling && dx && !vertical){
+      swipe_control=control;
       swipe_index=index;
       swipe_offset+= dx;
     }
@@ -411,15 +429,18 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     scrolling=false;
     return;
   }
-  if(swipe_index){
+  if(swipe_control || swipe_index){
     if(swipe_offset < -120){
+      drop_new_entry=swipe_control;
       del_this_entry=swipe_index;
     }
     else
     if(swipe_offset > 120){
+      drop_new_entry=swipe_control;
       grab_this_entry=swipe_index;
     }
     else {
+      swipe_control=0;
       swipe_index=0;
       swipe_offset=0;
     }
@@ -433,9 +454,13 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 #define CHILD_HEIGHT 70
 #define BOTTOM_MARGIN 20
 
-static uint8_t make_in_scroll_button(uint8_t g2d_node, uint16_t y, uint16_t control, char* text){
+static uint8_t make_in_scroll_button(uint8_t g2d_node,
+                                     uint16_t y, uint16_t control, char* text){
 
-  uint8_t n=g2d_node_create(g2d_node, 20,y, 200,CHILD_HEIGHT-10, list_cb,control,0);
+  uint8_t n=g2d_node_create(g2d_node,
+                            (control==swipe_control? swipe_offset: 0)+20,y,
+                            200,CHILD_HEIGHT-10,
+                            list_cb,control,0);
 
   g2d_node_rectangle(n, 0,0, g2d_node_width(n),g2d_node_height(n), G2D_GREY_F);
   g2d_node_text(n, 10,10, G2D_WHITE, G2D_GREY_F, 2, text);

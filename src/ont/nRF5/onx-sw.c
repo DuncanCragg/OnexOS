@@ -275,6 +275,7 @@ static void init_onex(){
   aboutuid    =object_property(about, "UID");
 
   object_property_set(user, "responses", responsesuid);
+  object_property_set(user, "inventory", inventoryuid);
 
   object_property_set(backlight, "light", "on");
   object_property_set(backlight, "level", "high");

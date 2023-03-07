@@ -521,11 +521,11 @@ static void draw_list(char* path, uint8_t g2d_node) {
   scroll_top = (scroll_offset > 0);
   scroll_bot = (scroll_offset < scroll_bot_lim);
 
-  uint16_t stretch_height=g2d_node_height(g2d_node)/3;
-  if(scroll_top) g2d_node_rectangle(g2d_node,
+  uint16_t stretch_height=g2d_node_height(list_container_g2d_node)/3;
+  if(scroll_top) g2d_node_rectangle(list_container_g2d_node,
                                     20,0,
                                     200,stretch_height, G2D_GREY_7);
-  if(scroll_bot) g2d_node_rectangle(g2d_node,
+  if(scroll_bot) g2d_node_rectangle(list_container_g2d_node,
                                     20,2*stretch_height,
                                     200,stretch_height, G2D_GREY_7);
 

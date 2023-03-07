@@ -306,9 +306,11 @@ static void init_onex(){
     object_property_add(note2, "text", word);
     word = strtok_r(0, " ", &strtok_state);
   }
+  object_property_set(notes, "title", "Notes");
   object_property_add(notes, "list", note1uid);
   object_property_add(notes, "list", note2uid);
 
+  object_property_set(home, "title", "Home");
   object_property_add(home, "list", inventoryuid);
   object_property_add(home, "list", notesuid);
   object_property_add(home, "list", aboutuid);
@@ -326,6 +328,8 @@ static void init_onex(){
 #if defined(HAS_MOTION)
 //object_property_add(home, "list", motionuid);
 #endif
+
+  object_property_set(inventory, "title", "Inventory");
 
   object_property_set(watch, "battery",   batteryuid);
   object_property_set(watch, "watchface", watchfaceuid);

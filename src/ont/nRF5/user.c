@@ -488,20 +488,35 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
 
 static void draw_list(char* path, uint8_t g2d_node) {
 
-  uint8_t ll=object_pathpair_length(user, path, "list");
+  char* title = object_pathpair(       user, path, "title");
+  uint8_t ll  = object_pathpair_length(user, path, "list");
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_GREY_1D/13);
-    g2d_node_text(g2d_node, 10,20, G2D_WHITE, G2D_GREY_1D/13, 3, "list");
+    g2d_node_text(g2d_node, 10,20, G2D_WHITE, G2D_GREY_1D/13, 2, title? title: "list");
     return;
   }
 
+  #define TITLE_HEIGHT 45
+  g2d_node_rectangle(g2d_node,
+                     0,0,
+                     g2d_node_width(g2d_node),TITLE_HEIGHT,
+                     G2D_GREY_1D/13);
+  g2d_node_text(g2d_node, 30,15, G2D_WHITE, G2D_GREY_1D/13, 2, title? title: "list");
+
+  uint8_t list_container_g2d_node = g2d_node_create(g2d_node,
+                                                    0,TITLE_HEIGHT,
+                                                    g2d_node_width(g2d_node),
+                                                    g2d_node_height(g2d_node)-TITLE_HEIGHT,
+                                                    0,0,0);
+  if(!list_container_g2d_node) return;
+
   uint16_t scroll_height=max(10+(ll+2)*CHILD_HEIGHT+10, ST7789_HEIGHT*4/3);
 
-  uint8_t scroll_g2d_node = g2d_node_create(g2d_node,
+  uint8_t scroll_g2d_node = g2d_node_create(list_container_g2d_node,
                                             0, scroll_offset,
                                             g2d_node_width(g2d_node),
                                             scroll_height,

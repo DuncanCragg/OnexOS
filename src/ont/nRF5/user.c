@@ -299,12 +299,6 @@ bool evaluate_user(object* usr, void* d) {
 
   bool reset_swipe=false;
 
-  //{ hack alert - setting epoch ts from kbd
-  if(add_this_word && object_property_contains(user, "viewing:is", "watch")){
-    char* e; uint64_t tsnum=strtoull(add_this_word,&e,10);
-    if(!(*e)) time_es_set(tsnum);
-  }
-  else //}
   if(add_this_word){
     char* viewing_uid=object_property(user, "viewing");
     set_edit_object(viewing_uid, "text", 0, "=> @. %s", add_this_word);
@@ -623,17 +617,6 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   else         batt_col=BATTERY_LOW;
 
   g2d_node_text(g2d_node, 10, 30, batt_col, G2D_BLACK, 3, "%d%%", pcnum);
-
-  // hack alert - setting epoch ts from kbd
-  if(cursor==0){
-    snprintf(edit_word, 64, "%ld", (uint32_t)time_es());
-    cursor=strlen(edit_word);
-    in_word=true;
-  }
-  g2d_node_text(g2d_node, 110,20, G2D_GREY_F, G2D_BLACK, 2, edit_word);
-
-  show_keyboard(g2d_node);
-  // hack alert - setting epoch ts from kbd
 }
 
 static void word_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t wi){

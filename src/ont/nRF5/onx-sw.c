@@ -333,6 +333,8 @@ static void init_onex(){
   object_property_add(allobjects, "list", useruid);
   object_property_add(allobjects, "list", note1uid);
   object_property_add(allobjects, "list", note2uid);
+  object_property_add(allobjects, "list", responsesuid);
+  object_property_add(allobjects, "list", deviceuid);
 #if defined(HAS_MOTION)
   object_property_add(allobjects, "list", motionuid);
 #endif

@@ -593,18 +593,18 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   }
 
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
-  g2d_node_text(g2d_node, 10, 90, G2D_WHITE, G2D_BLACK, 7, g2dbuf);
+  g2d_node_text(g2d_node, 10, 100, G2D_WHITE, G2D_BLACK, 7, g2dbuf);
 
   strftime(g2dbuf, 64, "%S", &tms);
-  g2d_node_text(g2d_node, 105, 130, G2D_GREY_1A, G2D_BLACK, 1, g2dbuf);
+  g2d_node_text(g2d_node, 105, 140, G2D_GREY_1A, G2D_BLACK, 1, g2dbuf);
 
   if(!h24){
     strftime(g2dbuf, 64, "%p", &tms);
-    g2d_node_text(g2d_node, 180, 150, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
+    g2d_node_text(g2d_node, 180, 160, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
   }
 
   strftime(g2dbuf, 64, "%a %d %h", &tms);
-  g2d_node_text(g2d_node, 30, 210, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
+  g2d_node_text(g2d_node, 30, 220, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
@@ -616,7 +616,7 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   if(pcnum>17) batt_col=BATTERY_MED;
   else         batt_col=BATTERY_LOW;
 
-  g2d_node_text(g2d_node, 10, 30, batt_col, G2D_BLACK, 3, "%d%%", pcnum);
+  g2d_node_text(g2d_node, 180, 15, batt_col, G2D_BLACK, 2, "%d%%", pcnum);
 }
 
 static void word_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t wi){

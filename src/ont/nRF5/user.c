@@ -203,9 +203,10 @@ static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
 static bool     scroll_bot=false;
 static bool     scrolling=false;
+static int16_t  scroll_offset=0;
+
 static uint16_t swipe_control=0;
 static uint16_t swipe_index=0;
-static int16_t  scroll_offset=0;
 static int16_t  swipe_offset=0;
 
 static void reset_viewing_state_variables(){
@@ -214,9 +215,10 @@ static void reset_viewing_state_variables(){
   scroll_top=false;
   scroll_bot=false;
   scrolling=false;
+  scroll_offset=0;
+
   swipe_control=0;
   swipe_index=0;
-  scroll_offset=0;
   swipe_offset=0;
 
   word_index=1;
@@ -405,6 +407,8 @@ void draw_by_type(char* path, uint8_t g2d_node) {
                                                            draw_default(path, g2d_node);
 }
 
+#define DELETE_SWIPE_DISTANCE -120
+#define GRAB_SWIPE_DISTANCE    120
 static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
@@ -430,12 +434,12 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     return;
   }
   if(swipe_control || swipe_index){
-    if(swipe_offset < -120){
+    if(swipe_offset < DELETE_SWIPE_DISTANCE){
       drop_new_entry=swipe_control;
       del_this_entry=swipe_index;
     }
     else
-    if(swipe_offset > 120){
+    if(swipe_offset > GRAB_SWIPE_DISTANCE){
       drop_new_entry=swipe_control;
       grab_this_entry=swipe_index;
     }
@@ -454,10 +458,10 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 #define CHILD_HEIGHT 70
 #define BOTTOM_MARGIN 20
 
-static uint8_t make_in_scroll_button(uint8_t g2d_node,
+static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
                                      uint16_t y, uint16_t control, char* text){
 
-  uint8_t n=g2d_node_create(g2d_node,
+  uint8_t n=g2d_node_create(scroll_g2d_node,
                             (control==swipe_control? swipe_offset: 0)+20,y,
                             200,CHILD_HEIGHT-10,
                             list_cb,control,0);

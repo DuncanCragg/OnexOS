@@ -216,6 +216,7 @@ static void init_onex(){
   object* oclock;
   object* watchface;
   object* home;
+  object* allobjects;
   object* inventory;
   object* watch;
   object* note1;
@@ -223,6 +224,7 @@ static void init_onex(){
   object* notes;
   object* about;
 
+  char* allobjectsuid;
   char* responsesuid;
   char* deviceuid;
 #if defined(HAS_MOTION)
@@ -242,17 +244,18 @@ static void init_onex(){
 #if defined(HAS_MOTION)
   motion   =object_new(0, "motion",    "motion", 8);
 #endif
-  button   =object_new(0, "button",    "button", 4);
-  backlight=object_new(0, "backlight", "light editable", 9);
-  oclock   =object_new(0, "clock",     "clock event", 12);
-  watchface=object_new(0, "editable",  "watchface editable", 6);
-  home     =object_new(0, "editable",  "list editable", 4);
-  inventory=object_new(0, "editable",  "list editable", 4);
-  watch    =object_new(0, "default",   "watch", 4);
-  note1    =object_new(0, "notes",     "text editable", 4);
-  note2    =object_new(0, "notes",     "text editable", 4);
-  notes    =object_new(0, "notes",     "text list editable", 4);
-  about    =object_new(0, "about",     "about", 4);
+  button    =object_new(0, "button",    "button", 4);
+  backlight =object_new(0, "backlight", "light editable", 9);
+  oclock    =object_new(0, "clock",     "clock event", 12);
+  watchface =object_new(0, "editable",  "watchface editable", 6);
+  home      =object_new(0, "editable",  "list editable", 4);
+  allobjects=object_new(0, "editable",  "list editable", 4);
+  inventory =object_new(0, "editable",  "list editable", 4);
+  watch     =object_new(0, "default",   "watch", 4);
+  note1     =object_new(0, "notes",     "text editable", 4);
+  note2     =object_new(0, "notes",     "text editable", 4);
+  notes     =object_new(0, "notes",     "text list editable", 4);
+  about     =object_new(0, "about",     "about", 4);
 
   deviceuid   =object_property(onex_device_object, "UID");
   useruid     =object_property(user, "UID");
@@ -262,17 +265,18 @@ static void init_onex(){
 #if defined(HAS_MOTION)
   motionuid   =object_property(motion, "UID");
 #endif
-  buttonuid   =object_property(button, "UID");
-  backlightuid=object_property(backlight, "UID");
-  clockuid    =object_property(oclock, "UID");
-  watchfaceuid=object_property(watchface, "UID");
-  homeuid     =object_property(home, "UID");
-  inventoryuid=object_property(inventory, "UID");
-  watchuid    =object_property(watch, "UID");
-  note1uid    =object_property(note1, "UID");
-  note2uid    =object_property(note2, "UID");
-  notesuid    =object_property(notes, "UID");
-  aboutuid    =object_property(about, "UID");
+  buttonuid    =object_property(button, "UID");
+  backlightuid =object_property(backlight, "UID");
+  clockuid     =object_property(oclock, "UID");
+  watchfaceuid =object_property(watchface, "UID");
+  homeuid      =object_property(home, "UID");
+  allobjectsuid=object_property(allobjects, "UID");
+  inventoryuid =object_property(inventory, "UID");
+  watchuid     =object_property(watch, "UID");
+  note1uid     =object_property(note1, "UID");
+  note2uid     =object_property(note2, "UID");
+  notesuid     =object_property(notes, "UID");
+  aboutuid     =object_property(about, "UID");
 
   object_property_set(user, "responses", responsesuid);
   object_property_set(user, "inventory", inventoryuid);
@@ -311,22 +315,26 @@ static void init_onex(){
   object_property_add(notes, "list", note2uid);
 
   object_property_set(home, "title", "Home");
-  object_property_add(home, "list", inventoryuid);
   object_property_add(home, "list", notesuid);
-  object_property_add(home, "list", aboutuid);
-  object_property_add(home, "list", watchuid);
-  object_property_add(home, "list", clockuid);
-  object_property_add(home, "list", batteryuid);
-//object_property_add(home, "list", note1uid);
-//object_property_add(home, "list", note2uid);
-//object_property_add(home, "list", homeuid);
-//object_property_add(home, "list", useruid);
-//object_property_add(home, "list", watchfaceuid);
-//object_property_add(home, "list", backlightuid);
-//object_property_add(home, "list", touchuid);
-//object_property_add(home, "list", buttonuid);
+  object_property_add(home, "list", allobjectsuid);
+
+  object_property_set(allobjects, "title", "All objects");
+  object_property_add(allobjects, "list", homeuid);
+  object_property_add(allobjects, "list", inventoryuid);
+  object_property_add(allobjects, "list", notesuid);
+  object_property_add(allobjects, "list", aboutuid);
+  object_property_add(allobjects, "list", watchuid);
+  object_property_add(allobjects, "list", clockuid);
+  object_property_add(allobjects, "list", batteryuid);
+  object_property_add(allobjects, "list", touchuid);
+  object_property_add(allobjects, "list", buttonuid);
+  object_property_add(allobjects, "list", watchfaceuid);
+  object_property_add(allobjects, "list", backlightuid);
+  object_property_add(allobjects, "list", useruid);
+  object_property_add(allobjects, "list", note1uid);
+  object_property_add(allobjects, "list", note2uid);
 #if defined(HAS_MOTION)
-//object_property_add(home, "list", motionuid);
+  object_property_add(allobjects, "list", motionuid);
 #endif
 
   object_property_set(inventory, "title", "Inventory");

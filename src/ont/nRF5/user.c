@@ -412,8 +412,9 @@ void draw_by_type(char* path, uint8_t g2d_node) {
                                                            draw_default(path, g2d_node);
 }
 
-#define DELETE_SWIPE_DISTANCE -120
-#define GRAB_SWIPE_DISTANCE     90
+#define DELETE_SWIPE_DISTANCE -140
+#define GRAB_SWIPE_DISTANCE    -70
+#define DROP_SWIPE_DISTANCE     90
 static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
@@ -439,14 +440,16 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     return;
   }
   if(swipe_control || swipe_index){
-    if(swipe_offset < DELETE_SWIPE_DISTANCE){
-      drop_new_entry=swipe_control;
+    if(swipe_offset < DELETE_SWIPE_DISTANCE && swipe_index){
       del_this_entry=swipe_index;
     }
     else
-    if(swipe_offset > GRAB_SWIPE_DISTANCE){
-      drop_new_entry=swipe_control;
+    if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_index){
       grab_this_entry=swipe_index;
+    }
+    else
+    if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_control){
+      drop_new_entry=swipe_control;
     }
     else {
       swipe_control=0;
@@ -468,12 +471,13 @@ static void title_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
 #define BOTTOM_MARGIN 20
 #define TITLE_HEIGHT 45
 
-static void draw_swipe_feedback(uint8_t scroll_g2d_node,
-                                uint16_t y, uint16_t del_colour, uint16_t grab_colour){
+static void draw_swipe_feedback(uint8_t scroll_g2d_node, uint16_t y,
+                                uint16_t del_colour, uint16_t grab_colour, uint16_t drop_colour){
 
   uint16_t c=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_colour:
-             (swipe_offset > GRAB_SWIPE_DISTANCE)?   grab_colour:
-                                                     G2D_GREY_1A;
+             (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_colour:
+             (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_colour:
+                                                     G2D_GREY_7;
 
   g2d_node_rectangle(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10, c);
 }
@@ -482,7 +486,7 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
                                      uint16_t y, uint16_t control, char* text){
 
   if(control==swipe_control){
-    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREEN_18, G2D_GREEN_18);
+    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREY_3, G2D_GREY_7, G2D_GREEN_18);
   }
 
   uint8_t n=g2d_node_create(scroll_g2d_node,
@@ -567,7 +571,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
   for(uint8_t i=1; i<=ll; i++){
 
     if(i==swipe_index){
-      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18);
+      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_ORANGE, G2D_GREY_3);
     }
 
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,

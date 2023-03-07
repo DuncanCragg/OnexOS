@@ -30,7 +30,7 @@ extern char     edit_word[];
 extern uint8_t  cursor;
 
 #define KBDSTART_X 0
-#define KBDSTART_Y 250
+#define KBDSTART_Y 120
 extern uint8_t kbd_page;
 extern int16_t kbd_x;
 extern int16_t kbd_y;

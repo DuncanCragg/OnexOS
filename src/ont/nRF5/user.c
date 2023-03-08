@@ -142,6 +142,23 @@ static object* create_new_object_like_others() {
   return r;
 }
 
+void best_propname_for_link_drop(char* propname, uint16_t len, uint16_t inventory_drop_index){
+  char targetis[64]; snprintf(targetis, 64, "viewing:list:%d:is", inventory_drop_index);
+  if(object_property_contains(user, targetis, "list")){
+    snprintf(propname, len, "list");
+    return;
+  }
+  uint16_t ln=object_property_length(user, "inventory:list:1:is");
+  uint16_t s=0;
+  for(uint16_t j=1; j <= ln; j++){
+    char* is=object_property_get_n(user, "inventory:list:1:is", j);
+    if(!strcmp(is, "editable")) continue;
+    s+=snprintf(propname+s, len-s, is);
+    s+=snprintf(propname+s, len-s, "-");
+  }
+  *(propname+s-1)=0;
+}
+
 static void show_gfx_log(uint8_t root_g2d_node){
 
   uint64_t pre_render_time=time_ms();
@@ -361,8 +378,10 @@ bool evaluate_user(object* usr, void* d) {
   if(inventory_drop_index){
     char* drop_uid = object_property_get_n(user, "inventory:list", 1);
     if(drop_uid){
+      char propname[128];
+      best_propname_for_link_drop(propname, 128, inventory_drop_index);
       char* into_uid=object_property_get_n(user, "viewing:list", inventory_drop_index);
-      set_edit_object(into_uid, "list", 0, "=> %s @.", drop_uid);
+      set_edit_object(into_uid, propname, 0, "=> %s @.", drop_uid);
       set_edit_object(inventoryuid, "list", 1, "=>");
     }
     inventory_drop_index=0;

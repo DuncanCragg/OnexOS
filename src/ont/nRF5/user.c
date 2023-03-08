@@ -502,7 +502,7 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
   if(control==swipe_control){
     uint16_t droppables=object_property_length(user, "inventory:list");
     uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
-    char*   drop_text   = droppables? "<->": "---";
+    char*   drop_text   = droppables? "O->": "---";
     draw_swipe_feedback(scroll_g2d_node, y, G2D_GREY_3, G2D_GREY_7, drop_colour,
                                             "",         "",         drop_text);
   }
@@ -590,7 +590,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
     if(i==swipe_index){
       draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, G2D_GREY_3,
-                                              "X-X",   "O-O",        "");
+                                              "<-X",   "<-O",        "");
 
     }
 

@@ -255,6 +255,7 @@ static void draw_default(char* path, uint8_t g2d_node);
 
 #define LIST_ADD_NEW_TOP 1
 #define LIST_ADD_NEW_BOT 2
+#define LIST_BACKGROUND  3
 
 bool evaluate_user(object* usr, void* d) {
 
@@ -430,7 +431,7 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
       scroll_offset+= stretching? dy/3: dy;
     }
     else
-    if(!scrolling && dx && !vertical){
+    if(!scrolling && dx && !vertical && control!=LIST_BACKGROUND){
       swipe_control=control;
       swipe_index=index;
       swipe_offset+= dx;
@@ -566,7 +567,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
                                             0, scroll_offset,
                                             g2d_node_width(g2d_node),
                                             scroll_height,
-                                            list_cb,0,0);
+                                            list_cb,LIST_BACKGROUND,0);
   if(!scroll_g2d_node) return;
 
   scroll_bot_lim = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;

@@ -196,9 +196,11 @@ static void show_touch_point(uint8_t g2d_node){
   g2d_node_rectangle(touch_g2d_node, 0,0, 5,5, G2D_MAGENTA);
 }
 
+static uint16_t grab_control_inventory=0;
 static uint16_t grab_index_inventory=0;
 static bool     delete_grabbed=false;
 static uint16_t drop_control_inventory=0;
+static uint16_t drop_index_inventory=0;
 
 static uint16_t list_selected_control=0;
 static uint16_t list_selected_index=0;
@@ -327,6 +329,15 @@ bool evaluate_user(object* usr, void* d) {
     del_this_word=0;
   }
   else
+  if(grab_control_inventory){
+    char* viewing_uid=object_property(user, "viewing");
+ // if(viewing_uid != inventoryuid){
+      set_edit_object(inventoryuid, "list", 0, "=> %s @.", viewing_uid);
+ // }
+    grab_control_inventory=0;
+    reset_swipe=true;
+  }
+  else
   if(grab_index_inventory){
     char* viewing_uid=object_property(user, "viewing");
  // if(viewing_uid != inventoryuid){
@@ -350,6 +361,20 @@ bool evaluate_user(object* usr, void* d) {
    // }
     }
     drop_control_inventory=0;
+    reset_swipe=true;
+  }
+  else
+  if(drop_index_inventory){
+    char* drop_uid = object_property_get_n(user, "inventory:list", 1);
+    if(drop_uid){
+   // char* viewing_uid=object_property(user, "viewing");
+   // if(viewing_uid != inventoryuid){
+        char* into_uid=object_property_get_n(user, "viewing:list", drop_index_inventory);
+        set_edit_object(into_uid, "list", 0, "=> %s @.", drop_uid);
+        set_edit_object(inventoryuid, "list", 1, "=>");
+   // }
+    }
+    drop_index_inventory=0;
     reset_swipe=true;
   }
 
@@ -437,6 +462,10 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
   }
 
   if(swipe_control || swipe_index){
+    if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_control){
+      grab_control_inventory=swipe_control;
+    }
+    else
     if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_index){
       grab_index_inventory=swipe_index;
       if(swipe_offset < DELETE_SWIPE_DISTANCE){
@@ -446,6 +475,10 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     else
     if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_control){
       drop_control_inventory=swipe_control;
+    }
+    else
+    if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_index){
+      drop_index_inventory=swipe_index;
     }
     else {
       swipe_control=0;
@@ -496,8 +529,8 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
     uint16_t droppables=object_property_length(user, "inventory:list");
     uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
     char*   drop_text   = droppables? "O->": "---";
-    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREY_3, G2D_GREY_7, drop_colour,
-                                            "",         "",         drop_text);
+    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREEN_18, G2D_GREEN_18, drop_colour,
+                                            "<-O",        "<-O",        drop_text);
   }
 
   uint8_t n=g2d_node_create(scroll_g2d_node,
@@ -582,8 +615,11 @@ static void draw_list(char* path, uint8_t g2d_node) {
   for(uint8_t i=1; i<=ll; i++){
 
     if(i==swipe_index){
-      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, G2D_GREY_3,
-                                              "<-X",   "<-O",        "");
+      uint16_t droppables=object_property_length(user, "inventory:list");
+      uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
+      char*   drop_text   = droppables? "O->": "---";
+      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_colour,
+                                              "<-X",   "<-O",        drop_text);
 
     }
 

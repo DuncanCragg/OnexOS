@@ -196,9 +196,9 @@ static void show_touch_point(uint8_t g2d_node){
   g2d_node_rectangle(touch_g2d_node, 0,0, 5,5, G2D_MAGENTA);
 }
 
-static uint16_t grab_into_inventory=0;
+static uint16_t grab_index_inventory=0;
 static bool     delete_grabbed=false;
-static uint16_t drop_from_inventory=0;
+static uint16_t drop_control_inventory=0;
 
 static uint16_t list_selected_control=0;
 static uint16_t list_selected_index=0;
@@ -327,29 +327,29 @@ bool evaluate_user(object* usr, void* d) {
     del_this_word=0;
   }
   else
-  if(grab_into_inventory){
+  if(grab_index_inventory){
     char* viewing_uid=object_property(user, "viewing");
  // if(viewing_uid != inventoryuid){
-      char* grab_uid=object_property_get_n(user, "viewing:list", grab_into_inventory);
+      char* grab_uid=object_property_get_n(user, "viewing:list", grab_index_inventory);
       set_edit_object(inventoryuid, "list", 0, "=> %s @.", grab_uid);
-      if(delete_grabbed) set_edit_object(viewing_uid, "list", grab_into_inventory, "=>");
+      if(delete_grabbed) set_edit_object(viewing_uid, "list", grab_index_inventory, "=>");
  // }
-    grab_into_inventory=0;
+    grab_index_inventory=0;
     delete_grabbed=false;
     reset_swipe=true;
   }
   else
-  if(drop_from_inventory){
+  if(drop_control_inventory){
     char* drop_uid = object_property_get_n(user, "inventory:list", 1);
     if(drop_uid){
       char* viewing_uid=object_property(user, "viewing");
    // if(viewing_uid != inventoryuid){
-        char* upd_fmt=(drop_from_inventory==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
+        char* upd_fmt=(drop_control_inventory==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
         set_edit_object(viewing_uid, "list", 0, upd_fmt, drop_uid);
         set_edit_object(inventoryuid, "list", 1, "=>");
    // }
     }
-    drop_from_inventory=0;
+    drop_control_inventory=0;
     reset_swipe=true;
   }
 
@@ -438,14 +438,14 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 
   if(swipe_control || swipe_index){
     if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_index){
-      grab_into_inventory=swipe_index;
+      grab_index_inventory=swipe_index;
       if(swipe_offset < DELETE_SWIPE_DISTANCE){
         delete_grabbed=true;
       }
     }
     else
     if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_control){
-      drop_from_inventory=swipe_control;
+      drop_control_inventory=swipe_control;
     }
     else {
       swipe_control=0;

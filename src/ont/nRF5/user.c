@@ -472,21 +472,34 @@ static void title_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
 #define TITLE_HEIGHT 45
 
 static void draw_swipe_feedback(uint8_t scroll_g2d_node, uint16_t y,
-                                uint16_t del_colour, uint16_t grab_colour, uint16_t drop_colour){
+                                uint16_t del_colour, uint16_t grab_colour, uint16_t drop_colour,
+                                char*    del_text,   char*    grab_text,   char*    drop_text   ){
 
   uint16_t c=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_colour:
              (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_colour:
-             (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_colour:
-                                                     G2D_GREY_7;
+             (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_colour: G2D_GREY_7;
+
+  char* s=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_text:
+          (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_text:
+          (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_text: "";
+
+  uint16_t x=(swipe_offset < DELETE_SWIPE_DISTANCE)? 130:
+             (swipe_offset < GRAB_SWIPE_DISTANCE)?   130:
+             (swipe_offset > DROP_SWIPE_DISTANCE)?    30: 0;
 
   g2d_node_rectangle(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10, c);
+  g2d_node_text(scroll_g2d_node, x,y+15, G2D_WHITE, c, 4, s);
 }
 
 static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
                                      uint16_t y, uint16_t control, char* text){
 
   if(control==swipe_control){
-    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREY_3, G2D_GREY_7, G2D_GREEN_18);
+    uint16_t droppables=object_property_length(user, "inventory:list");
+    uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
+    char*   drop_text   = droppables? "<->": "---";
+    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREY_3, G2D_GREY_7, drop_colour,
+                                            "",         "",         drop_text);
   }
 
   uint8_t n=g2d_node_create(scroll_g2d_node,
@@ -571,7 +584,9 @@ static void draw_list(char* path, uint8_t g2d_node) {
   for(uint8_t i=1; i<=ll; i++){
 
     if(i==swipe_index){
-      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_ORANGE, G2D_GREY_3);
+      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, G2D_GREY_3,
+                                              "X-X",   "O-O",        "");
+
     }
 
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,

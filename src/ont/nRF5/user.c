@@ -182,7 +182,11 @@ static void show_gfx_log(uint8_t root_g2d_node){
   }
   for(uint8_t i=0; i<LOG_LINES_MAX; i++){
     if(log_lines[i]){
+#if !defined(BIG_LOG)
       g2d_node_text(root_g2d_node, 20,8+i*8, G2D_RED, G2D_BLACK, 1, log_lines[i]);
+#else
+      g2d_node_text(root_g2d_node, 40,i*15, G2D_RED, G2D_BLACK, 2, log_lines[i]);
+#endif
     }
   }
 }

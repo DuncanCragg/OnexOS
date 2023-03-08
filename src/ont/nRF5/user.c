@@ -464,8 +464,10 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     return;
   }
 
-  list_selected_control=control;
-  list_selected_index=index;
+  if(control!=LIST_BACKGROUND){
+    list_selected_control=control;
+    list_selected_index=index;
+  }
 }
 
 static void title_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){

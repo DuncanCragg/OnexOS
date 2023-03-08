@@ -237,12 +237,12 @@ static void init_onex(){
   char* note2uid;
   char* notesuid;
 
-  user     =object_new(0, "user",      "user", 8);
-  responses=object_new(0, "default",   "user responses", 12);
-  battery  =object_new(0, "battery",   "battery", 4);
-  touch    =object_new(0, "touch",     "touch", 6);
+  user      =object_new(0, "user",      "user", 8);
+  responses =object_new(0, "default",   "user responses", 12);
+  battery   =object_new(0, "battery",   "battery", 4);
+  touch     =object_new(0, "touch",     "touch", 6);
 #if defined(HAS_MOTION)
-  motion   =object_new(0, "motion",    "motion", 8);
+  motion    =object_new(0, "motion",    "motion", 8);
 #endif
   button    =object_new(0, "button",    "button", 4);
   backlight =object_new(0, "backlight", "light editable", 9);

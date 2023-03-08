@@ -331,20 +331,16 @@ bool evaluate_user(object* usr, void* d) {
   else
   if(inventory_grab_control){
     char* viewing_uid=object_property(user, "viewing");
- // if(viewing_uid != inventoryuid){
-      set_edit_object(inventoryuid, "list", 0, "=> %s @.", viewing_uid);
- // }
+    set_edit_object(inventoryuid, "list", 0, "=> %s @.", viewing_uid);
     inventory_grab_control=0;
     reset_swipe=true;
   }
   else
   if(inventory_grab_index){
     char* viewing_uid=object_property(user, "viewing");
- // if(viewing_uid != inventoryuid){
-      char* grab_uid=object_property_get_n(user, "viewing:list", inventory_grab_index);
-      set_edit_object(inventoryuid, "list", 0, "=> %s @.", grab_uid);
-      if(inventory_delete) set_edit_object(viewing_uid, "list", inventory_grab_index, "=>");
- // }
+    char* grab_uid=object_property_get_n(user, "viewing:list", inventory_grab_index);
+    set_edit_object(inventoryuid, "list", 0, "=> %s @.", grab_uid);
+    if(inventory_delete) set_edit_object(viewing_uid, "list", inventory_grab_index, "=>");
     inventory_grab_index=0;
     inventory_delete=false;
     reset_swipe=true;
@@ -354,11 +350,9 @@ bool evaluate_user(object* usr, void* d) {
     char* drop_uid = object_property_get_n(user, "inventory:list", 1);
     if(drop_uid){
       char* viewing_uid=object_property(user, "viewing");
-   // if(viewing_uid != inventoryuid){
-        char* upd_fmt=(inventory_drop_control==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
-        set_edit_object(viewing_uid, "list", 0, upd_fmt, drop_uid);
-        set_edit_object(inventoryuid, "list", 1, "=>");
-   // }
+      char* upd_fmt=(inventory_drop_control==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
+      set_edit_object(viewing_uid, "list", 0, upd_fmt, drop_uid);
+      set_edit_object(inventoryuid, "list", 1, "=>");
     }
     inventory_drop_control=0;
     reset_swipe=true;
@@ -367,12 +361,9 @@ bool evaluate_user(object* usr, void* d) {
   if(inventory_drop_index){
     char* drop_uid = object_property_get_n(user, "inventory:list", 1);
     if(drop_uid){
-   // char* viewing_uid=object_property(user, "viewing");
-   // if(viewing_uid != inventoryuid){
-        char* into_uid=object_property_get_n(user, "viewing:list", inventory_drop_index);
-        set_edit_object(into_uid, "list", 0, "=> %s @.", drop_uid);
-        set_edit_object(inventoryuid, "list", 1, "=>");
-   // }
+      char* into_uid=object_property_get_n(user, "viewing:list", inventory_drop_index);
+      set_edit_object(into_uid, "list", 0, "=> %s @.", drop_uid);
+      set_edit_object(inventoryuid, "list", 1, "=>");
     }
     inventory_drop_index=0;
     reset_swipe=true;

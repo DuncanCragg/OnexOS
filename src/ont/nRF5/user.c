@@ -328,21 +328,15 @@ bool evaluate_user(object* usr, void* d) {
   }
   else
   if(del_this_entry){
-
-    // if inventoryuid==viewing_uid then below grabber is overridden thus it really deletes
-
     char* grab_uid=object_property_get_n(user, "viewing:list", del_this_entry);
     set_edit_object(inventoryuid, "list", 0, "=> %s @.", grab_uid);
-
     char* viewing_uid=object_property(user, "viewing");
     set_edit_object(viewing_uid, "list", del_this_entry, "=>");
-
     del_this_entry=0;
     reset_swipe=true;
   }
   else
   if(drop_new_entry){
-
     char* drop_uid = object_property_get_n(user, "inventory:list", 1);
     if(drop_uid){
       char* viewing_uid=object_property(user, "viewing");
@@ -355,10 +349,8 @@ bool evaluate_user(object* usr, void* d) {
   }
   else
   if(grab_this_entry){
-
     char* grab_uid=object_property_get_n(user, "viewing:list", grab_this_entry);
     set_edit_object(inventoryuid, "list", 0, "=> %s @.", grab_uid);
-
     grab_this_entry=0;
     reset_swipe=true;
   }
@@ -438,12 +430,14 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     }
     return;
   }
+
   if(scrolling){
     if(scroll_top) scroll_offset=0;
     if(scroll_bot) scroll_offset=scroll_bot_lim;
     scrolling=false;
     return;
   }
+
   if(swipe_control || swipe_index){
     if(swipe_offset < DELETE_SWIPE_DISTANCE && swipe_index){
       del_this_entry=swipe_index;

@@ -113,7 +113,7 @@ static object* create_new_object_like_others() {
     newtype="text editable";
   }
   else{
-    int16_t ll = object_property_length(user, "viewing:list");
+    uint16_t ll = object_property_length(user, "viewing:list");
     if(ll==0){
       newtype="text editable";
     }
@@ -270,7 +270,7 @@ static void draw_watch(char* path, uint8_t g2d_node);
 static void draw_notes(char* path, uint8_t g2d_node);
 static void draw_about(char* path, uint8_t g2d_node);
 static void draw_button(char* path, uint8_t g2d_node);
-static void draw_default(char* path, uint8_t g2d_node);
+static void draw_raw(char* path, uint8_t g2d_node);
 
 #define LIST_ADD_NEW_TOP 1
 #define LIST_ADD_NEW_BOT 2
@@ -439,7 +439,7 @@ void draw_by_type(char* path, uint8_t g2d_node) {
   else
   if(object_pathpair_contains(user, path, "is", "button")) draw_button(path, g2d_node);
   else
-                                                           draw_default(path, g2d_node);
+                                                           draw_raw(path, g2d_node);
 }
 
 #define DELETE_SWIPE_DISTANCE -140
@@ -595,13 +595,13 @@ static void draw_list(char* path, uint8_t g2d_node) {
                                                     0,0,0);
   if(!list_container_g2d_node) return;
 
-  uint8_t ll = object_pathpair_length(user, path, "list");
+  uint16_t ll = object_pathpair_length(user, path, "list");
 
   uint16_t scroll_height=max(10+(ll+2)*CHILD_HEIGHT+10, ST7789_HEIGHT*4/3);
 
   uint8_t scroll_g2d_node = g2d_node_create(list_container_g2d_node,
                                             0, scroll_offset,
-                                            g2d_node_width(g2d_node),
+                                            g2d_node_width(list_container_g2d_node),
                                             scroll_height,
                                             list_cb,LIST_BACKGROUND,0);
   if(!scroll_g2d_node) return;
@@ -861,10 +861,10 @@ static void draw_button(char* path, uint8_t g2d_node) {
                       "%s", object_pathpair_is(user, path, "state", "down")? "down": "up");
     return;
   }
-  draw_default(path, g2d_node);
+  draw_raw(path, g2d_node);
 }
 
-void draw_default(char* path, uint8_t g2d_node) {
+void draw_raw(char* path, uint8_t g2d_node) {
 
   char* is=object_pathpair(user, path, "is:1");
 

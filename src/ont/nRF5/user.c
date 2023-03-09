@@ -864,6 +864,8 @@ static void draw_button(char* path, uint8_t g2d_node) {
   draw_raw(path, g2d_node);
 }
 
+#define PROP_HEIGHT 38
+#define PROP_MARGIN 5
 void draw_raw(char* path, uint8_t g2d_node) {
 
   char* is=object_pathpair(user, path, "is:1");
@@ -876,17 +878,74 @@ void draw_raw(char* path, uint8_t g2d_node) {
     g2d_node_text(g2d_node, 10,20, G2D_BLACK, G2D_MAGENTA, 3, is);
     return;
   }
-  char* uid=object_property(user, path);
-  object* o=onex_get_from_cache(uid);
-  static char bigvaluebuf[256];
-  object_to_text(o, bigvaluebuf, 256, OBJECT_TO_TEXT_LOG);
 
-  uint16_t p=0;
-  uint16_t l=strlen(bigvaluebuf);
-  uint16_t y=30;
-  while(y<280 && p < l){
-    g2d_node_text(g2d_node, 10, y, G2D_BLUE, G2D_BLACK, 2, "%s", bigvaluebuf+p);
-    y+=20; p+=19;
+  uint8_t title_g2d_node = g2d_node_create(g2d_node,
+                                           0,0,
+                                           g2d_node_width(g2d_node),
+                                           TITLE_HEIGHT,
+                                           0,0,0);
+  if(!title_g2d_node) return;
+
+  g2d_node_rectangle(title_g2d_node, 0,0,
+                     g2d_node_width(title_g2d_node),g2d_node_height(title_g2d_node),
+                     G2D_GREY_1D/13);
+
+  g2d_node_text(title_g2d_node, 30,15, G2D_WHITE, G2D_GREY_1D/13, 1,
+                "%s", object_pathpair(user, path, "UID"));
+
+  uint8_t list_container_g2d_node = g2d_node_create(g2d_node,
+                                                    0,TITLE_HEIGHT,
+                                                    g2d_node_width(g2d_node),
+                                                    g2d_node_height(g2d_node)-TITLE_HEIGHT,
+                                                    0,0,0);
+  if(!list_container_g2d_node) return;
+
+  char viewpath[64]; snprintf(viewpath, 64, "%s:", path);
+  int16_t ol = object_property_size(user, viewpath);
+  if(ol<0) return;
+
+  uint16_t scroll_height=max(10+ol*PROP_HEIGHT+10, ST7789_HEIGHT*4/3);
+
+  uint8_t scroll_g2d_node = g2d_node_create(list_container_g2d_node,
+                                            0,scroll_offset,
+                                            g2d_node_width(list_container_g2d_node),
+                                            scroll_height,
+                                            0,0,0);
+  if(!scroll_g2d_node) return;
+
+  uint16_t y=PROP_MARGIN;
+
+  for(uint16_t p=1; p<=ol; p++){
+
+    uint8_t propname_g2d_node = g2d_node_create(scroll_g2d_node,
+                                                PROP_MARGIN,y,
+                                                100,PROP_HEIGHT-PROP_MARGIN, 0,0,0);
+    char* propname=0;
+    if(propname_g2d_node){
+
+      propname=object_property_key(user, viewpath, p);
+
+      g2d_node_rectangle(propname_g2d_node, 0,0,
+                         g2d_node_width(propname_g2d_node),g2d_node_height(propname_g2d_node),
+                         G2D_GREY_1D/13);
+      g2d_node_text(propname_g2d_node, 7,7, G2D_WHITE, G2D_GREY_1D/13, 2, propname);
+    }
+
+    uint8_t propvalue_g2d_node = g2d_node_create(scroll_g2d_node,
+                                                 PROP_MARGIN+100+PROP_MARGIN,y,
+                                                 140,PROP_HEIGHT-PROP_MARGIN, 0,0,0);
+    if(propvalue_g2d_node){
+      g2d_node_rectangle(propvalue_g2d_node, 0,0,
+                         g2d_node_width(propvalue_g2d_node),g2d_node_height(propvalue_g2d_node),
+                         G2D_GREY_1D/13);
+
+      uint16_t propvallen=object_pathpair_length(user, path, propname);
+      char* propvalue=object_pathpair_get_n(user, path, propname, 1);
+
+      g2d_node_text(propvalue_g2d_node, 7,7, G2D_WHITE, G2D_GREY_1D/13, 2, propvalue);
+    }
+
+    y+=PROP_HEIGHT;
   }
 }
 

@@ -565,8 +565,8 @@ static void draw_list(char* path, uint8_t g2d_node) {
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_GREY_1D/13);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
-    uint8_t y=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, 10,y, G2D_WHITE, G2D_GREY_1D/13, s, title);
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_GREY_1D/13, s, title);
     return;
   }
 
@@ -689,8 +689,8 @@ static void draw_watch(char* path, uint8_t g2d_node) {
                        G2D_YELLOW/6);
     strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
-    uint8_t y=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, 10,y, G2D_WHITE, G2D_YELLOW/6, s, g2dbuf);
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_YELLOW/6, s, g2dbuf);
     return;
   }
 
@@ -744,9 +744,9 @@ static void draw_notes(char* path, uint8_t g2d_node) {
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_GREEN/6);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
-    uint8_t y=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, 10,y,                            G2D_WHITE, G2D_GREEN/6, s, word1);
-    g2d_node_text(g2d_node, 10+g2d_text_width(word1,s)+10,y, G2D_WHITE, G2D_GREEN/6, s, word2);
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    g2d_node_text(g2d_node, m,m,                            G2D_WHITE, G2D_GREEN/6, s, word1);
+    g2d_node_text(g2d_node, m+g2d_text_width(word1,s)+10,m, G2D_WHITE, G2D_GREEN/6, s, word2);
     return;
   }
 
@@ -840,8 +840,8 @@ static void draw_about(char* path, uint8_t g2d_node) {
                        G2D_CYAN/6);
 //  uint32_t touch_events_percent = (100*touch_events_seen)/(1+touch_events);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
-    uint8_t y=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, 10,y, G2D_WHITE, G2D_CYAN/6, s,
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_CYAN/6, s,
                   "%dfps %ldms", fps, loop_time);
 //               "%ld%% %ld %ldms", touch_events_percent, touch_events_spurious, loop_time);
     return;
@@ -866,8 +866,8 @@ static void draw_button(char* path, uint8_t g2d_node) {
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_CYAN/6);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
-    uint8_t y=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, 10,y, G2D_WHITE, G2D_CYAN/6, s,
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_CYAN/6, s,
                       "%s", object_pathpair_is(user, path, "state", "down")? "down": "up");
     return;
   }

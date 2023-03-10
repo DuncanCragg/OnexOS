@@ -982,18 +982,18 @@ void draw_raw(char* path, uint8_t g2d_node) {
                        G2D_CYAN/6);
     g2d_node_text(propname_g2d_node, 7,7, G2D_WHITE, G2D_CYAN/6, 2, propname);
 
+
     uint16_t ll=object_pathpair_length(user, path, propnameesc);
     uint16_t vx=PROP_MARGIN+100+PROP_MARGIN;
     for(uint8_t i=1; i<=ll; i++){
 
       char* propvalue=object_pathpair_get_n(user, path, propnameesc, i);
+      bool isuid=is_uid(propvalue);
 
-      uint16_t word_width=WORD_SPACING+g2d_text_width(propvalue, 2);
-
+      uint16_t valwid=(i==ll? 140: isuid? 50: g2d_text_width(propvalue, 2)+WORD_SPACING+5);
       uint8_t propvalue_g2d_node = g2d_node_create(scroll_g2d_node,
                                                    vx,vy,
-                                                   ll==1? 140: word_width+5,
-                                                   PROP_HEIGHT-PROP_MARGIN,
+                                                   valwid, PROP_HEIGHT-PROP_MARGIN,
                                                    raw_cb,p,i);
       if(!propvalue_g2d_node) break;
 
@@ -1001,14 +1001,14 @@ void draw_raw(char* path, uint8_t g2d_node) {
                          g2d_node_width(propvalue_g2d_node),g2d_node_height(propvalue_g2d_node),
                          G2D_GREY_1D/13);
 
-      if(is_uid(propvalue)){
+      if(isuid){
         static char pathbufrec[64]; snprintf(pathbufrec, 64, "%s:%s:%d", path, propnameesc, i);
         draw_by_type(pathbufrec, propvalue_g2d_node);
       }
       else{
         g2d_node_text(propvalue_g2d_node, 7,7, G2D_WHITE, G2D_GREY_1D/13, 2, propvalue);
       }
-      vx+=word_width+5+5;
+      vx+=valwid+5;
     }
     vy+=PROP_HEIGHT;
   }

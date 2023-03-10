@@ -221,6 +221,7 @@ static uint16_t inventory_drop_index=0;
 
 static uint16_t list_selected_control=0;
 static uint16_t list_selected_index=0;
+static uint16_t prop_selected_index=0;
 
 static bool     showing_title_editor=false;
 
@@ -314,6 +315,19 @@ bool evaluate_user(object* usr, void* d) {
     object* o = create_new_object_like_others();
     if(o) set_edit_object(viewing_uid, "list", 0, upd_fmt, object_property(o, "UID"));
     list_selected_control=0;
+  }
+  else
+  if(prop_selected_index){
+    char propnameesc[64]; object_property_key_esc(user, "viewing:", prop_selected_index, propnameesc, 64);
+    char* sel_uid=object_pathpair_get_n(user, "viewing", propnameesc, list_selected_index);
+    if(sel_uid && is_uid(sel_uid)){
+      char* viewing_uid=object_property(user, "viewing");
+      object_property_add(user, "history", viewing_uid);
+      object_property_set(user, "viewing", sel_uid);
+      reset_viewing_state_variables();
+    }
+    prop_selected_index=0;
+    list_selected_index=0;
   }
   else
   if(list_selected_index){
@@ -888,6 +902,9 @@ static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t propindex, uint16
     scrolling=false;
     return;
   }
+
+  prop_selected_index=propindex;
+  list_selected_index=listindex;
 }
 
 #define PROP_HEIGHT 38

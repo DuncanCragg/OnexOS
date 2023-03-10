@@ -874,7 +874,7 @@ static void draw_button(char* path, uint8_t g2d_node) {
   draw_raw(path, g2d_node);
 }
 
-static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t propindex, uint16_t listindex){
 
   if(down){
     if(dy){
@@ -946,48 +946,54 @@ void draw_raw(char* path, uint8_t g2d_node) {
                                             raw_cb,0,0);
   if(!scroll_g2d_node) return;
 
-  uint16_t y=PROP_MARGIN;
-
+  uint16_t vy=PROP_MARGIN;
   for(uint16_t p=1; p<=ol; p++){
 
     uint8_t propname_g2d_node = g2d_node_create(scroll_g2d_node,
-                                                PROP_MARGIN,y,
+                                                PROP_MARGIN,vy,
                                                 100,PROP_HEIGHT-PROP_MARGIN, 0,0,0);
-    char* propname=0;
-    if(propname_g2d_node){
-
-      propname=object_property_key(user, viewpath, p);
-
-      g2d_node_rectangle(propname_g2d_node, 0,0,
-                         g2d_node_width(propname_g2d_node),g2d_node_height(propname_g2d_node),
-                         G2D_CYAN/6);
-      g2d_node_text(propname_g2d_node, 7,7, G2D_WHITE, G2D_CYAN/6, 2, propname);
+    if(!propname_g2d_node){
+      vy+=PROP_HEIGHT;
+      continue;
     }
 
-    uint8_t propvalue_g2d_node = g2d_node_create(scroll_g2d_node,
-                                                 PROP_MARGIN+100+PROP_MARGIN,y,
-                                                 140,PROP_HEIGHT-PROP_MARGIN, 0,0,0);
-    if(propvalue_g2d_node){
+    char* propname =       object_property_key(    user, viewpath, p);
+    char  propnameesc[64]; object_property_key_esc(user, viewpath, p, propnameesc, 64);
+
+    g2d_node_rectangle(propname_g2d_node, 0,0,
+                       g2d_node_width(propname_g2d_node),g2d_node_height(propname_g2d_node),
+                       G2D_CYAN/6);
+    g2d_node_text(propname_g2d_node, 7,7, G2D_WHITE, G2D_CYAN/6, 2, propname);
+
+    uint16_t ll=object_pathpair_length(user, path, propnameesc);
+    uint16_t vx=PROP_MARGIN+100+PROP_MARGIN;
+    for(uint8_t i=1; i<=ll; i++){
+
+      char* propvalue=object_pathpair_get_n(user, path, propnameesc, i);
+
+      uint16_t word_width=WORD_SPACING+g2d_text_width(propvalue, 2);
+
+      uint8_t propvalue_g2d_node = g2d_node_create(scroll_g2d_node,
+                                                   vx,vy,
+                                                   ll==1? 140: word_width+5,
+                                                   PROP_HEIGHT-PROP_MARGIN,
+                                                   raw_cb,p,i);
+      if(!propvalue_g2d_node) break;
+
       g2d_node_rectangle(propvalue_g2d_node, 0,0,
                          g2d_node_width(propvalue_g2d_node),g2d_node_height(propvalue_g2d_node),
                          G2D_GREY_1D/13);
 
-      uint16_t propvallen=object_pathpair_length(user, path, propname);
-      uint16_t vx=7;
-      for(uint8_t i=1; i<=propvallen; i++){
-        char* propvalue=object_pathpair_get_n(user, path, propname, i);
-        if(is_uid(propvalue) && i==1){
-          static char pathbufrec[64]; snprintf(pathbufrec, 64, "%s:%s", path, propname);
-          draw_by_type(pathbufrec, propvalue_g2d_node);
-          break;
-        }
-        g2d_node_text(propvalue_g2d_node, vx,7, G2D_WHITE, G2D_GREY_1D/13, 2, propvalue);
-        uint16_t word_width=WORD_SPACING+g2d_text_width(propvalue, 2);
-        vx+=word_width;
+      if(is_uid(propvalue)){
+        static char pathbufrec[64]; snprintf(pathbufrec, 64, "%s:%s:%d", path, propnameesc, i);
+        draw_by_type(pathbufrec, propvalue_g2d_node);
       }
+      else{
+        g2d_node_text(propvalue_g2d_node, 7,7, G2D_WHITE, G2D_GREY_1D/13, 2, propvalue);
+      }
+      vx+=word_width+5+5;
     }
-
-    y+=PROP_HEIGHT;
+    vy+=PROP_HEIGHT;
   }
 }
 

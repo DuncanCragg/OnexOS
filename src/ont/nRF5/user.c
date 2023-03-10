@@ -94,14 +94,10 @@ static void set_edit_object(char* uid, char* key, uint16_t i, char* fmt, ...){
   if(i) snprintf(keypath, 32, "%s\\:%d", key, i);
   else  snprintf(keypath, 32, "%s",      key);
 
-  // XXX object_property_key_esc() would be handy here
-  char* prevkey=object_property_key(edit, ":", 4); // XXX and multiple lines!
-  if(prevkey){
-    char prevkeypath[128];
-    mem_strncpy(prevkeypath, prevkey, 128);
-    prefix_char_in_place(prevkeypath, '\\', ':');
-    object_property_set(edit, prevkeypath, 0);
-  }
+  // XXX using 4 to index, and what about multiple props?
+  char prevkey[64]; object_property_key_esc(edit, ":", 4, prevkey, 64);
+  if(*prevkey) object_property_set(edit, prevkey, 0);
+
   object_property_set(edit, keypath, upd);
 }
 

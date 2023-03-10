@@ -894,16 +894,21 @@ static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t
 #define PROP_MARGIN 5
 void draw_raw(char* path, uint8_t g2d_node) {
 
-  char* is=object_pathpair(user, path, "is:1");
-
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_RGB256(90,90,130));
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
-    uint8_t y=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, 10,y, G2D_BLACK, G2D_RGB256(90,90,130), s, is);
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    uint16_t ll=object_pathpair_length(user, path, "is");
+    uint16_t vx=m;
+    for(uint8_t i=1; i<=ll; i++){
+      char* is=object_pathpair_get_n(user, path, "is", i);
+      uint16_t word_width=WORD_SPACING+g2d_text_width(is, s);
+      g2d_node_text(g2d_node, vx,m, G2D_WHITE, G2D_RGB256(90,90,130), s, is);
+      vx+=word_width+WORD_SPACING;
+    }
     return;
   }
 

@@ -997,15 +997,14 @@ void draw_raw(char* path, uint8_t g2d_node) {
                                                    raw_cb,p,i);
       if(!propvalue_g2d_node) break;
 
-      g2d_node_rectangle(propvalue_g2d_node, 0,0,
-                         g2d_node_width(propvalue_g2d_node),g2d_node_height(propvalue_g2d_node),
-                         G2D_GREY_1D/13);
-
       if(isuid){
         static char pathbufrec[64]; snprintf(pathbufrec, 64, "%s:%s:%d", path, propnameesc, i);
         draw_by_type(pathbufrec, propvalue_g2d_node);
       }
       else{
+        g2d_node_rectangle(propvalue_g2d_node, 0,0,
+                           g2d_node_width(propvalue_g2d_node),g2d_node_height(propvalue_g2d_node),
+                           G2D_GREY_1D/13);
         g2d_node_text(propvalue_g2d_node, 7,7, G2D_WHITE, G2D_GREY_1D/13, 2, propvalue);
       }
       vx+=valwid+5;

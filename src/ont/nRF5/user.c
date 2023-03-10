@@ -874,6 +874,22 @@ static void draw_button(char* path, uint8_t g2d_node) {
   draw_raw(path, g2d_node);
 }
 
+static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+
+  if(down){
+    if(dy){
+      scrolling=true;
+      scroll_offset+= dy;
+    }
+    return;
+  }
+
+  if(scrolling){
+    scrolling=false;
+    return;
+  }
+}
+
 #define PROP_HEIGHT 38
 #define PROP_MARGIN 5
 void draw_raw(char* path, uint8_t g2d_node) {
@@ -922,7 +938,7 @@ void draw_raw(char* path, uint8_t g2d_node) {
                                             0,scroll_offset,
                                             g2d_node_width(list_container_g2d_node),
                                             scroll_height,
-                                            0,0,0);
+                                            raw_cb,0,0);
   if(!scroll_g2d_node) return;
 
   uint16_t y=PROP_MARGIN;

@@ -817,10 +817,17 @@ static void draw_watch(char* path, uint8_t g2d_node) {
     g2d_node_text(container_g2d_node, 180, 15, batt_col, G2D_BLACK, 2, "%d%%", pcnum);
   }
 
-  uint8_t raw_g2d_node = g2d_node_create(g2d_node,
-                                         240+offx,0,
-                                         g2d_node_width(g2d_node),
-                                         g2d_node_height(g2d_node),
+  uint8_t raw_container_g2d_node = g2d_node_create(g2d_node,
+                                                   240+offx,0,
+                                                   -offx,
+                                                   g2d_node_height(g2d_node),
+                                                   watch_cb,0,0);
+
+  if(!raw_container_g2d_node) return;
+
+  uint8_t raw_g2d_node = g2d_node_create(raw_container_g2d_node,
+                                         -(240+offx),0,
+                                         240, g2d_node_height(g2d_node),
                                          watch_cb,0,0);
   if(!raw_g2d_node) return;
 
@@ -1061,10 +1068,6 @@ void draw_raw(char* path, uint8_t g2d_node) {
     uint8_t propname_g2d_node = g2d_node_create(scroll_g2d_node,
                                                 PROP_MARGIN,vy,
                                                 100,PROP_HEIGHT-PROP_MARGIN, 0,0,0);
-    if(!propname_g2d_node){
-      vy+=PROP_HEIGHT;
-      continue;
-    }
 
     char* propname =       object_property_key(    user, viewpath, p);
     char  propnameesc[64]; object_property_key_esc(user, viewpath, p, propnameesc, 64);

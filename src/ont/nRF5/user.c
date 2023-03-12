@@ -817,21 +817,22 @@ static void draw_watch(char* path, uint8_t g2d_node) {
     g2d_node_text(container_g2d_node, 180, 15, batt_col, G2D_BLACK, 2, "%d%%", pcnum);
   }
 
-  uint8_t raw_container_g2d_node = g2d_node_create(g2d_node,
-                                                   240+offx,0,
-                                                   -offx,
-                                                   g2d_node_height(g2d_node),
-                                                   watch_cb,0,0);
+  if(offx < 0){
+    uint8_t raw_container_g2d_node = g2d_node_create(g2d_node,
+                                                     240+offx,0,
+                                                     -offx,
+                                                     g2d_node_height(g2d_node),
+                                                     watch_cb,0,0);
+    if(!raw_container_g2d_node) return;
 
-  if(!raw_container_g2d_node) return;
+    uint8_t raw_g2d_node = g2d_node_create(raw_container_g2d_node,
+                                           -(240+offx),0,
+                                           240, g2d_node_height(g2d_node),
+                                           watch_cb,0,0);
+    if(!raw_g2d_node) return;
 
-  uint8_t raw_g2d_node = g2d_node_create(raw_container_g2d_node,
-                                         -(240+offx),0,
-                                         240, g2d_node_height(g2d_node),
-                                         watch_cb,0,0);
-  if(!raw_g2d_node) return;
-
-  draw_raw(path, raw_g2d_node);
+    draw_raw(path, raw_g2d_node);
+  }
 }
 
 static void word_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t wi){

@@ -738,7 +738,7 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t d){
   }
 
   if(abs(watch_offset_x) <= 120){ watch_offset_x= 0; }
-  if(abs(watch_offset_y) <= 120){ watch_offset_y= 0; }
+  if(abs(watch_offset_y) <= 140){ watch_offset_y= 0; }
   if(    watch_offset_x  >  120){ watch_offset_x= 240; return; }
   if(    watch_offset_x  < -120){ watch_offset_x=-240; return; }
   if(    watch_offset_y  >  140){ watch_offset_y= 280; return; }
@@ -781,8 +781,8 @@ static void draw_watch(char* path, uint8_t g2d_node) {
     return;
   }
 
-  uint16_t offx = (watch_offset_x > -SLIDE_DWELL && watch_offset_x < SLIDE_DWELL)? 0: watch_offset_x;
-  uint16_t offy = (watch_offset_y > -SLIDE_DWELL && watch_offset_y < SLIDE_DWELL)? 0: watch_offset_y;
+  int16_t offx = (watch_offset_x > -SLIDE_DWELL && watch_offset_x < SLIDE_DWELL)? 0: watch_offset_x;
+  int16_t offy = (watch_offset_y > -SLIDE_DWELL && watch_offset_y < SLIDE_DWELL)? 0: watch_offset_y;
 
   uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
                                                g2d_node_width(g2d_node),

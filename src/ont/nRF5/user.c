@@ -930,15 +930,15 @@ void draw_raw(char* path, uint8_t g2d_node) {
                                            g2d_node_width(g2d_node),
                                            TITLE_HEIGHT,
                                            0,0,0);
-  if(!title_g2d_node) return;
+  if(title_g2d_node){
 
-  g2d_node_rectangle(title_g2d_node, 0,0,
-                     g2d_node_width(title_g2d_node),g2d_node_height(title_g2d_node),
-                     G2D_GREY_1D/13);
+     g2d_node_rectangle(title_g2d_node, 0,0,
+                        g2d_node_width(title_g2d_node),g2d_node_height(title_g2d_node),
+                        G2D_GREY_1D/13);
 
-  g2d_node_text(title_g2d_node, 30,15, G2D_WHITE, G2D_GREY_1D/13, 1,
-                "%s", object_pathpair(user, path, "UID"));
-
+     g2d_node_text(title_g2d_node, 30,15, G2D_WHITE, G2D_GREY_1D/13, 1,
+                   "%s", object_pathpair(user, path, "UID"));
+  }
   uint8_t list_container_g2d_node = g2d_node_create(g2d_node,
                                                     0,TITLE_HEIGHT,
                                                     g2d_node_width(g2d_node),

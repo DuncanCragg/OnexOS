@@ -231,7 +231,20 @@ static uint16_t swipe_control=0;
 static uint16_t swipe_index=0;
 static int16_t  swipe_offset=0;
 
+#define WATCH_SLIDING_CENTRE 0
+#define WATCH_SLIDING_LEFT   1
+#define WATCH_SLIDING_RIGHT  2
+#define WATCH_SLIDING_UP     3
+#define WATCH_SLIDING_DOWN   4
+static int16_t watch_offset_x=0;
+static int16_t watch_offset_y=0;
+static uint8_t watch_sliding_direction=WATCH_SLIDING_CENTRE;
+
 static void reset_viewing_state_variables(){
+
+  watch_offset_x=0;
+  watch_offset_y=0;
+  watch_sliding_direction=WATCH_SLIDING_CENTRE;
 
   scroll_bot_lim=0;
   scroll_top=false;
@@ -668,6 +681,70 @@ static void draw_list(char* path, uint8_t g2d_node) {
 #define BATTERY_HIGH     G2D_GREEN
 #define BATTERY_CHARGING G2D_BLUE
 
+#define SLIDE_DWELL 20
+
+static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t d){
+
+  if(down){
+
+    watch_offset_x+=dx;
+    watch_offset_y+=dy;
+
+    if(watch_sliding_direction==WATCH_SLIDING_CENTRE &&
+        (abs(watch_offset_x) > SLIDE_DWELL ||
+         abs(watch_offset_y) > SLIDE_DWELL   )           ){
+
+      bool sliding_horizontally = abs(watch_offset_x) > abs(watch_offset_y);
+
+      if(sliding_horizontally){
+        if(watch_offset_x < -SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_LEFT;
+        else
+        if(watch_offset_x >  SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_RIGHT;
+      }
+      else {
+        if(watch_offset_y < -SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_UP;
+        else
+        if(watch_offset_y >  SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_DOWN;
+      }
+    }
+    if(watch_sliding_direction==WATCH_SLIDING_LEFT){
+      watch_offset_y=0;
+      if(watch_offset_x > -SLIDE_DWELL){
+        watch_sliding_direction=WATCH_SLIDING_CENTRE;
+      }
+    }
+    else
+    if(watch_sliding_direction==WATCH_SLIDING_RIGHT){
+      watch_offset_y=0;
+      if(watch_offset_x < SLIDE_DWELL){
+        watch_sliding_direction=WATCH_SLIDING_CENTRE;
+      }
+    }
+    else
+    if(watch_sliding_direction==WATCH_SLIDING_UP){
+      watch_offset_x=0;
+      if(watch_offset_y > -SLIDE_DWELL){
+        watch_sliding_direction=WATCH_SLIDING_CENTRE;
+      }
+    }
+    else
+    if(watch_sliding_direction==WATCH_SLIDING_DOWN){
+      watch_offset_x=0;
+      if(watch_offset_y < SLIDE_DWELL){
+        watch_sliding_direction=WATCH_SLIDING_CENTRE;
+      }
+    }
+    return;
+  }
+
+  if(abs(watch_offset_x) <= 120){ watch_offset_x= 0; }
+  if(abs(watch_offset_y) <= 120){ watch_offset_y= 0; }
+  if(    watch_offset_x  >  120){ watch_offset_x= 240; return; }
+  if(    watch_offset_x  < -120){ watch_offset_x=-240; return; }
+  if(    watch_offset_y  >  140){ watch_offset_y= 280; return; }
+  if(    watch_offset_y  < -140){ watch_offset_y=-280; return; }
+}
+
 static void draw_watch(char* path, uint8_t g2d_node) {
 
   char* pc=object_pathpair(   user, path, "battery:percent:1");
@@ -704,31 +781,50 @@ static void draw_watch(char* path, uint8_t g2d_node) {
     return;
   }
 
-  strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
-  g2d_node_text(g2d_node, 10, 100, G2D_WHITE, G2D_BLACK, 7, g2dbuf);
+  uint16_t offx = (watch_offset_x > -SLIDE_DWELL && watch_offset_x < SLIDE_DWELL)? 0: watch_offset_x;
+  uint16_t offy = (watch_offset_y > -SLIDE_DWELL && watch_offset_y < SLIDE_DWELL)? 0: watch_offset_y;
 
-  strftime(g2dbuf, 64, "%S", &tms);
-  g2d_node_text(g2d_node, 105, 140, G2D_GREY_1A, G2D_BLACK, 1, g2dbuf);
+  uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
+                                               g2d_node_width(g2d_node),
+                                               g2d_node_height(g2d_node),
+                                               watch_cb,0,0);
+  if(container_g2d_node){
 
-  if(!h24){
-    strftime(g2dbuf, 64, "%p", &tms);
-    g2d_node_text(g2d_node, 180, 160, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
+    strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
+    g2d_node_text(container_g2d_node, 10, 100, G2D_WHITE, G2D_BLACK, 7, g2dbuf);
+
+    strftime(g2dbuf, 64, "%S", &tms);
+    g2d_node_text(container_g2d_node, 105, 140, G2D_GREY_1A, G2D_BLACK, 1, g2dbuf);
+
+    if(!h24){
+      strftime(g2dbuf, 64, "%p", &tms);
+      g2d_node_text(container_g2d_node, 180, 160, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
+    }
+
+    strftime(g2dbuf, 64, "%a %d %h", &tms);
+    g2d_node_text(container_g2d_node, 30, 220, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
+
+    int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
+    if(pcnum<0) pcnum=0;
+    if(pcnum>100) pcnum=100;
+
+    uint16_t batt_col;
+    if(ch)       batt_col=BATTERY_CHARGING; else
+    if(pcnum>30) batt_col=BATTERY_HIGH;     else
+    if(pcnum>17) batt_col=BATTERY_MED;
+    else         batt_col=BATTERY_LOW;
+
+    g2d_node_text(container_g2d_node, 180, 15, batt_col, G2D_BLACK, 2, "%d%%", pcnum);
   }
 
-  strftime(g2dbuf, 64, "%a %d %h", &tms);
-  g2d_node_text(g2d_node, 30, 220, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
+  uint8_t raw_g2d_node = g2d_node_create(g2d_node,
+                                         240+offx,0,
+                                         g2d_node_width(g2d_node),
+                                         g2d_node_height(g2d_node),
+                                         watch_cb,0,0);
+  if(!raw_g2d_node) return;
 
-  int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
-  if(pcnum<0) pcnum=0;
-  if(pcnum>100) pcnum=100;
-
-  uint16_t batt_col;
-  if(ch)       batt_col=BATTERY_CHARGING; else
-  if(pcnum>30) batt_col=BATTERY_HIGH;     else
-  if(pcnum>17) batt_col=BATTERY_MED;
-  else         batt_col=BATTERY_LOW;
-
-  g2d_node_text(g2d_node, 180, 15, batt_col, G2D_BLACK, 2, "%d%%", pcnum);
+  draw_raw(path, raw_g2d_node);
 }
 
 static void word_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t wi){

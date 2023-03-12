@@ -194,7 +194,7 @@ onx-wear-pinetime: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
 	ar x   ../OnexLang/libonex-lang-nrf.a        --output okolo
 	cp -a `find ~/Sources/lvgl-wear -name *.o` okolo
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_PINETIME) -Wl,-Map=./onx-wear.map -o ./onx-wear.out $^ okolo/* -lm
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-wear.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-wear.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-wear.out ./onx-wear.hex
 
@@ -207,7 +207,7 @@ onx-wear-magic3: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
 	cp -a `find ~/Sources/lvgl-wear -name *.o` okolo
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_MAGIC3) -Wl,-Map=./onx-wear.map -o ./onx-wear.out $^ okolo/* -lm
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-wear.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-wear.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-wear.out ./onx-wear.hex
 
@@ -219,7 +219,7 @@ onx-sw-magic3: $(SW_SOURCES:.c=.o)
 	ar x ../OnexKernel/libonex-kernel-magic3.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_MAGIC3) -Wl,-Map=./onx-sw.map -o ./onx-sw.out $^ okolo/* -lm
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-sw.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-sw.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-sw.out ./onx-sw.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-sw.out ./onx-sw.hex
 
@@ -231,7 +231,7 @@ onx-iot: $(IOT_SOURCES:.c=.o)
 	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-iot.map -o ./onx-iot.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size ./onx-iot.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-iot.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot.out ./onx-iot.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot.out ./onx-iot.hex
 

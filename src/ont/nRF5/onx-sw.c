@@ -251,7 +251,7 @@ static void init_onex(){
   home      =object_new(0, "editable",  "list editable", 4);
   allobjects=object_new(0, "editable",  "list editable", 4);
   inventory =object_new(0, "editable",  "list editable", 4);
-  watch     =object_new(0, "default",   "watch", 4);
+  watch     =object_new(0, "default",   "watch", 8);
   note1     =object_new(0, "notes",     "text editable", 4);
   note2     =object_new(0, "notes",     "text editable", 4);
   notes     =object_new(0, "notes",     "text list editable", 4);

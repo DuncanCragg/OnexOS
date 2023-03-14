@@ -689,7 +689,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
 #define SLIDE_DWELL 20
 
-static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t d){
+static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
 
@@ -790,9 +790,25 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   int16_t offx = abs(watch_offset_x) < SLIDE_DWELL? 0: watch_offset_x;
   int16_t offy = abs(watch_offset_y) < SLIDE_DWELL? 0: watch_offset_y;
 
+  static char*   testlinktypes[] = { "about", "text", "battery" };
+  static uint8_t num_link_types = sizeof(testlinktypes)/sizeof(char*);
+
+  char*   linktypes[num_link_types];
+  uint8_t numlinktypes=0;
+
+  char linktypeis[64];
+  for(uint8_t i=0; i<num_link_types; i++){
+    snprintf(linktypeis, 64, "%s:is", testlinktypes[i]);
+    if(object_pathpair_contains(user, path, linktypeis, testlinktypes[i])){
+      linktypes[numlinktypes++]=testlinktypes[i];
+    }
+  }
+
+  uint16_t container_height = g2d_node_height(g2d_node) + CHILD_HEIGHT*numlinktypes;
+
   uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
                                                g2d_node_width(g2d_node),
-                                               g2d_node_height(g2d_node),
+                                               container_height,
                                                watch_cb,0,0);
   if(container_g2d_node){
 
@@ -838,6 +854,27 @@ static void draw_watch(char* path, uint8_t g2d_node) {
     if(!raw_g2d_node) return;
 
     draw_raw(path, raw_g2d_node);
+
+    return;
+  }
+
+  if(offy < 0 && container_g2d_node){
+
+    uint16_t y=280;
+
+    for(uint8_t i=1; i<=numlinktypes; i++){
+
+      uint8_t child_g2d_node = g2d_node_create(container_g2d_node,
+                                               20,y,
+                                               200,CHILD_HEIGHT-10,
+                                               watch_cb,0,i);
+      if(child_g2d_node){
+        static char pathbufrec[64];
+        snprintf(pathbufrec, 64, "%s:%s", path, linktypes[i-1]);
+        draw_by_type(pathbufrec, child_g2d_node);
+      }
+      y+=CHILD_HEIGHT;
+    }
   }
 }
 

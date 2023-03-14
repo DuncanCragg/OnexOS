@@ -582,6 +582,8 @@ static void draw_list(char* path, uint8_t g2d_node) {
   char* title = object_pathpair(user, path, "title:1");
   if(!title) title="List";
 
+  // -------------------------------------------------------
+
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
@@ -592,6 +594,8 @@ static void draw_list(char* path, uint8_t g2d_node) {
     g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_GREY_1D/13, s, title);
     return;
   }
+
+  // -------------------------------------------------------
 
   uint8_t title_g2d_node = g2d_node_create(g2d_node,
                                            0,0,
@@ -613,12 +617,16 @@ static void draw_list(char* path, uint8_t g2d_node) {
                 showing_title_editor? G2D_GREY_1D/7: G2D_GREY_1D/13, 2,
                 showing_title_editor? edit_word: title);
 
+  // -------------------------------------------------------
+
   uint8_t list_container_g2d_node = g2d_node_create(g2d_node,
                                                     0,TITLE_HEIGHT,
                                                     g2d_node_width(g2d_node),
                                                     g2d_node_height(g2d_node)-TITLE_HEIGHT,
                                                     0,0,0);
   if(!list_container_g2d_node) return;
+
+  // -------------------------------------------------------
 
   uint16_t ll = object_pathpair_length(user, path, "list");
 
@@ -655,18 +663,16 @@ static void draw_list(char* path, uint8_t g2d_node) {
       char*   drop_text   = droppables? "O->": "---";
       draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_colour,
                                               "<-X",   "<-O",        drop_text);
-
     }
-
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
                                              (i==swipe_index? swipe_offset: 0)+20,y,
                                              200,CHILD_HEIGHT-10,
                                              list_cb,0,i);
-
-    static char pathbufrec[64];
-    snprintf(pathbufrec, 64, "%s:list:%d", path, i);
-    if(child_g2d_node) draw_by_type(pathbufrec, child_g2d_node);
-
+    if(child_g2d_node){
+      static char pathbufrec[64];
+      snprintf(pathbufrec, 64, "%s:list:%d", path, i);
+      draw_by_type(pathbufrec, child_g2d_node);
+    }
     y+=CHILD_HEIGHT;
   }
   make_in_scroll_button(scroll_g2d_node, y, LIST_ADD_NEW_BOT, "+");
@@ -1094,7 +1100,8 @@ void draw_raw(char* path, uint8_t g2d_node) {
       if(!propvalue_g2d_node) break;
 
       if(isuid){
-        static char pathbufrec[64]; snprintf(pathbufrec, 64, "%s:%s:%d", path, propnameesc, i);
+        static char pathbufrec[64];
+        snprintf(pathbufrec, 64, "%s:%s:%d", path, propnameesc, i);
         draw_by_type(pathbufrec, propvalue_g2d_node);
       }
       else{

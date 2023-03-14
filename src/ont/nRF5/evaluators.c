@@ -41,7 +41,7 @@ bool evaluate_battery_in(object* bat, void* d) {
   int32_t bv = gpio_read(ADC_CHANNEL);
   int32_t mv = bv*2000/(1024/(33/10));
   int16_t pc = ((mv-BATTERY_ZERO_PERCENT)
-                 *100 
+                 *100
                  / ((BATTERY_100_PERCENT-BATTERY_ZERO_PERCENT)*BATTERY_PERCENT_STEPS)
                ) * BATTERY_PERCENT_STEPS;
   if(pc<0) pc=0;

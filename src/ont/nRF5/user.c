@@ -765,19 +765,29 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
       return;
     }
 
-    // down; slid-into-place so touching something on that view now
+    // down; slid-in-place so touching something on that view now
 
-    bool vertical = abs(dy) > abs(dx);
+    if(!swipe_index){
 
-    if(watch_sliding_direction==WATCH_SLID_UP && dy && vertical){
-      watch_offset_y+=dy;
-      watch_sliding_direction=WATCH_SLIDING_UP;
-      return;
+      bool vertical = abs(dy) > abs(dx);
+
+      if(watch_sliding_direction==WATCH_SLID_UP && dy && vertical){
+        watch_offset_y+=dy;
+        watch_sliding_direction=WATCH_SLIDING_UP;
+        return;
+      }
+      if(watch_sliding_direction==WATCH_SLID_LEFT && dx && !vertical){
+        watch_offset_x+=dx;
+        watch_sliding_direction=WATCH_SLIDING_LEFT;
+        return;
+      }
     }
-    if(watch_sliding_direction==WATCH_SLID_LEFT && dx && !vertical){
-      watch_offset_x+=dx;
-      watch_sliding_direction=WATCH_SLIDING_LEFT;
-      return;
+
+    // down; slid-in-place; not back to sliding again
+
+    if(index && dx){
+      swipe_index=index;
+      swipe_offset+=dx;
     }
 
     return;
@@ -815,6 +825,26 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
       watch_sliding_direction=WATCH_SLID_UP;
       return;
     }
+  }
+
+  // up; slid-in-place; either horiz swipe or touch
+
+  if(swipe_index){
+    if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_index){
+      inventory_grab_index=swipe_index;
+      if(swipe_offset < DELETE_SWIPE_DISTANCE){
+        inventory_delete=true;
+      }
+    }
+    else
+    if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_index){
+      inventory_drop_index=swipe_index;
+    }
+    else {
+      swipe_index=0;
+      swipe_offset=0;
+    }
+    return;
   }
 
   // up; touched
@@ -933,8 +963,15 @@ static void draw_watch(char* path, uint8_t g2d_node) {
 
     for(uint8_t i=1; i<=numlinktypes; i++){
 
+      if(i==swipe_index){
+        uint16_t droppables=object_property_length(user, "inventory:list");
+        uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
+        char*   drop_text   = droppables? "O->": "---";
+        draw_swipe_feedback(container_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_colour,
+                                                   "<-X",   "<-O",        drop_text);
+      }
       uint8_t child_g2d_node = g2d_node_create(container_g2d_node,
-                                               20,y,
+                                               (i==swipe_index? swipe_offset: 0)+20,y,
                                                200,CHILD_HEIGHT-10,
                                                watch_cb,0,i);
       if(child_g2d_node){

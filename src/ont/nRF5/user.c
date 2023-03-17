@@ -22,6 +22,8 @@
 #include "mathlib.h"
 #include "g2d.h"
 
+#define BIG_LOG
+
 // -------------------- User --------------------------
 
 extern uint16_t word_index;

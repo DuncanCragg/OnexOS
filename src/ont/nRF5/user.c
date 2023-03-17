@@ -1129,15 +1129,41 @@ static void draw_about(char* path, uint8_t g2d_node) {
     return;
   }
 
-  g2d_node_text(g2d_node, 20, 40, G2D_BLUE, G2D_BLACK, 2,
-                "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
+  get_linktypes(path);
 
-  g2d_node_text(g2d_node, 10, 110, G2D_BLUE, G2D_BLACK, 3,
-                "cpu: %s", object_pathpair(user, path, "cpu"));
+  uint16_t container_height = g2d_node_height(g2d_node);
 
-  g2d_node_text(g2d_node, 10, 190, G2D_BLUE, G2D_BLACK, 1,
-                "build: %s %s", object_pathpair_get_n(user, path, "build-info", 1),
-                                object_pathpair_get_n(user, path, "build-info", 2));
+  container_height += CHILD_HEIGHT * numlinktypes;
+  container_height += CHILD_HEIGHT;
+
+  int16_t offx = abs(view_offset_x) < SLIDE_DWELL? 0: view_offset_x;
+  int16_t offy = abs(view_offset_y) < SLIDE_DWELL? 0: view_offset_y;
+
+  uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
+                                               g2d_node_width(g2d_node),
+                                               container_height,
+                                               view_cb,0,0);
+  if(container_g2d_node){
+
+    g2d_node_text(container_g2d_node, 20, 40, G2D_BLUE, G2D_BLACK, 2,
+                  "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
+
+    g2d_node_text(container_g2d_node, 10, 110, G2D_BLUE, G2D_BLACK, 3,
+                  "cpu: %s", object_pathpair(user, path, "cpu"));
+
+    g2d_node_text(container_g2d_node, 10, 190, G2D_BLUE, G2D_BLACK, 1,
+                  "build: %s %s", object_pathpair_get_n(user, path, "build-info", 1),
+                                  object_pathpair_get_n(user, path, "build-info", 2));
+  }
+
+  if(offx < 0){
+    draw_raw_offset(path, g2d_node, offx, offy);
+    return;
+  }
+
+  if(offy < 0 && container_g2d_node){
+    draw_links(path, container_g2d_node);
+  }
 }
 
 static void draw_button(char* path, uint8_t g2d_node) {

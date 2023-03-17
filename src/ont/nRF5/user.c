@@ -236,6 +236,7 @@ static int16_t  swipe_offset=0;
 #define WATCH_SLIDING_RIGHT  2
 #define WATCH_SLIDING_UP     3
 #define WATCH_SLIDING_DOWN   4
+#define WATCH_SLID_UP        5
 static int16_t watch_offset_x=0;
 static int16_t watch_offset_y=0;
 static uint8_t watch_sliding_direction=WATCH_SLIDING_CENTRE;
@@ -731,9 +732,21 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
 
       return;
     }
-    watch_offset_x+=dx;
-    watch_offset_y+=dy;
+    if(watch_sliding_direction!=WATCH_SLID_UP){
 
+      watch_offset_x+=dx;
+      watch_offset_y+=dy;
+
+      return;
+    }
+
+    bool vertical=abs(dy) > abs(dx);
+
+    if(vertical){
+      watch_offset_y+=dy;
+      watch_sliding_direction=WATCH_SLIDING_UP;
+      return;
+    }
     return;
   }
 
@@ -743,6 +756,10 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
   if(    watch_offset_x  < -120){ watch_offset_x=-240; } else
   if(    watch_offset_y  >  140){ watch_offset_y= 280; } else
   if(    watch_offset_y  < -140){ watch_offset_y=-280; }
+
+  if(watch_offset_y== -280){
+    watch_sliding_direction=WATCH_SLID_UP;
+  }
 }
 
 static void draw_watch(char* path, uint8_t g2d_node) {

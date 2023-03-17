@@ -399,9 +399,14 @@ bool evaluate_user(object* usr, void* d) {
   else
   if(inventory_grab_index){
     char* viewing_uid=object_property(user, "viewing");
-    char* grab_uid=object_property_get_n(user, "viewing:list", inventory_grab_index);
+    char* grab_uid = numlinktypes?
+                      object_pathpair(      user, "viewing", linktypes[inventory_grab_index-1]):
+                      object_property_get_n(user, "viewing:list", inventory_grab_index);
     set_edit_object(inventoryuid, "list", 0, "=> %s @.", grab_uid);
-    if(inventory_delete) set_edit_object(viewing_uid, "list", inventory_grab_index, "=>");
+    if(inventory_delete){
+      if(numlinktypes) set_edit_object(viewing_uid, linktypes[inventory_grab_index-1], 0, "=>");
+      else             set_edit_object(viewing_uid, "list", inventory_grab_index, "=>");
+    }
     inventory_grab_index=0;
     inventory_delete=false;
     reset_swipe=true;
@@ -424,7 +429,9 @@ bool evaluate_user(object* usr, void* d) {
     if(drop_uid){
       char propname[128];
       best_propname_for_link_drop(propname, 128, inventory_drop_index);
-      char* into_uid=object_property_get_n(user, "viewing:list", inventory_drop_index);
+      char* into_uid = numlinktypes?
+                         object_pathpair(      user, "viewing", linktypes[inventory_drop_index-1]):
+                         object_property_get_n(user, "viewing:list", inventory_drop_index);
       set_edit_object(into_uid, propname, 0, "=> %s @.", drop_uid);
       set_edit_object(inventoryuid, "list", 1, "=>");
     }

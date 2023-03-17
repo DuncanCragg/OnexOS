@@ -822,7 +822,10 @@ static void draw_watch(char* path, uint8_t g2d_node) {
     }
   }
 
-  uint16_t container_height = g2d_node_height(g2d_node) + CHILD_HEIGHT*numlinktypes;
+  uint16_t container_height = g2d_node_height(g2d_node);
+
+  container_height += CHILD_HEIGHT * numlinktypes;
+  container_height += CHILD_HEIGHT;
 
   uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
                                                g2d_node_width(g2d_node),

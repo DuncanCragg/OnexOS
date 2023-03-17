@@ -241,6 +241,17 @@ static char* testlinktypes[] = {
 static char*    linktypes[NUM_LINK_TYPES];
 static uint8_t  numlinktypes=0;
 
+static void get_linktypes(char* path){
+  numlinktypes=0;
+  char linktypeis[64];
+  for(uint8_t i=0; i<NUM_LINK_TYPES; i++){
+    snprintf(linktypeis, 64, "%s:is", testlinktypes[i]);
+    if(object_pathpair_contains(user, path, linktypeis, testlinktypes[i])){
+      linktypes[numlinktypes++]=testlinktypes[i];
+    }
+  }
+}
+
 static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
 static bool     scroll_bot=false;
@@ -311,6 +322,7 @@ static void draw_watch(char* path, uint8_t g2d_node);
 static void draw_notes(char* path, uint8_t g2d_node);
 static void draw_about(char* path, uint8_t g2d_node);
 static void draw_button(char* path, uint8_t g2d_node);
+static void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx);
 static void draw_raw(char* path, uint8_t g2d_node);
 
 #define LIST_ADD_NEW_TOP 1
@@ -872,35 +884,6 @@ static void view_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
   list_selected_index=index;
 }
 
-static void get_linktypes(char* path){
-  numlinktypes=0;
-  char linktypeis[64];
-  for(uint8_t i=0; i<NUM_LINK_TYPES; i++){
-    snprintf(linktypeis, 64, "%s:is", testlinktypes[i]);
-    if(object_pathpair_contains(user, path, linktypeis, testlinktypes[i])){
-      linktypes[numlinktypes++]=testlinktypes[i];
-    }
-  }
-}
-
-static void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx){
-
-  uint8_t raw_container_g2d_node = g2d_node_create(g2d_node,
-                                                   240+offx,0,
-                                                   -offx,
-                                                   g2d_node_height(g2d_node),
-                                                   view_cb,0,0);
-  if(!raw_container_g2d_node) return;
-
-  uint8_t raw_g2d_node = g2d_node_create(raw_container_g2d_node,
-                                         -(240+offx),0,
-                                         240, g2d_node_height(g2d_node),
-                                         view_cb,0,0);
-  if(!raw_g2d_node) return;
-
-  draw_raw(path, raw_g2d_node);
-}
-
 static void draw_links(char* path, uint8_t container_g2d_node){
 
   uint16_t y=280;
@@ -1333,5 +1316,23 @@ static void draw_raw(char* path, uint8_t g2d_node) {
     }
     vy+=PROP_HEIGHT;
   }
+}
+
+static void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx){
+
+  uint8_t raw_container_g2d_node = g2d_node_create(g2d_node,
+                                                   240+offx,0,
+                                                   -offx,
+                                                   g2d_node_height(g2d_node),
+                                                   view_cb,0,0);
+  if(!raw_container_g2d_node) return;
+
+  uint8_t raw_g2d_node = g2d_node_create(raw_container_g2d_node,
+                                         -(240+offx),0,
+                                         240, g2d_node_height(g2d_node),
+                                         view_cb,0,0);
+  if(!raw_g2d_node) return;
+
+  draw_raw(path, raw_g2d_node);
 }
 

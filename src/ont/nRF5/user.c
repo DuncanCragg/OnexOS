@@ -248,6 +248,8 @@ static uint8_t watch_sliding_direction=WATCH_SLIDING_CENTRE;
 
 static void reset_viewing_state_variables(){
 
+  numlinktypes=0;
+
   watch_offset_x=0;
   watch_offset_y=0;
   watch_sliding_direction=WATCH_SLIDING_CENTRE;
@@ -347,8 +349,10 @@ bool evaluate_user(object* usr, void* d) {
   }
   else
   if(list_selected_index){
-    char* sel_uid=object_property_get_n(user, "viewing:list", list_selected_index);
     char* viewing_uid=object_property(user, "viewing");
+    char* sel_uid = numlinktypes?
+                      object_pathpair(      user, "viewing", linktypes[list_selected_index-1]):
+                      object_property_get_n(user, "viewing:list", list_selected_index);
     object_property_add(user, "history", viewing_uid);
     object_property_set(user, "viewing", sel_uid);
     reset_viewing_state_variables();
@@ -766,6 +770,8 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
   if(watch_offset_y== -280){
     watch_sliding_direction=WATCH_SLID_UP;
   }
+
+  list_selected_index=index;
 }
 
 static void draw_watch(char* path, uint8_t g2d_node) {

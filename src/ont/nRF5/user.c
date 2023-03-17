@@ -870,6 +870,24 @@ void get_linktypes(char* path){
   }
 }
 
+void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx, int16_t offy){
+
+  uint8_t raw_container_g2d_node = g2d_node_create(g2d_node,
+                                                   240+offx,0,
+                                                   -offx,
+                                                   g2d_node_height(g2d_node),
+                                                   view_cb,0,0);
+  if(!raw_container_g2d_node) return;
+
+  uint8_t raw_g2d_node = g2d_node_create(raw_container_g2d_node,
+                                         -(240+offx),0,
+                                         240, g2d_node_height(g2d_node),
+                                         view_cb,0,0);
+  if(!raw_g2d_node) return;
+
+  draw_raw(path, raw_g2d_node);
+}
+
 static void draw_watch(char* path, uint8_t g2d_node) {
 
   char* pc=object_pathpair(   user, path, "battery:percent:1");
@@ -950,21 +968,7 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   }
 
   if(offx < 0){
-    uint8_t raw_container_g2d_node = g2d_node_create(g2d_node,
-                                                     240+offx,0,
-                                                     -offx,
-                                                     g2d_node_height(g2d_node),
-                                                     view_cb,0,0);
-    if(!raw_container_g2d_node) return;
-
-    uint8_t raw_g2d_node = g2d_node_create(raw_container_g2d_node,
-                                           -(240+offx),0,
-                                           240, g2d_node_height(g2d_node),
-                                           view_cb,0,0);
-    if(!raw_g2d_node) return;
-
-    draw_raw(path, raw_g2d_node);
-
+    draw_raw_offset(path, g2d_node, offx, offy);
     return;
   }
 

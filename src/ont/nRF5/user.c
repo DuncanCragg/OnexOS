@@ -471,7 +471,7 @@ void draw_by_type(char* path, uint8_t g2d_node) {
 static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
-    bool vertical=dy*dy>dx*dx;
+    bool vertical=abs(dy) > abs(dx);
     if(!swipe_control && !swipe_index && dy && vertical){
       scrolling=true;
       bool stretching = (scroll_top && dy>0) ||
@@ -693,9 +693,6 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
 
   if(down){
 
-    watch_offset_x+=dx;
-    watch_offset_y+=dy;
-
     if(watch_sliding_direction==WATCH_SLIDING_CENTRE &&
         (abs(watch_offset_x) > SLIDE_DWELL ||
          abs(watch_offset_y) > SLIDE_DWELL   )           ){
@@ -713,42 +710,39 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
         if(watch_offset_y >  SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_DOWN;
       }
     }
-    if(watch_sliding_direction==WATCH_SLIDING_LEFT){
+
+    if(watch_sliding_direction==WATCH_SLIDING_LEFT ||
+       watch_sliding_direction==WATCH_SLIDING_RIGHT  ){
+
+      watch_offset_x+=dx;
       watch_offset_y=0;
-      if(watch_offset_x > -SLIDE_DWELL){
-        watch_sliding_direction=WATCH_SLIDING_CENTRE;
-      }
+
+      if(abs(watch_offset_x) < SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_CENTRE;
+
+      return;
     }
-    else
-    if(watch_sliding_direction==WATCH_SLIDING_RIGHT){
-      watch_offset_y=0;
-      if(watch_offset_x < SLIDE_DWELL){
-        watch_sliding_direction=WATCH_SLIDING_CENTRE;
-      }
-    }
-    else
-    if(watch_sliding_direction==WATCH_SLIDING_UP){
+    if(watch_sliding_direction==WATCH_SLIDING_UP   ||
+       watch_sliding_direction==WATCH_SLIDING_DOWN   ){
+
       watch_offset_x=0;
-      if(watch_offset_y > -SLIDE_DWELL){
-        watch_sliding_direction=WATCH_SLIDING_CENTRE;
-      }
+      watch_offset_y+=dy;
+
+      if(abs(watch_offset_y) < SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_CENTRE;
+
+      return;
     }
-    else
-    if(watch_sliding_direction==WATCH_SLIDING_DOWN){
-      watch_offset_x=0;
-      if(watch_offset_y < SLIDE_DWELL){
-        watch_sliding_direction=WATCH_SLIDING_CENTRE;
-      }
-    }
+    watch_offset_x+=dx;
+    watch_offset_y+=dy;
+
     return;
   }
 
   if(abs(watch_offset_x) <= 120){ watch_offset_x= 0; }
   if(abs(watch_offset_y) <= 140){ watch_offset_y= 0; }
-  if(    watch_offset_x  >  120){ watch_offset_x= 240; return; }
-  if(    watch_offset_x  < -120){ watch_offset_x=-240; return; }
-  if(    watch_offset_y  >  140){ watch_offset_y= 280; return; }
-  if(    watch_offset_y  < -140){ watch_offset_y=-280; return; }
+  if(    watch_offset_x  >  120){ watch_offset_x= 240; } else
+  if(    watch_offset_x  < -120){ watch_offset_x=-240; } else
+  if(    watch_offset_y  >  140){ watch_offset_y= 280; } else
+  if(    watch_offset_y  < -140){ watch_offset_y=-280; }
 }
 
 static void draw_watch(char* path, uint8_t g2d_node) {

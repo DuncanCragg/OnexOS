@@ -484,7 +484,7 @@ void draw_by_type(char* path, uint8_t g2d_node) {
 static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
-    bool vertical=abs(dy) > abs(dx);
+    bool vertical = abs(dy) > abs(dx);
     if(!swipe_control && !swipe_index && dy && vertical){
       scrolling=true;
       bool stretching = (scroll_top && dy>0) ||

@@ -1047,17 +1047,33 @@ static void draw_notes(char* path, uint8_t g2d_node) {
   #define WORD_SPACING  7
   #define CURSOR_WIDTH  3
 
-  g2d_node_text(g2d_node, 10,5, G2D_BLUE, G2D_BLACK, 2,
+  get_linktypes(path);
+
+  uint16_t container_height = g2d_node_height(g2d_node);
+
+  container_height += CHILD_HEIGHT * numlinktypes;
+  container_height += CHILD_HEIGHT;
+
+  int16_t offx = abs(view_offset_x) < SLIDE_DWELL? 0: view_offset_x;
+  int16_t offy = abs(view_offset_y) < SLIDE_DWELL? 0: view_offset_y;
+
+  uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
+                                               g2d_node_width(g2d_node),
+                                               container_height,
+                                               view_cb,0,0);
+  if(container_g2d_node){
+
+  g2d_node_text(container_g2d_node, 10,5, G2D_BLUE, G2D_BLACK, 2,
                 "fps: %02d (%d,%d)", fps, touch_info.x, touch_info.y);
 
   int16_t wd=g2d_node_width(g2d_node)-2*SIDE_MARGIN;
   int16_t ht=g2d_node_height(g2d_node)-2*TOP_MARGIN;
   if(wd<0 || ht<0) return;
 
-  uint8_t text_container_g2d_node = g2d_node_create(g2d_node,
+  uint8_t text_container_g2d_node = g2d_node_create(container_g2d_node,
                                                     SIDE_MARGIN,TOP_MARGIN, wd,ht,
                                                     word_cb,0,0);
-  if(!text_container_g2d_node) return;
+  if(text_container_g2d_node){
 
   uint16_t words=object_pathpair_length(user, path, "text");
 
@@ -1073,6 +1089,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
                                                  wd, scroll_height,
                                                  word_cb,0,0);
   if(text_scroll_g2d_node){
+
   uint16_t k=0;
   uint16_t j=0;
   for(uint16_t w=1; w<=words+1; w++){
@@ -1110,11 +1127,20 @@ static void draw_notes(char* path, uint8_t g2d_node) {
     g2d_node_text(word_g2d_node, 6,2, G2D_WHITE, G2D_BLACK, 2, word_to_show);
     k+=word_width;
   }
-  }
 
-  show_keyboard(g2d_node);
+  } // if(text_scroll_g2d_node)
 
-  show_touch_point(g2d_node);
+  show_keyboard(container_g2d_node);
+
+  show_touch_point(container_g2d_node);
+
+  } // if(text_container_g2d_node)
+
+  if(offy < 0) draw_links(path, container_g2d_node);
+
+  } // if(container_g2d_node)
+
+  if(offx < 0) draw_raw_offset(path, g2d_node, offx);
 }
 
 extern uint32_t loop_time;

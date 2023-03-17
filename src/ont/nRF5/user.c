@@ -223,8 +223,21 @@ static uint16_t prop_selected_index=0;
 
 static bool     showing_title_editor=false;
 
-#define NUM_LINK_TYPES 3
-static char*    testlinktypes[] = { "about", "text", "battery" };
+#define NUM_LINK_TYPES 11
+static char* testlinktypes[] = {
+               "user",
+               "battery",
+               "touch",
+               "button",
+               "light",
+               "clock",
+               "watchface",
+               "watch",
+               "text",
+               "about",
+               "list",
+               ""
+};
 static char*    linktypes[NUM_LINK_TYPES];
 static uint8_t  numlinktypes=0;
 

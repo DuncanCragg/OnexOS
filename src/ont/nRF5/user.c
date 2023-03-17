@@ -221,6 +221,11 @@ static uint16_t prop_selected_index=0;
 
 static bool     showing_title_editor=false;
 
+#define NUM_LINK_TYPES 3
+static char*    testlinktypes[] = { "about", "text", "battery" };
+static char*    linktypes[NUM_LINK_TYPES];
+static uint8_t  numlinktypes=0;
+
 static int16_t  scroll_bot_lim=0;
 static bool     scroll_top=false;
 static bool     scroll_bot=false;
@@ -328,7 +333,8 @@ bool evaluate_user(object* usr, void* d) {
   }
   else
   if(prop_selected_index){
-    char propnameesc[64]; object_property_key_esc(user, "viewing:", prop_selected_index, propnameesc, 64);
+    char propnameesc[64];
+    object_property_key_esc(user, "viewing:", prop_selected_index, propnameesc, 64);
     char* sel_uid=object_pathpair_get_n(user, "viewing", propnameesc, list_selected_index);
     if(sel_uid && is_uid(sel_uid)){
       char* viewing_uid=object_property(user, "viewing");
@@ -801,14 +807,9 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   int16_t offx = abs(watch_offset_x) < SLIDE_DWELL? 0: watch_offset_x;
   int16_t offy = abs(watch_offset_y) < SLIDE_DWELL? 0: watch_offset_y;
 
-  static char*   testlinktypes[] = { "about", "text", "battery" };
-  static uint8_t num_link_types = sizeof(testlinktypes)/sizeof(char*);
-
-  char*   linktypes[num_link_types];
-  uint8_t numlinktypes=0;
-
+  numlinktypes=0;
   char linktypeis[64];
-  for(uint8_t i=0; i<num_link_types; i++){
+  for(uint8_t i=0; i<NUM_LINK_TYPES; i++){
     snprintf(linktypeis, 64, "%s:is", testlinktypes[i]);
     if(object_pathpair_contains(user, path, linktypeis, testlinktypes[i])){
       linktypes[numlinktypes++]=testlinktypes[i];

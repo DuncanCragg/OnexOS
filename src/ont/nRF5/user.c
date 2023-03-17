@@ -521,224 +521,6 @@ static void draw_by_type(char* path, uint8_t g2d_node) {
 #define DELETE_SWIPE_DISTANCE -140
 #define GRAB_SWIPE_DISTANCE    -70
 #define DROP_SWIPE_DISTANCE     90
-static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
-
-  if(down){
-    bool vertical = abs(dy) > abs(dx);
-    if(!swipe_control && !swipe_index && dy && vertical){
-      scrolling=true;
-      bool stretching = (scroll_top && dy>0) ||
-                        (scroll_bot && dy<0);
-      scroll_offset+= stretching? dy/3: dy;
-    }
-    else
-    if(!scrolling && dx && !vertical && control!=LIST_BACKGROUND){
-      swipe_control=control;
-      swipe_index=index;
-      swipe_offset+= dx;
-    }
-    return;
-  }
-
-  if(scrolling){
-    if(scroll_top) scroll_offset=0;
-    if(scroll_bot) scroll_offset=scroll_bot_lim;
-    scrolling=false;
-    return;
-  }
-
-  if(swipe_control || swipe_index){
-    if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_control){
-      inventory_grab_control=swipe_control;
-    }
-    else
-    if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_index){
-      inventory_grab_index=swipe_index;
-      if(swipe_offset < DELETE_SWIPE_DISTANCE){
-        inventory_delete=true;
-      }
-    }
-    else
-    if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_control){
-      inventory_drop_control=swipe_control;
-    }
-    else
-    if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_index){
-      inventory_drop_index=swipe_index;
-    }
-    else {
-      swipe_control=0;
-      swipe_index=0;
-      swipe_offset=0;
-    }
-    return;
-  }
-
-  if(control!=LIST_BACKGROUND){
-    list_selected_control=control;
-    list_selected_index=index;
-  }
-}
-
-static void title_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
-  if(down) showing_title_editor=true;
-}
-
-#define CHILD_HEIGHT 70
-#define BOTTOM_MARGIN 20
-#define TITLE_HEIGHT 45
-
-static void draw_swipe_feedback(uint8_t scroll_g2d_node, uint16_t y,
-                                uint16_t del_colour, uint16_t grab_colour, uint16_t drop_colour,
-                                char*    del_text,   char*    grab_text,   char*    drop_text   ){
-
-  uint16_t c=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_colour:
-             (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_colour:
-             (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_colour: G2D_GREY_7;
-
-  char* s=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_text:
-          (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_text:
-          (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_text: "";
-
-  uint16_t x=(swipe_offset < DELETE_SWIPE_DISTANCE)? 130:
-             (swipe_offset < GRAB_SWIPE_DISTANCE)?   130:
-             (swipe_offset > DROP_SWIPE_DISTANCE)?    30: 0;
-
-  g2d_node_rectangle(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10, c);
-  g2d_node_text(scroll_g2d_node, x,y+15, G2D_WHITE, c, 4, s);
-}
-
-static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
-                                     uint16_t y, uint16_t control, char* text){
-
-  if(control==swipe_control){
-    uint16_t droppables=object_property_length(user, "inventory:list");
-    uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
-    char*   drop_text   = droppables? "O->": "---";
-    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREEN_18, G2D_GREEN_18, drop_colour,
-                                            "<-O",        "<-O",        drop_text);
-  }
-
-  uint8_t n=g2d_node_create(scroll_g2d_node,
-                            (control==swipe_control? swipe_offset: 0)+20,y,
-                            200,CHILD_HEIGHT-10,
-                            list_cb,control,0);
-
-  g2d_node_rectangle(n, 0,0, g2d_node_width(n),g2d_node_height(n), G2D_GREY_F);
-  g2d_node_text(n, 10,15, G2D_WHITE, G2D_GREY_F, 4, text);
-
-  return n;
-}
-
-static void draw_list(char* path, uint8_t g2d_node) {
-
-  char* title = object_pathpair(user, path, "title:1");
-  if(!title) title="List";
-
-  // -------------------------------------------------------
-
-  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
-    g2d_node_rectangle(g2d_node,
-                       0,0,
-                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
-                       G2D_GREY_1D/13);
-    uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
-    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_GREY_1D/13, s, title);
-    return;
-  }
-
-  // -------------------------------------------------------
-
-  uint8_t title_g2d_node = g2d_node_create(g2d_node,
-                                           0,0,
-                                           g2d_node_width(g2d_node),
-                                           TITLE_HEIGHT,
-                                           title_cb,0,0);
-  if(!title_g2d_node) return;
-
-  if(showing_title_editor && cursor==0){
-    snprintf(edit_word, 64, "%s", title);
-    cursor=strlen(edit_word);
-    in_word=true;
-  }
-  g2d_node_rectangle(title_g2d_node, 0,0,
-                     g2d_node_width(title_g2d_node),g2d_node_height(title_g2d_node),
-                     showing_title_editor? G2D_GREY_1D/7: G2D_GREY_1D/13);
-
-  g2d_node_text(title_g2d_node, 30,15, G2D_WHITE,
-                showing_title_editor? G2D_GREY_1D/7: G2D_GREY_1D/13, 2,
-                showing_title_editor? edit_word: title);
-
-  // -------------------------------------------------------
-
-  uint8_t list_container_g2d_node = g2d_node_create(g2d_node,
-                                                    0,TITLE_HEIGHT,
-                                                    g2d_node_width(g2d_node),
-                                                    g2d_node_height(g2d_node)-TITLE_HEIGHT,
-                                                    0,0,0);
-  if(!list_container_g2d_node) return;
-
-  // -------------------------------------------------------
-
-  uint16_t ll = object_pathpair_length(user, path, "list");
-
-  uint16_t scroll_height=max(10+(ll+2)*CHILD_HEIGHT+10, ST7789_HEIGHT*4/3);
-
-  uint8_t scroll_g2d_node = g2d_node_create(list_container_g2d_node,
-                                            0, scroll_offset,
-                                            g2d_node_width(list_container_g2d_node),
-                                            scroll_height,
-                                            list_cb,LIST_BACKGROUND,0);
-  if(!scroll_g2d_node) return;
-
-  scroll_bot_lim = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;
-  scroll_top = (scroll_offset > 0);
-  scroll_bot = (scroll_offset < scroll_bot_lim);
-
-  uint16_t stretch_height=g2d_node_height(list_container_g2d_node)/3;
-  if(scroll_top) g2d_node_rectangle(list_container_g2d_node,
-                                    20,0,
-                                    200,stretch_height, G2D_GREY_7);
-  if(scroll_bot) g2d_node_rectangle(list_container_g2d_node,
-                                    20,2*stretch_height,
-                                    200,stretch_height, G2D_GREY_7);
-
-  uint16_t y=CHILD_HEIGHT-10+20;
-
-  make_in_scroll_button(scroll_g2d_node, 10, LIST_ADD_NEW_TOP, "+");
-
-  for(uint8_t i=1; i<=ll; i++){
-
-    if(i==swipe_index){
-      uint16_t droppables=object_property_length(user, "inventory:list");
-      uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
-      char*   drop_text   = droppables? "O->": "---";
-      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_colour,
-                                              "<-X",   "<-O",        drop_text);
-    }
-    uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
-                                             (i==swipe_index? swipe_offset: 0)+20,y,
-                                             200,CHILD_HEIGHT-10,
-                                             list_cb,0,i);
-    if(child_g2d_node){
-      static char pathbufrec[64];
-      snprintf(pathbufrec, 64, "%s:list:%d", path, i);
-      draw_by_type(pathbufrec, child_g2d_node);
-    }
-    y+=CHILD_HEIGHT;
-  }
-  make_in_scroll_button(scroll_g2d_node, y, LIST_ADD_NEW_BOT, "+");
-
-  if(showing_title_editor){
-    show_keyboard(g2d_node);
-  }
-}
-
-#define BATTERY_LOW      G2D_RED
-#define BATTERY_MED      G2D_YELLOW
-#define BATTERY_HIGH     G2D_GREEN
-#define BATTERY_CHARGING G2D_BLUE
 
 #define SLIDE_DWELL 20
 
@@ -884,6 +666,28 @@ static void view_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
   list_selected_index=index;
 }
 
+#define CHILD_HEIGHT 70
+
+static void draw_swipe_feedback(uint8_t scroll_g2d_node, uint16_t y,
+                                uint16_t del_colour, uint16_t grab_colour, uint16_t drop_colour,
+                                char*    del_text,   char*    grab_text,   char*    drop_text   ){
+
+  uint16_t c=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_colour:
+             (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_colour:
+             (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_colour: G2D_GREY_7;
+
+  char* s=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_text:
+          (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_text:
+          (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_text: "";
+
+  uint16_t x=(swipe_offset < DELETE_SWIPE_DISTANCE)? 130:
+             (swipe_offset < GRAB_SWIPE_DISTANCE)?   130:
+             (swipe_offset > DROP_SWIPE_DISTANCE)?    30: 0;
+
+  g2d_node_rectangle(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10, c);
+  g2d_node_text(scroll_g2d_node, x,y+15, G2D_WHITE, c, 4, s);
+}
+
 static void draw_links(char* path, uint8_t container_g2d_node){
 
   uint16_t y=280;
@@ -909,6 +713,204 @@ static void draw_links(char* path, uint8_t container_g2d_node){
     y+=CHILD_HEIGHT;
   }
 }
+
+static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+
+  if(down){
+    bool vertical = abs(dy) > abs(dx);
+    if(!swipe_control && !swipe_index && dy && vertical){
+      scrolling=true;
+      bool stretching = (scroll_top && dy>0) ||
+                        (scroll_bot && dy<0);
+      scroll_offset+= stretching? dy/3: dy;
+    }
+    else
+    if(!scrolling && dx && !vertical && control!=LIST_BACKGROUND){
+      swipe_control=control;
+      swipe_index=index;
+      swipe_offset+= dx;
+    }
+    return;
+  }
+
+  if(scrolling){
+    if(scroll_top) scroll_offset=0;
+    if(scroll_bot) scroll_offset=scroll_bot_lim;
+    scrolling=false;
+    return;
+  }
+
+  if(swipe_control || swipe_index){
+    if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_control){
+      inventory_grab_control=swipe_control;
+    }
+    else
+    if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_index){
+      inventory_grab_index=swipe_index;
+      if(swipe_offset < DELETE_SWIPE_DISTANCE){
+        inventory_delete=true;
+      }
+    }
+    else
+    if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_control){
+      inventory_drop_control=swipe_control;
+    }
+    else
+    if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_index){
+      inventory_drop_index=swipe_index;
+    }
+    else {
+      swipe_control=0;
+      swipe_index=0;
+      swipe_offset=0;
+    }
+    return;
+  }
+
+  if(control!=LIST_BACKGROUND){
+    list_selected_control=control;
+    list_selected_index=index;
+  }
+}
+
+static void title_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+  if(down) showing_title_editor=true;
+}
+
+static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
+                                     uint16_t y, uint16_t control, char* text){
+
+  if(control==swipe_control){
+    uint16_t droppables=object_property_length(user, "inventory:list");
+    uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
+    char*   drop_text   = droppables? "O->": "---";
+    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREEN_18, G2D_GREEN_18, drop_colour,
+                                            "<-O",        "<-O",        drop_text);
+  }
+
+  uint8_t n=g2d_node_create(scroll_g2d_node,
+                            (control==swipe_control? swipe_offset: 0)+20,y,
+                            200,CHILD_HEIGHT-10,
+                            list_cb,control,0);
+
+  g2d_node_rectangle(n, 0,0, g2d_node_width(n),g2d_node_height(n), G2D_GREY_F);
+  g2d_node_text(n, 10,15, G2D_WHITE, G2D_GREY_F, 4, text);
+
+  return n;
+}
+
+#define BOTTOM_MARGIN 20
+#define TITLE_HEIGHT 45
+
+static void draw_list(char* path, uint8_t g2d_node) {
+
+  char* title = object_pathpair(user, path, "title:1");
+  if(!title) title="List";
+
+  // -------------------------------------------------------
+
+  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_GREY_1D/13);
+    uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_GREY_1D/13, s, title);
+    return;
+  }
+
+  // -------------------------------------------------------
+
+  uint8_t title_g2d_node = g2d_node_create(g2d_node,
+                                           0,0,
+                                           g2d_node_width(g2d_node),
+                                           TITLE_HEIGHT,
+                                           title_cb,0,0);
+  if(!title_g2d_node) return;
+
+  if(showing_title_editor && cursor==0){
+    snprintf(edit_word, 64, "%s", title);
+    cursor=strlen(edit_word);
+    in_word=true;
+  }
+  g2d_node_rectangle(title_g2d_node, 0,0,
+                     g2d_node_width(title_g2d_node),g2d_node_height(title_g2d_node),
+                     showing_title_editor? G2D_GREY_1D/7: G2D_GREY_1D/13);
+
+  g2d_node_text(title_g2d_node, 30,15, G2D_WHITE,
+                showing_title_editor? G2D_GREY_1D/7: G2D_GREY_1D/13, 2,
+                showing_title_editor? edit_word: title);
+
+  // -------------------------------------------------------
+
+  uint8_t list_container_g2d_node = g2d_node_create(g2d_node,
+                                                    0,TITLE_HEIGHT,
+                                                    g2d_node_width(g2d_node),
+                                                    g2d_node_height(g2d_node)-TITLE_HEIGHT,
+                                                    0,0,0);
+  if(!list_container_g2d_node) return;
+
+  // -------------------------------------------------------
+
+  uint16_t ll = object_pathpair_length(user, path, "list");
+
+  uint16_t scroll_height=max(10+(ll+2)*CHILD_HEIGHT+10, ST7789_HEIGHT*4/3);
+
+  uint8_t scroll_g2d_node = g2d_node_create(list_container_g2d_node,
+                                            0, scroll_offset,
+                                            g2d_node_width(list_container_g2d_node),
+                                            scroll_height,
+                                            list_cb,LIST_BACKGROUND,0);
+  if(!scroll_g2d_node) return;
+
+  scroll_bot_lim = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;
+  scroll_top = (scroll_offset > 0);
+  scroll_bot = (scroll_offset < scroll_bot_lim);
+
+  uint16_t stretch_height=g2d_node_height(list_container_g2d_node)/3;
+  if(scroll_top) g2d_node_rectangle(list_container_g2d_node,
+                                    20,0,
+                                    200,stretch_height, G2D_GREY_7);
+  if(scroll_bot) g2d_node_rectangle(list_container_g2d_node,
+                                    20,2*stretch_height,
+                                    200,stretch_height, G2D_GREY_7);
+
+  uint16_t y=CHILD_HEIGHT-10+20;
+
+  make_in_scroll_button(scroll_g2d_node, 10, LIST_ADD_NEW_TOP, "+");
+
+  for(uint8_t i=1; i<=ll; i++){
+
+    if(i==swipe_index){
+      uint16_t droppables=object_property_length(user, "inventory:list");
+      uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
+      char*   drop_text   = droppables? "O->": "---";
+      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_colour,
+                                              "<-X",   "<-O",        drop_text);
+    }
+    uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
+                                             (i==swipe_index? swipe_offset: 0)+20,y,
+                                             200,CHILD_HEIGHT-10,
+                                             list_cb,0,i);
+    if(child_g2d_node){
+      static char pathbufrec[64];
+      snprintf(pathbufrec, 64, "%s:list:%d", path, i);
+      draw_by_type(pathbufrec, child_g2d_node);
+    }
+    y+=CHILD_HEIGHT;
+  }
+  make_in_scroll_button(scroll_g2d_node, y, LIST_ADD_NEW_BOT, "+");
+
+  if(showing_title_editor){
+    show_keyboard(g2d_node);
+  }
+}
+
+#define BATTERY_LOW      G2D_RED
+#define BATTERY_MED      G2D_YELLOW
+#define BATTERY_HIGH     G2D_GREEN
+#define BATTERY_CHARGING G2D_BLUE
 
 static void draw_watch(char* path, uint8_t g2d_node) {
 

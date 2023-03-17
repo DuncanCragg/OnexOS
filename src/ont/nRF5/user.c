@@ -238,31 +238,31 @@ static uint16_t swipe_control=0;
 static uint16_t swipe_index=0;
 static int16_t  swipe_offset=0;
 
-#define WATCH_SLID_NOWHERE   0
+#define VIEW_SLID_NOWHERE   0
 
-#define WATCH_SLIDING_LEFT   1
-#define WATCH_SLIDING_RIGHT  2
-#define WATCH_SLIDING_UP     3
-#define WATCH_SLIDING_DOWN   4
+#define VIEW_SLIDING_LEFT   1
+#define VIEW_SLIDING_RIGHT  2
+#define VIEW_SLIDING_UP     3
+#define VIEW_SLIDING_DOWN   4
 
-#define WATCH_SLID_IN_PLACE  5 // >= means one of these
+#define VIEW_SLID_IN_PLACE  5 // >= means one of these
 
-#define WATCH_SLID_LEFT      5
-#define WATCH_SLID_RIGHT     6
-#define WATCH_SLID_UP        7
-#define WATCH_SLID_DOWN      8
+#define VIEW_SLID_LEFT      5
+#define VIEW_SLID_RIGHT     6
+#define VIEW_SLID_UP        7
+#define VIEW_SLID_DOWN      8
 
-static int16_t watch_offset_x=0;
-static int16_t watch_offset_y=0;
-static uint8_t watch_sliding_direction=WATCH_SLID_NOWHERE;
+static int16_t view_offset_x=0;
+static int16_t view_offset_y=0;
+static uint8_t view_sliding_direction=VIEW_SLID_NOWHERE;
 
 static void reset_viewing_state_variables(){
 
   numlinktypes=0;
 
-  watch_offset_x=0;
-  watch_offset_y=0;
-  watch_sliding_direction=WATCH_SLID_NOWHERE;
+  view_offset_x=0;
+  view_offset_y=0;
+  view_sliding_direction=VIEW_SLID_NOWHERE;
 
   scroll_bot_lim=0;
   scroll_top=false;
@@ -717,57 +717,57 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
 #define SLIDE_DWELL 20
 
-static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+static void view_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
 
-    if(watch_sliding_direction==WATCH_SLID_NOWHERE &&
-        (abs(watch_offset_x) > SLIDE_DWELL ||
-         abs(watch_offset_y) > SLIDE_DWELL   )           ){
+    if(view_sliding_direction==VIEW_SLID_NOWHERE &&
+        (abs(view_offset_x) > SLIDE_DWELL ||
+         abs(view_offset_y) > SLIDE_DWELL   )           ){
 
-      bool sliding_horizontally = abs(watch_offset_x) > abs(watch_offset_y);
+      bool sliding_horizontally = abs(view_offset_x) > abs(view_offset_y);
 
       if(sliding_horizontally){
-        if(watch_offset_x < -SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_LEFT;
+        if(view_offset_x < -SLIDE_DWELL) view_sliding_direction=VIEW_SLIDING_LEFT;
         else
-        if(watch_offset_x >  SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_RIGHT;
+        if(view_offset_x >  SLIDE_DWELL) view_sliding_direction=VIEW_SLIDING_RIGHT;
       }
       else {
-        if(watch_offset_y < -SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_UP;
+        if(view_offset_y < -SLIDE_DWELL) view_sliding_direction=VIEW_SLIDING_UP;
         else
-        if(watch_offset_y >  SLIDE_DWELL) watch_sliding_direction=WATCH_SLIDING_DOWN;
+        if(view_offset_y >  SLIDE_DWELL) view_sliding_direction=VIEW_SLIDING_DOWN;
       }
     }
 
-    // down; watch_sliding_direction set if outside dwell
+    // down; view_sliding_direction set if outside dwell
 
-    if(watch_sliding_direction==WATCH_SLIDING_LEFT ||
-       watch_sliding_direction==WATCH_SLIDING_RIGHT  ){
+    if(view_sliding_direction==VIEW_SLIDING_LEFT ||
+       view_sliding_direction==VIEW_SLIDING_RIGHT  ){
 
-      watch_offset_x+=dx;
-      watch_offset_y=0;
+      view_offset_x+=dx;
+      view_offset_y=0;
 
-      if(abs(watch_offset_x) < SLIDE_DWELL) watch_sliding_direction=WATCH_SLID_NOWHERE;
-
-      return;
-    }
-    if(watch_sliding_direction==WATCH_SLIDING_UP   ||
-       watch_sliding_direction==WATCH_SLIDING_DOWN   ){
-
-      watch_offset_x=0;
-      watch_offset_y+=dy;
-
-      if(abs(watch_offset_y) < SLIDE_DWELL) watch_sliding_direction=WATCH_SLID_NOWHERE;
+      if(abs(view_offset_x) < SLIDE_DWELL) view_sliding_direction=VIEW_SLID_NOWHERE;
 
       return;
     }
+    if(view_sliding_direction==VIEW_SLIDING_UP   ||
+       view_sliding_direction==VIEW_SLIDING_DOWN   ){
 
-    // down; watch_sliding_direction not set or set to slid-in-place
+      view_offset_x=0;
+      view_offset_y+=dy;
 
-    if(watch_sliding_direction < WATCH_SLID_IN_PLACE){
+      if(abs(view_offset_y) < SLIDE_DWELL) view_sliding_direction=VIEW_SLID_NOWHERE;
 
-      watch_offset_x+=dx;
-      watch_offset_y+=dy;
+      return;
+    }
+
+    // down; view_sliding_direction not set or set to slid-in-place
+
+    if(view_sliding_direction < VIEW_SLID_IN_PLACE){
+
+      view_offset_x+=dx;
+      view_offset_y+=dy;
 
       return;
     }
@@ -778,14 +778,14 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
 
       bool vertical = abs(dy) > abs(dx);
 
-      if(watch_sliding_direction==WATCH_SLID_UP && dy && vertical){
-        watch_offset_y+=dy;
-        watch_sliding_direction=WATCH_SLIDING_UP;
+      if(view_sliding_direction==VIEW_SLID_UP && dy && vertical){
+        view_offset_y+=dy;
+        view_sliding_direction=VIEW_SLIDING_UP;
         return;
       }
-      if(watch_sliding_direction==WATCH_SLID_LEFT && dx && !vertical){
-        watch_offset_x+=dx;
-        watch_sliding_direction=WATCH_SLIDING_LEFT;
+      if(view_sliding_direction==VIEW_SLID_LEFT && dx && !vertical){
+        view_offset_x+=dx;
+        view_sliding_direction=VIEW_SLIDING_LEFT;
         return;
       }
     }
@@ -802,34 +802,34 @@ static void watch_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16
 
   // up; either let go after sliding or after in-page action
 
-  if(watch_sliding_direction < WATCH_SLID_IN_PLACE){
+  if(view_sliding_direction < VIEW_SLID_IN_PLACE){
 
-    if(abs(watch_offset_x) <= 120 &&
-       abs(watch_offset_y) <= 140    ){
+    if(abs(view_offset_x) <= 120 &&
+       abs(view_offset_y) <= 140    ){
 
-      watch_offset_x=0;
-      watch_offset_y=0;
-      watch_sliding_direction=WATCH_SLID_NOWHERE;
+      view_offset_x=0;
+      view_offset_y=0;
+      view_sliding_direction=VIEW_SLID_NOWHERE;
       return;
     }
-    if(watch_offset_x > 120){
-      watch_offset_x= 240;
-      watch_sliding_direction=WATCH_SLID_RIGHT;
+    if(view_offset_x > 120){
+      view_offset_x= 240;
+      view_sliding_direction=VIEW_SLID_RIGHT;
       return;
     }
-    if(watch_offset_x < -120){
-      watch_offset_x= -240;
-      watch_sliding_direction=WATCH_SLID_LEFT;
+    if(view_offset_x < -120){
+      view_offset_x= -240;
+      view_sliding_direction=VIEW_SLID_LEFT;
       return;
     }
-    if(watch_offset_y > 140){
-      watch_offset_y= 280;
-      watch_sliding_direction=WATCH_SLID_DOWN;
+    if(view_offset_y > 140){
+      view_offset_y= 280;
+      view_sliding_direction=VIEW_SLID_DOWN;
       return;
     }
-    if(watch_offset_y < -140){
-      watch_offset_y= -280;
-      watch_sliding_direction=WATCH_SLID_UP;
+    if(view_offset_y < -140){
+      view_offset_y= -280;
+      view_sliding_direction=VIEW_SLID_UP;
       return;
     }
   }
@@ -895,8 +895,8 @@ static void draw_watch(char* path, uint8_t g2d_node) {
     return;
   }
 
-  int16_t offx = abs(watch_offset_x) < SLIDE_DWELL? 0: watch_offset_x;
-  int16_t offy = abs(watch_offset_y) < SLIDE_DWELL? 0: watch_offset_y;
+  int16_t offx = abs(view_offset_x) < SLIDE_DWELL? 0: view_offset_x;
+  int16_t offy = abs(view_offset_y) < SLIDE_DWELL? 0: view_offset_y;
 
   numlinktypes=0;
   char linktypeis[64];
@@ -915,7 +915,7 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
                                                g2d_node_width(g2d_node),
                                                container_height,
-                                               watch_cb,0,0);
+                                               view_cb,0,0);
   if(container_g2d_node){
 
     strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
@@ -950,13 +950,13 @@ static void draw_watch(char* path, uint8_t g2d_node) {
                                                      240+offx,0,
                                                      -offx,
                                                      g2d_node_height(g2d_node),
-                                                     watch_cb,0,0);
+                                                     view_cb,0,0);
     if(!raw_container_g2d_node) return;
 
     uint8_t raw_g2d_node = g2d_node_create(raw_container_g2d_node,
                                            -(240+offx),0,
                                            240, g2d_node_height(g2d_node),
-                                           watch_cb,0,0);
+                                           view_cb,0,0);
     if(!raw_g2d_node) return;
 
     draw_raw(path, raw_g2d_node);
@@ -980,7 +980,7 @@ static void draw_watch(char* path, uint8_t g2d_node) {
       uint8_t child_g2d_node = g2d_node_create(container_g2d_node,
                                                (i==swipe_index? swipe_offset: 0)+20,y,
                                                200,CHILD_HEIGHT-10,
-                                               watch_cb,0,i);
+                                               view_cb,0,i);
       if(child_g2d_node){
         static char pathbufrec[64];
         snprintf(pathbufrec, 64, "%s:%s", path, linktypes[i-1]);

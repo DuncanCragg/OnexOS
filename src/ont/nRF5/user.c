@@ -207,8 +207,8 @@ static void show_gfx_log(uint8_t root_g2d_node){
 }
 
 static void show_touch_point(uint8_t g2d_node){
-  uint8_t touch_g2d_node=g2d_node_create(g2d_node, touch_info.x, touch_info.y, 5,5, 0,0,0);
-  g2d_node_rectangle(touch_g2d_node, 0,0, 5,5, G2D_MAGENTA);
+  g2d_node_rectangle(g2d_node, 0,touch_info.y, 240,1, G2D_MAGENTA);
+  g2d_node_rectangle(g2d_node, touch_info.x,0, 1,280, G2D_MAGENTA);
 }
 
 static uint16_t inventory_grab_control=0;

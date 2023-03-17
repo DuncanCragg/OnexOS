@@ -140,7 +140,7 @@ static object* create_new_object_like_others() {
   return r;
 }
 
-void best_propname_for_link_drop(char* propname, uint16_t len, uint16_t inventory_drop_index){
+static void best_propname_for_link_drop(char* propname, uint16_t len, uint16_t inventory_drop_index){
   char targetis[64]; snprintf(targetis, 64, "viewing:list:%d:is", inventory_drop_index);
   if(object_property_contains(user, targetis, "list")){
     snprintf(propname, len, "list");
@@ -491,7 +491,7 @@ bool evaluate_user(object* usr, void* d) {
   return true;
 }
 
-void draw_by_type(char* path, uint8_t g2d_node) {
+static void draw_by_type(char* path, uint8_t g2d_node) {
 
   if(object_pathpair_contains(user, path, "is", "list"))   draw_list(path, g2d_node);
   else
@@ -872,7 +872,7 @@ static void view_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
   list_selected_index=index;
 }
 
-void get_linktypes(char* path){
+static void get_linktypes(char* path){
   numlinktypes=0;
   char linktypeis[64];
   for(uint8_t i=0; i<NUM_LINK_TYPES; i++){
@@ -883,7 +883,7 @@ void get_linktypes(char* path){
   }
 }
 
-void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx){
+static void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx){
 
   uint8_t raw_container_g2d_node = g2d_node_create(g2d_node,
                                                    240+offx,0,
@@ -901,7 +901,7 @@ void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx){
   draw_raw(path, raw_g2d_node);
 }
 
-void draw_links(char* path, uint8_t container_g2d_node){
+static void draw_links(char* path, uint8_t container_g2d_node){
 
   uint16_t y=280;
 
@@ -1234,7 +1234,7 @@ static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t propindex, uint16
 
 #define PROP_HEIGHT 38
 #define PROP_MARGIN 5
-void draw_raw(char* path, uint8_t g2d_node) {
+static void draw_raw(char* path, uint8_t g2d_node) {
 
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     g2d_node_rectangle(g2d_node,

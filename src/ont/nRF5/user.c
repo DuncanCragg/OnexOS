@@ -859,6 +859,17 @@ static void view_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
   list_selected_index=index;
 }
 
+void get_linktypes(char* path){
+  numlinktypes=0;
+  char linktypeis[64];
+  for(uint8_t i=0; i<NUM_LINK_TYPES; i++){
+    snprintf(linktypeis, 64, "%s:is", testlinktypes[i]);
+    if(object_pathpair_contains(user, path, linktypeis, testlinktypes[i])){
+      linktypes[numlinktypes++]=testlinktypes[i];
+    }
+  }
+}
+
 static void draw_watch(char* path, uint8_t g2d_node) {
 
   char* pc=object_pathpair(   user, path, "battery:percent:1");
@@ -895,22 +906,15 @@ static void draw_watch(char* path, uint8_t g2d_node) {
     return;
   }
 
-  int16_t offx = abs(view_offset_x) < SLIDE_DWELL? 0: view_offset_x;
-  int16_t offy = abs(view_offset_y) < SLIDE_DWELL? 0: view_offset_y;
-
-  numlinktypes=0;
-  char linktypeis[64];
-  for(uint8_t i=0; i<NUM_LINK_TYPES; i++){
-    snprintf(linktypeis, 64, "%s:is", testlinktypes[i]);
-    if(object_pathpair_contains(user, path, linktypeis, testlinktypes[i])){
-      linktypes[numlinktypes++]=testlinktypes[i];
-    }
-  }
+  get_linktypes(path);
 
   uint16_t container_height = g2d_node_height(g2d_node);
 
   container_height += CHILD_HEIGHT * numlinktypes;
   container_height += CHILD_HEIGHT;
+
+  int16_t offx = abs(view_offset_x) < SLIDE_DWELL? 0: view_offset_x;
+  int16_t offy = abs(view_offset_y) < SLIDE_DWELL? 0: view_offset_y;
 
   uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
                                                g2d_node_width(g2d_node),

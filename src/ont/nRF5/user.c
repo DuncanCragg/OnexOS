@@ -198,9 +198,9 @@ static void show_gfx_log(uint8_t root_g2d_node){
   for(uint8_t i=0; i<LOG_LINES_MAX; i++){
     if(log_lines[i]){
 #if !defined(BIG_LOG)
-      g2d_node_text(root_g2d_node, 20,8+i*8, G2D_RED, G2D_BLACK, 1, log_lines[i]);
+      g2d_node_text(root_g2d_node, 20,8+i*8, G2D_RED, G2D_BLACK, 1, "%s", log_lines[i]);
 #else
-      g2d_node_text(root_g2d_node, 40,i*15, G2D_RED, G2D_BLACK, 2, log_lines[i]);
+      g2d_node_text(root_g2d_node, 40,i*15, G2D_RED, G2D_BLACK, 2, "%s", log_lines[i]);
 #endif
     }
   }
@@ -685,7 +685,7 @@ static void draw_swipe_feedback(uint8_t scroll_g2d_node, uint16_t y,
              (swipe_offset > DROP_SWIPE_DISTANCE)?    30: 0;
 
   g2d_node_rectangle(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10, c);
-  g2d_node_text(scroll_g2d_node, x,y+15, G2D_WHITE, c, 4, s);
+  g2d_node_text(scroll_g2d_node, x,y+15, G2D_WHITE, c, 4, "%s", s);
 }
 
 static void draw_links(char* path, uint8_t container_g2d_node){
@@ -794,7 +794,7 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
                             list_cb,control,0);
 
   g2d_node_rectangle(n, 0,0, g2d_node_width(n),g2d_node_height(n), G2D_GREY_F);
-  g2d_node_text(n, 10,15, G2D_WHITE, G2D_GREY_F, 4, text);
+  g2d_node_text(n, 10,15, G2D_WHITE, G2D_GREY_F, 4, "%s", text);
 
   return n;
 }
@@ -816,7 +816,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
                        G2D_GREY_1D/13);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
     uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_GREY_1D/13, s, title);
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_GREY_1D/13, s, "%s", title);
     return;
   }
 
@@ -840,6 +840,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
   g2d_node_text(title_g2d_node, 30,15, G2D_WHITE,
                 showing_title_editor? G2D_GREY_1D/7: G2D_GREY_1D/13, 2,
+                "%s",
                 showing_title_editor? edit_word: title);
 
   // -------------------------------------------------------
@@ -944,7 +945,7 @@ static void draw_watch(char* path, uint8_t g2d_node) {
     strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
     uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_YELLOW/6, s, g2dbuf);
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_YELLOW/6, s, "%s", g2dbuf);
     return;
   }
 
@@ -965,18 +966,18 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   if(container_g2d_node){
 
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
-  g2d_node_text(container_g2d_node, 10, 100, G2D_WHITE, G2D_BLACK, 7, g2dbuf);
+  g2d_node_text(container_g2d_node, 10, 100, G2D_WHITE, G2D_BLACK, 7, "%s", g2dbuf);
 
   strftime(g2dbuf, 64, "%S", &tms);
-  g2d_node_text(container_g2d_node, 105, 140, G2D_GREY_1A, G2D_BLACK, 1, g2dbuf);
+  g2d_node_text(container_g2d_node, 105, 140, G2D_GREY_1A, G2D_BLACK, 1, "%s", g2dbuf);
 
   if(!h24){
     strftime(g2dbuf, 64, "%p", &tms);
-    g2d_node_text(container_g2d_node, 180, 160, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
+    g2d_node_text(container_g2d_node, 180, 160, G2D_BLUE, G2D_BLACK, 3, "%s", g2dbuf);
   }
 
   strftime(g2dbuf, 64, "%a %d %h", &tms);
-  g2d_node_text(container_g2d_node, 30, 220, G2D_BLUE, G2D_BLACK, 3, g2dbuf);
+  g2d_node_text(container_g2d_node, 30, 220, G2D_BLUE, G2D_BLACK, 3, "%s", g2dbuf);
 
   int8_t pcnum=pc? (int8_t)strtol(pc,&e,10): 0;
   if(pcnum<0) pcnum=0;
@@ -1021,8 +1022,9 @@ static void draw_notes(char* path, uint8_t g2d_node) {
                        G2D_GREEN/6);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
     uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, m,m,                            G2D_WHITE, G2D_GREEN/6, s, word1);
-    g2d_node_text(g2d_node, m+g2d_text_width(word1,s)+10,m, G2D_WHITE, G2D_GREEN/6, s, word2);
+    uint8_t n=m+g2d_text_width(word1,s)+10;
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_GREEN/6, s, "%s", word1);
+    g2d_node_text(g2d_node, n,m, G2D_WHITE, G2D_GREEN/6, s, "%s", word2);
     return;
   }
 
@@ -1109,7 +1111,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
                                             word_cb,0,w);
 
     char* word_to_show = word? word: (in_word? edit_word: "");
-    g2d_node_text(word_g2d_node, 6,2, G2D_WHITE, G2D_BLACK, 2, word_to_show);
+    g2d_node_text(word_g2d_node, 6,2, G2D_WHITE, G2D_BLACK, 2, "%s", word_to_show);
     k+=word_width;
   }
 
@@ -1233,7 +1235,7 @@ static void draw_raw(char* path, uint8_t g2d_node) {
     for(uint8_t i=1; i<=ll; i++){
       char* is=object_pathpair_get_n(user, path, "is", i);
       uint16_t word_width=WORD_SPACING+g2d_text_width(is, s);
-      g2d_node_text(g2d_node, vx,m, G2D_WHITE, G2D_RGB256(90,90,130), s, is);
+      g2d_node_text(g2d_node, vx,m, G2D_WHITE, G2D_RGB256(90,90,130), s, "%s", is);
       vx+=word_width+WORD_SPACING;
     }
     return;
@@ -1286,7 +1288,7 @@ static void draw_raw(char* path, uint8_t g2d_node) {
     g2d_node_rectangle(propname_g2d_node, 0,0,
                        g2d_node_width(propname_g2d_node),g2d_node_height(propname_g2d_node),
                        G2D_CYAN/6);
-    g2d_node_text(propname_g2d_node, 7,7, G2D_WHITE, G2D_CYAN/6, 2, propname);
+    g2d_node_text(propname_g2d_node, 7,7, G2D_WHITE, G2D_CYAN/6, 2, "%s", propname);
 
 
     uint16_t ll=object_pathpair_length(user, path, propnameesc);
@@ -1313,7 +1315,8 @@ static void draw_raw(char* path, uint8_t g2d_node) {
                            g2d_node_width(propvalue_g2d_node),
                            g2d_node_height(propvalue_g2d_node),
                            G2D_GREY_1D/13);
-        g2d_node_text(propvalue_g2d_node, 7,7, G2D_WHITE, G2D_GREY_1D/13, 2, propvalue);
+        g2d_node_text(propvalue_g2d_node,
+                      7,7, G2D_WHITE, G2D_GREY_1D/13, 2, "%s", propvalue);
       }
       vx+=valwid+5;
     }

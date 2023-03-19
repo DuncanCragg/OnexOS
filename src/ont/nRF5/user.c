@@ -140,8 +140,8 @@ static object* create_new_object_like_others() {
   return r;
 }
 
-static void best_propname_for_link_drop(char* propname, uint16_t len, uint16_t inventory_drop_index){
-  char targetis[64]; snprintf(targetis, 64, "viewing:list:%d:is", inventory_drop_index);
+static void best_propname_for_link_drop(char* propname, uint16_t len, uint16_t index){
+  char targetis[64]; snprintf(targetis, 64, "viewing:list:%d:is", index);
   if(object_property_contains(user, targetis, "list")){
     snprintf(propname, len, "list");
     return;
@@ -211,11 +211,11 @@ static void show_touch_point(uint8_t g2d_node){
   g2d_node_rectangle(g2d_node, touch_info.x,0, 1,280, G2D_MAGENTA);
 }
 
-static uint16_t inventory_grab_control=0;
-static uint16_t inventory_grab_index=0;
-static bool     inventory_delete=false;
-static uint16_t inventory_drop_control=0;
-static uint16_t inventory_drop_index=0;
+static uint16_t inv_grab_control=0;
+static uint16_t inv_grab_index=0;
+static bool     inv_delete=false;
+static uint16_t inv_drop_control=0;
+static uint16_t inv_drop_index=0;
 
 static uint16_t list_selected_control=0;
 static uint16_t list_selected_index=0;
@@ -386,8 +386,8 @@ bool evaluate_user(object* usr, void* d) {
   if(list_selected_index){
     char* viewing_uid=object_property(user, "viewing");
     char* sel_uid = numlinktypes?
-                      object_pathpair(      user, "viewing", linktypes[list_selected_index-1]):
-                      object_property_get_n(user, "viewing:list", list_selected_index);
+                 object_pathpair(      user, "viewing", linktypes[list_selected_index-1]):
+                 object_property_get_n(user, "viewing:list", list_selected_index);
     object_property_add(user, "history", viewing_uid);
     object_property_set(user, "viewing", sel_uid);
     reset_viewing_state_variables();
@@ -415,52 +415,52 @@ bool evaluate_user(object* usr, void* d) {
     del_this_word=0;
   }
   else
-  if(inventory_grab_control){
+  if(inv_grab_control){
     char* viewing_uid=object_property(user, "viewing");
     set_edit_object(inventoryuid, "list", 0, "=> %s @.", viewing_uid);
-    inventory_grab_control=0;
+    inv_grab_control=0;
     reset_swipe=true;
   }
   else
-  if(inventory_grab_index){
+  if(inv_grab_index){
     char* viewing_uid=object_property(user, "viewing");
     char* grab_uid = numlinktypes?
-                      object_pathpair(      user, "viewing", linktypes[inventory_grab_index-1]):
-                      object_property_get_n(user, "viewing:list", inventory_grab_index);
+                       object_pathpair(      user, "viewing", linktypes[inv_grab_index-1]):
+                       object_property_get_n(user, "viewing:list", inv_grab_index);
     set_edit_object(inventoryuid, "list", 0, "=> %s @.", grab_uid);
-    if(inventory_delete){
-      if(numlinktypes) set_edit_object(viewing_uid, linktypes[inventory_grab_index-1], 0, "=>");
-      else             set_edit_object(viewing_uid, "list", inventory_grab_index, "=>");
+    if(inv_delete){
+      if(numlinktypes) set_edit_object(viewing_uid, linktypes[inv_grab_index-1], 0, "=>");
+      else             set_edit_object(viewing_uid, "list", inv_grab_index, "=>");
     }
-    inventory_grab_index=0;
-    inventory_delete=false;
+    inv_grab_index=0;
+    inv_delete=false;
     reset_swipe=true;
   }
   else
-  if(inventory_drop_control){
+  if(inv_drop_control){
     char* drop_uid = object_property_get_n(user, "inventory:list", 1);
     if(drop_uid){
       char* viewing_uid=object_property(user, "viewing");
-      char* upd_fmt=(inventory_drop_control==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
+      char* upd_fmt=(inv_drop_control==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
       set_edit_object(viewing_uid, "list", 0, upd_fmt, drop_uid);
       set_edit_object(inventoryuid, "list", 1, "=>");
     }
-    inventory_drop_control=0;
+    inv_drop_control=0;
     reset_swipe=true;
   }
   else
-  if(inventory_drop_index){
+  if(inv_drop_index){
     char* drop_uid = object_property_get_n(user, "inventory:list", 1);
     if(drop_uid){
       char propname[128];
-      best_propname_for_link_drop(propname, 128, inventory_drop_index);
+      best_propname_for_link_drop(propname, 128, inv_drop_index);
       char* into_uid = numlinktypes?
-                         object_pathpair(      user, "viewing", linktypes[inventory_drop_index-1]):
-                         object_property_get_n(user, "viewing:list", inventory_drop_index);
+                       object_pathpair(      user, "viewing", linktypes[inv_drop_index-1]):
+                       object_property_get_n(user, "viewing:list", inv_drop_index);
       set_edit_object(into_uid, propname, 0, "=> %s @.", drop_uid);
       set_edit_object(inventoryuid, "list", 1, "=>");
     }
-    inventory_drop_index=0;
+    inv_drop_index=0;
     reset_swipe=true;
   }
 
@@ -645,14 +645,14 @@ static void view_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 
   if(swipe_index){
     if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_index){
-      inventory_grab_index=swipe_index;
+      inv_grab_index=swipe_index;
       if(swipe_offset < DELETE_SWIPE_DISTANCE){
-        inventory_delete=true;
+        inv_delete=true;
       }
     }
     else
     if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_index){
-      inventory_drop_index=swipe_index;
+      inv_drop_index=swipe_index;
     }
     else {
       swipe_index=0;
@@ -669,12 +669,12 @@ static void view_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 #define CHILD_HEIGHT 70
 
 static void draw_swipe_feedback(uint8_t scroll_g2d_node, uint16_t y,
-                                uint16_t del_colour, uint16_t grab_colour, uint16_t drop_colour,
-                                char*    del_text,   char*    grab_text,   char*    drop_text   ){
+                                uint16_t del_col,  uint16_t grab_col,  uint16_t drop_col,
+                                char*    del_text, char*    grab_text, char*    drop_text){
 
-  uint16_t c=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_colour:
-             (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_colour:
-             (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_colour: G2D_GREY_7;
+  uint16_t c=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_col:
+             (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_col:
+             (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_col: G2D_GREY_7;
 
   char* s=(swipe_offset < DELETE_SWIPE_DISTANCE)? del_text:
           (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_text:
@@ -696,9 +696,9 @@ static void draw_links(char* path, uint8_t container_g2d_node){
 
     if(i==swipe_index){
       uint16_t droppables=object_property_length(user, "inventory:list");
-      uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
+      uint8_t drop_col = droppables? G2D_BLUE: G2D_GREY_7;
       char*   drop_text   = droppables? "O->": "---";
-      draw_swipe_feedback(container_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_colour,
+      draw_swipe_feedback(container_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_col,
                                                  "<-X",   "<-O",        drop_text);
     }
     uint8_t child_g2d_node = g2d_node_create(container_g2d_node,
@@ -742,22 +742,22 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 
   if(swipe_control || swipe_index){
     if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_control){
-      inventory_grab_control=swipe_control;
+      inv_grab_control=swipe_control;
     }
     else
     if(swipe_offset < GRAB_SWIPE_DISTANCE && swipe_index){
-      inventory_grab_index=swipe_index;
+      inv_grab_index=swipe_index;
       if(swipe_offset < DELETE_SWIPE_DISTANCE){
-        inventory_delete=true;
+        inv_delete=true;
       }
     }
     else
     if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_control){
-      inventory_drop_control=swipe_control;
+      inv_drop_control=swipe_control;
     }
     else
     if(swipe_offset > DROP_SWIPE_DISTANCE && swipe_index){
-      inventory_drop_index=swipe_index;
+      inv_drop_index=swipe_index;
     }
     else {
       swipe_control=0;
@@ -782,9 +782,9 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
 
   if(control==swipe_control){
     uint16_t droppables=object_property_length(user, "inventory:list");
-    uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
+    uint8_t drop_col = droppables? G2D_BLUE: G2D_GREY_7;
     char*   drop_text   = droppables? "O->": "---";
-    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREEN_18, G2D_GREEN_18, drop_colour,
+    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREEN_18, G2D_GREEN_18, drop_col,
                                             "<-O",        "<-O",        drop_text);
   }
 
@@ -884,9 +884,9 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
     if(i==swipe_index){
       uint16_t droppables=object_property_length(user, "inventory:list");
-      uint8_t drop_colour = droppables? G2D_BLUE: G2D_GREY_7;
+      uint8_t drop_col = droppables? G2D_BLUE: G2D_GREY_7;
       char*   drop_text   = droppables? "O->": "---";
-      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_colour,
+      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_col,
                                               "<-X",   "<-O",        drop_text);
     }
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
@@ -1145,7 +1145,7 @@ static void draw_about(char* path, uint8_t g2d_node) {
     uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
     g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_CYAN/6, s,
                   "%dfps %ldms", fps, loop_time);
-//               "%ld%% %ld %ldms", touch_events_percent, touch_events_spurious, loop_time);
+//              "%ld%% %ld %ldms", touch_events_percent, touch_events_spurious, loop_time);
     return;
   }
 
@@ -1198,7 +1198,7 @@ static void draw_button(char* path, uint8_t g2d_node) {
   draw_raw(path, g2d_node);
 }
 
-static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t propindex, uint16_t listindex){
+static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t l_index){
 
   if(down){
     if(dy){
@@ -1213,8 +1213,8 @@ static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t propindex, uint16
     return;
   }
 
-  prop_selected_index=propindex;
-  list_selected_index=listindex;
+  prop_selected_index=p_index;
+  list_selected_index=l_index;
 }
 
 #define PROP_HEIGHT 38
@@ -1310,7 +1310,8 @@ static void draw_raw(char* path, uint8_t g2d_node) {
       }
       else{
         g2d_node_rectangle(propvalue_g2d_node, 0,0,
-                           g2d_node_width(propvalue_g2d_node),g2d_node_height(propvalue_g2d_node),
+                           g2d_node_width(propvalue_g2d_node),
+                           g2d_node_height(propvalue_g2d_node),
                            G2D_GREY_1D/13);
         g2d_node_text(propvalue_g2d_node, 7,7, G2D_WHITE, G2D_GREY_1D/13, 2, propvalue);
       }

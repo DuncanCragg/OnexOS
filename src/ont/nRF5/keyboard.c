@@ -169,7 +169,8 @@ void show_keyboard(uint8_t g2d_node){
 
       uint8_t key_g2d_node = g2d_node_create(kbd_g2d_node,
                                              kx, ky,
-                                             KEY_SIZE+KEY_H_SPACE, KEY_SIZE+KEY_V_SPACE,
+                                             KEY_SIZE+KEY_H_SPACE,
+                                             KEY_SIZE+KEY_V_SPACE,
                                              key_hit, 0,ki);
 
       uint16_t key_bg=(pressed==key)? G2D_GREEN: G2D_GREY_1A;

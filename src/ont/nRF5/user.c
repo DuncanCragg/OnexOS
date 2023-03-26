@@ -1016,6 +1016,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
   if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
     char* word1=object_pathpair(user, path, "text:1");
     char* word2=object_pathpair(user, path, "text:2");
+    char* word3=object_pathpair(user, path, "text:3");
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
@@ -1023,8 +1024,10 @@ static void draw_notes(char* path, uint8_t g2d_node) {
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
     uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
     uint8_t n=m+g2d_text_width(word1,s)+10;
-    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_GREEN/6, s, "%s", word1);
-    g2d_node_text(g2d_node, n,m, G2D_WHITE, G2D_GREEN/6, s, "%s", word2);
+    uint8_t o=n+g2d_text_width(word2,s)+10;
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_GREEN/6, s, "%s", word1? word1: "");
+    g2d_node_text(g2d_node, n,m, G2D_WHITE, G2D_GREEN/6, s, "%s", word2? word2: "");
+    g2d_node_text(g2d_node, o,m, G2D_WHITE, G2D_GREEN/6, s, "%s", word3? word3: "");
     return;
   }
 

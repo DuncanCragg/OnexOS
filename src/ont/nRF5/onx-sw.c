@@ -290,6 +290,7 @@ static void init_onex(){
 #endif
   object_property_set(backlight, "button", buttonuid);
 
+  object_set_persist(oclock, "none");
   object_property_set(oclock, "title", "OnexOS Clock");
   object_property_set(oclock, "ts", "%unknown");
   object_property_set(oclock, "tz", "%unknown");
@@ -355,6 +356,14 @@ static void init_onex(){
   object_property_add(onex_device_object, "io",   buttonuid);
   object_property_add(onex_device_object, "io",   backlightuid);
   object_property_add(onex_device_object, "io",   clockuid);
+
+  object_set_persist(battery, "none");
+  object_set_persist(touch,   "none");
+#if defined(HAS_MOTION)
+  object_set_persist(motion,  "none");
+#endif
+  object_set_persist(button,  "none");
+  object_set_persist(about,   "none");
 
   onex_run_evaluators(batteryuid, 0);
   onex_run_evaluators(clockuid, 0);

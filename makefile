@@ -280,6 +280,7 @@ pinetime-ota: onx-wear.hex
 
 LINKER_FLAGS = -O3 -g3 -mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Wl,--gc-sections --specs=nano.specs
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMESTAMP=$$(date +'%s')
+LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMEZONE_OFFSET=$$(date +'%z' | awk '{ print ($$0<0?-1:1)*((substr($$0,2,2)*3600)+(substr($$0,4,2)*60)) }')
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIME=$$(date +'%y%m%d%H%M')
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BOOTLOADER_NUMBER=$$(cat ../OnexKernel/bootloader-number.txt)
 

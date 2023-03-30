@@ -186,12 +186,12 @@ static char note_text_big[] =
 
 static void init_onex(){
 
-  onex_init("");
+  onex_init(0);
 
   //                               editor    inputs    logic                 outputs
   onex_set_evaluators("default",   evaluate_edit_rule, evaluate_default, 0);
   onex_set_evaluators("editable",  evaluate_edit_rule, 0);
-  onex_set_evaluators("clock",     evaluate_edit_rule, evaluate_clock_sync, evaluate_clock, 0);
+  onex_set_evaluators("clock",               evaluate_clock_sync, evaluate_clock, 0);
   onex_set_evaluators("device",                        evaluate_device_logic, 0);
   onex_set_evaluators("user",                          evaluate_user, 0);
   onex_set_evaluators("notes",     evaluate_edit_rule, 0);

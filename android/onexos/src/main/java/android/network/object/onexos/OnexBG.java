@@ -36,8 +36,8 @@ public class OnexBG extends Service {
 
     static private boolean initialised=false;
 
-    static public native String initOnex();
-    static public native void   loopOnex();
+    static public native void initOnex();
+    static public native void loopOnex();
 
     @Override
     public void onCreate() {

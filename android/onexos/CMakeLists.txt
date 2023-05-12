@@ -9,7 +9,7 @@ set(ONEX_LANG ../../../OnexLang)
 
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -std=gnu17 -Wall -Werror -Wno-incompatible-pointer-types-discards-qualifiers -DVK_USE_PLATFORM_ANDROID_KHR -DVK_NO_PROTOTYPES")
 
-file(GLOB SOURCE_FILES "${ONEX_KERNEL}/src/onl/unix/*.c" "${ONEX_KERNEL}/src/lib/lib.c" "${ONEX_KERNEL}/src/lib/list.c" "${ONEX_KERNEL}/src/lib/value.c" "${ONEX_KERNEL}/src/onn/*.c" "${ONEX_KERNEL}/src/onp/*.c" "${ONEX_LANG}/src/*.c" "${TOP_DIR}/src/onl/android/*.c")
+file(GLOB SOURCE_FILES "${ONEX_KERNEL}/src/onl/unix/*.c" "${ONEX_KERNEL}/src/lib/lib.c" "${ONEX_KERNEL}/src/lib/list.c" "${ONEX_KERNEL}/src/lib/value.c" "${ONEX_KERNEL}/src/onn/*.c" "${ONEX_KERNEL}/src/onp/*.c" "${ONEX_LANG}/src/*.c" "${TOP_DIR}/src/onl/android/*.c" "${TOP_DIR}/src/ont/unix/onx.c")
 
 add_library(native-lib SHARED ${SOURCE_FILES})
 

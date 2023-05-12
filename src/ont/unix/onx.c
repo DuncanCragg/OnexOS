@@ -26,7 +26,7 @@ static bool evaluate_default(object* o, void* d) {
   return true;
 }
 
-static void init_onex() {
+void init_onex() {
 
   onex_set_evaluators((char*)"default", evaluate_default, 0);
   onex_set_evaluators((char*)"device",  evaluate_device_logic, 0);
@@ -67,6 +67,14 @@ static void init_onex() {
   }
 
   time_ticker(every_second, 1000);
+}
+
+void loop_onex(){
+  while(true){
+    if(!onex_loop()){
+      time_delay_ms(50); // XXX 50?
+    }
+  }
 }
 
 static pthread_t loop_onex_thread_id;

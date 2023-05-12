@@ -7,7 +7,6 @@ import java.io.ByteArrayOutputStream;
 import android.os.*;
 import android.view.inputmethod.*;
 import android.view.ViewGroup.LayoutParams;
-//import android.view.KeyEvent;
 import android.widget.*;
 import android.text.*;
 import android.app.NativeActivity;

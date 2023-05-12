@@ -3,6 +3,14 @@
 
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
+#if defined(__ANDROID__)
+#include <android/log.h>
+#define log_init()
+#define log_loop() true
+#undef  log_write
+#define log_write(...) ((void)__android_log_print(ANDROID_LOG_INFO, "OnexApp", __VA_ARGS__))
+#define log_flush()
+#endif
 
 #include <onn.h>
 #include <onr.h>
@@ -12,6 +20,9 @@ extern bool evaluate_user(object* o, void* d);
 extern object* user;
 
 extern char* userUID;
+#if defined(__ANDROID__)
+extern void sprintExternalStorageDirectory(char* buf, int buflen, const char* format);
+#endif
 
 static object* config;
 static object* oclock;
@@ -33,7 +44,14 @@ void init_onex() {
   onex_set_evaluators((char*)"clock",   evaluate_clock, 0);
   onex_set_evaluators((char*)"user",    evaluate_user, 0);
 
+#if defined(__ANDROID__)
+  char dbpath[128];
+  sprintExternalStorageDirectory(dbpath, 128, "%s/Onex/onex.ondb");
+  log_write("Writing to DB at %s\n", dbpath);
+  onex_init(dbpath);
+#else
   onex_init((char*)"./onex.ondb");
+#endif
 
   config=onex_get_from_cache((char*)"uid-0");
 
@@ -43,6 +61,7 @@ void init_onex() {
     userUID=object_property(user, (char*)"UID");
 
     oclock=object_new(0, (char*)"clock", (char*)"clock event", 12);
+    object_set_persist(oclock, "none");
     object_property_set(oclock, (char*)"title", (char*)"OnexOS Clock");
     clockUID=object_property(oclock, (char*)"UID");
 

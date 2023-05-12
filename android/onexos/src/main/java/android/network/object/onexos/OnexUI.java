@@ -134,7 +134,9 @@ public class OnexUI extends NativeActivity {
         if(Build.VERSION.SDK_INT >= 33) {
             broadcastReceivers = packageManager.queryBroadcastReceivers(intent, PackageManager.ResolveInfoFlags.of(0));
         } else {
-            broadcastReceivers = packageManager.queryBroadcastReceivers(intent, 0);
+            @SuppressWarnings("deprecation")
+            List<ResolveInfo> wtf = packageManager.queryBroadcastReceivers(intent, 0);
+            broadcastReceivers = wtf;
         }
         for(ResolveInfo broadcastReceiver: broadcastReceivers) {
             ComponentName cn = new ComponentName(broadcastReceiver.activityInfo.packageName, broadcastReceiver.activityInfo.name);

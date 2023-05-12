@@ -12,6 +12,7 @@ TARGETS = onx-arm \
 #-------------------------------------------------------------------------------
 
 SOURCES_ONX_ARM = \
+  ./src/ont/unix/onx.c \
   ./src/ont/unix/user.c \
   ./src/ont/unix/onx-vulkan.c \
   ./src/ont/unix/outline.c \
@@ -23,6 +24,7 @@ SOURCES_ONX_ARM_CPP = \
   ./src/onl/mobile/hwc.cpp \
 
 SOURCES_ONX_X86 = \
+  ./src/ont/unix/onx.c \
   ./src/ont/unix/user.c \
   ./src/ont/unix/onx-vulkan.c \
   ./src/ont/unix/outline.c \
@@ -190,11 +192,11 @@ clean:
 	@echo "files not cleaned:"
 	@git ls-files --others --exclude-from=.git/info/exclude | xargs -r ls -Fla
 
-copy-dorold:
+copy-dorold: onx-arm
 	rsync -ruav --stats --progress --delete onx/ phablet@dorold:onx
 
-copy-op5t:
-	rsync -ruav --stats --progress --delete onx/ phablet@op5t:onx
+copy-op5t-ut: onx-arm
+	rsync -ruav --stats --progress --delete onx/ phablet@op5t-ut:onx
 
 SHELL=/usr/bin/bash
 

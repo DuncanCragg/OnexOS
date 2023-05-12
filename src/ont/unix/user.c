@@ -107,12 +107,9 @@ panel room_wall_3 ={
 
 // -----------------------------------------
 
-static object* config;
-static object* user;
-static object* oclock;
+object* user;
 
-static char* userUID=0;
-static char* clockUID=0;
+char* userUID=0;
 
 static float    vertex_buffer_data[MAX_PANELS*6*6*3];
 static uint32_t vertex_buffer_end=0;
@@ -417,13 +414,7 @@ static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
     text_ends[o][0]=num_glyphs-1;
 }
 
-static bool evaluate_default(object* o, void* d) {
-
-  log_write("evaluate_default data=%p\n", d); object_log(o);
-  return true;
-}
-
-static bool evaluate_user(object* o, void* d) {
+bool evaluate_user(object* o, void* d) {
 
   // model changes, vertex changes, text changes
 
@@ -475,8 +466,6 @@ static bool evaluate_user(object* o, void* d) {
   return true;
 }
 
-static void every_second(){ onex_run_evaluators(clockUID, 0); }
-
 // ---------------------------------
 
 static void show_matrix(mat4x4 m){
@@ -510,68 +499,6 @@ void set_mvp_uniforms() {
     looking_at[2] = eye[2] + 100.0f * cos(eye_dir + head_hor_dir);
 
     mat4x4_look_at(view_matrix, eye, looking_at, up);
-}
-
-static void init_onex() {
-
-  onex_set_evaluators((char*)"default", evaluate_default, 0);
-  onex_set_evaluators((char*)"device",  evaluate_device_logic, 0);
-  onex_set_evaluators((char*)"user",    evaluate_user, 0);
-  onex_set_evaluators((char*)"clock",   evaluate_clock, 0);
-
-  onex_init((char*)"./onex.ondb");
-
-  config=onex_get_from_cache((char*)"uid-0");
-
-  if(!config){
-
-    user=object_new(0, (char*)"user", (char*)"user", 8);
-    userUID=object_property(user, (char*)"UID");
-
-    oclock=object_new(0, (char*)"clock", (char*)"clock event", 12);
-    object_property_set(oclock, (char*)"title", (char*)"OnexOS Clock");
-    clockUID=object_property(oclock, (char*)"UID");
-
-    object_set_evaluator(onex_device_object, (char*)"device");
-    char* deviceUID=object_property(onex_device_object, (char*)"UID");
-
-    object_property_add(onex_device_object, (char*)"user", userUID);
-    object_property_add(onex_device_object, (char*)"io", clockUID);
-
-    object_property_set(user, (char*)"viewing", deviceUID);
-
-    config=object_new((char*)"uid-0", 0, (char*)"config", 10);
-    object_property_set(config, (char*)"user",      userUID);
-    object_property_set(config, (char*)"clock",     clockUID);
-  }
-  else{
-    userUID=     object_property(config, (char*)"user");
-    clockUID=    object_property(config, (char*)"clock");
-
-    user     =onex_get_from_cache(userUID);
-    oclock   =onex_get_from_cache(clockUID);
-  }
-
-  time_ticker(every_second, 1000);
-}
-
-static pthread_t loop_onex_thread_id;
-
-static void* loop_onex_thread(void* d) {
-  while(true){
-    if(!onex_loop()){
-      time_delay_ms(5);
-    }
-  }
-  return 0;
-}
-
-void onx_init(bool restart){
-  if(!restart){
-    init_onex();
-    pthread_create(&loop_onex_thread_id, 0, loop_onex_thread, 0);
-  }
-  onex_run_evaluators(userUID, 0);
 }
 
 static bool     head_moving=false;

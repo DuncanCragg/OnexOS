@@ -5,12 +5,6 @@
 #include <sys/system_properties.h>
 
 #include <onex-kernel/log.h>
-#include <android/log.h>
-#define log_init()
-#define log_loop() true
-#undef  log_write
-#define log_write(...) ((void)__android_log_print(ANDROID_LOG_INFO, "OnexOS", __VA_ARGS__))
-#define log_flush()
 
 extern void init_onex();
 extern void loop_onex();

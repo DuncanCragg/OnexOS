@@ -185,9 +185,10 @@ onx/fonts/%.ttf: assets/fonts/%.ttf
 clean:
 	find . -name '*.o' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
+	rm -rf android/*/build android/*/.cxx/ android/.gradle/*/*
 	rm -rf ${TARGETS} src/ont/unix/*.{inc,spv} onx/
-	rm -f ,* core
-	rm -rf *.arm *.x86 onx
+	rm -rf onx
+	rm -f ,* */,* core bin/core
 	@echo "------------------------------"
 	@echo "files not cleaned:"
 	@git ls-files --others --exclude-from=.git/info/exclude | xargs -r ls -Fla

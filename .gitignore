@@ -17,7 +17,7 @@ onx/
 # Android
 
 android/doc
-.gradle
+android/.gradle
 build/
 .cxx/
 #local.properties

@@ -72,7 +72,7 @@ INC_DIR_ARM = \
  -I../OnexKernel/include \
 
 INC_DIR_X86 = \
- -I/home/duncan/Sources/vulkan-1.3.211.0/x86_64/include \
+ -I./include/vulkan \
  -I/usr/include \
  -I/usr/include/freetype2 \
  -I./src \

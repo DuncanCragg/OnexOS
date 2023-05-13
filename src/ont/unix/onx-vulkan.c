@@ -30,9 +30,6 @@ static VkPipelineCache  pipeline_cache;
 static VkDescriptorSetLayout descriptor_layout;
 static VkDescriptorPool      descriptor_pool;
 
-static VkShaderModule  vert_shader_module;
-static VkShaderModule  frag_shader_module;
-
 static VkFormatProperties               format_properties;
 static VkPhysicalDeviceMemoryProperties memory_properties;
 
@@ -573,6 +570,7 @@ static void prepare_texture_image(const char *filename,
     texture_obj->image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
 
+/*
 static void prepare_texture_buffer(const char *filename, struct texture_object *texture_obj) {
     int32_t texture_width;
     int32_t texture_height;
@@ -616,6 +614,7 @@ static void prepare_texture_buffer(const char *filename, struct texture_object *
 
     vkUnmapMemory(device, texture_obj->device_memory);
 }
+*/
 
 static void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout,
                              VkImageLayout new_image_layout, VkAccessFlagBits srcAccessMask, VkPipelineStageFlags src_stages,
@@ -694,10 +693,6 @@ static void prepare_depth() {
         .flags = 0,
         .viewType = VK_IMAGE_VIEW_TYPE_2D,
     };
-
-    VkMemoryRequirements mem_reqs;
-    VkResult err;
-    bool pass;
 
     depth.format = depth_format;
 

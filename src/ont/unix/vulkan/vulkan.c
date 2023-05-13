@@ -316,7 +316,6 @@ static void prepare_swapchain() {
         .oldSwapchain = oldSwapchain,
         .clipped = true,
     };
-    uint32_t i;
     err = fpCreateSwapchainKHR(device, &swapchain_ci, NULL, &swapchain);
     assert(!err);
 

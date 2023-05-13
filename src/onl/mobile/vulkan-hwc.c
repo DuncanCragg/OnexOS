@@ -24,11 +24,7 @@
 #include "ont/unix/vulkan/vulkan_up.h"
 #include "onl/onl.h"
 
-iostate io;
-
 ANativeWindow* window;
-
-bool quit = false;
 
 static void sighandler(int signal, siginfo_t *siginfo, void *userdata) {
   printf("\nEnd\n");

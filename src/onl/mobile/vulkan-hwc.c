@@ -259,7 +259,7 @@ static void handle_libinput_event(struct libinput_event* event) {
   }
 }
 
-void onl_run(){
+static void event_loop(){
 /*
   struct pollfd fds;
   fds.fd = libinput_get_fd(libin);
@@ -267,6 +267,8 @@ void onl_run(){
   fds.revents = 0;
 */
   while(!quit/* && poll(&fds, 1, -1) > -1*/){
+
+    ont_vk_loop(true);
 
     struct libinput_event* event;
 
@@ -279,8 +281,8 @@ void onl_run(){
       libinput_event_destroy(event);
       libinput_dispatch(libin);
     }
-    ont_vk_loop();
   }
+  ont_vk_loop(false);
 }
 
 void onl_finish(){
@@ -293,6 +295,13 @@ void onl_finish(){
   hwc_display_brightness(0);
 
   hwc_destroy_hwcomposer_window();
+}
+
+int main() {
+
+  log_write("----------------------\nStarting onx (OnexOS)\n-----------------------\n");
+
+  event_loop();
 }
 
 void onl_exit(int n){

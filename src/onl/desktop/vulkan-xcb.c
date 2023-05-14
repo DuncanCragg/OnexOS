@@ -37,21 +37,24 @@ static void set_signal(int sig, void (*h)(int, siginfo_t*, void*)){
 }
 
 static void xcb_init(){
+
   const xcb_setup_t *setup;
   xcb_screen_iterator_t iter;
   int scr;
 
   connection = xcb_connect(NULL, &scr);
+
   if(xcb_connection_has_error(connection)){
       printf("Cannot connect to XCB\n");
       fflush(stdout);
       onl_exit(1);
   }
-
   setup = xcb_get_setup(connection);
   iter = xcb_setup_roots_iterator(setup);
   while(scr--) xcb_screen_next(&iter);
   screen = iter.data;
+
+  xcb_flush(connection);
 }
 
 void onl_init() {
@@ -201,11 +204,11 @@ static void handle_xcb_event(const xcb_generic_event_t *event) {
     }
 }
 
-void onl_run() {
-
-    xcb_flush(connection);
+static void event_loop() {
 
     while (!quit){
+
+        ont_vk_loop(true);
 
         xcb_generic_event_t *event;
 
@@ -215,8 +218,8 @@ void onl_run() {
 
             free(event);
         }
-        ont_vk_loop();
     }
+    ont_vk_loop(false);
 }
 
 void onl_finish() {
@@ -225,6 +228,15 @@ void onl_finish() {
   xcb_disconnect(connection);
   free(atom_wm_delete_window);
 }
+
+int main() {
+
+  log_write("----------------------\nStarting onx (OnexOS)\n-----------------------\n");
+
+  event_loop();
+}
+
 void onl_exit(int n){
   exit(n);
 }
+

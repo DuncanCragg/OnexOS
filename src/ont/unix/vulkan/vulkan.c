@@ -78,6 +78,7 @@ PFN_vkSetDebugUtilsObjectNameEXT SetDebugUtilsObjectNameEXT;
 
 VkDebugUtilsMessengerEXT dbg_messenger;
 
+static void finish(bool restart);
 
 static PFN_vkGetDeviceProcAddr g_gdpa = NULL;
 
@@ -817,7 +818,7 @@ static void choose_surface_format(){
     free(surface_formats);
 }
 
-void prepare(bool restart) {
+static void prepare(bool restart) {
 
   if(!restart){
 
@@ -884,9 +885,16 @@ static void cleanup(bool restart) {
   onl_finish();
 }
 
-void ont_vk_loop() {
+void ont_vk_loop(bool running) {
 
-  onx_render_frame();
+  if(running && !prepared){
+    prepare(false);
+  }
+  else
+  if(!running && prepared){
+    finish(false);
+  }
+  if(prepared) onx_render_frame();
 }
 
 void ont_vk_iostate_changed() {
@@ -894,7 +902,7 @@ void ont_vk_iostate_changed() {
   onx_iostate_changed();
 }
 
-void finish(bool restart) {
+static void finish(bool restart) {
 
   prepared = false;
 
@@ -910,16 +918,5 @@ void ont_vk_restart(){
   finish(true);
 
   prepare(true);
-}
-
-int main() {
-
-  printf("--------------------------\nStarting onx (OnexOS)\n--------------------------\n");
-
-  prepare(false);
-
-  onl_run();
-
-  finish(false);
 }
 

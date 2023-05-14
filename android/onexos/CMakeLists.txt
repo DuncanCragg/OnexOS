@@ -7,9 +7,27 @@ set(TOP_DIR ../..)
 set(ONEX_KERNEL ../../../OnexKernel)
 set(ONEX_LANG ../../../OnexLang)
 
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -std=gnu17 -Wall -Werror -Wno-incompatible-pointer-types-discards-qualifiers -DVK_USE_PLATFORM_ANDROID_KHR -DVK_NO_PROTOTYPES")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu17 -Wall -Werror -Wno-incompatible-pointer-types-discards-qualifiers -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-function -DVK_USE_PLATFORM_ANDROID_KHR")
 
-file(GLOB SOURCE_FILES "${ONEX_KERNEL}/src/onl/unix/channel-serial.c" "${ONEX_KERNEL}/src/onl/unix/mem.c" "${ONEX_KERNEL}/src/onl/unix/persistence.c" "${ONEX_KERNEL}/src/onl/unix/properties.c" "${ONEX_KERNEL}/src/onl/unix/random.c" "${ONEX_KERNEL}/src/onl/unix/serial.c" "${ONEX_KERNEL}/src/onl/unix/time.c" "${ONEX_KERNEL}/src/lib/lib.c" "${ONEX_KERNEL}/src/lib/list.c" "${ONEX_KERNEL}/src/lib/value.c" "${ONEX_KERNEL}/src/onn/*.c" "${ONEX_KERNEL}/src/onp/*.c" "${ONEX_LANG}/src/*.c" "${TOP_DIR}/src/onl/android/*.c" "${TOP_DIR}/src/ont/unix/onx.c")
+file(GLOB SOURCE_FILES
+"${ONEX_KERNEL}/src/onl/unix/channel-serial.c"
+"${ONEX_KERNEL}/src/onl/unix/mem.c"
+"${ONEX_KERNEL}/src/onl/unix/persistence.c"
+"${ONEX_KERNEL}/src/onl/unix/properties.c"
+"${ONEX_KERNEL}/src/onl/unix/random.c"
+"${ONEX_KERNEL}/src/onl/unix/serial.c"
+"${ONEX_KERNEL}/src/onl/unix/time.c"
+"${ONEX_KERNEL}/src/lib/lib.c"
+"${ONEX_KERNEL}/src/lib/list.c"
+"${ONEX_KERNEL}/src/lib/value.c"
+"${ONEX_KERNEL}/src/onn/*.c"
+"${ONEX_KERNEL}/src/onp/*.c"
+"${ONEX_LANG}/src/*.c"
+"${TOP_DIR}/src/onl/onl.c"
+"${TOP_DIR}/src/onl/android/*.c"
+"${TOP_DIR}/src/ont/unix/vulkan/*.c"
+"${TOP_DIR}/src/ont/unix/*.c"
+)
 
 add_library(native-lib SHARED ${SOURCE_FILES})
 
@@ -23,7 +41,11 @@ include_directories(${ONEX_KERNEL}/src)
 include_directories(${ONEX_KERNEL}/src/onn)
 include_directories(${ONEX_KERNEL}/src/onp)
 include_directories(${ONEX_LANG}/include)
+include_directories(${TOP_DIR}/include/vulkan)
+include_directories(${TOP_DIR}/external/freetype/include)
 include_directories(${TOP_DIR}/src)
+
+add_subdirectory(${TOP_DIR}/external/freetype ${TOP_DIR}/external/freetype)
 
 target_link_libraries(
     native-lib
@@ -31,4 +53,6 @@ target_link_libraries(
     android
     log
     z
+    vulkan
+    freetype
 )

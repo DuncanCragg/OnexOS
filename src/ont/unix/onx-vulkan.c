@@ -330,7 +330,11 @@ struct uniforms {
     vec4  text_ends[MAX_PANELS];
 };
 
+#if defined(__ANDROID__)
+static const char* font_face = "/system/fonts/Roboto-Medium.ttf";
+#else
 static const char* font_face = "./fonts/Roboto-Medium.ttf";
+#endif
 
 static char *texture_files[] = {"ivory.ppm"};
 

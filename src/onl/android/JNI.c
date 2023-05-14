@@ -79,29 +79,3 @@ void sprintExternalStorageDirectory(char* buf, int buflen, const char* format) {
 }
 
 
-bool focused = true;
-
-void android_main(struct android_app* state) {
-
-  while(1){
-
-    int ident;
-    int events;
-    struct android_poll_source* source;
-    bool destroy = false;
-    while((ident = ALooper_pollAll(focused ? 0 : 200, NULL, &events, (void**)&source)) >= 0){
-
-      if(source) {
-        source->process(state, source);
-      }
-    }
-    if(!focused){
-      if(ident==ALOOPER_POLL_TIMEOUT) continue;
-    }
-    if(destroy){
-      break;
-    }
-  }
-}
-
-

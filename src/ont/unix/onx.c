@@ -7,17 +7,9 @@
 #include <onn.h>
 #include <onr.h>
 
-#if defined(__ANDROID__)
-bool evaluate_user(object* o, void* d){
-  return true;
-}
-object* user;
-char* userUID;
-#else
 extern bool evaluate_user(object* o, void* d);
 extern object* user;
 extern char* userUID;
-#endif
 
 #if defined(__ANDROID__)
 extern void sprintExternalStorageDirectory(char* buf, int buflen, const char* format);

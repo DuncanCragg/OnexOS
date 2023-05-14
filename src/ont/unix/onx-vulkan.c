@@ -482,24 +482,19 @@ static bool load_texture(const char *filename, uint8_t *rgba_data, uint64_t row_
     return true;
 }
 
-static VkShaderModule load_shader_module(const char *path) {
+extern unsigned char src_ont_unix_onx_frag_spv[];
+extern unsigned int  src_ont_unix_onx_frag_spv_len;
+extern unsigned char src_ont_unix_onx_vert_spv[];
+extern unsigned int  src_ont_unix_onx_vert_spv_len;
 
-    FILE *f = fopen(path, "rb");
-    if(!f){
-      log_write("Cannot open shader %s\n", path);
-      onl_exit(-1);
-    }
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    rewind(f);
-    void *code = malloc(size);
-    fread(code, size, 1, f);
-    fclose(f);
+static VkShaderModule load_c_shader(bool load_frag) {
 
     VkShaderModuleCreateInfo module_ci = {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-        .codeSize = size,
-        .pCode = code,
+        .codeSize = load_frag? src_ont_unix_onx_frag_spv_len:
+                               src_ont_unix_onx_vert_spv_len,
+        .pCode = load_frag? src_ont_unix_onx_frag_spv:
+                            src_ont_unix_onx_vert_spv,
         .flags = 0,
         .pNext = 0,
     };
@@ -509,7 +504,6 @@ static VkShaderModule load_shader_module(const char *path) {
                                   &module_ci,
                                   0,
                                   &module));
-    free(code);
     return module;
 }
 
@@ -1308,8 +1302,8 @@ void onx_prepare_render_pass(bool restart) {
 
 void onx_prepare_pipeline(bool restart) {
 
-  VkShaderModule vert_shader_module = load_shader_module("./shaders/onx.vert.spv");
-  VkShaderModule frag_shader_module = load_shader_module("./shaders/onx.frag.spv");
+  VkShaderModule vert_shader_module = load_c_shader(false);
+  VkShaderModule frag_shader_module = load_c_shader(true);
 
   VkPipelineShaderStageCreateInfo shader_stages[] = {
     {

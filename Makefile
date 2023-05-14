@@ -1,6 +1,8 @@
 #-------------------------------------------------------------------------------
 # Ubuntu + Ubuntu Touch Makefile
 
+MAKEFLAGS += --no-builtin-rules
+
 targets:
 	@grep '^[a-zA-Z0-9\.#-]\+:' Makefile | grep -v '^\.' | grep -v targets | sed 's/:.*//' | uniq | sed 's/\.elf/.hex/' | sed 's/^/Make clean \&\& Make /'
 
@@ -125,37 +127,41 @@ onx-arm: INC_DIR=${INC_DIR_ARM}
 onx-arm: CC=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-gcc
 onx-arm: CXX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
 onx-arm: LDX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
-onx-arm: ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${SHADERS} ${FONTS}
+onx-arm: ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${HEADERS_ONX_ARM} ${SHADERS:.spv=.o} ${FONTS}
 	@echo ================
-	@echo $@ '<=' ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o}
+	@echo $@ '<=' ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${SHADERS:.spv=.o}
 	@echo -----
-	$(LDX) -o $@ ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} $(LIB_DIR_ARM) $(LIBS_ONX_ARM)
+	$(LDX) -o $@ ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${SHADERS:.spv=.o} $(LIB_DIR_ARM) $(LIBS_ONX_ARM)
 	mkdir -p onx
 	cp $@ onx
 
 onx-x86: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
 onx-x86: INC_DIR=${INC_DIR_X86}
 onx-x86: LDX=gcc
-onx-x86: ${SOURCES_ONX_X86:.c=.o} ${HEADERS_ONX_X86} ${SHADERS} ${FONTS}
+onx-x86: ${SOURCES_ONX_X86:.c=.o} ${HEADERS_ONX_X86} ${SHADERS:.spv=.o} ${FONTS}
 	@echo ================
-	@echo $@ '<=' ${SOURCES_ONX_X86:.c=.o}
+	@echo $@ '<=' ${SOURCES_ONX_X86:.c=.o} ${SHADERS:.spv=.o}
 	@echo -----
-	$(LDX) -o $@ ${SOURCES_ONX_X86:.c=.o} $(LIB_DIR_X86) $(LIBS_ONX_X86)
+	$(LDX) -o $@ ${SOURCES_ONX_X86:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIR_X86) $(LIBS_ONX_X86)
 	mkdir -p onx
 	cp $@ onx
+
+shaderc: ${SHADERS:.spv=.c}
+	@echo ================
+	@echo $@ '<=' ${SHADERS:.spv=.c}
 
 #-------------------------------------------------------------------------------
 
 CCFLAGS  = -std=gnu17 -g -O2 -pthread -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-switch
 CPPFLAGS = -std=gnu++17 -g -O2 -pthread
 
-.c.o:
+%.o: %.c
 	@echo ================
 	@echo $@ '<=' $<
 	@echo -----
 	$(CC) $(CCFLAGS) $(CONFIGFLAGS) $(INC_DIR) -o $@ -c $<
 
-.cpp.o:
+%.o: %.cpp
 	@echo ================
 	@echo $@ '<=' $<
 	@echo -----
@@ -166,16 +172,24 @@ CPPFLAGS = -std=gnu++17 -g -O2 -pthread
 	@echo $@ '<=' $<
 	@echo -----
 	glslc $< -o $@
-	mkdir -p onx/shaders
-	cp $@ onx/shaders
 
 %.frag.spv: %.frag
 	@echo ================
 	@echo $@ '<=' $<
 	@echo -----
 	glslc $< -o $@
-	mkdir -p onx/shaders
-	cp $@ onx/shaders
+
+%.vert.c: %.vert.spv
+	@echo ================
+	@echo $@ '<=' $<
+	@echo -----
+	xxd -i $< > $@
+
+%.frag.c: %.frag.spv
+	@echo ================
+	@echo $@ '<=' $<
+	@echo -----
+	xxd -i $< > $@
 
 onx/fonts/%.ttf: assets/fonts/%.ttf
 	@echo ================
@@ -188,7 +202,7 @@ clean:
 	find . -name '*.o' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
 	rm -rf android/*/build android/*/.cxx/ android/.gradle/*/*
-	rm -rf ${TARGETS} src/ont/unix/*.{inc,spv} onx/
+	rm -rf ${TARGETS} src/ont/unix/*.{inc,spv,vert.c,frag.c} onx/
 	rm -rf onx
 	rm -f ,* */,* core bin/core
 	@echo "------------------------------"

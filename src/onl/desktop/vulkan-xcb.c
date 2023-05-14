@@ -10,6 +10,8 @@
 
 #include <xcb/xcb.h>
 
+#include <onex-kernel/log.h>
+
 #include "ont/unix/vulkan/vulkan_up.h"
 #include "onl/onl.h"
 
@@ -43,7 +45,7 @@ static void xcb_init(){
   if(xcb_connection_has_error(connection)){
       printf("Cannot connect to XCB\n");
       fflush(stdout);
-      exit(1);
+      onl_exit(1);
   }
 
   setup = xcb_get_setup(connection);
@@ -222,4 +224,7 @@ void onl_finish() {
   xcb_destroy_window(connection, window);
   xcb_disconnect(connection);
   free(atom_wm_delete_window);
+}
+void onl_exit(int n){
+  exit(n);
 }

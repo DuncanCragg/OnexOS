@@ -1,6 +1,8 @@
 
 /* Platform-independent Vulkan common code */
 
+#include <onex-kernel/log.h>
+
 #include "ont/unix/vulkan/vulkan.h"
 
 #include "ont/unix/vulkan/object_type_string_helper.h"
@@ -163,7 +165,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_messenger_callback(VkDebugUtilsMessa
         }
     }
 
-    printf("%s\n", message);
+    log_write("%s\n", message);
     fflush(stdout);
 
     free(message);
@@ -421,7 +423,7 @@ static VkBool32 check_layers(uint32_t check_count, char **check_names, uint32_t 
             }
         }
         if (!found) {
-            fprintf(stderr, "Cannot find layer: %s\n", check_names[i]);
+            log_write("Cannot find layer: %s\n", check_names[i]);
             return 0;
         }
     }
@@ -581,7 +583,7 @@ static void pick_physical_device(){
     err = vkEnumeratePhysicalDevices(inst, &gpu_count, physical_devices);
     assert(!err);
     if (gpu_number >= 0 && !((uint32_t)gpu_number < gpu_count)) {
-        fprintf(stderr, "GPU %d specified is not present, GPU count = %u\n", gpu_number, gpu_count);
+        log_write("GPU %d specified is not present, GPU count = %u\n", gpu_number, gpu_count);
         ERR_EXIT("Specified GPU number is not present");
     }
 
@@ -623,8 +625,8 @@ static void pick_physical_device(){
     {
         VkPhysicalDeviceProperties physicalDeviceProperties;
         vkGetPhysicalDeviceProperties(gpu, &physicalDeviceProperties);
-        fprintf(stderr, "Selected GPU %d: %s, type: %s\n", gpu_number, physicalDeviceProperties.deviceName,
-                gpu_type_to_string(physicalDeviceProperties.deviceType));
+        log_write("Selected GPU %d: %s, type: %s\n", gpu_number, physicalDeviceProperties.deviceName,
+                  gpu_type_to_string(physicalDeviceProperties.deviceType));
     }
     free(physical_devices);
 
@@ -760,7 +762,7 @@ static void find_queue_families() {
     }
 
     if (graphicsQueueFamilyIndex == UINT32_MAX || presentQueueFamilyIndex == UINT32_MAX) {
-        printf("Could not find either/both graphics or present queues g=%d p=%d\n", graphicsQueueFamilyIndex, presentQueueFamilyIndex);
+        log_write("Could not find either/both graphics or present queues g=%d p=%d\n", graphicsQueueFamilyIndex, presentQueueFamilyIndex);
         ERR_EXIT("");
     }
 
@@ -793,7 +795,7 @@ static VkSurfaceFormatKHR pick_surface_format(const VkSurfaceFormatKHR *surface_
             return surface_formats[i];
         }
     }
-    printf("Can't find our preferred formats... Falling back to first exposed format. Rendering may be incorrect.\n");
+    log_write("Can't find our preferred formats... Falling back to first exposed format. Rendering may be incorrect.\n");
 
     assert(count >= 1);
     return surface_formats[0];

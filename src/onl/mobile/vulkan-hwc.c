@@ -21,6 +21,8 @@
 
 #include "hwc_c.h"
 
+#include <onex-kernel/log.h>
+
 #include "ont/unix/vulkan/vulkan_up.h"
 #include "onl/onl.h"
 
@@ -110,7 +112,7 @@ void onl_create_window(){
   int r = eglInitialize(display, 0, 0);
 
   if(!window || r!=EGL_TRUE || eglGetError() != EGL_SUCCESS){
-    printf("eglInitialize didn't work\n"); exit(-1);
+    printf("eglInitialize didn't work\n"); onl_exit(-1);
   }
 
   hwc_display_on();
@@ -293,5 +295,8 @@ void onl_finish(){
   hwc_destroy_hwcomposer_window();
 }
 
+void onl_exit(int n){
+  exit(n);
+}
 
 

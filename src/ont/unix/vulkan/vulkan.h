@@ -18,13 +18,13 @@
     do {                             \
         printf("%s\n", msg);     \
         fflush(stdout);              \
-        exit(1);                     \
+        onl_exit(1);             \
     } while (0)
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 #define VK_DESTROY(func, dev, obj) func(dev, obj, NULL), obj = NULL
-#define VK_CHECK(r) do { VkResult res = (r); if (res != VK_SUCCESS){ printf("r=%d @ line %d\n", r, __LINE__); exit(1); } } while (0)
+#define VK_CHECK(r) do { VkResult res = (r); if (res != VK_SUCCESS){ printf("r=%d @ line %d\n", r, __LINE__); onl_exit(1); } } while (0)
 
 extern VkFormat surface_format;
 extern VkDevice device;

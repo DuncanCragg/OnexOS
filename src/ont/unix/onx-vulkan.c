@@ -3,6 +3,8 @@
 #include "ont/unix/user-vk-common.h"
 #include "ont/unix/vulkan/vulkan.h"
 
+#include <onex-kernel/log.h>
+
 static uint32_t image_count;
 static uint32_t image_index;
 
@@ -484,8 +486,8 @@ static VkShaderModule load_shader_module(const char *path) {
 
     FILE *f = fopen(path, "rb");
     if(!f){
-      fprintf(stderr, "Cannot open shader %s\n", path);
-      exit(-1);
+      log_write("Cannot open shader %s\n", path);
+      onl_exit(-1);
     }
     fseek(f, 0, SEEK_END);
     long size = ftell(f);
@@ -563,7 +565,7 @@ static void prepare_texture_image(const char *filename,
         VK_CHECK(vkMapMemory(device, texture_obj->device_memory, 0, size, 0, &data));
 
         if (!load_texture(filename, data, layout.rowPitch, &texture_width, &texture_height)) {
-            fprintf(stderr, "Error loading texture: %s\n", filename);
+            log_write("Error loading texture: %s\n", filename);
         }
         vkUnmapMemory(device, texture_obj->device_memory);
     }
@@ -609,7 +611,7 @@ static void prepare_texture_buffer(const char *filename, struct texture_object *
     assert(!err);
 
     if (!load_texture(filename, data, layout.rowPitch, &texture_width, &texture_height)) {
-        fprintf(stderr, "Error loading texture: %s\n", filename);
+        log_write("Error loading texture: %s\n", filename);
     }
 
     vkUnmapMemory(device, texture_obj->device_memory);

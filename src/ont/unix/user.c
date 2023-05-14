@@ -150,8 +150,8 @@ void load_font(const char * font_face, uint32_t alignment) {
   FT_Face face;
   int err=FT_New_Face(library, font_face, 0, &face);
   if(err){
-    fprintf(stderr, "Font loading failed or font not found: %s\n", font_face);
-    exit(-1);
+    log_write("Font loading failed or font not found: %s\n", font_face);
+    onl_exit(-1);
   }
 
   FT_CHECK(FT_Set_Char_Size(face, 0, 1000 * 64, 96, 96));

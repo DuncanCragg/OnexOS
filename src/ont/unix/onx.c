@@ -12,7 +12,7 @@ extern object* user;
 extern char* userUID;
 
 #if defined(__ANDROID__)
-extern void sprintExternalStorageDirectory(char* buf, int buflen, const char* format);
+extern void sprint_external_storage_directory(char* buf, int buflen, const char* format);
 #endif
 
 static object* config;
@@ -37,7 +37,7 @@ void init_onex() {
 
 #if defined(__ANDROID__)
   char dbpath[128];
-  sprintExternalStorageDirectory(dbpath, 128, "%s/Onex/onex.ondb");
+  sprint_external_storage_directory(dbpath, 128, "%s/Onex/onex.ondb");
   log_write("Writing to DB at %s\n", dbpath);
   onex_init(dbpath);
 #else

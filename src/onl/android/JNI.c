@@ -26,7 +26,7 @@ JNIEXPORT void JNICALL Java_network_object_onexos_OnexBG_loopOnex(JNIEnv* env, j
 
 static JavaVM* javaVM;
 
-static bool maybeAttachCurrentThreadAndFetchEnv(JNIEnv** env) {
+static bool maybe_attach_current_thread_and_fetch_env(JNIEnv** env) {
 
   jint res = (*javaVM)->GetEnv(javaVM, (void**)env, JNI_VERSION_1_6);
   if(res==JNI_OK) return false;
@@ -47,7 +47,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
   javaVM=vm;
 
   JNIEnv* env;
-  bool attached=maybeAttachCurrentThreadAndFetchEnv(&env);
+  bool attached=maybe_attach_current_thread_and_fetch_env(&env);
   if(!env) return 0;
 
   onexBGClass = (jclass)(*env)->NewGlobalRef(env, (*env)->FindClass(env, "network/object/onexos/OnexBG"));
@@ -57,10 +57,10 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
   return JNI_VERSION_1_6;
 }
 
-void sprintExternalStorageDirectory(char* buf, int buflen, const char* format) {
+void sprint_external_storage_directory(char* buf, int buflen, const char* format) {
 
   JNIEnv* env;
-  bool attached=maybeAttachCurrentThreadAndFetchEnv(&env);
+  bool attached=maybe_attach_current_thread_and_fetch_env(&env);
   if(!env) return;
 
   jclass osEnvClass = (*env)->FindClass(env, "android/os/Environment");

@@ -1,5 +1,5 @@
-#ifndef ONT_VULKAN_VULKAN
-#define ONT_VULKAN_VULKAN
+#ifndef ONT_ONX_VULKAN
+#define ONT_ONX_VULKAN
 
 /* Platform-independent Vulkan common code */
 

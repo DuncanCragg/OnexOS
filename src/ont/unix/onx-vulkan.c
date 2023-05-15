@@ -1,7 +1,7 @@
 // ------------------------------------------------------------------------------------------------------------------------------------
 
 #include "ont/unix/user-vk-common.h"
-#include "ont/unix/vulkan/vulkan.h"
+#include "ont/unix/onx-vulkan.h"
 
 #include <onex-kernel/log.h>
 

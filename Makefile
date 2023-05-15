@@ -41,13 +41,13 @@ SOURCES_ONX_X86 = \
 HEADERS_ONX_ARM = \
   ./src/ont/unix/outline.h \
   ./src/ont/unix/geometry.h \
-  ./src/ont/unix/vulkan/vulkan.h \
+  ./src/ont/unix/onx-vulkan.h \
   ./src/onl/mobile/hwc.h \
 
 HEADERS_ONX_X86 = \
   ./src/ont/unix/outline.h \
   ./src/ont/unix/geometry.h \
-  ./src/ont/unix/vulkan/vulkan.h \
+  ./src/ont/unix/onx-vulkan.h \
 
 #-------------------------------------------------------------------------------
 

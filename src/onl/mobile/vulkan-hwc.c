@@ -23,7 +23,7 @@
 
 #include <onex-kernel/log.h>
 
-#include "ont/unix/vulkan/vulkan_up.h"
+#include "ont/unix/vulkan/vulkan.h"
 #include "onl/onl.h"
 
 ANativeWindow* window;

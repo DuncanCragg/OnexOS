@@ -37,8 +37,6 @@ extern VkExtent2D swapchain_extent;
 
 extern bool prepared;
 
-void ont_vk_restart();
-
 void onx_prepare_swapchain_images(bool restart);
 void onx_prepare_semaphores_and_fences(bool restart);
 void onx_prepare_command_buffers(bool restart);

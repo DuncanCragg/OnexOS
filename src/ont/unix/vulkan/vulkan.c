@@ -860,8 +860,6 @@ static void prepare(bool restart) {
   end_command_buffer();
 
   prepared = true;
-
-  onx_init(restart);
 }
 
 static void cleanup(bool restart) {
@@ -889,6 +887,7 @@ void ont_vk_loop(bool running) {
 
   if(running && !prepared){
     prepare(false);
+    onx_init();
   }
   else
   if(!running && prepared){

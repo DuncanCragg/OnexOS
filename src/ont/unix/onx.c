@@ -77,6 +77,8 @@ void init_onex() {
   }
 
   time_ticker(every_second, 1000);
+
+  onex_run_evaluators(userUID, 0);
 }
 
 void loop_onex(){
@@ -98,12 +100,11 @@ static void* loop_onex_thread(void* d) {
   return 0;
 }
 
-void onx_init(bool restart){
-  if(!restart){
-    init_onex();
-    pthread_create(&loop_onex_thread_id, 0, loop_onex_thread, 0);
-  }
-  onex_run_evaluators(userUID, 0);
+void onx_init(){
+#if !defined(__ANDROID__) // ugh!
+  init_onex();
+  pthread_create(&loop_onex_thread_id, 0, loop_onex_thread, 0);
+#endif
 }
 
 

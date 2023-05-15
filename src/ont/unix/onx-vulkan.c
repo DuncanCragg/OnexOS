@@ -331,7 +331,7 @@ struct uniforms {
 };
 
 #if defined(__ANDROID__)
-static const char* font_face = "/system/fonts/Roboto-Medium.ttf";
+static const char* font_face = "/system/fonts/SourceSansPro-Regular.ttf";
 #else
 static const char* font_face = "./fonts/Roboto-Medium.ttf";
 #endif

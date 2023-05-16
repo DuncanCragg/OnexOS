@@ -860,19 +860,24 @@ static void prepare(bool restart) {
 static void cleanup_swapchain_surface_instance(){
 
   fpDestroySwapchainKHR(device, swapchain, NULL);
+  swapchain=0;
 
   free(queue_props);
   vkDestroyCommandPool(device, command_pool, NULL);
+  command_pool=0;
 
   vkDeviceWaitIdle(device);
   vkDestroyDevice(device, NULL);
+  device=0;
+
   if (validate) {
       DestroyDebugUtilsMessengerEXT(inst, dbg_messenger, NULL);
   }
   vkDestroySurfaceKHR(inst, surface, NULL);
+  surface=0;
 
   vkDestroyInstance(inst, NULL);
-
+  inst=0;
 }
 
 void ont_vk_loop(bool running) {

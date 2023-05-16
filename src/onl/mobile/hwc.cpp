@@ -28,9 +28,8 @@
 #include "hwc.h"
 #include "logging.h"
 
-#include <onex-kernel/log.h>
-
 extern "C" {
+#include <onex-kernel/log.h>
 #include "hwc_c.h"
 }
 

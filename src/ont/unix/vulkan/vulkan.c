@@ -1,9 +1,12 @@
 
+extern void onx_init();
+extern void onx_iostate_changed();
+
 /* Platform-independent Vulkan common code */
 
 #include <onex-kernel/log.h>
 
-#include "ont/unix/onx-vulkan.h"
+#include "ont/unix/onx-vk.h"
 
 #include "ont/unix/vulkan/object_type_string_helper.h"
 #include "ont/unix/vulkan/gettime.h"
@@ -888,17 +891,17 @@ static void prepare(bool restart) {
 
   begin_command_buffer();
   {
-    onx_prepare_swapchain_images(restart);
-    onx_prepare_semaphores_and_fences(restart);
-    onx_prepare_command_buffers(restart);
-    onx_prepare_render_data(restart);
-    onx_prepare_uniform_buffers(restart);
-    onx_prepare_descriptor_layout(restart);
-    onx_prepare_descriptor_pool(restart);
-    onx_prepare_descriptor_set(restart);
-    onx_prepare_render_pass(restart);
-    onx_prepare_pipeline(restart);
-    onx_prepare_framebuffers(restart);
+    onx_vk_prepare_swapchain_images(restart);
+    onx_vk_prepare_semaphores_and_fences(restart);
+    onx_vk_prepare_command_buffers(restart);
+    onx_vk_prepare_render_data(restart);
+    onx_vk_prepare_uniform_buffers(restart);
+    onx_vk_prepare_descriptor_layout(restart);
+    onx_vk_prepare_descriptor_pool(restart);
+    onx_vk_prepare_descriptor_set(restart);
+    onx_vk_prepare_render_pass(restart);
+    onx_vk_prepare_pipeline(restart);
+    onx_vk_prepare_framebuffers(restart);
   }
   end_command_buffer();
 
@@ -911,7 +914,7 @@ static void finish(bool restart) {
 
   vkDeviceWaitIdle(device);
 
-  onx_finish();
+  onx_vk_finish();
 
   if(!restart){
 
@@ -931,7 +934,7 @@ void ont_vk_loop(bool running) {
   if(!running && prepared){
     finish(false);
   }
-  if(prepared) onx_render_frame();
+  if(prepared) onx_vk_render_frame();
 }
 
 void ont_vk_restart(){

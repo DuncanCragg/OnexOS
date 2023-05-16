@@ -16,7 +16,7 @@ TARGETS = onx-arm \
 SOURCES_ONX_ARM = \
   ./src/ont/unix/onx.c \
   ./src/ont/unix/user.c \
-  ./src/ont/unix/onx-vulkan.c \
+  ./src/ont/unix/onx-vk.c \
   ./src/ont/unix/outline.c \
   ./src/ont/unix/geometry.c \
   ./src/ont/unix/vulkan/vulkan.c \
@@ -29,7 +29,7 @@ SOURCES_ONX_ARM_CPP = \
 SOURCES_ONX_X86 = \
   ./src/ont/unix/onx.c \
   ./src/ont/unix/user.c \
-  ./src/ont/unix/onx-vulkan.c \
+  ./src/ont/unix/onx-vk.c \
   ./src/ont/unix/outline.c \
   ./src/ont/unix/geometry.c \
   ./src/ont/unix/vulkan/vulkan.c \
@@ -41,13 +41,13 @@ SOURCES_ONX_X86 = \
 HEADERS_ONX_ARM = \
   ./src/ont/unix/outline.h \
   ./src/ont/unix/geometry.h \
-  ./src/ont/unix/onx-vulkan.h \
+  ./src/ont/unix/onx-vk.h \
   ./src/onl/mobile/hwc.h \
 
 HEADERS_ONX_X86 = \
   ./src/ont/unix/outline.h \
   ./src/ont/unix/geometry.h \
-  ./src/ont/unix/onx-vulkan.h \
+  ./src/ont/unix/onx-vk.h \
 
 #-------------------------------------------------------------------------------
 

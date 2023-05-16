@@ -2,7 +2,7 @@
 
 #include "ont/unix/user-vk-common.h"
 #include "ont/unix/vulkan/vulkan.h"
-#include "ont/unix/onx-vulkan.h"
+#include "ont/unix/onx-vk.h"
 
 #include <onex-kernel/log.h>
 
@@ -214,7 +214,7 @@ void set_up_scene_end() {
   pthread_mutex_unlock(&scene_lock);
 }
 
-void onx_render_frame() {
+void onx_vk_render_frame() {
 
   VkFence previous_fence = swapchain_image_resources[image_index].command_buffer_fence;
   vkWaitForFences(device, 1, &previous_fence, VK_TRUE, UINT64_MAX);
@@ -911,7 +911,7 @@ static void prepare_vertex_buffers(){
 
 // --------------------------------------------------------------------------------------------------------
 
-void onx_prepare_swapchain_images(bool restart) {
+void onx_vk_prepare_swapchain_images(bool restart) {
     VkResult err;
     err = vkGetSwapchainImagesKHR(device, swapchain, &image_count, NULL);
     assert(!err);
@@ -950,7 +950,7 @@ void onx_prepare_swapchain_images(bool restart) {
     }
 }
 
-void onx_prepare_semaphores_and_fences(bool restart) {
+void onx_vk_prepare_semaphores_and_fences(bool restart) {
 
   VkFenceCreateInfo fence_ci = {
       .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -971,7 +971,7 @@ void onx_prepare_semaphores_and_fences(bool restart) {
   VK_CHECK(vkCreateSemaphore(device, &semaphore_ci, 0, &render_complete_semaphore));
 }
 
-void onx_prepare_command_buffers(bool restart){
+void onx_vk_prepare_command_buffers(bool restart){
 
   VkCommandBufferAllocateInfo command_buffer_ai = {
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -990,7 +990,7 @@ void onx_prepare_command_buffers(bool restart){
   }
 }
 
-void onx_prepare_render_data(bool restart) {
+void onx_vk_prepare_render_data(bool restart) {
 
   VkPhysicalDeviceProperties gpu_props;
   vkGetPhysicalDeviceProperties(gpu, &gpu_props);
@@ -1005,7 +1005,7 @@ void onx_prepare_render_data(bool restart) {
   prepare_textures();
 }
 
-void onx_prepare_uniform_buffers(bool restart) {
+void onx_vk_prepare_uniform_buffers(bool restart) {
 
   prepare_vertex_buffers();
 
@@ -1025,7 +1025,7 @@ void onx_prepare_uniform_buffers(bool restart) {
   }
 }
 
-void onx_prepare_descriptor_layout(bool restart) {
+void onx_vk_prepare_descriptor_layout(bool restart) {
 
   VkDescriptorSetLayoutBinding bindings[] = {
       {
@@ -1094,7 +1094,7 @@ void onx_prepare_descriptor_layout(bool restart) {
                                   &pipeline_layout));
 }
 
-void onx_prepare_descriptor_pool(bool restart) {
+void onx_vk_prepare_descriptor_pool(bool restart) {
 
   VkDescriptorPoolSize pool_sizes[] = {
       { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -1116,7 +1116,7 @@ void onx_prepare_descriptor_pool(bool restart) {
   VK_CHECK(vkCreateDescriptorPool(device, &descriptor_pool_ci, NULL, &descriptor_pool));
 }
 
-void onx_prepare_descriptor_set(bool restart) {
+void onx_vk_prepare_descriptor_set(bool restart) {
 
   VkDescriptorSetAllocateInfo descriptor_set_ai = {
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
@@ -1217,7 +1217,7 @@ void onx_prepare_descriptor_set(bool restart) {
   }
 }
 
-void onx_prepare_render_pass(bool restart) {
+void onx_vk_prepare_render_pass(bool restart) {
     const VkAttachmentDescription attachments[2] = {
         [0] =
             {
@@ -1305,7 +1305,7 @@ void onx_prepare_render_pass(bool restart) {
     assert(!err);
 }
 
-void onx_prepare_pipeline(bool restart) {
+void onx_vk_prepare_pipeline(bool restart) {
 
   VkShaderModule vert_shader_module = load_c_shader(false);
   VkShaderModule frag_shader_module = load_c_shader(true);
@@ -1478,7 +1478,7 @@ void onx_prepare_pipeline(bool restart) {
   vkDestroyShaderModule(device, vert_shader_module, NULL);
 }
 
-void onx_prepare_framebuffers(bool restart) {
+void onx_vk_prepare_framebuffers(bool restart) {
     VkImageView attachments[2];
     attachments[1] = depth.image_view;
 
@@ -1504,11 +1504,11 @@ void onx_prepare_framebuffers(bool restart) {
 
 // ----------------------------------------------------------------------------------------
 
-void onx_finish() {
+void onx_vk_finish() {
 
   scene_ready = false;
 
-  log_write("onx_finish\n");
+  log_write("onx_vk_finish\n");
 
   for (uint32_t i = 0; i < image_count; i++) {
     vkWaitForFences(device, 1, &swapchain_image_resources[i].command_buffer_fence, VK_TRUE, UINT64_MAX);

@@ -1,8 +1,6 @@
 #ifndef ONT_ONX_VULKAN
 #define ONT_ONX_VULKAN
 
-/* Platform-independent Vulkan common code */
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,21 +43,18 @@ extern VkExtent2D swapchain_extent;
 
 extern bool prepared;
 
-void onx_prepare_swapchain_images(bool restart);
-void onx_prepare_semaphores_and_fences(bool restart);
-void onx_prepare_command_buffers(bool restart);
-void onx_prepare_render_data(bool restart);
-void onx_prepare_uniform_buffers(bool restart);
-void onx_prepare_descriptor_layout(bool restart);
-void onx_prepare_descriptor_pool(bool restart);
-void onx_prepare_descriptor_set(bool restart);
-void onx_prepare_render_pass(bool restart);
-void onx_prepare_pipeline(bool restart);
-void onx_prepare_framebuffers(bool restart);
-
-void onx_init();
-void onx_render_frame();
-void onx_iostate_changed();
-void onx_finish();
+void onx_vk_prepare_swapchain_images(bool restart);
+void onx_vk_prepare_semaphores_and_fences(bool restart);
+void onx_vk_prepare_command_buffers(bool restart);
+void onx_vk_prepare_render_data(bool restart);
+void onx_vk_prepare_uniform_buffers(bool restart);
+void onx_vk_prepare_descriptor_layout(bool restart);
+void onx_vk_prepare_descriptor_pool(bool restart);
+void onx_vk_prepare_descriptor_set(bool restart);
+void onx_vk_prepare_render_pass(bool restart);
+void onx_vk_prepare_pipeline(bool restart);
+void onx_vk_prepare_framebuffers(bool restart);
+void onx_vk_render_frame();
+void onx_vk_finish();
 
 #endif

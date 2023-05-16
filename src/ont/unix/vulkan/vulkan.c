@@ -908,10 +908,12 @@ static void finish(bool restart) {
 }
 
 void ont_vk_restart(){
+#if !defined(__ANDROID__)
+  log_write("ont_vk_restart()\n");
 
   finish(true);
-
   prepare(true);
+#endif
 }
 
 void ont_vk_iostate_changed() {

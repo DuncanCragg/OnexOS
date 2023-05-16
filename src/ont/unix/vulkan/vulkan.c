@@ -862,9 +862,7 @@ static void prepare(bool restart) {
   prepared = true;
 }
 
-static void cleanup(bool restart) {
-
-  if(restart) return;
+static void cleanup_swapchain_surface_instance(){
 
   fpDestroySwapchainKHR(device, swapchain, NULL);
 
@@ -904,7 +902,9 @@ static void finish(bool restart) {
 
   onx_finish();
 
-  cleanup(restart);
+  if(!restart){
+    cleanup_swapchain_surface_instance();
+  }
 }
 
 void ont_vk_restart(){

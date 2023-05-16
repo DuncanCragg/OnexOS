@@ -78,8 +78,6 @@ PFN_vkSetDebugUtilsObjectNameEXT SetDebugUtilsObjectNameEXT;
 
 VkDebugUtilsMessengerEXT dbg_messenger;
 
-static void finish(bool restart);
-
 static PFN_vkGetDeviceProcAddr g_gdpa = NULL;
 
 static int validation_error = 0;
@@ -880,19 +878,6 @@ static void prepare(bool restart) {
   prepared = true;
 }
 
-void ont_vk_loop(bool running) {
-
-  if(running && !prepared){
-    prepare(false);
-    onx_init();
-  }
-  else
-  if(!running && prepared){
-    finish(false);
-  }
-  if(prepared) onx_render_frame();
-}
-
 static void finish(bool restart) {
 
   prepared = false;
@@ -907,6 +892,19 @@ static void finish(bool restart) {
 
     onl_finish();
   }
+}
+
+void ont_vk_loop(bool running) {
+
+  if(running && !prepared){
+    prepare(false);
+    onx_init();
+  }
+  else
+  if(!running && prepared){
+    finish(false);
+  }
+  if(prepared) onx_render_frame();
 }
 
 void ont_vk_restart(){

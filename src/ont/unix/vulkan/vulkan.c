@@ -1,7 +1,4 @@
 
-extern void onx_init();
-extern void onx_iostate_changed();
-
 /* Platform-independent Vulkan common code */
 
 #include <onex-kernel/log.h>
@@ -923,6 +920,9 @@ static void finish(bool restart) {
     onl_finish();
   }
 }
+
+extern void onx_init();
+extern void onx_iostate_changed();
 
 void ont_vk_loop(bool running) {
 

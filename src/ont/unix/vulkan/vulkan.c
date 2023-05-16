@@ -873,7 +873,6 @@ static void cleanup_swapchain_surface_instance(){
 
   vkDestroyInstance(inst, NULL);
 
-  onl_finish();
 }
 
 void ont_vk_loop(bool running) {
@@ -898,7 +897,10 @@ static void finish(bool restart) {
   onx_finish();
 
   if(!restart){
+
     cleanup_swapchain_surface_instance();
+
+    onl_finish();
   }
 }
 

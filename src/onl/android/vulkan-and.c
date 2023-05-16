@@ -79,6 +79,7 @@ void handle_app_command(struct android_app* app, int32_t cmd) {
       break;
     case APP_CMD_TERM_WINDOW:
       log_write("APP_CMD_TERM_WINDOW");
+      window=0;
       break;
     case APP_CMD_DESTROY:
       log_write("APP_CMD_DESTROY");
@@ -157,33 +158,34 @@ int32_t handle_app_input(struct android_app* app, AInputEvent* event) {
 
 static void event_loop(){
 
-  while(!quit){
-
-    ont_vk_loop(!!window);
+  while(true){
 
     int ident;
     int events;
     struct android_poll_source* source;
-    bool destroy = false;
+    bool destroy_requested=false;
     while((ident=ALooper_pollAll(focused? 0: 200, 0, &events, (void**)&source)) >= 0){
 
-      if(source) {
-        source->process(android_app_state, source);
-      }
+      if(source) source->process(android_app_state, source);
+
       if(android_app_state->destroyRequested) {
-        log_write("Android app destroy requested");
-        destroy = true;
+        log_write("destroy requested");
+        destroy_requested=true;
         break;
       }
     }
+
+    ont_vk_loop(!!window); // && focused? i.e. finish(true) - like temp restart
+
+    if(destroy_requested) return;
+
+/*
     if(!focused){
       if(ident==ALOOPER_POLL_TIMEOUT) continue;
     }
-    if(destroy) break;
+*/
   }
-  ont_vk_loop(false);
 }
-
 
 void android_main(struct android_app* state) {
 
@@ -199,7 +201,6 @@ void android_main(struct android_app* state) {
 void onl_exit(int n){
   log_write("--------\nEnding onx (OnexOS)\n---------\n");
   ANativeActivity_finish(android_app_state->activity);
-  quit=true;
 }
 
 

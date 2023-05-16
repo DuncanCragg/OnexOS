@@ -176,20 +176,16 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_messenger_callback(VkDebugUtilsMessa
 }
 
 static void prepare_swapchain() {
-    VkResult err;
     VkSwapchainKHR oldSwapchain = swapchain;
 
     VkSurfaceCapabilitiesKHR surfCapabilities;
-    err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &surfCapabilities);
-    assert(!err);
+    VK_CHECK(fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &surfCapabilities));
 
     uint32_t presentModeCount;
-    err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, NULL);
-    assert(!err);
+    VK_CHECK(fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, NULL));
     VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
     assert(presentModes);
-    err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, presentModes);
-    assert(!err);
+    VK_CHECK(fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, presentModes));
 
     // width and height are either both 0xFFFFFFFF, or both not 0xFFFFFFFF.
     if (surfCapabilities.currentExtent.width == 0xFFFFFFFF) {
@@ -319,8 +315,7 @@ static void prepare_swapchain() {
         .oldSwapchain = oldSwapchain,
         .clipped = true,
     };
-    err = fpCreateSwapchainKHR(device, &swapchain_ci, NULL, &swapchain);
-    assert(!err);
+    VK_CHECK(fpCreateSwapchainKHR(device, &swapchain_ci, NULL, &swapchain));
 
     // If we just re-created an existing swapchain, we should destroy the old
     // swapchain at this point.

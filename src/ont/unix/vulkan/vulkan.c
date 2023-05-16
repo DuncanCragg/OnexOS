@@ -896,11 +896,6 @@ void ont_vk_loop(bool running) {
   if(prepared) onx_render_frame();
 }
 
-void ont_vk_iostate_changed() {
-
-  onx_iostate_changed();
-}
-
 static void finish(bool restart) {
 
   prepared = false;
@@ -917,5 +912,10 @@ void ont_vk_restart(){
   finish(true);
 
   prepare(true);
+}
+
+void ont_vk_iostate_changed() {
+
+  onx_iostate_changed();
 }
 

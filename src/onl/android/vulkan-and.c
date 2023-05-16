@@ -27,6 +27,11 @@ ANativeWindow* window=0;
 struct android_app* android_app_state;
 
 void onl_init(){
+  log_write("=========== onl_init: prepare(false)\n");
+}
+
+void onl_finish() {
+  log_write("=========== onl_finish: finish(false)\n");
 }
 
 void onl_create_window(){
@@ -179,8 +184,6 @@ static void event_loop(){
   ont_vk_loop(false);
 }
 
-void onl_finish() {
-}
 
 void android_main(struct android_app* state) {
 

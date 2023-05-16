@@ -162,7 +162,7 @@ void load_font(const char * font_face, uint32_t alignment) {
   for (uint32_t i = 0; i < num_glyph_chars; i++) {
 
       char c = ' ' + i;
-      log_write("%c", c);
+      // log_write("%c", c);
 
       fd_Outline *o = &outlines[i];
       fd_HostGlyphInfo *hgi = &glyph_infos[i];

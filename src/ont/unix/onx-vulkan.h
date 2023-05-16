@@ -29,7 +29,7 @@
   do {  \
     VkResult res = (r); \
     if(res != VK_SUCCESS){  \
-       log_write("r=%d @ line %d\n", r, __LINE__); \
+       log_write("r=%d %s:%d\n", r, __FILE__, __LINE__); \
        onl_exit(1);  \
     }  \
   } while (0)

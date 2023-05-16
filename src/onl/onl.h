@@ -1,5 +1,5 @@
-#ifndef ONL_ONL_H
-#define ONL_ONL_H
+#ifndef ONL_H
+#define ONL_H
 
 #include <vulkan/vulkan.h>
 

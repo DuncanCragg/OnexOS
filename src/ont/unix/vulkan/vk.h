@@ -1,5 +1,5 @@
-#ifndef ONT_VULKAN_VULKAN
-#define ONT_VULKAN_VULKAN
+#ifndef ONT_VK
+#define ONT_VK
 
 void ont_vk_loop(bool running);
 void ont_vk_iostate_changed();

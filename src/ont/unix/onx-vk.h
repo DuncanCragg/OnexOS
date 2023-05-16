@@ -1,5 +1,5 @@
-#ifndef ONT_ONX_VULKAN
-#define ONT_ONX_VULKAN
+#ifndef ONX_VK
+#define ONX_VK
 
 #define _GNU_SOURCE
 #include <stdio.h>

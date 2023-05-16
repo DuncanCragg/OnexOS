@@ -16,8 +16,8 @@
  * limitations under the License.
  *
  */
-#ifndef __LIBHYBRIS_TEST_COMMON_H
-#define __LIBHYBRIS_TEST_COMMON_H
+#ifndef HWC_H
+#define HWC_H
 
 #include <EGL/egl.h>
 #include <hwcomposer_window.h>

@@ -1,6 +1,6 @@
 // -----------------------------------------------------------
 
-#include "ont/unix/user-vk-common.h"
+#include "ont/unix/user-onx-vk.h"
 #include "ont/unix/linmath-plus.h"
 
 #include <onex-kernel/time.h>

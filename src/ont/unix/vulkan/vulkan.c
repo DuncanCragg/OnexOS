@@ -16,22 +16,26 @@ bool validate = true;
 bool validate = false;
 #endif
 
-#define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                              \
-    {                                                                                                         \
-        fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(inst, "vk" #entrypoint);             \
-        if (fp##entrypoint == NULL) {                                                                   \
-            ERR_EXIT("vkGetInstanceProcAddr failed to find vk" #entrypoint); \
-        }                                                                                                     \
-    }
+#define GET_INSTANCE_PROC_ADDR(inst, entrypoint) \
+  { \
+    fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(inst, "vk" #entrypoint); \
+    if (fp##entrypoint == NULL) {  \
+      ERR_EXIT("vkGetInstanceProcAddr failed to find vk" #entrypoint); \
+    } \
+ }
 
-#define GET_DEVICE_PROC_ADDR(dev, entrypoint)                                                                    \
-    {                                                                                                            \
-        if (!g_gdpa) g_gdpa = (PFN_vkGetDeviceProcAddr)vkGetInstanceProcAddr(inst, "vkGetDeviceProcAddr"); \
-        fp##entrypoint = (PFN_vk##entrypoint)g_gdpa(dev, "vk" #entrypoint);                                \
-        if (fp##entrypoint == NULL) {                                                                      \
-            ERR_EXIT("vkGetDeviceProcAddr failed to find vk" #entrypoint);        \
-        }                                                                                                        \
-    }
+static PFN_vkGetDeviceProcAddr vkgdpa = NULL;
+
+#define GET_DEVICE_PROC_ADDR(dev, entrypoint) \
+  { \
+    if(!vkgdpa){ \
+      vkgdpa=(PFN_vkGetDeviceProcAddr)vkGetInstanceProcAddr(inst, "vkGetDeviceProcAddr"); \
+    } \
+    fp##entrypoint = (PFN_vk##entrypoint)vkgdpa(dev, "vk" #entrypoint); \
+    if(fp##entrypoint == NULL) { \
+      ERR_EXIT("vkGetDeviceProcAddr failed to find vk" #entrypoint); \
+    } \
+  }
 
 #define MILLION 1000000L
 #define BILLION 1000000000L
@@ -78,8 +82,6 @@ PFN_vkSetDebugUtilsObjectNameEXT SetDebugUtilsObjectNameEXT;
 
 VkDebugUtilsMessengerEXT dbg_messenger;
 
-static PFN_vkGetDeviceProcAddr g_gdpa = NULL;
-
 static int validation_error = 0;
 
 static char const *gpu_type_to_string(VkPhysicalDeviceType const type) {
@@ -99,10 +101,11 @@ static char const *gpu_type_to_string(VkPhysicalDeviceType const type) {
     }
 }
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL debug_messenger_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                                    VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                                    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                                                                    void *pUserData) {
+static VKAPI_ATTR VkBool32 VKAPI_CALL debug_messenger_callback(
+                                VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                void *pUserData) {
     char prefix[64] = "";
     char *message = (char *)malloc(strlen(pCallbackData->pMessage) + 5000);
     assert(message);
@@ -132,17 +135,27 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_messenger_callback(VkDebugUtilsMessa
         }
     }
 
-    sprintf(message, "%s - Message Id Number: %d | Message Id Name: %s\n\t%s\n", prefix, pCallbackData->messageIdNumber,
-            pCallbackData->pMessageIdName, pCallbackData->pMessage);
+    sprintf(message,
+            "%s - Message Id Number: %d | Message Id Name: %s\n\t%s\n",
+            prefix,
+            pCallbackData->messageIdNumber,
+            pCallbackData->pMessageIdName,
+            pCallbackData->pMessage);
+
     if (pCallbackData->objectCount > 0) {
+
         char tmp_message[500];
         sprintf(tmp_message, "\n\tObjects - %d\n", pCallbackData->objectCount);
         strcat(message, tmp_message);
         for (uint32_t object = 0; object < pCallbackData->objectCount; ++object) {
-            if (NULL != pCallbackData->pObjects[object].pObjectName && strlen(pCallbackData->pObjects[object].pObjectName) > 0) {
-                sprintf(tmp_message, "\t\tObject[%d] - %s, Handle %p, Name \"%s\"\n", object,
+            if(pCallbackData->pObjects[object].pObjectName &&
+               strlen(pCallbackData->pObjects[object].pObjectName) > 0) {
+              sprintf(tmp_message,
+                       "\t\tObject[%d] - %s, Handle %p, Name \"%s\"\n",
+                        object,
                         string_VkObjectType(pCallbackData->pObjects[object].objectType),
-                        (void *)(pCallbackData->pObjects[object].objectHandle), pCallbackData->pObjects[object].pObjectName);
+                        (void *)(pCallbackData->pObjects[object].objectHandle),
+                        pCallbackData->pObjects[object].pObjectName);
             } else {
                 sprintf(tmp_message, "\t\tObject[%d] - %s, Handle %p\n", object,
                         string_VkObjectType(pCallbackData->pObjects[object].objectType),
@@ -152,14 +165,28 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_messenger_callback(VkDebugUtilsMessa
         }
     }
     if (pCallbackData->cmdBufLabelCount > 0) {
+
         char tmp_message[500];
-        sprintf(tmp_message, "\n\tCommand Buffer Labels - %d\n", pCallbackData->cmdBufLabelCount);
+
+        sprintf(tmp_message,
+                "\n\tCommand Buffer Labels - %d\n",
+                pCallbackData->cmdBufLabelCount);
+
         strcat(message, tmp_message);
-        for (uint32_t cmd_buf_label = 0; cmd_buf_label < pCallbackData->cmdBufLabelCount; ++cmd_buf_label) {
-            sprintf(tmp_message, "\t\tLabel[%d] - %s { %f, %f, %f, %f}\n", cmd_buf_label,
-                    pCallbackData->pCmdBufLabels[cmd_buf_label].pLabelName, pCallbackData->pCmdBufLabels[cmd_buf_label].color[0],
-                    pCallbackData->pCmdBufLabels[cmd_buf_label].color[1], pCallbackData->pCmdBufLabels[cmd_buf_label].color[2],
+
+        for (uint32_t cmd_buf_label = 0;
+             cmd_buf_label < pCallbackData->cmdBufLabelCount;
+             ++cmd_buf_label) {
+
+            sprintf(tmp_message,
+                    "\t\tLabel[%d] - %s { %f, %f, %f, %f}\n",
+                    cmd_buf_label,
+                    pCallbackData->pCmdBufLabels[cmd_buf_label].pLabelName,
+                    pCallbackData->pCmdBufLabels[cmd_buf_label].color[0],
+                    pCallbackData->pCmdBufLabels[cmd_buf_label].color[1],
+                    pCallbackData->pCmdBufLabels[cmd_buf_label].color[2],
                     pCallbackData->pCmdBufLabels[cmd_buf_label].color[3]);
+
             strcat(message, tmp_message);
         }
     }
@@ -909,8 +936,6 @@ void ont_vk_loop(bool running) {
 
 void ont_vk_restart(){
 #if !defined(__ANDROID__)
-  log_write("ont_vk_restart()\n");
-
   finish(true);
   prepare(true);
 #endif

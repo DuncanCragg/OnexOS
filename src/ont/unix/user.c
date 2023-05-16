@@ -162,7 +162,7 @@ void load_font(const char * font_face, uint32_t alignment) {
   for (uint32_t i = 0; i < num_glyph_chars; i++) {
 
       char c = ' ' + i;
-      printf("%c", c);
+      log_write("%c", c);
 
       fd_Outline *o = &outlines[i];
       fd_HostGlyphInfo *hgi = &glyph_infos[i];
@@ -178,7 +178,7 @@ void load_font(const char * font_face, uint32_t alignment) {
       total_points += o->num_of_points;
       total_cells += o->cell_count_x * o->cell_count_y;
   }
-  printf("\n");
+  log_write("\n");
 
   glyph_info_size = sizeof(fd_DeviceGlyphInfo) * num_glyph_chars;
   glyph_cells_size = sizeof(uint32_t) * total_cells;
@@ -469,9 +469,9 @@ bool evaluate_user(object* o, void* d) {
 // ---------------------------------
 
 static void show_matrix(mat4x4 m){
-  printf("/---------------------\\\n");
-  for(uint32_t i=0; i<4; i++) printf("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
-  printf("\\---------------------/\n");
+  log_write("/---------------------\\\n");
+  for(uint32_t i=0; i<4; i++) log_write("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
+  log_write("\\---------------------/\n");
 }
 
 // ---------------------------------
@@ -513,7 +513,7 @@ static float dwell(float delta, float width){
 
 void onx_iostate_changed() {
   /*
-  printf("onx_iostate_changed %d' [%d,%d][%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
+  log_write("onx_iostate_changed %d' [%d,%d][%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
            io.rotation_angle,
            io.view_width, io.view_height, io.swap_width, io.swap_height,
            io.mouse_x, io.mouse_y,

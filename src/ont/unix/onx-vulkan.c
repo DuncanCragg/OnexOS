@@ -1508,7 +1508,7 @@ void onx_finish() {
 
   scene_ready = false;
 
-  printf("onx_finish\n");
+  log_write("onx_finish\n");
 
   for (uint32_t i = 0; i < image_count; i++) {
     vkWaitForFences(device, 1, &swapchain_image_resources[i].command_buffer_fence, VK_TRUE, UINT64_MAX);

@@ -27,6 +27,9 @@
 
 #include "hwc.h"
 #include "logging.h"
+
+#include <onex-kernel/log.h>
+
 extern "C" {
 #include "hwc_c.h"
 }
@@ -119,7 +122,7 @@ void HWComposer2::present(HWComposerNativeWindowBuffer *buffer)
 void onVsyncReceived(HWC2EventListener* listener, int32_t sequenceId,
                      hwc2_display_t display, int64_t timestamp)
 {
-  printf("onVsyncReceived %ld\n", timestamp);
+  log_write("onVsyncReceived %ld\n", timestamp);
 }
 
 void onHotplugReceived(HWC2EventListener* listener, int32_t sequenceId,
@@ -167,7 +170,7 @@ HWComposer2 *create_hwcomposer_window() {
 
   HWC2DisplayConfig* config = hwc2_compat_display_get_active_config(display);
 
-  printf("HWC: swap_width: %i swap_height: %i\n", config->width, config->height);
+  log_write("HWC: swap_width: %i swap_height: %i\n", config->width, config->height);
 
   hwc2_compat_layer_t* layer = hwc2_compat_display_create_layer(display);
 

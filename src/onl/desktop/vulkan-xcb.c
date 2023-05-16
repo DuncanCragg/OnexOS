@@ -24,7 +24,7 @@ xcb_window_t      window;
 xcb_intern_atom_reply_t *atom_wm_delete_window;
 
 static void sigint_handler(int signal, siginfo_t *siginfo, void *userdata) {
-  printf("\nEnd\n");
+  log_write("\nEnd\n");
   quit = true;
 }
 
@@ -45,7 +45,7 @@ static void xcb_init(){
   connection = xcb_connect(NULL, &scr);
 
   if(xcb_connection_has_error(connection)){
-      printf("Cannot connect to XCB\n");
+      log_write("Cannot connect to XCB\n");
       fflush(stdout);
       onl_exit(1);
   }

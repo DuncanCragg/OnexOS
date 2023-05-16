@@ -29,7 +29,7 @@
 ANativeWindow* window;
 
 static void sighandler(int signal, siginfo_t *siginfo, void *userdata) {
-  printf("\nEnd\n");
+  log_write("\nEnd\n");
   quit = true;
 }
 
@@ -82,12 +82,12 @@ static void init_libinput(){
           const char* devpath    = udev_device_get_devnode(udevice);
           const char* touch_prop = udev_device_get_property_value(udevice, "ID_INPUT_TOUCHSCREEN");
 
-          printf("found touchscreen at %s touchscreen prop %s\n", devpath, touch_prop? touch_prop: "none");
+          log_write("found touchscreen at %s touchscreen prop %s\n", devpath, touch_prop? touch_prop: "none");
         }
         break;
       }
       default: {
-        printf("event that isn't device added!\n");
+        log_write("event that isn't device added!\n");
         break;
       }
     }
@@ -112,7 +112,7 @@ void onl_create_window(){
   int r = eglInitialize(display, 0, 0);
 
   if(!window || r!=EGL_TRUE || eglGetError() != EGL_SUCCESS){
-    printf("eglInitialize didn't work\n"); onl_exit(-1);
+    log_write("eglInitialize didn't work\n"); onl_exit(-1);
   }
 
   hwc_display_on();
@@ -245,7 +245,7 @@ static void handle_libinput_event(struct libinput_event* event) {
         ont_vk_iostate_changed();
       }
       else{
-        printf("%s (%d) %s\n", keyname, key, state == LIBINPUT_KEY_STATE_PRESSED? "pressed": "released");
+        log_write("%s (%d) %s\n", keyname, key, state == LIBINPUT_KEY_STATE_PRESSED? "pressed": "released");
       }
       break;
     }
@@ -254,7 +254,7 @@ static void handle_libinput_event(struct libinput_event* event) {
     }
     default: {
       uint32_t e = libinput_event_get_type(event);
-      printf("other event: %d\n", e);
+      log_write("other event: %d\n", e);
     }
   }
 }

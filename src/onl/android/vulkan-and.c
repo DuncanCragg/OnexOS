@@ -39,7 +39,7 @@ void onl_create_window(){
   // window not created here but when android event comes in
 
   io.swap_width =1080;
-  io.swap_height=1920;
+  io.swap_height=2160;
 
   set_io_rotation(0);
 }
@@ -101,21 +101,31 @@ int32_t handle_app_input(struct android_app* app, AInputEvent* event) {
         int32_t action = AMotionEvent_getAction(event);
 
         switch (action) {
-          case AMOTION_EVENT_ACTION_UP: {
-            return 1;
-          }
           case AMOTION_EVENT_ACTION_DOWN: {
+            io.left_pressed=true;
+            int32_t event_x = AMotionEvent_getX(event, 0);
+            int32_t event_y = AMotionEvent_getY(event, 0);
+            set_io_mouse(event_x, event_y);
+            ont_vk_iostate_changed();
             break;
           }
           case AMOTION_EVENT_ACTION_MOVE: {
-            int32_t eventX = AMotionEvent_getX(event, 0);
-            int32_t eventY = AMotionEvent_getY(event, 0);
+            int32_t event_x = AMotionEvent_getX(event, 0);
+            int32_t event_y = AMotionEvent_getY(event, 0);
+            set_io_mouse(event_x, event_y);
+            ont_vk_iostate_changed();
+            break;
+          }
+          case AMOTION_EVENT_ACTION_UP: {
+            io.left_pressed=false;
+            ont_vk_iostate_changed();
             break;
           }
           default:
             return 1;
             break;
         }
+        break;
       }
       return 1;
     }
@@ -134,6 +144,10 @@ int32_t handle_app_input(struct android_app* app, AInputEvent* event) {
     }
 
     switch (keyCode) {
+    case 25:
+      set_io_rotation(io.rotation_angle? 0: 90);
+      ont_vk_iostate_changed();
+      break;
     case AKEYCODE_BACK:
       break;
     case AKEYCODE_BUTTON_A:

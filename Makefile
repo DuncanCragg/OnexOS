@@ -19,7 +19,7 @@ SOURCES_ONX_ARM = \
   ./src/ont/unix/onx-vk.c \
   ./src/ont/unix/outline.c \
   ./src/ont/unix/geometry.c \
-  ./src/ont/unix/vulkan/vulkan.c \
+  ./src/ont/unix/vulkan/vk.c \
   ./src/onl/onl.c \
   ./src/onl/mobile/vulkan-hwc.c \
 
@@ -32,7 +32,7 @@ SOURCES_ONX_X86 = \
   ./src/ont/unix/onx-vk.c \
   ./src/ont/unix/outline.c \
   ./src/ont/unix/geometry.c \
-  ./src/ont/unix/vulkan/vulkan.c \
+  ./src/ont/unix/vulkan/vk.c \
   ./src/onl/onl.c \
   ./src/onl/desktop/vulkan-xcb.c \
 

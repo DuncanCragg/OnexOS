@@ -6,6 +6,7 @@
 #include "ont/unix/onx-vk.h"
 
 #include "ont/unix/vulkan/object_type_string_helper.h"
+#include "ont/unix/vulkan/vk.h"
 #include "ont/unix/vulkan/gettime.h"
 
 #include "inttypes.h"

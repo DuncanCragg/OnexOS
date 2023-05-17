@@ -114,6 +114,7 @@ SW_SOURCES = \
 ./src/ont/g2d/g2d.c \
 ./src/ont/keyboard.c \
 ./src/ont/user-2d.c \
+./src/ont/nRF5/g2d-lcd.c \
 ./src/ont/nRF5/evaluators.c \
 ./src/ont/nRF5/onx-sw.c \
 

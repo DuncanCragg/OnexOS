@@ -27,6 +27,7 @@ file(GLOB SOURCE_FILES
 "${TOP_DIR}/src/onl/android/*.c"
 "${TOP_DIR}/src/ont/unix/vulkan/*.c"
 "${TOP_DIR}/src/ont/unix/*.c"
+"${TOP_DIR}/src/ont/user-3d.c"
 )
 
 add_library(native-lib SHARED ${SOURCE_FILES})

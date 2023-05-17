@@ -27,8 +27,8 @@ SOURCES_ONX_ARM_CPP = \
   ./src/onl/mobile/hwc.cpp \
 
 SOURCES_ONX_X86 = \
-  ./src/ont/unix/onx.c \
   ./src/ont/user-3d.c \
+  ./src/ont/unix/onx.c \
   ./src/ont/unix/onx-vk.c \
   ./src/ont/unix/outline.c \
   ./src/ont/unix/geometry.c \

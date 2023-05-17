@@ -7,8 +7,6 @@
 #include <string.h>
 #include <time.h>
 
-#include <boards.h>
-
 #include <items.h>
 #include <onex-kernel/mem.h>
 #include <onex-kernel/lib.h>
@@ -151,7 +149,7 @@ static void best_propname_for_link_drop(char* propname, uint16_t len, uint16_t i
   for(uint16_t j=1; j <= ln; j++){
     char* is=object_property_get_n(user, "inventory:list:1:is", j);
     if(!strcmp(is, "editable")) continue;
-    s+=snprintf(propname+s, len-s, is);
+    s+=snprintf(propname+s, len-s, "%s", is);
     s+=snprintf(propname+s, len-s, "-");
   }
   *(propname+s-1)=0;
@@ -1309,8 +1307,8 @@ static void draw_raw(char* path, uint8_t g2d_node) {
       if(!propvalue_g2d_node) break;
 
       if(isuid){
-        static char pathbufrec[64];
-        snprintf(pathbufrec, 64, "%s:%s:%d", path, propnameesc, i);
+        static char pathbufrec[128];
+        snprintf(pathbufrec, 128, "%s:%s:%d", path, propnameesc, i);
         draw_by_type(pathbufrec, propvalue_g2d_node);
       }
       else{

@@ -107,9 +107,7 @@ panel room_wall_3 ={
 
 // -----------------------------------------
 
-object* user;
-
-char* userUID=0;
+extern object* user;
 
 static float    vertex_buffer_data[MAX_PANELS*6*6*3];
 static uint32_t vertex_buffer_end=0;
@@ -418,7 +416,7 @@ bool evaluate_user(object* o, void* d) {
 
   // model changes, vertex changes, text changes
 
-  char* ts=object_property(user, (char*)"viewing:io:ts");
+  char* ts=object_property(user, "viewing:io:ts");
   if(ts) welcome_banner.text=ts;
 
   info_board.rotation[1]+=4.0f;

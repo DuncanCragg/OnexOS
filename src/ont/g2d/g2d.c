@@ -10,9 +10,9 @@
 
 #include <onex-kernel/display.h>
 
-#include "mathlib.h"
-#include "g2d.h"
-#include "font57.h"
+#include <mathlib.h>
+#include <g2d.h>
+#include <font57.h>
 
 // ---------------------------------
 // XXX using ST7789_* here! define SCREEN_WIDTH in board file

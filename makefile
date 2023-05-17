@@ -86,6 +86,8 @@ $(SDK_INCLUDES_PINETIME) \
 INCLUDES_MAGIC3 = \
 -I./include \
 -I./src/ \
+-I./src/ont/g2d \
+-I./src/ont/nRF5 \
 -I./external \
 -I./external/fonts \
 -I./external/lvgl \
@@ -109,7 +111,7 @@ WEAR_SOURCES = \
 
 
 SW_SOURCES = \
-./src/ont/nRF5/g2d.c \
+./src/ont/g2d/g2d.c \
 ./src/ont/nRF5/keyboard.c \
 ./src/ont/nRF5/evaluators.c \
 ./src/ont/nRF5/user.c \

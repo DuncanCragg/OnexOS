@@ -19,8 +19,8 @@
 
 #include <onn.h>
 
-#include "mathlib.h"
-#include "g2d.h"
+#include <mathlib.h>
+#include <g2d.h>
 
 #define nBIG_LOG
 

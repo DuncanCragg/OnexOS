@@ -14,7 +14,7 @@
 #include <onn.h>
 #include <onr.h>
 
-#include "g2d.h"
+#include <g2d.h>
 
 char* useruid;
 

@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "g2d.h"
+#include <g2d.h>
 
 uint16_t del_this_word=0;
 char*    add_this_word=0;

@@ -13,7 +13,7 @@
 #include <onn.h>
 #include <onr.h>
 
-#include "g2d.h"
+#include <g2d.h>
 
 extern char __BUILD_TIME;
 extern char __BOOTLOADER_NUMBER;

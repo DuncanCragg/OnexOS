@@ -11,8 +11,6 @@
 
 // ------------
 
-typedef struct g2d_node g2d_node;
-
 typedef struct g2d_node {
 
   int16_t xtl;

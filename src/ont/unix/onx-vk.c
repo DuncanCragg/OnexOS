@@ -1508,8 +1508,6 @@ void onx_vk_finish() {
 
   scene_ready = false;
 
-  log_write("onx_vk_finish\n");
-
   for (uint32_t i = 0; i < image_count; i++) {
     vkWaitForFences(device, 1, &swapchain_image_resources[i].command_buffer_fence, VK_TRUE, UINT64_MAX);
     vkDestroyFence(device, swapchain_image_resources[i].command_buffer_fence, NULL);

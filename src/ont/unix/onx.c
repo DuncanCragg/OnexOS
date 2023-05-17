@@ -81,17 +81,7 @@ void init_onex() {
   onex_run_evaluators(userUID, 0);
 }
 
-void loop_onex(){
-  while(true){
-    if(!onex_loop()){
-      time_delay_ms(50); // XXX 50?
-    }
-  }
-}
-
-static pthread_t loop_onex_thread_id;
-
-static void* loop_onex_thread(void* d) {
+static void* do_onex_loop(void* d) {
   while(true){
     if(!onex_loop()){
       time_delay_ms(5);
@@ -100,11 +90,25 @@ static void* loop_onex_thread(void* d) {
   return 0;
 }
 
+#if defined(__ANDROID__)
+
+// Android - OnexBG - calls init_onex() and loop_onex() itself
+// onx_init() is an unused call-up from the event loop after prepare()
 void onx_init(){
-#if !defined(__ANDROID__) // ugh!
-  init_onex();
-  pthread_create(&loop_onex_thread_id, 0, loop_onex_thread, 0);
-#endif
 }
 
+void loop_onex(){
+  do_onex_loop(0);
+}
+
+#else
+
+static pthread_t loop_onex_thread_id;
+
+void onx_init(){
+  init_onex();
+  pthread_create(&loop_onex_thread_id, 0, do_onex_loop, 0);
+}
+
+#endif
 

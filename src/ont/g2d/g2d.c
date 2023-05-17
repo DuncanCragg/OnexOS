@@ -135,11 +135,6 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y,
 
 // ---------------------------------------------------
 
-uint16_t g2d_text_width(char* text, uint8_t size){
-  uint16_t n=strlen(text);
-  return n*6*size;
-}
-
 uint16_t g2d_node_width(uint8_t node_id){
   if(!node_id) return 0;
   return scenegraph[node_id].xbr - scenegraph[node_id].xtl;

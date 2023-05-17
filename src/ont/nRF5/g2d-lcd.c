@@ -99,4 +99,9 @@ void g2d_node_text_clipped(int16_t ox, int16_t oy,
   }
 }
 
+uint16_t g2d_text_width(char* text, uint8_t size){
+  uint16_t n=strlen(text);
+  return n*6*size;
+}
+
 // ---------------------------------------------------

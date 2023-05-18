@@ -45,9 +45,9 @@ static void set_pixel(uint16_t x, uint16_t y, uint16_t colour) {
   lcd_buffer[i+1] = colour & 0xff;
 }
 
-void g2d_node_rectangle_clipped(uint16_t cxtl, uint16_t cytl,
-                                uint16_t cxbr, uint16_t cybr,
-                                uint16_t colour){
+void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
+                            uint16_t cxbr, uint16_t cybr,
+                            uint16_t colour){
 
   for(uint16_t py = cytl; py < cybr; py++){
     for(uint16_t px = cxtl; px < cxbr; px++){
@@ -56,11 +56,11 @@ void g2d_node_rectangle_clipped(uint16_t cxtl, uint16_t cytl,
   }
 }
 
-void g2d_node_text_clipped(int16_t ox, int16_t oy,
-                           uint16_t cxtl, uint16_t cytl,
-                           uint16_t cxbr, uint16_t cybr,
-                           char* text, uint16_t colour, uint16_t bg,
-                           uint8_t size){
+void g2d_internal_text(int16_t ox, int16_t oy,
+                       uint16_t cxtl, uint16_t cytl,
+                       uint16_t cxbr, uint16_t cybr,
+                       char* text, uint16_t colour, uint16_t bg,
+                       uint8_t size){
 
   for(uint16_t p = 0; p < strlen(text); p++){
 

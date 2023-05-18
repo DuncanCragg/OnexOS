@@ -104,7 +104,7 @@ void g2d_node_rectangle(uint8_t node_id,
   uint16_t cxbr=min(xbrw, scenegraph[node_id].clip_xbr);
   uint16_t cybr=min(ybrh, scenegraph[node_id].clip_ybr);
 
-  g2d_node_rectangle_clipped(cxtl, cytl, cxbr, cybr, colour);
+  g2d_internal_rectangle(cxtl, cytl, cxbr, cybr, colour);
 }
 
 // ------------- text
@@ -128,7 +128,7 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y,
   uint16_t cxbr=scenegraph[node_id].clip_xbr;
   uint16_t cybr=scenegraph[node_id].clip_ybr;
 
-  g2d_node_text_clipped(ox, oy, cxtl, cytl, cxbr, cybr, text, colour, bg, size);
+  g2d_internal_text(ox, oy, cxtl, cytl, cxbr, cybr, text, colour, bg, size);
 }
 
 // ---------------------------------------------------

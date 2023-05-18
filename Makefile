@@ -28,6 +28,7 @@ SOURCES_ONX_ARM_CPP = \
 
 SOURCES_ONX_X86 = \
   ./src/ont/user-3d.c \
+  ./src/ont/unix/g2d-vulkan.c \
   ./src/ont/unix/onx.c \
   ./src/ont/unix/onx-vk.c \
   ./src/ont/unix/outline.c \

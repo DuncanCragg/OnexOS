@@ -57,9 +57,6 @@ SHADERS = \
   src/ont/unix/onx.vert.spv \
   src/ont/unix/onx.frag.spv \
 
-FONTS = \
-  onx/fonts/Roboto-Medium.ttf
-
 #-------------------------------------------------------------------------------
 
 INC_DIR_ARM = \
@@ -129,7 +126,7 @@ onx-arm: INC_DIR=${INC_DIR_ARM}
 onx-arm: CC=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-gcc
 onx-arm: CXX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
 onx-arm: LDX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
-onx-arm: ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${HEADERS_ONX_ARM} ${SHADERS:.spv=.o} ${FONTS}
+onx-arm: ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${HEADERS_ONX_ARM} ${SHADERS:.spv=.o}
 	@echo ================
 	@echo $@ '<=' ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${SHADERS:.spv=.o}
 	@echo -----
@@ -140,13 +137,11 @@ onx-arm: ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${HEADERS_ONX_A
 onx-x86: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
 onx-x86: INC_DIR=${INC_DIR_X86}
 onx-x86: LDX=gcc
-onx-x86: ${SOURCES_ONX_X86:.c=.o} ${HEADERS_ONX_X86} ${SHADERS:.spv=.o} ${FONTS}
+onx-x86: ${SOURCES_ONX_X86:.c=.o} ${HEADERS_ONX_X86} ${SHADERS:.spv=.o}
 	@echo ================
 	@echo $@ '<=' ${SOURCES_ONX_X86:.c=.o} ${SHADERS:.spv=.o}
 	@echo -----
 	$(LDX) -o $@ ${SOURCES_ONX_X86:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIR_X86) $(LIBS_ONX_X86)
-	mkdir -p onx
-	cp $@ onx
 
 shaderc: ${SHADERS:.spv=.c}
 	@echo ================
@@ -193,19 +188,11 @@ CPPFLAGS = -std=gnu++17 -g -O2 -pthread -Wall -Werror -Wextra -Wno-unused-parame
 	@echo -----
 	xxd -i $< > $@
 
-onx/fonts/%.ttf: assets/fonts/%.ttf
-	@echo ================
-	@echo $@ '<=' $<
-	@echo -----
-	mkdir -p onx/fonts
-	cp -a $< $@
-
 clean:
 	find . -name '*.o' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
 	rm -rf android/*/build android/*/.cxx/ android/.gradle/*/*
 	rm -rf ${TARGETS} src/ont/unix/*.{inc,spv,vert.c,frag.c} onx/
-	rm -rf onx
 	rm -f ,* */,* core bin/core
 	@echo "------------------------------"
 	@echo "files not cleaned:"

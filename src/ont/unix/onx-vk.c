@@ -333,8 +333,10 @@ struct uniforms {
 
 #if defined(__ANDROID__)
 static const char* font_face = "/system/fonts/SourceSansPro-Regular.ttf";
-#else
-static const char* font_face = "./fonts/Roboto-Medium.ttf";
+#elif defined(VK_USE_PLATFORM_XCB_KHR) // Ubuntu Desktop
+static const char* font_face = "/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf";
+#else // Ubuntu Touch
+static const char* font_face = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
 #endif
 
 static char *texture_files[] = {"ivory.ppm"};

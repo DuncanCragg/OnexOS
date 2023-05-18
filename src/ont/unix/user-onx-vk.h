@@ -6,7 +6,7 @@
 #include "onl/onl.h"
 #include "ont/unix/outline.h"
 
-#define MAX_PANELS 8
+#define MAX_PANELS 16 // TODO set src/ont/unix/onx.vert
 extern uint32_t num_panels;
 
 #define MAX_VISIBLE_GLYPHS 4096

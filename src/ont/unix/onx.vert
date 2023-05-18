@@ -11,11 +11,13 @@ layout(push_constant) uniform constants {
   uint phase;
 } push_constants;
 
+// TODO model[MAX_PANELS]
+//      text_ends[MAX_PANELS]
 layout(std430, binding = 0) uniform buf0 {
   mat4 proj;
   mat4 view;
-  mat4 model[8];
-  vec4 text_ends[8];
+  mat4 model[16];
+  vec4 text_ends[16];
 } uniforms;
 
 layout (set = 0, binding = 1) buffer buf1 {
@@ -115,7 +117,8 @@ void main() {
     cell_info = gi.cell_info;
     sharpness = sharpness_i;
 
-    int o; for(o=0; o<8 && gl_InstanceIndex > uniforms.text_ends[o][0]; o++);
+            // TODO o<MAX_PANELS
+    int o; for(o=0; o<16 && gl_InstanceIndex > uniforms.text_ends[o][0]; o++);
 
     float text_lift = -0.001;
 

@@ -13,18 +13,20 @@ dfu.zip
 onx-arm
 onx-x86
 onx/
+sdk
+docs/local
+external/freetype
+external/lvgl
 
 # Android
 
+local.properties
 android/doc
-android/.gradle
 build/
 .cxx/
-#local.properties
 
-# for git/info/exclude
+# never show me: also in .git/info/exclude:
 
 .*.sw?
-sdk
-docs/local
+android/.gradle
 

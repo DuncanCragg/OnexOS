@@ -211,6 +211,12 @@ clean:
 	@echo "files not cleaned:"
 	@git ls-files --others --exclude-from=.git/info/exclude | xargs -r ls -Fla
 
+copy-android: shaderc
+	(cd android; ./gradlew assembleDebug)
+	-adb shell pm uninstall network.object.onexos
+	adb install android/onexos/build/outputs/apk/debug/onexos-debug.apk
+	adb shell rm -f sdcard/Onex/onex.ondb
+
 copy-dorold: onx-arm
 	rsync -ruav --stats --progress --delete onx/ phablet@dorold:onx
 

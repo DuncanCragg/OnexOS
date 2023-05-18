@@ -14,8 +14,9 @@ TARGETS = onx-arm \
 #-------------------------------------------------------------------------------
 
 SOURCES_ONX_ARM = \
-  ./src/ont/unix/onx.c \
   ./src/ont/user-3d.c \
+  ./src/ont/unix/g2d-vulkan.c \
+  ./src/ont/unix/onx.c \
   ./src/ont/unix/onx-vk.c \
   ./src/ont/unix/outline.c \
   ./src/ont/unix/geometry.c \
@@ -153,8 +154,8 @@ shaderc: ${SHADERS:.spv=.c}
 
 #-------------------------------------------------------------------------------
 
-CCFLAGS  = -std=gnu17 -g -O2 -pthread -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-switch
-CPPFLAGS = -std=gnu++17 -g -O2 -pthread
+CCFLAGS  = -std=gnu17 -g -O2 -pthread -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-switch
+CPPFLAGS = -std=gnu++17 -g -O2 -pthread -Wall -Werror -Wextra -Wno-unused-parameter
 
 %.o: %.c
 	@echo ================

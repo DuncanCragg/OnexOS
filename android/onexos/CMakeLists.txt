@@ -23,11 +23,12 @@ file(GLOB SOURCE_FILES
 "${ONEX_KERNEL}/src/onn/*.c"
 "${ONEX_KERNEL}/src/onp/*.c"
 "${ONEX_LANG}/src/*.c"
-"${TOP_DIR}/src/onl/onl.c"
+"${TOP_DIR}/src/onl/*.c"
 "${TOP_DIR}/src/onl/android/*.c"
 "${TOP_DIR}/src/ont/unix/vulkan/*.c"
 "${TOP_DIR}/src/ont/unix/*.c"
-"${TOP_DIR}/src/ont/user-3d.c"
+"${TOP_DIR}/src/ont/g2d/*.c"
+"${TOP_DIR}/src/ont/*.c"
 )
 
 add_library(native-lib SHARED ${SOURCE_FILES})
@@ -45,6 +46,8 @@ include_directories(${ONEX_LANG}/include)
 include_directories(${TOP_DIR}/include/vulkan)
 include_directories(${TOP_DIR}/external/freetype/include)
 include_directories(${TOP_DIR}/src)
+include_directories(${TOP_DIR}/src/ont/g2d)
+
 
 add_subdirectory(${TOP_DIR}/external/freetype ${TOP_DIR}/external/freetype)
 

@@ -4,6 +4,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#if defined(ST7789_WIDTH)
+#define SCREEN_WIDTH  ST7789_WIDTH
+#define SCREEN_HEIGHT ST7789_HEIGHT
+#else
+#define SCREEN_WIDTH  240
+#define SCREEN_HEIGHT 280
+#endif
+
 #define G2D_WHITE    0xffff
 #define G2D_BLACK    0x0000
 #define G2D_GREY_1E  0xf79e // 1.1.1.1:0/1.1.1:1.0.0/1:1.1.1.0

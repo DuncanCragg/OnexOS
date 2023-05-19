@@ -3,6 +3,7 @@
 
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
+#include <onex-kernel/touch.h>
 
 #include <onn.h>
 #include <onr.h>
@@ -10,7 +11,21 @@
 extern bool evaluate_user(object* o, void* d);
 
 object* user;
+object* responses;
+
 char* useruid;
+char* homeuid;
+char* inventoryuid;
+
+volatile bool         touch_down=false;
+volatile touch_info_t touch_info={ 120, 140 };
+
+bool          button_pending=false;
+volatile bool button_pressed=false;
+
+bool user_active=true;
+
+uint32_t loop_time=0;
 
 #if defined(__ANDROID__)
 extern void sprint_external_storage_directory(char* buf, int buflen, const char* format);
@@ -45,12 +60,23 @@ void init_onex() {
   onex_init("./onex.ondb");
 #endif
 
+  object* home;
+  object* inventory;
+
   config=onex_get_from_cache("uid-0");
 
   if(!config){
 
     user=object_new(0, "user", "user", 8);
     useruid=object_property(user, "UID");
+
+    home=object_new(0, "editable",  "list editable", 4);
+    homeuid=object_property(home, "UID");
+
+    inventory=object_new(0, "editable",  "list editable", 4);
+    inventoryuid=object_property(inventory, "UID");
+
+    responses=object_new(0, "default",   "user responses", 12);
 
     oclock=object_new(0, "clock", "clock event", 12);
     object_set_persist(oclock, "none");

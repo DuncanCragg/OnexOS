@@ -6,6 +6,8 @@
 #include "onl/onl.h"
 #include "ont/unix/outline.h"
 
+extern bool prepared;
+
 #define MAX_PANELS 16 // TODO set src/ont/unix/onx.vert
 extern uint32_t num_panels;
 
@@ -31,7 +33,7 @@ typedef struct fd_GlyphInstance {
   float    sharpness;
 } fd_GlyphInstance;
 
-bool set_up_scene_begin(void** vertices, void** glyphs);
+void set_up_scene_begin(void** vertices, void** glyphs);
 void set_up_scene_end();
 
 void set_mvp_uniforms();

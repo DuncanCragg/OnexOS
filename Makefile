@@ -14,7 +14,10 @@ TARGETS = onx-arm \
 #-------------------------------------------------------------------------------
 
 SOURCES_ONX_ARM = \
+  ./src/ont/user-2d.c \
   ./src/ont/user-3d.c \
+  ./src/ont/g2d/g2d.c \
+  ./src/ont/keyboard.c \
   ./src/ont/unix/g2d-vulkan.c \
   ./src/ont/unix/onx.c \
   ./src/ont/unix/onx-vk.c \
@@ -28,7 +31,10 @@ SOURCES_ONX_ARM_CPP = \
   ./src/onl/mobile/hwc.cpp \
 
 SOURCES_ONX_X86 = \
+  ./src/ont/user-2d.c \
   ./src/ont/user-3d.c \
+  ./src/ont/g2d/g2d.c \
+  ./src/ont/keyboard.c \
   ./src/ont/unix/g2d-vulkan.c \
   ./src/ont/unix/onx.c \
   ./src/ont/unix/onx-vk.c \
@@ -71,6 +77,7 @@ INC_DIR_ARM = \
  -I./include/freetype2 \
  -I./include/libevdev-1.0 \
  -I./src \
+ -I./src/ont/g2d \
  -I../OnexLang/include \
  -I../OnexKernel/include \
 
@@ -79,6 +86,7 @@ INC_DIR_X86 = \
  -I/usr/include \
  -I/usr/include/freetype2 \
  -I./src \
+ -I./src/ont/g2d \
  -I../OnexLang/include \
  -I../OnexKernel/include \
 

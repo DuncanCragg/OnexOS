@@ -464,7 +464,7 @@ bool evaluate_user(object* usr, void* d) {
 
   // -------------------------------------------------
 
-  uint8_t root_g2d_node = g2d_node_create(0, 0,0, ST7789_WIDTH,ST7789_HEIGHT, 0,0,0);
+  uint8_t root_g2d_node = g2d_node_create(0, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT, 0,0,0);
 
   g2d_clear_screen(0x00);
 
@@ -807,7 +807,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
   // -------------------------------------------------------
 
-  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+  if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
@@ -854,7 +854,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
 
   uint16_t ll = object_pathpair_length(user, path, "list");
 
-  uint16_t scroll_height=max(10+(ll+2)*CHILD_HEIGHT+10, ST7789_HEIGHT*4/3);
+  uint16_t scroll_height=max(10+(ll+2)*CHILD_HEIGHT+10, SCREEN_HEIGHT*4/3);
 
   uint8_t scroll_g2d_node = g2d_node_create(list_container_g2d_node,
                                             0, scroll_offset,
@@ -863,7 +863,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
                                             list_cb,LIST_BACKGROUND,0);
   if(!scroll_g2d_node) return;
 
-  scroll_bot_lim = -scroll_height + ST7789_HEIGHT - BOTTOM_MARGIN;
+  scroll_bot_lim = -scroll_height + SCREEN_HEIGHT - BOTTOM_MARGIN;
   scroll_top = (scroll_offset > 0);
   scroll_bot = (scroll_offset < scroll_bot_lim);
 
@@ -935,7 +935,7 @@ static void draw_watch(char* path, uint8_t g2d_node) {
 
   char g2dbuf[64];
 
-  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+  if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
@@ -1011,7 +1011,7 @@ static void word_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t wi){
 
 static void draw_notes(char* path, uint8_t g2d_node) {
 
-  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+  if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
     char* word1=object_pathpair(user, path, "text:1");
     char* word2=object_pathpair(user, path, "text:2");
     char* word3=object_pathpair(user, path, "text:3");
@@ -1138,7 +1138,7 @@ extern uint32_t touch_events_spurious;
 
 static void draw_about(char* path, uint8_t g2d_node) {
 
-  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+  if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
@@ -1187,7 +1187,7 @@ static void draw_about(char* path, uint8_t g2d_node) {
 
 static void draw_button(char* path, uint8_t g2d_node) {
 
-  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+  if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
@@ -1224,7 +1224,7 @@ static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t
 #define PROP_MARGIN 5
 static void draw_raw(char* path, uint8_t g2d_node) {
 
-  if(g2d_node_height(g2d_node) < ST7789_HEIGHT){
+  if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
     g2d_node_rectangle(g2d_node,
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
@@ -1267,7 +1267,7 @@ static void draw_raw(char* path, uint8_t g2d_node) {
   int16_t ol = object_property_size(user, viewpath);
   if(ol<0) return;
 
-  uint16_t scroll_height=max(10+ol*PROP_HEIGHT+10, ST7789_HEIGHT*4/3);
+  uint16_t scroll_height=max(10+ol*PROP_HEIGHT+10, SCREEN_HEIGHT*4/3);
 
   uint8_t scroll_g2d_node = g2d_node_create(list_container_g2d_node,
                                             0,scroll_offset,

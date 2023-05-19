@@ -20,13 +20,6 @@ static float eye_dir=0;
 static float head_hor_dir=0;
 static float head_ver_dir=0;
 
-extern void do_3d_stuff();
-
-bool evaluate_user() {
-  do_3d_stuff();
-  return true;
-}
-
 void set_mvp_uniforms() {
 
     #define VIEWPORT_FOV   70.0f

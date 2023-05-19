@@ -182,21 +182,17 @@ static void do_render_pass() {
 static bool            scene_ready = false;
 static pthread_mutex_t scene_lock;
 
-bool set_up_scene_begin(void** vertices, void** glyphs) {
-
-  if(!prepared) return false;
+void set_up_scene_begin(void** vertices, void** glyphs) {
 
   pthread_mutex_lock(&scene_lock);
   scene_ready = false;
 
-  size_t vertex_size = num_panels * 6*6 * (3 * sizeof(float) +
+  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
                                            2 * sizeof(float)  );
   size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
 
   VK_CHECK(vkMapMemory(device, vertex_buffer_memory,           0, vertex_size, 0, vertices));
   VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size,  0, glyphs));
-
-  return true;
 }
 
 void set_up_scene_end() {
@@ -898,7 +894,7 @@ static void prepare_vertex_buffers(){
 
   VkBufferCreateInfo buffer_ci = {
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = num_panels * 6*6 * (3 * sizeof(float) +
+    .size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
                                 2 * sizeof(float)  ),
     .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     .sharingMode = VK_SHARING_MODE_EXCLUSIVE,

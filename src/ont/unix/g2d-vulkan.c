@@ -352,20 +352,16 @@ static void add_panel(panel* panel, int o){
     mat4x4_orthonormalize(model_matrix[o], mm);
 }
 
-static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
+static float* vertices;
 
-    float w = panel->dimensions[0];
-    float h = panel->dimensions[1];
+static fd_GlyphInstance* glyphs;
 
-    float left = -w/2.17f;
-    float top  = -h/2.63f;
-
+static void add_text_whs(float left, float top,
+                         float w,    float h,
+                         float scale,
+                         char* text           ){
     float x = left;
     float y = top;
-
-    float scale = w/30000.0f;
-
-    const char *text = panel->text;
 
     while (*text) {
 
@@ -403,14 +399,25 @@ static void add_text(panel* panel, int o, fd_GlyphInstance* glyphs) {
         text++;
         x += gi->advance * scale;
     }
+}
+
+static void add_text(panel* panel, int o) {
+
+    float w = panel->dimensions[0];
+    float h = panel->dimensions[1];
+
+    float left = -w/2.17f;
+    float top  = -h/2.63f;
+
+    float scale = w/30000.0f;
+
+    char *text = panel->text;
+
+    add_text_whs(left, top, w, h, scale, text);
     text_ends[o][0]=num_glyphs-1;
 }
 
 // -----------------------------------------
-
-static float* vertices;
-
-static fd_GlyphInstance* glyphs;
 
 extern object* user; //
 
@@ -422,49 +429,49 @@ static void do_3d_stuff() {
 
   if(num_panels<MAX_PANELS){
     add_panel(&welcome_banner, num_panels);
-    add_text(&welcome_banner,  num_panels++, glyphs);
+    add_text(&welcome_banner,  num_panels++);
   }
   else log_write("reached MAX_PANELS\n");
 
   if(num_panels<MAX_PANELS){
     add_panel(&document, num_panels);
-    add_text(&document,  num_panels++, glyphs);
+    add_text(&document,  num_panels++);
   }
   else log_write("reached MAX_PANELS\n");
 
   if(num_panels<MAX_PANELS){
     add_panel(&info_board, num_panels);
-    add_text(&info_board,  num_panels++, glyphs);
+    add_text(&info_board,  num_panels++);
   }
   else log_write("reached MAX_PANELS\n");
 
   if(num_panels<MAX_PANELS){
     add_panel(&room_floor, num_panels);
-    add_text(&room_floor,  num_panels++, glyphs);
+    add_text(&room_floor,  num_panels++);
   }
   else log_write("reached MAX_PANELS\n");
 
   if(num_panels<MAX_PANELS){
     add_panel(&room_ceiling, num_panels);
-    add_text(&room_ceiling,  num_panels++, glyphs);
+    add_text(&room_ceiling,  num_panels++);
   }
   else log_write("reached MAX_PANELS\n");
 
   if(num_panels<MAX_PANELS){
     add_panel(&room_wall_1, num_panels);
-    add_text(&room_wall_1,  num_panels++, glyphs);
+    add_text(&room_wall_1,  num_panels++);
   }
   else log_write("reached MAX_PANELS\n");
 
   if(num_panels<MAX_PANELS){
     add_panel(&room_wall_2, num_panels);
-    add_text(&room_wall_2,  num_panels++, glyphs);
+    add_text(&room_wall_2,  num_panels++);
   }
   else log_write("reached MAX_PANELS\n");
 
   if(num_panels<MAX_PANELS){
     add_panel(&room_wall_3, num_panels);
-    add_text(&room_wall_3,  num_panels++, glyphs);
+    add_text(&room_wall_3,  num_panels++);
   }
   else log_write("reached MAX_PANELS\n");
 }
@@ -500,7 +507,7 @@ void g2d_clear_screen(uint8_t colour) {
   };
 
   add_panel(&p, num_panels);
-  add_text( &p, num_panels, glyphs);
+  add_text( &p, num_panels);
 
   num_panels++;
 }
@@ -548,7 +555,7 @@ void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
   };
 
   add_panel(&p, num_panels);
-  add_text( &p, num_panels, glyphs);
+  add_text( &p, num_panels);
 
   num_panels++;
 }

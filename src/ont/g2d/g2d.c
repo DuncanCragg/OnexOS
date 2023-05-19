@@ -5,10 +5,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include <mathlib.h>
-
 #include <onex-kernel/log.h>
 
+#include <mathlib.h>
 #include <g2d.h>
 #include <g2d-internal.h>
 

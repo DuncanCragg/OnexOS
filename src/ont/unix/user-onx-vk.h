@@ -37,4 +37,4 @@ void set_up_scene_begin(void** vertices, void** glyphs);
 void set_up_scene_end();
 
 void set_mvp_uniforms();
-void load_font(const char * font_face, uint32_t alignment);
+void load_font(char* font_face, uint32_t alignment);

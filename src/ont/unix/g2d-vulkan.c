@@ -134,7 +134,7 @@ typedef struct fd_DeviceGlyphInfo {
 static fd_Outline       outlines[NUMBER_OF_GLYPHS];
 static fd_HostGlyphInfo glyph_infos[NUMBER_OF_GLYPHS];
 
-void load_font(const char * font_face, uint32_t alignment) {
+void load_font(char* font_face, uint32_t alignment) {
 
   FT_Library library;
   FT_CHECK(FT_Init_FreeType(&library));
@@ -476,7 +476,7 @@ static void do_3d_stuff() {
 #define Y_UP_OFFSET        2.0f
 
 void g2d_init() {
-} //
+}
 
 void g2d_clear_screen(uint8_t colour) {
 
@@ -503,7 +503,7 @@ void g2d_clear_screen(uint8_t colour) {
   add_text( &p, num_panels, glyphs);
 
   num_panels++;
-} //
+}
 
 void g2d_render() {
 
@@ -517,9 +517,9 @@ void g2d_render() {
     *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
     *(vertices+i*5+3) = uv_buffer_data[i*2+0];
     *(vertices+i*5+4) = uv_buffer_data[i*2+1];
-  } //
-  set_up_scene_end(); //
-} //
+  }
+  set_up_scene_end();
+}
 
 void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
                             uint16_t cxbr, uint16_t cybr,
@@ -549,9 +549,9 @@ void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
 
   add_panel(&p, num_panels);
   add_text( &p, num_panels, glyphs);
- //
-  num_panels++; //
-} //
+
+  num_panels++;
+}
 
 void g2d_internal_text(int16_t ox, int16_t oy,
                        uint16_t cxtl, uint16_t cytl,
@@ -560,12 +560,12 @@ void g2d_internal_text(int16_t ox, int16_t oy,
                        uint8_t size){
   log_write("g2d_internal_text() %d,%d %d,%d %d,%d '%s'\n",
                                  ox, oy, cxtl, cytl, cxbr, cybr, text);
-} //
+}
 
 uint16_t g2d_text_width(char* text, uint8_t size){
   log_write("g2d_text_width() '%s'\n", text);
   return 10;
-} //
+}
 
 
 

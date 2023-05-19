@@ -328,11 +328,11 @@ struct uniforms {
 };
 
 #if defined(__ANDROID__)
-static const char* font_face = "/system/fonts/SourceSansPro-Regular.ttf";
+static char* font_face = "/system/fonts/SourceSansPro-Regular.ttf";
 #elif defined(VK_USE_PLATFORM_XCB_KHR) // Ubuntu Desktop
-static const char* font_face = "/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf";
+static char* font_face = "/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf";
 #else // Ubuntu Touch
-static const char* font_face = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
+static char* font_face = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
 #endif
 
 static char *texture_files[] = {"ivory.ppm"};

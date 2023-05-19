@@ -117,14 +117,14 @@ void main() {
     cell_info = gi.cell_info;
     sharpness = sharpness_i;
 
-            // TODO o<MAX_PANELS
-    int o; for(o=0; o<16 && gl_InstanceIndex > uniforms.text_ends[o][0]; o++);
+            // TODO p<MAX_PANELS
+    int p; for(p=0; p<16 && gl_InstanceIndex > uniforms.text_ends[p][0]; p++);
 
     float text_lift = -0.001;
 
     gl_Position = uniforms.proj *
                   uniforms.view *
-                  uniforms.model[o] *
+                  uniforms.model[p] *
                   vec4(rv, text_lift, 1.0);
   }
   proj_pos = gl_Position;

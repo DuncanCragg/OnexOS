@@ -338,18 +338,18 @@ static void make_box(vec3 dimensions){
   uv_buffer_end += sizeof(uvs);
 }
 
-static void add_panel(panel* panel, int o){
+static void add_panel(panel* panel, int p){
 
     make_box(panel->dimensions);
 
-    mat4x4_translation(model_matrix[o], panel->position[0],
+    mat4x4_translation(model_matrix[p], panel->position[0],
                                         panel->position[1],
                                         panel->position[2]);
     mat4x4 mm;
-    mat4x4_rotate_X(mm, model_matrix[o], (float)degreesToRadians(panel->rotation[0]));
-    mat4x4_rotate_Y(model_matrix[o], mm, (float)degreesToRadians(panel->rotation[1]));
-    mat4x4_rotate_Z(mm, model_matrix[o], (float)degreesToRadians(panel->rotation[2]));
-    mat4x4_orthonormalize(model_matrix[o], mm);
+    mat4x4_rotate_X(mm, model_matrix[p], (float)degreesToRadians(panel->rotation[0]));
+    mat4x4_rotate_Y(model_matrix[p], mm, (float)degreesToRadians(panel->rotation[1]));
+    mat4x4_rotate_Z(mm, model_matrix[p], (float)degreesToRadians(panel->rotation[2]));
+    mat4x4_orthonormalize(model_matrix[p], mm);
 }
 
 static float* vertices;
@@ -401,7 +401,7 @@ static void add_text_whs(float left, float top,
     }
 }
 
-static void add_text(panel* panel, int o) {
+static void add_text(panel* panel, int p) {
 
     float w = panel->dimensions[0];
     float h = panel->dimensions[1];
@@ -414,7 +414,7 @@ static void add_text(panel* panel, int o) {
     char *text = panel->text;
 
     add_text_whs(left, top, w, h, scale, text);
-    text_ends[o][0]=num_glyphs-1;
+    text_ends[p][0]=num_glyphs-1;
 }
 
 // -----------------------------------------

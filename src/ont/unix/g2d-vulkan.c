@@ -421,8 +421,6 @@ static void add_text(panel* panel, int p) {
 
 // -----------------------------------------
 
-extern object* user; //
-
 static void do_3d_stuff() {
 
   info_board.rotation[1]+=0.5f;

@@ -16,8 +16,8 @@ layout(push_constant) uniform constants {
 layout(std430, binding = 0) uniform buf0 {
   mat4 proj;
   mat4 view;
-  mat4 model[16];
-  vec4 text_ends[16];
+  mat4 model[32];
+  vec4 text_ends[32];
 } uniforms;
 
 layout (set = 0, binding = 1) buffer buf1 {
@@ -117,10 +117,15 @@ void main() {
     cell_info = gi.cell_info;
     sharpness = sharpness_i;
 
-            // TODO p<MAX_PANELS
-    int p; for(p=0; p<16 && gl_InstanceIndex > uniforms.text_ends[p][0]; p++);
+    int p;
+    //  TODO p<MAX_PANELS
+    for(p=0; p<32; p++){
+        float s=uniforms.text_ends[p][0];
+        float e=uniforms.text_ends[p][1];
+        if(gl_InstanceIndex >= s && gl_InstanceIndex < e) break;
+    }
 
-    float text_lift = -0.001;
+    float text_lift = -0.02;
 
     gl_Position = uniforms.proj *
                   uniforms.view *

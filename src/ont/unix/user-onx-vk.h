@@ -8,7 +8,7 @@
 
 extern bool prepared;
 
-#define MAX_PANELS 16 // TODO set src/ont/unix/onx.vert
+#define MAX_PANELS 32 // TODO set src/ont/unix/onx.vert
 extern uint32_t num_panels;
 
 #define MAX_VISIBLE_GLYPHS 4096

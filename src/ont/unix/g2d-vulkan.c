@@ -380,7 +380,7 @@ static void add_text_whs(float left, float top,
         inst->glyph_index = glyph_index;
         inst->sharpness = scale * 2500;
 
-        if (inst->rect.max_x < w/2.2f) {
+        if (inst->rect.max_x < w) {
         }
         else
         if(inst->rect.min_y > top) {
@@ -403,18 +403,20 @@ static void add_text_whs(float left, float top,
 
 static void add_text(panel* panel, int p) {
 
-    float w = panel->dimensions[0];
-    float h = panel->dimensions[1];
+  char *text = panel->text;
 
-    float left = -w/2.17f;
-    float top  = -h/2.63f;
+  float w = panel->dimensions[0];
+  float h = panel->dimensions[1];
+  float left = -w/2.17f;
+  float top  = -h/2.63f;
+  float scale = w/30000.0f;
 
-    float scale = w/30000.0f;
+  uint32_t s=num_glyphs;
+  add_text_whs(left, top, w, h, scale, text);
+  uint32_t e=num_glyphs;
 
-    char *text = panel->text;
-
-    add_text_whs(left, top, w, h, scale, text);
-    text_ends[p][0]=num_glyphs-1;
+  text_ends[p][0]=s;
+  text_ends[p][1]=e;
 }
 
 // -----------------------------------------
@@ -503,11 +505,12 @@ void g2d_clear_screen(uint8_t colour) {
    .dimensions = { 1.0f, 1.0f, 0.03f },
    .position   = { 0, Y_UP_OFFSET, -2.19f },
    .rotation   = { 0.0f, 0.0f, 0.0f },
-   .text = ".",
   };
 
-  add_panel(&p, num_panels);
-  add_text( &p, num_panels);
+  add_panel(&p, 0);
+
+  text_ends[0][0]=0;
+  text_ends[0][1]=0;
 
   num_panels++;
 }
@@ -551,11 +554,12 @@ void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
    .dimensions = { w, h, 0.03f },
    .position   = { x, y, -2.2f },
    .rotation   = { 0.0f, 0.0f, 0.0f },
-   .text = "Hello world",
   };
 
   add_panel(&p, num_panels);
-  add_text( &p, num_panels);
+
+  text_ends[num_panels][0]=0;
+  text_ends[num_panels][1]=0;
 
   num_panels++;
 }
@@ -565,13 +569,28 @@ void g2d_internal_text(int16_t ox, int16_t oy,
                        uint16_t cxbr, uint16_t cybr,
                        char* text, uint16_t colour, uint16_t bg,
                        uint8_t size){
+
   log_write("g2d_internal_text() %d,%d %d,%d %d,%d '%s'\n",
                                  ox, oy, cxtl, cytl, cxbr, cybr, text);
+
+  float left = -1.00f+ox/(SCREEN_WIDTH /2.0f);
+  float top  =(-1.00f+oy/(SCREEN_HEIGHT/2.0f))*ODD_Y_COMPENSATION+0.05f;
+  float w = 1.0f;
+  float h = 1.0f;
+  float scale = (size/2.0f)*(w/17000.0f);
+
+  uint32_t s=num_glyphs;
+  add_text_whs(left, top, w, h, scale, text);
+  uint32_t e=num_glyphs;
+
+  text_ends[0][0]=0;
+  text_ends[0][1]=e;
 }
 
 uint16_t g2d_text_width(char* text, uint8_t size){
   log_write("g2d_text_width() '%s'\n", text);
-  return 10;
+  uint16_t n=strlen(text);
+  return n*3*size;
 }
 
 

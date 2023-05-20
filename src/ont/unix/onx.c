@@ -89,11 +89,11 @@ void init_onex() {
     object_property_add(onex_device_object, "user", useruid);
     object_property_add(onex_device_object, "io", clockuid);
 
-    object_property_set(user, "viewing", deviceuid);
-
     config=object_new("uid-0", 0, "config", 10);
     object_property_set(config, "user",      useruid);
     object_property_set(config, "clock",     clockuid);
+
+    object_property_set(user, "viewing", clockuid);
   }
   else{
     useruid=     object_property(config, "user");

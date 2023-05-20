@@ -425,9 +425,7 @@ extern object* user; //
 
 static void do_3d_stuff() {
 
-  char* ts=object_property(user, "viewing:io:ts"); //
-  if(ts) welcome_banner.text=ts; //
-  info_board.rotation[1]+=0.5f; //
+  info_board.rotation[1]+=0.5f;
 
   if(num_panels<MAX_PANELS){
     add_panel(&welcome_banner, num_panels);

@@ -8,6 +8,7 @@
 *.o
 *.out
 *.spv
+onx.????.c
 ,*
 dfu.zip
 onx-arm

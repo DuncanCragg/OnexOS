@@ -29,9 +29,11 @@ void g2d_init() {
   display_fast_init();
 }
 
-void g2d_clear_screen(uint8_t colour) {
+bool g2d_clear_screen(uint8_t colour) {
 
   memset(lcd_buffer, colour, LCD_BUFFER_SIZE);
+
+  return true;
 }
 
 void g2d_render() {

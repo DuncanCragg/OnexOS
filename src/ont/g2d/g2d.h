@@ -37,7 +37,7 @@
 
 void g2d_init();
 
-void g2d_clear_screen(uint8_t colour); // 8 bits * 2
+bool g2d_clear_screen(uint8_t colour); // 8 bits * 2
 
 void g2d_render();
 

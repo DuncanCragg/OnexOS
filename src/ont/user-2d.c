@@ -466,7 +466,7 @@ bool evaluate_user(object* usr, void* d) {
 
   uint8_t root_g2d_node = g2d_node_create(0, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT, 0,0,0);
 
-  g2d_clear_screen(0x00);
+  if(!g2d_clear_screen(0x00)) return true; // this happens when Android f/e is closed
 
   draw_by_type("viewing", root_g2d_node);
 

@@ -170,7 +170,7 @@ void load_font(char* font_face, uint32_t alignment) {
       total_points += o->num_of_points;
       total_cells += o->cell_count_x * o->cell_count_y;
   }
-  log_write("\n");
+  // log_write("\n");
 
   glyph_info_size = sizeof(fd_DeviceGlyphInfo) * num_glyph_chars;
   glyph_cells_size = sizeof(uint32_t) * total_cells;
@@ -483,11 +483,9 @@ static void do_3d_stuff() {
 void g2d_init() {
 }
 
-void g2d_clear_screen(uint8_t colour) {
+bool g2d_clear_screen(uint8_t colour) {
 
-  if(!prepared) return;
-
-  log_write("\n\n");
+  if(!prepared) return false;
 
   set_up_scene_begin(&vertices, &glyphs);
 
@@ -509,11 +507,16 @@ void g2d_clear_screen(uint8_t colour) {
   text_ends[0][1]=0;
 
   num_panels++;
+
+  return true;
 }
 
 void g2d_render() {
 
-  if(!prepared) return;
+  if(!prepared){
+    log_write("g2d_render() called when not prepared!\n");
+    return;
+  }
 
   do_3d_stuff();
 
@@ -531,7 +534,10 @@ void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
                             uint16_t cxbr, uint16_t cybr,
                             uint16_t colour){
 
-  if(!prepared) return;
+  if(!prepared){
+    log_write("g2d_internal_rectangle() called when not prepared!\n");
+    return;
+  }
 
   if(num_panels==MAX_PANELS){
     log_write("reached MAX_PANELS\n");
@@ -543,8 +549,10 @@ void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
   float x=(-1.00f+cxtl/(SCREEN_WIDTH /2.0f)+w);
   float y=( 1.00f-cytl/(SCREEN_HEIGHT/2.0f)-h)*ODD_Y_COMPENSATION+Y_UP_OFFSET;
 
+#if defined(G2D_VULKAN_VERBOSE)
   log_write("g2d_internal_rectangle() %d,%d %d,%d\n", cxtl, cytl, cxbr, cybr);
   log_write("(x=%.2f,y=%.2f)(w=%.2f,h=%.2f)\n", x,y, w,h);
+#endif
 
   panel p ={
    .dimensions = { w, h, 0.03f },
@@ -566,8 +574,15 @@ void g2d_internal_text(int16_t ox, int16_t oy,
                        char* text, uint16_t colour, uint16_t bg,
                        uint8_t size){
 
+  if(!prepared){
+    log_write("g2d_internal_text() called when not prepared!\n");
+    return;
+  }
+
+#if defined(G2D_VULKAN_VERBOSE)
   log_write("g2d_internal_text() %d,%d %d,%d %d,%d '%s'\n",
                                  ox, oy, cxtl, cytl, cxbr, cybr, text);
+#endif
 
   float left = -1.00f+ox/(SCREEN_WIDTH /2.0f);
   float top  =(-1.00f+oy/(SCREEN_HEIGHT/2.0f))*ODD_Y_COMPENSATION+0.05f;
@@ -584,7 +599,16 @@ void g2d_internal_text(int16_t ox, int16_t oy,
 }
 
 uint16_t g2d_text_width(char* text, uint8_t size){
+
+  if(!prepared){
+    log_write("g2d_text_width() called when not prepared!\n");
+    return 10;
+  }
+
+#if defined(G2D_VULKAN_VERBOSE)
   log_write("g2d_text_width() '%s'\n", text);
+#endif
+
   uint16_t n=strlen(text);
   return n*3*size;
 }

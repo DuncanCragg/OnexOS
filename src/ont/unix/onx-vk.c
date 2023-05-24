@@ -342,9 +342,7 @@ static char *texture_files[] = {"ivory.ppm"};
 #define TEXTURE_COUNT 1
 
 struct texture_object textures[TEXTURE_COUNT];
-// struct texture_object staging_texture;
-
-static bool use_staging_buffer = false;
+struct texture_object staging_texture;
 
 // ---------------------------------
 
@@ -459,12 +457,11 @@ static bool load_texture(const char *filename, uint8_t *rgba_data, uint64_t row_
     if ((unsigned char *)cPtr >= (texture_array + texture_len) || strncmp(cPtr, "P6\n", 3)) {
         return false;
     }
-    while (strncmp(cPtr++, "\n", 1))
-        ;
+    while (strncmp(cPtr++, "\n", 1)) ;
     sscanf(cPtr, "%u %u", w, h);
-    if (rgba_data == NULL) {
-        return true;
-    }
+
+    if(!rgba_data) return true;
+
     while (strncmp(cPtr++, "\n", 1))
         ;
     if ((unsigned char *)cPtr >= (texture_array + texture_len) || strncmp(cPtr, "255\n", 4)) {
@@ -569,13 +566,13 @@ static void prepare_texture_image(const char *filename,
     texture_obj->image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
 
-/*
 static void prepare_texture_buffer(const char *filename, struct texture_object *texture_obj) {
+
     int32_t texture_width;
     int32_t texture_height;
     VkResult err;
 
-    if (!load_texture(filename, NULL, 0, &texture_width, &texture_height)) {
+    if (!load_texture(filename, 0, 0, &texture_width, &texture_height)) {
         ERR_EXIT("Failed to load textures");
     }
 
@@ -613,7 +610,6 @@ static void prepare_texture_buffer(const char *filename, struct texture_object *
 
     vkUnmapMemory(device, texture_obj->device_memory);
 }
-*/
 
 static void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout,
                              VkImageLayout new_image_layout, VkAccessFlagBits srcAccessMask, VkPipelineStageFlags src_stages,
@@ -795,17 +791,20 @@ static void prepare_textures(){
     for (i = 0; i < TEXTURE_COUNT; i++) {
         VkResult err;
 
-        if ((format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) && !use_staging_buffer) {
-            /* Device can texture using linear textures */
+#if defined(LIMIT_TO_LINEAR_AND_NO_STAGING_BUFFER)
+        if ((format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)) {
+
             prepare_texture_image(texture_files[i], &textures[i], VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
-                                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
             set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
-                                    textures[i].image_layout, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-     /*
+                             textures[i].image_layout, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+
             staging_texture.image = 0;
-        } else if (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
+        } else
+#endif
+        if (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
 
             memset(&staging_texture, 0, sizeof(staging_texture));
             prepare_texture_buffer(texture_files[i], &staging_texture);
@@ -833,8 +832,6 @@ static void prepare_textures(){
             set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                   textures[i].image_layout, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
                                   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-
-     */
         } else {
             assert(!"No support for R8G8B8A8_UNORM as texture image format");
         }
@@ -881,13 +878,6 @@ static void prepare_textures(){
         image_view_ci.image = textures[i].image;
         VK_CHECK(vkCreateImageView(device, &image_view_ci, NULL, &textures[i].image_view));
     }
-  /*
-    if (staging_texture.buffer) {
-        vkFreeMemory(device, staging_texture.device_memory, NULL);
-        if(staging_texture.image) vkDestroyImage(device, staging_texture.image, NULL);
-        vkDestroyBuffer(device, staging_texture.buffer, NULL);
-    }
-  */
 }
 
 static void prepare_vertex_buffers(){
@@ -1553,6 +1543,11 @@ void onx_vk_finish() {
     vkDestroyImage(device, textures[i].image, NULL);
     vkFreeMemory(device, textures[i].device_memory, NULL);
     vkDestroySampler(device, textures[i].sampler, NULL);
+  }
+  if(staging_texture.buffer) {
+     vkFreeMemory(device, staging_texture.device_memory, NULL);
+     if(staging_texture.image) vkDestroyImage(device, staging_texture.image, NULL);
+     vkDestroyBuffer(device, staging_texture.buffer, NULL);
   }
 
   vkDestroyImageView(device, depth.image_view, NULL);

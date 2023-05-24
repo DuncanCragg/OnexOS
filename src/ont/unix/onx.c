@@ -104,6 +104,8 @@ void init_onex() {
   }
 
   time_ticker(every_second, 1000);
+
+  onex_run_evaluators(useruid, 0);
 }
 
 static void* do_onex_loop(void* d) {
@@ -119,6 +121,7 @@ static void* do_onex_loop(void* d) {
 
 // Android - OnexBG - calls init_onex() and loop_onex() itself
 // onx_init() is the call-up from the event loop once "prepared"
+// can be called before or after init_onex()
 void onx_init(){
   onex_run_evaluators(useruid, 0);
 }
@@ -134,7 +137,6 @@ static pthread_t loop_onex_thread_id;
 void onx_init(){
   init_onex();
   pthread_create(&loop_onex_thread_id, 0, do_onex_loop, 0);
-  onex_run_evaluators(useruid, 0);
 }
 
 #endif

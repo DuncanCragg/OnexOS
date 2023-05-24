@@ -208,9 +208,9 @@ clean:
 
 copy-android: shaderc
 	(cd android; ./gradlew assembleDebug)
-	-adb shell pm uninstall network.object.onexos
-	adb install android/onexos/build/outputs/apk/debug/onexos-debug.apk
-	adb shell rm -f sdcard/Onex/onex.ondb
+	adb `adb devices | grep -w device | head -1 | sed 's:\(.*\)device:-s \1:'` shell pm uninstall network.object.onexos || echo installed app not found
+	adb `adb devices | grep -w device | head -1 | sed 's:\(.*\)device:-s \1:'` install android/onexos/build/outputs/apk/debug/onexos-debug.apk
+	adb `adb devices | grep -w device | head -1 | sed 's:\(.*\)device:-s \1:'` shell rm -f sdcard/Onex/onex.ondb
 
 copy-dorold: onx-arm
 	rsync -ruav --stats --progress --delete onx/ phablet@dorold:onx

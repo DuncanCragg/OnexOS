@@ -12,8 +12,8 @@ onx.????.c
 *.ondb
 ,*
 dfu.zip
-onx-arm
-onx-x86
+onx-hwc
+onx-xcb
 onx/
 sdk
 docs/local

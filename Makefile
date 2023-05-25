@@ -8,12 +8,12 @@ targets:
 
 #-------------------------------------------------------------------------------
 
-TARGETS = onx-arm \
-          onx-x86 \
+TARGETS = onx-hwc \
+          onx-xcb \
 
 #-------------------------------------------------------------------------------
 
-SOURCES_ONX_ARM = \
+SOURCES_ONX_HWC = \
   ./src/ont/user-2d.c \
   ./src/ont/user-3d.c \
   ./src/ont/g2d/g2d.c \
@@ -27,10 +27,10 @@ SOURCES_ONX_ARM = \
   ./src/onl/onl.c \
   ./src/onl/mobile/vulkan-hwc.c \
 
-SOURCES_ONX_ARM_CPP = \
+SOURCES_ONX_HWC_CPP = \
   ./src/onl/mobile/hwc.cpp \
 
-SOURCES_ONX_X86 = \
+SOURCES_ONX_XCB = \
   ./src/ont/user-2d.c \
   ./src/ont/user-3d.c \
   ./src/ont/g2d/g2d.c \
@@ -46,13 +46,13 @@ SOURCES_ONX_X86 = \
 
 #-------------------------------------------------------------------------------
 
-HEADERS_ONX_ARM = \
+HEADERS_ONX_HWC = \
   ./src/ont/unix/outline.h \
   ./src/ont/unix/geometry.h \
   ./src/ont/unix/onx-vk.h \
   ./src/onl/mobile/hwc.h \
 
-HEADERS_ONX_X86 = \
+HEADERS_ONX_XCB = \
   ./src/ont/unix/outline.h \
   ./src/ont/unix/geometry.h \
   ./src/ont/unix/onx-vk.h \
@@ -65,7 +65,7 @@ SHADERS = \
 
 #-------------------------------------------------------------------------------
 
-INC_DIR_ARM = \
+INC_DIR_HWC = \
  -I/opt/libhybris/include/ \
  -I/opt/libhybris/include/hybris/hwcomposerwindow \
  -I/opt/libhybris/include/hybris/eglplatformcommon \
@@ -81,7 +81,7 @@ INC_DIR_ARM = \
  -I../OnexLang/include \
  -I../OnexKernel/include \
 
-INC_DIR_X86 = \
+INC_DIR_XCB = \
  -I./include/vulkan \
  -I/usr/include \
  -I/usr/include/freetype2 \
@@ -92,10 +92,10 @@ INC_DIR_X86 = \
 
 #-------------------------------------------------------------------------------
 
-LIB_DIR_ARM = -L/opt/libhybris/lib -L./lib -L../OnexLang -L../OnexKernel
-LIB_DIR_X86 = -L/usr/lib -L../OnexLang -L../OnexKernel
+LIB_DIR_HWC = -L/opt/libhybris/lib -L./lib -L../OnexLang -L../OnexKernel
+LIB_DIR_XCB = -L/usr/lib -L../OnexLang -L../OnexKernel
 
-LIBS_ONX_ARM = \
+LIBS_ONX_HWC = \
  -l:libvulkan.so.1.2.183 \
  -l:libEGL.so.1.0.0 \
  -l:libhwc2.so.1 \
@@ -123,33 +123,33 @@ LIBS_ONX_ARM = \
  -lonex-kernel-arm \
 
 
-LIBS_ONX_X86 = -lonex-lang-x86 -lonex-kernel-x86 -lvulkan -lxcb -lm -lfreetype
+LIBS_ONX_XCB = -lonex-lang-x86 -lonex-kernel-x86 -lvulkan -lxcb -lm -lfreetype
 
 #-------------------------------------------------------------------------------
 
-src/onl/mobile/hwc.o: ${HEADERS_ONX_ARM}
+src/onl/mobile/hwc.o: ${HEADERS_ONX_HWC}
 
-onx-arm: CONFIGFLAGS=-DVK_USE_PLATFORM_ANDROID_KHR
-onx-arm: INC_DIR=${INC_DIR_ARM}
-onx-arm: CC=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-gcc
-onx-arm: CXX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
-onx-arm: LDX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
-onx-arm: ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${HEADERS_ONX_ARM} ${SHADERS:.spv=.o}
+onx-hwc: CONFIGFLAGS=-DVK_USE_PLATFORM_ANDROID_KHR
+onx-hwc: INC_DIR=${INC_DIR_HWC}
+onx-hwc: CC=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-gcc
+onx-hwc: CXX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
+onx-hwc: LDX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-g++
+onx-hwc: ${SOURCES_ONX_HWC:.c=.o} ${SOURCES_ONX_HWC_CPP:.cpp=.o} ${HEADERS_ONX_HWC} ${SHADERS:.spv=.o}
 	@echo ================
-	@echo $@ '<=' ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${SHADERS:.spv=.o}
+	@echo $@ '<=' ${SOURCES_ONX_HWC:.c=.o} ${SOURCES_ONX_HWC_CPP:.cpp=.o} ${SHADERS:.spv=.o}
 	@echo -----
-	$(LDX) -o $@ ${SOURCES_ONX_ARM:.c=.o} ${SOURCES_ONX_ARM_CPP:.cpp=.o} ${SHADERS:.spv=.o} $(LIB_DIR_ARM) $(LIBS_ONX_ARM)
+	$(LDX) -o $@ ${SOURCES_ONX_HWC:.c=.o} ${SOURCES_ONX_HWC_CPP:.cpp=.o} ${SHADERS:.spv=.o} $(LIB_DIR_HWC) $(LIBS_ONX_HWC)
 	mkdir -p onx
 	cp $@ onx
 
-onx-x86: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
-onx-x86: INC_DIR=${INC_DIR_X86}
-onx-x86: LDX=gcc
-onx-x86: ${SOURCES_ONX_X86:.c=.o} ${HEADERS_ONX_X86} ${SHADERS:.spv=.o}
+onx-xcb: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
+onx-xcb: INC_DIR=${INC_DIR_XCB}
+onx-xcb: LDX=gcc
+onx-xcb: ${SOURCES_ONX_XCB:.c=.o} ${HEADERS_ONX_XCB} ${SHADERS:.spv=.o}
 	@echo ================
-	@echo $@ '<=' ${SOURCES_ONX_X86:.c=.o} ${SHADERS:.spv=.o}
+	@echo $@ '<=' ${SOURCES_ONX_XCB:.c=.o} ${SHADERS:.spv=.o}
 	@echo -----
-	$(LDX) -o $@ ${SOURCES_ONX_X86:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIR_X86) $(LIBS_ONX_X86)
+	$(LDX) -o $@ ${SOURCES_ONX_XCB:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIR_XCB) $(LIBS_ONX_XCB)
 
 shaderc: ${SHADERS:.spv=.c}
 	@echo ================
@@ -212,10 +212,10 @@ copy-android: shaderc
 	adb `adb devices | grep -w device | head -1 | sed 's:\(.*\)device:-s \1:'` install android/onexos/build/outputs/apk/debug/onexos-debug.apk
 	adb `adb devices | grep -w device | head -1 | sed 's:\(.*\)device:-s \1:'` shell rm -f sdcard/Onex/onex.ondb
 
-copy-dorold: onx-arm
+copy-dorold: onx-hwc
 	rsync -ruav --stats --progress --delete onx/ phablet@dorold:onx
 
-copy-op5t-ut: onx-arm
+copy-op5t-ut: onx-hwc
 	rsync -ruav --stats --progress --delete onx/ phablet@op5t-ut:onx
 
 SHELL=/usr/bin/bash

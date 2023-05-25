@@ -103,9 +103,9 @@ INC_DIR_XCB = \
 
 #-------------------------------------------------------------------------------
 
-LIB_DIR_HWC = -L/opt/libhybris/lib -L./lib -L../OnexLang -L../OnexKernel
-LIB_DIR_PI4 =                      -L./lib -L../OnexLang -L../OnexKernel
-LIB_DIR_XCB = -L/usr/lib -L../OnexLang -L../OnexKernel
+LIB_DIR_HWC = -L/opt/libhybris/lib -L./lib    -L../OnexLang -L../OnexKernel
+LIB_DIR_PI4 =                      -L./lib    -L../OnexLang -L../OnexKernel
+LIB_DIR_XCB =                      -L/usr/lib -L../OnexLang -L../OnexKernel
 
 LIBS_ONX_HWC = \
  -l:libvulkan.so.1.2.183 \
@@ -156,7 +156,14 @@ LIBS_ONX_PI4 = \
  -l:ld-2.31.so \
 
 
-LIBS_ONX_XCB = -lonex-lang-x86 -lonex-kernel-x86 -lvulkan -lxcb -lm -lfreetype
+LIBS_ONX_XCB = \
+ -lonex-lang-x86 \
+ -lonex-kernel-x86 \
+ -lvulkan \
+ -lxcb \
+ -lfreetype \
+ -lm \
+
 
 #-------------------------------------------------------------------------------
 

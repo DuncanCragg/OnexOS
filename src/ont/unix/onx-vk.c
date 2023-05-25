@@ -328,7 +328,8 @@ struct uniforms {
 };
 
 #if defined(__ANDROID__)
-static char* font_face = "/system/fonts/SourceSansPro-Regular.ttf";
+//static char* font_face = "/system/fonts/SourceSansPro-Regular.ttf";
+static char* font_face = "/system/fonts/Roboto-Regular.ttf";
 #elif defined(VK_USE_PLATFORM_XCB_KHR) // Ubuntu Desktop
 static char* font_face = "/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf";
 #else // Ubuntu Touch
@@ -1455,6 +1456,7 @@ void onx_vk_prepare_pipeline(bool restart) {
     },
   };
 
+  // this call takes several seconds on Konstakang
   VK_CHECK(vkCreateGraphicsPipelines(device,
                                      pipeline_cache,
                                      1,

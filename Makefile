@@ -9,6 +9,7 @@ targets:
 #-------------------------------------------------------------------------------
 
 TARGETS = onx-hwc \
+          onx-pi4 \
           onx-xcb \
 
 #-------------------------------------------------------------------------------
@@ -81,6 +82,16 @@ INC_DIR_HWC = \
  -I../OnexLang/include \
  -I../OnexKernel/include \
 
+INC_DIR_PI4 = \
+ -I./include/vulkan \
+ -I/usr/aarch64-linux-gnu/include \
+ -I/usr/include \
+ -I/usr/include/freetype2 \
+ -I./src \
+ -I./src/ont/g2d \
+ -I../OnexLang/include \
+ -I../OnexKernel/include \
+
 INC_DIR_XCB = \
  -I./include/vulkan \
  -I/usr/include \
@@ -93,6 +104,7 @@ INC_DIR_XCB = \
 #-------------------------------------------------------------------------------
 
 LIB_DIR_HWC = -L/opt/libhybris/lib -L./lib -L../OnexLang -L../OnexKernel
+LIB_DIR_PI4 =                      -L./lib -L../OnexLang -L../OnexKernel
 LIB_DIR_XCB = -L/usr/lib -L../OnexLang -L../OnexKernel
 
 LIBS_ONX_HWC = \
@@ -123,6 +135,27 @@ LIBS_ONX_HWC = \
  -lonex-kernel-arm \
 
 
+LIBS_ONX_PI4 = \
+ -lonex-lang-arm \
+ -lonex-kernel-arm \
+ -lvulkan \
+ -lxcb \
+ -l:libfreetype.so.6.17.4 \
+ -l:libbrotlidec.so.1 \
+ -lbrotlicommon \
+ -lXau \
+ -lXdmcp \
+ -l:libpng16.so.16 \
+ -l:libz.so.1.2.11 \
+ -lbsd \
+ -lmd \
+ -l:libm.so.6 \
+ -l:libpthread-2.31.so \
+ -l:libdl-2.31.so \
+ -l:libc-2.31.so \
+ -l:ld-2.31.so \
+
+
 LIBS_ONX_XCB = -lonex-lang-x86 -lonex-kernel-x86 -lvulkan -lxcb -lm -lfreetype
 
 #-------------------------------------------------------------------------------
@@ -139,6 +172,18 @@ onx-hwc: ${SOURCES_ONX_HWC:.c=.o} ${SOURCES_ONX_HWC_CPP:.cpp=.o} ${HEADERS_ONX_H
 	@echo $@ '<=' ${SOURCES_ONX_HWC:.c=.o} ${SOURCES_ONX_HWC_CPP:.cpp=.o} ${SHADERS:.spv=.o}
 	@echo -----
 	$(LDX) -o $@ ${SOURCES_ONX_HWC:.c=.o} ${SOURCES_ONX_HWC_CPP:.cpp=.o} ${SHADERS:.spv=.o} $(LIB_DIR_HWC) $(LIBS_ONX_HWC)
+	mkdir -p onx
+	cp $@ onx
+
+onx-pi4: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
+onx-pi4: INC_DIR=${INC_DIR_PI4}
+onx-pi4: CC=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-gcc
+onx-pi4: LDX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-gcc
+onx-pi4: ${SOURCES_ONX_XCB:.c=.o} ${HEADERS_ONX_XCB} ${SHADERS:.spv=.o}
+	@echo ================
+	@echo $@ '<=' ${SOURCES_ONX_XCB:.c=.o} ${SHADERS:.spv=.o}
+	@echo -----
+	$(LDX) -o $@ ${SOURCES_ONX_XCB:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIR_PI4) $(LIBS_ONX_PI4)
 	mkdir -p onx
 	cp $@ onx
 
@@ -211,6 +256,9 @@ copy-android: shaderc
 	adb `adb devices | grep -w device | head -1 | sed 's:\(.*\)device:-s \1:'` shell pm uninstall network.object.onexos || echo installed app not found
 	adb `adb devices | grep -w device | head -1 | sed 's:\(.*\)device:-s \1:'` install android/onexos/build/outputs/apk/debug/onexos-debug.apk
 	adb `adb devices | grep -w device | head -1 | sed 's:\(.*\)device:-s \1:'` shell rm -f sdcard/Onex/onex.ondb
+
+copy-raspad: onx-pi4
+	rsync -ruav --stats --progress --delete onx/ raspad:onx
 
 copy-dorold: onx-hwc
 	rsync -ruav --stats --progress --delete onx/ phablet@dorold:onx

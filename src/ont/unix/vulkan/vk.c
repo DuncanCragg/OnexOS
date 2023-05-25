@@ -12,7 +12,7 @@
 #include "inttypes.h"
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-bool validate = true;
+bool validate = false;
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
 bool validate = false;
 #endif

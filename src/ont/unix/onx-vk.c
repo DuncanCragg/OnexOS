@@ -330,8 +330,9 @@ struct uniforms {
 #if defined(__ANDROID__)
 //static char* font_face = "/system/fonts/SourceSansPro-Regular.ttf";
 static char* font_face = "/system/fonts/Roboto-Regular.ttf";
-#elif defined(VK_USE_PLATFORM_XCB_KHR) // Ubuntu Desktop
-static char* font_face = "/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf";
+#elif defined(VK_USE_PLATFORM_XCB_KHR) // Ubuntu Desktop; Pi4
+//static char* font_face = "/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf";
+static char* font_face = "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf";
 #else // Ubuntu Touch
 static char* font_face = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
 #endif

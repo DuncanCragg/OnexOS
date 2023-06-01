@@ -16,9 +16,6 @@ import android.app.NativeActivity;
 import android.util.Log;
 import android.app.*;
 
-import androidx.core.content.ContextCompat;
-import androidx.core.app.ActivityCompat;
-
 /**  NativeActivity wrapper offers Java API functions not available in JNI land.
   */
 public class OnexUI extends NativeActivity {
@@ -56,39 +53,21 @@ public class OnexUI extends NativeActivity {
     static private int fileRWPerms = 0; // 0 waiting, 1 approved, -1 denied
 
     private void checkAndRequestFileRWPermission() {
+        if(Environment.isExternalStorageManager()){
+            Log.d(LOGNAME, "Got file RW permission");
+            fileRWPerms=1;
+            return;
+        }
+        try {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+            intent.addCategory("android.intent.category.DEFAULT");
+            intent.setData(Uri.parse(String.format("package:%s",getApplicationContext().getPackageName())));
+            startActivityForResult(intent, REQUEST_FILE_RW);
 
-        if(Build.VERSION.SDK_INT >= 30) {
-
-            if(Environment.isExternalStorageManager()){
-                Log.d(LOGNAME, "API 30+ has file RW permission");
-                fileRWPerms=1;
-                return;
-            }
-            try {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                intent.addCategory("android.intent.category.DEFAULT");
-                intent.setData(Uri.parse(String.format("package:%s",getApplicationContext().getPackageName())));
-                startActivityForResult(intent, REQUEST_FILE_RW);
-
-            } catch (Exception e) {
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                startActivityForResult(intent, REQUEST_FILE_RW);
-            }
-
-        } else {
-
-            int readext = ContextCompat.checkSelfPermission(OnexUI.this, Manifest.permission.READ_EXTERNAL_STORAGE);
-            int writext = ContextCompat.checkSelfPermission(OnexUI.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-            if(readext==PackageManager.PERMISSION_GRANTED &&
-               writext==PackageManager.PERMISSION_GRANTED    ){
-
-                Log.d(LOGNAME, "API 29 has file RW permission");
-                fileRWPerms=1;
-                return;
-            }
-            ActivityCompat.requestPermissions(OnexUI.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, REQUEST_FILE_RW);
+        } catch (Exception e) {
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+            startActivityForResult(intent, REQUEST_FILE_RW);
         }
     }
 
@@ -147,39 +126,15 @@ public class OnexUI extends NativeActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if(requestCode==REQUEST_FILE_RW){
-            fileRWPerms= -1;
-            if (grantResults.length >= 1) {
-
-                int readext = grantResults[0];
-                int writext = grantResults[1];
-
-                if(readext==PackageManager.PERMISSION_GRANTED &&
-                   writext==PackageManager.PERMISSION_GRANTED    ){
-
-                    Log.d(LOGNAME, "API 29 file RW permission granted");
-                    fileRWPerms=1;
-                }
-            }
-        }
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
       super.onActivityResult(requestCode, resultCode, data);
       Log.d(LOGNAME, "onActivityResult()");
-
       if(requestCode==REQUEST_FILE_RW) {
           fileRWPerms= -1;
-          if(Build.VERSION.SDK_INT >= 30) {
-              if(Environment.isExternalStorageManager()) {
-
-                  Log.d(LOGNAME, "API 30+ file RW permission granted");
-                  fileRWPerms=1;
-              }
+          if(Environment.isExternalStorageManager()) {
+              Log.d(LOGNAME, "File RW permission granted");
+              fileRWPerms=1;
           }
-          return;
       }
     }
 

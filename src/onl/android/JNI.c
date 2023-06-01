@@ -10,12 +10,6 @@ extern void init_onex();
 extern void loop_onex();
 extern void on_alarm_recv(char*);
 
-// extern void serial_on_recv(char*, int);
-void serial_on_recv(char* b, size_t len)
-{
-  // was in deleted onl/android
-}
-
 JNIEXPORT void JNICALL Java_network_object_onexos_OnexBG_initOnex(JNIEnv* env, jclass clazz) {
   init_onex();
 }

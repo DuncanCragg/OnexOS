@@ -10,13 +10,9 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
 import android.text.*;
 import android.app.NativeActivity;
-import android.hardware.usb.*;
 import android.content.*;
 import android.util.Log;
 import android.app.*;
-
-import com.felhr.usbserial.UsbSerialInterface;
-import com.felhr.usbserial.UsbSerialDevice;
 
 public class OnexBG extends Service {
 
@@ -86,70 +82,6 @@ public class OnexBG extends Service {
           initialised=true;
         }
         return START_STICKY;
-    }
-
-    // -----------------------------------------------------------
-
-    private static UsbSerialDevice serialPort = null;
-
-    static public void onUSBAttached(Intent intent){
-
-      UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice.class);
-      UsbManager usbManager = self.getSystemService(UsbManager.class);
-      final UsbDeviceConnection connection = usbManager.openDevice(device);
-      UsbInterface interf = device.getInterface(0);
-      connection.claimInterface(interf, true);
-      serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
-
-      if(serialPort == null) { Log.e(LOGNAME, "No serial port!"); return; }
-      if(!serialPort.open()) { Log.e(LOGNAME, "Could not open serial port!"); return; }
-
-      serialPort.setBaudRate(9600);
-      serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
-      serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
-      serialPort.setParity(UsbSerialInterface.PARITY_NONE);
-      serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
-      serialPort.read(recvCB);
-
-      asyncConnected();
-    }
-
-    static public UsbSerialInterface.UsbReadCallback recvCB = new UsbSerialInterface.UsbReadCallback() {
-        @Override
-        public void onReceivedData(byte[] data) { dataRecv(data); }
-    };
-
-    static public native void serialOnRecv(String b);
-
-    static public void asyncConnected(){
-        new Thread(){ public void run(){ serialOnRecv(null); }}.start();
-    }
-
-    static private ByteArrayOutputStream recvBuff = new ByteArrayOutputStream();
-
-    static private void dataRecv(byte[] data) {
-      try{
-        recvBuff.write(data);
-        String chars = recvBuff.toString("UTF-8");
-        int x = chars.lastIndexOf('\n');
-        if(x == -1) return;
-        String newChars = chars.substring(0,x+1);
-        recvBuff.reset();
-        recvBuff.write(chars.substring(x+1).getBytes());
-        if(logReadWrite) Log.d(LOGNAME, "read (" + newChars + ")" );
-        serialOnRecv(newChars);
-      }catch(Exception e){}
-    }
-
-    static public void serialSend(String chars){
-      if(logReadWrite) Log.d(LOGNAME, "write (" + chars + ")");
-      try {
-        if(self.serialPort!=null){
-          self.serialPort.write(chars.getBytes("UTF-8"));
-        }
-      }catch(Exception e){
-        e.printStackTrace();
-      }
     }
 
     // -----------------------------------------------------------

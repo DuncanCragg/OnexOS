@@ -10,12 +10,10 @@ set(ONEX_LANG ../../../OnexLang)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu17 -Wall -Werror -Wno-incompatible-pointer-types-discards-qualifiers -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-function -DVK_USE_PLATFORM_ANDROID_KHR")
 
 file(GLOB SOURCE_FILES
-"${ONEX_KERNEL}/src/onl/unix/channel-serial.c"
 "${ONEX_KERNEL}/src/onl/unix/mem.c"
 "${ONEX_KERNEL}/src/onl/unix/persistence.c"
 "${ONEX_KERNEL}/src/onl/unix/properties.c"
 "${ONEX_KERNEL}/src/onl/unix/random.c"
-"${ONEX_KERNEL}/src/onl/unix/serial.c"
 "${ONEX_KERNEL}/src/onl/unix/time.c"
 "${ONEX_KERNEL}/src/lib/lib.c"
 "${ONEX_KERNEL}/src/lib/list.c"

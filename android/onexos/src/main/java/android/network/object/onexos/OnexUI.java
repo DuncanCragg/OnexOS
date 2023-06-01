@@ -36,8 +36,6 @@ public class OnexUI extends NativeActivity {
     public void onNewIntent(Intent intent){
       super.onNewIntent(intent);
       Log.d(LOGNAME, "onNewIntent("+intent.getAction()+")");
-      if(!"android.hardware.usb.action.USB_DEVICE_ATTACHED".equalsIgnoreCase(intent.getAction())) return;
-      OnexBG.onUSBAttached(intent);
     }
 
     @Override

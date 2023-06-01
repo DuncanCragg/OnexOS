@@ -267,11 +267,14 @@ copy-android: shaderc
 copy-raspad: onx-pi4
 	rsync -ruav --stats --progress --delete onx/ raspad:onx
 
-copy-dorold: onx-hwc
-	rsync -ruav --stats --progress --delete onx/ phablet@dorold:onx
+copy-op5: onx-hwc
+	rsync -ruav --stats --progress --delete onx/ phablet@op5:onx
 
-copy-op5t-ut: onx-hwc
-	rsync -ruav --stats --progress --delete onx/ phablet@op5t-ut:onx
+copy-op5t: onx-hwc
+	rsync -ruav --stats --progress --delete onx/ phablet@op5t:onx
+
+copy-op6: onx-hwc
+	rsync -ruav --stats --progress --delete onx/ phablet@op6:onx
 
 SHELL=/usr/bin/bash
 

@@ -1,8 +1,8 @@
 
 # OnexOS
 
-OnexOS has no apps, so all our data is freed and under our control. Having no apps leads
-us to discover the Power of the Link! Links enables our data to be:
+OnexOS has no apps. Instead it delivers the Power of the Link! Links enable all our data
+to be freed and brought under our control; to be:
 
  - re-structured how we like
  - re-decentralised peer-to-peer directly between our devices

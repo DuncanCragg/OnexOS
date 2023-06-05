@@ -66,8 +66,8 @@ void onl_init() {
 
 void onl_create_window()
 {
-  io.swap_width =1920/2;
-  io.swap_height= 1080/2;
+  io.swap_width =1280;
+  io.swap_height= 800;
 
   set_io_rotation(0);
 

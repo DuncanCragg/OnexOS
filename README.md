@@ -14,7 +14,7 @@ own data. The vision of OnexOS is of a world without apps, app-traps and "walled
 services; freedom from Big Tech and Inscrutable Tech. Building a single global data
 fabric owned by everyone and by no-one.
 
-<a href="http://object.network/os-llll.html">Go here to see how an OS without apps works out in practice</a>
+<a href="http://object.network/vw-llll.html">Go here to see how an OS without apps works out, as a 3D virtual world!</a>
 
 <br/>
 ____________________________________

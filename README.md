@@ -21,10 +21,10 @@ Apps (and their backing services) prevent our digital property working together.
 
 ### Give me an example of our "digital property working together" in your OS.
 
-OK: with your permission I could pin the reading from my thermostat into your slide
-deck, and it will continue to be "live" there.
+OK: I could pin the reading from my thermostat into your slide deck, with your
+permission, and it will continue to be "live" there.
 
-### OK, I can see that my home automation app and my slide presentation app won't allow that!
+### Ah yes, I can see that my home automation and slides apps won't allow that!
 
 Unless both happened to be built by a Big Tech corporation, and all this was running
 within their silo servers.
@@ -40,11 +40,11 @@ It's a "Parallel Digital Reality".
 ### Oh, like AR, VR - Spatial Computing?
 
 Yes. Now that we're free from apps, all of our digital property can be easily snapped
-together within a single, seamless, shared, space.
+together within a single, seamless, shared space.
 
 ### So you build in 3D?
 
-Yes; here, everything just works like reality. So you have rooms with calendars and
+Yes. Here, everything just works like reality. So you have rooms with calendars and
 notes pinned to the walls.
 
 ----------------
@@ -57,7 +57,11 @@ digital property and identities.
 
 ----------------
 
+<a href="https://duncancragg.substack.com/">More on Substack!</a>
+
 <br/>
+
+----------------
 
 
 

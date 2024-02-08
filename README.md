@@ -55,7 +55,7 @@ It should be that easy, yes. All that is achieved through the pervasive use of "
 
 Like enhanced URLs, yes! Links are handles onto every piece of digital property that we
 own: all world objects from a single paragraph or flower petal up to libraries and
-forests.
+forests can be grabbed by their links.
 
 ----------------
 

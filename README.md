@@ -47,6 +47,16 @@ together within a single, seamless, shared space.
 Yes. Here, everything just works like reality. So you have rooms with calendars and
 notes pinned to the walls.
 
+### Pinning and snapping: sounds like LEGO!
+
+It should be that easy, yes. All that is achieved through the pervasive use of "links".
+
+### Links? Like URLs?
+
+Like enhanced URLs, yes! Links are handles onto every piece of digital property that we
+own: all world objects from a single paragraph or flower petal up to libraries and
+forests.
+
 ----------------
 
 OnexOS builds a single, seamless, global, live data fabric, owned by everyone and by

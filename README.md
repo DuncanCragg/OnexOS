@@ -55,8 +55,9 @@ no-one.
 With OnexOS, we can reclaim control, sovereignty and empowerment over our own devices,
 digital property and identities.
 
+----------------
+
 <br/>
-____________________________________
 
 
 

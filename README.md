@@ -5,7 +5,7 @@ _The following is an imaginary dialogue from the future, when I've written enoug
 
 ### Interesting - sounds like an operating system?
 
-Yes, it's an OS for Raspberry Pi 4s and Micro:Bits.
+Yes, it's an OS for Raspberry Pi 4s and nRF52-based devices.
 
 ### What's different about this one?
 

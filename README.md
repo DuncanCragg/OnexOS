@@ -17,17 +17,16 @@ Well, without apps, there can be no "app trap"!
 
 ### What's the "app trap"?
 
-Apps (and their backing services) prevent our digital property working together.
+Apps - and their backing services - prevent our digital property working together.
 
-### Give me an example of our "digital property working together" in your OS.
+### Give me an example of our "digital property working together" in _your_ OS.
 
 OK: I could pin the reading from my thermostat into your slide deck, with your
 permission, and it will continue to be "live" there.
 
-### Ah yes, I can see that my home automation and slides apps won't allow that!
+### Ah yes, I can see that my slides app won't support that!
 
-Unless both happened to be built by a Big Tech corporation, and all this was running
-within their silo servers.
+Nor will my home automation app.
 
 ### Cool. So, without apps, what do you see on boot-up?
 

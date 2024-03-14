@@ -11,16 +11,17 @@
 onx.????.c
 *.ondb
 ,*
+.vimfiles
 dfu.zip
 onx-xcb
 onx-pi4
 onx/
 sdk
-docs/local
 external/freetype
 external/lvgl
 
 # never show me: also in .git/info/exclude:
 
+docs/local
 .*.sw*
 

@@ -25,27 +25,6 @@ COMMON_DEFINES = \
 -D__STACK_SIZE=8192 \
 -D_GNU_SOURCE \
 
-
-COMMON_DEFINES_SD = \
--DNRF_SD_BLE_API_VERSION=7 \
--DSOFTDEVICE_PRESENT \
-
-
-COMPILER_DEFINES_PINETIME = \
-$(COMMON_DEFINES) \
-$(COMMON_DEFINES_SD) \
--DBOARD_PINETIME \
--DNRF52832_XXAA \
--DS132 \
--DNRF52 \
--DNRF52_PAN_74 \
-#-DDEBUG \
-#-DDEBUG_NRF \
-#-DLOG_TO_RTT \
-#-DLOG_TO_GFX \
-#-DSPI_BLOCKING \
-
-
 EPOCH_ADJUST=0
 
 COMPILER_DEFINES_MAGIC3 = \
@@ -68,18 +47,6 @@ $(COMMON_DEFINES) \
 -DHAS_SERIAL \
 
 #-------------------------------------------------------------------------------
-
-INCLUDES_PINETIME = \
--I./include \
--I./src/ \
--I./external \
--I./external/fonts \
--I./external/lvgl \
--I./external/lvgl/src/lv_font \
-$(OL_INCLUDES) \
-$(OK_INCLUDES_PINETIME) \
-$(SDK_INCLUDES_PINETIME) \
-
 
 INCLUDES_MAGIC3 = \
 -I./include \
@@ -104,10 +71,6 @@ $(SDK_INCLUDES_DONGLE) \
 
 #-------------------------------------------------------------------------------
 
-WEAR_SOURCES = \
-./src/ont/nRF5/onx-wear.c \
-
-
 SW_SOURCES = \
 ./src/ont/g2d/g2d.c \
 ./src/ont/keyboard.c \
@@ -131,11 +94,6 @@ OL_INCLUDES = \
 -I../OnexLang/include \
 
 
-OK_INCLUDES_PINETIME = \
--I../OnexKernel/include \
--I../OnexKernel/src/onl/nRF5/pinetime \
-
-
 OK_INCLUDES_MAGIC3 = \
 -I../OnexKernel/include \
 -I../OnexKernel/src/onl/nRF5/magic3 \
@@ -144,14 +102,6 @@ OK_INCLUDES_MAGIC3 = \
 OK_INCLUDES_DONGLE = \
 -I../OnexKernel/include \
 -I../OnexKernel/src/onl/nRF5/dongle \
-
-
-SDK_INCLUDES_PINETIME = \
--I./sdk/components/softdevice/s132/headers \
--I./sdk/components/softdevice/s132/headers/nrf52 \
--I./sdk/external/thedotfactory_fonts \
--I./sdk/components/libraries/gfx \
-$(SDK_INCLUDES) \
 
 
 SDK_INCLUDES_MAGIC3 = \
@@ -186,32 +136,6 @@ SDK_INCLUDES = \
 #-------------------------------------------------------------------------------
 # Targets
 
-onx-wear-pinetime: INCLUDES=$(INCLUDES_PINETIME)
-onx-wear-pinetime: COMPILER_DEFINES=$(COMPILER_DEFINES_PINETIME)
-onx-wear-pinetime: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
-	rm -rf okolo
-	mkdir okolo
-	ar x ../OnexKernel/libonex-kernel-pinetime.a --output okolo
-	ar x   ../OnexLang/libonex-lang-nrf.a        --output okolo
-	cp -a `find ~/Sources/lvgl-wear -name *.o` okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_PINETIME) -Wl,-Map=./onx-wear.map -o ./onx-wear.out $^ okolo/* -lm
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-wear.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-wear.out ./onx-wear.hex
-
-onx-wear-magic3: INCLUDES=$(INCLUDES_MAGIC3)
-onx-wear-magic3: COMPILER_DEFINES=$(COMPILER_DEFINES_MAGIC3)
-onx-wear-magic3: $(EXTERNAL_SOURCES:.c=.o) $(WEAR_SOURCES:.c=.o)
-	rm -rf okolo
-	mkdir okolo
-	ar x ../OnexKernel/libonex-kernel-magic3.a --output okolo
-	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
-	cp -a `find ~/Sources/lvgl-wear -name *.o` okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_MAGIC3) -Wl,-Map=./onx-wear.map -o ./onx-wear.out $^ okolo/* -lm
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-wear.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-wear.out ./onx-wear.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-wear.out ./onx-wear.hex
-
 onx-sw-magic3: INCLUDES=$(INCLUDES_MAGIC3)
 onx-sw-magic3: COMPILER_DEFINES=$(COMPILER_DEFINES_MAGIC3)
 onx-sw-magic3: $(SW_SOURCES:.c=.o)
@@ -236,31 +160,7 @@ onx-iot: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot.out ./onx-iot.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot.out ./onx-iot.hex
 
-APPLICATION_VERSION = --application-version 1
-BOOTLOADER_VERSION = --bootloader-version $(shell cat ../OnexKernel/bootloader-number.txt)
-SETTINGS_VERSIONS = $(APPLICATION_VERSION) $(BOOTLOADER_VERSION) --bl-settings-version 2
-
-settings.hex: onx-wear-pinetime
-	nrfutil settings generate --family NRF52 --application onx-wear.hex $(SETTINGS_VERSIONS) settings.hex
-
-pinetime-erase:
-	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "nrf5 mass_erase" -c "reset run" -c exit
-
-pinetime-flash-bootloader: settings.hex
-	mergehex --merge ../OnexKernel/onex-kernel-bootloader.hex settings.hex --output ok-bl+settings.hex
-	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program ok-bl+settings.hex" -c "reset run" -c exit
-
-pinetime-flash-sd:
-	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program ./sdk/components/softdevice/s132/hex/s132_nrf52_7.0.1_softdevice.hex" -c "reset run" -c exit
-
 #-------------------------------:
-
-pinetime-wear-flash: settings.hex
-	mergehex --merge onx-wear.hex settings.hex --output onx-wear+settings.hex
-	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-wear+settings.hex" -c "reset run" -c exit
-
-magic3-wear-flash: onx-wear-magic3
-	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-wear.hex" -c "reset run" -c exit
 
 magic3-sw-flash: onx-sw-magic3
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-sw.hex" -c "reset run" -c exit
@@ -268,14 +168,6 @@ magic3-sw-flash: onx-sw-magic3
 dongle-flash: onx-iot
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
-
-#-------------------------------:
-
-pinetime-reset:
-	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "reset run" -c exit
-
-pinetime-ota: onx-wear.hex
-	nrfutil pkg generate --hw-version 52 --application onx-wear.hex $(APPLICATION_VERSION) --sd-req 0xCB --key-file $(PRIVATE_PEM) onx-wear.zip
 
 #-------------------------------------------------------------------------------
 
@@ -285,7 +177,6 @@ LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMEZONE_OFFSET=$$(date +'%z'
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIME=$$(date +'%y%m%d%H%M')
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BOOTLOADER_NUMBER=$$(cat ../OnexKernel/bootloader-number.txt)
 
-LD_FILES_PINETIME = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/pinetime/onex.ld
 LD_FILES_MAGIC3   = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/magic3/onex.ld
 LD_FILES_DONGLE   = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/dongle/onex.ld
 

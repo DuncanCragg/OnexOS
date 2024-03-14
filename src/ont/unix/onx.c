@@ -27,10 +27,6 @@ bool user_active=true;
 
 uint32_t loop_time=0;
 
-#if defined(__ANDROID__)
-extern void sprint_external_storage_directory(char* buf, int buflen, const char* format);
-#endif
-
 static object* config;
 static object* oclock;
 
@@ -51,14 +47,7 @@ void init_onex() {
   onex_set_evaluators("clock",   evaluate_clock, 0);
   onex_set_evaluators("user",    evaluate_user, 0);
 
-#if defined(__ANDROID__)
-  char dbpath[128];
-  sprint_external_storage_directory(dbpath, 128, "%s/Onex/onex.ondb");
-  log_write("Writing to DB at %s\n", dbpath);
-  onex_init(dbpath);
-#else
   onex_init("./onex.ondb");
-#endif
 
   object* home;
   object* inventory;
@@ -117,27 +106,10 @@ static void* do_onex_loop(void* d) {
   return 0;
 }
 
-#if defined(__ANDROID__)
-
-// Android - OnexBG - calls init_onex() and loop_onex() itself
-// onx_init() is the call-up from the event loop once "prepared"
-// can be called before or after init_onex()
-void onx_init(){
-  onex_run_evaluators(useruid, 0);
-}
-
-void loop_onex(){
-  do_onex_loop(0);
-}
-
-#else
-
 static pthread_t loop_onex_thread_id;
 
 void onx_init(){
   init_onex();
   pthread_create(&loop_onex_thread_id, 0, do_onex_loop, 0);
 }
-
-#endif
 

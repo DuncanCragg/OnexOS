@@ -7,13 +7,10 @@
 
 #include "ont/unix/vulkan/object_type_string_helper.h"
 #include "ont/unix/vulkan/vk.h"
-#include "ont/unix/vulkan/gettime.h"
 
 #include "inttypes.h"
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-bool validate = false;
-#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
 bool validate = false;
 #endif
 
@@ -509,11 +506,6 @@ static void create_instance() {
                 platformSurfaceExtFound = 1;
                 extension_names[enabled_extension_count++] = VK_KHR_XCB_SURFACE_EXTENSION_NAME;
             }
-#elif defined(VK_USE_PLATFORM_ANDROID_KHR)
-            if (!strcmp(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
-                platformSurfaceExtFound = 1;
-                extension_names[enabled_extension_count++] = VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
-            }
 #endif
             if (!strcmp(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, instance_extensions[i].extensionName)) {
                 extension_names[enabled_extension_count++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
@@ -939,10 +931,8 @@ void ont_vk_loop(bool running) {
 }
 
 void ont_vk_restart(){
-#if !defined(__ANDROID__)
   finish(true);
   prepare(true);
-#endif
 }
 
 void ont_vk_iostate_changed() {

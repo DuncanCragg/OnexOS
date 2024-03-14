@@ -12,7 +12,6 @@ onx.????.c
 *.ondb
 ,*
 dfu.zip
-onx-hwc
 onx-xcb
 onx-pi4
 onx/
@@ -21,15 +20,7 @@ docs/local
 external/freetype
 external/lvgl
 
-# Android
-
-local.properties
-android/doc
-build/
-.cxx/
-
 # never show me: also in .git/info/exclude:
 
-.*.sw?
-android/.gradle
+.*.sw*
 

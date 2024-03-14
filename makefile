@@ -62,10 +62,8 @@ $(COMMON_DEFINES) \
 
 COMPILER_DEFINES_DONGLE = \
 $(COMMON_DEFINES) \
-$(COMMON_DEFINES_SD) \
 -DBOARD_PCA10059 \
 -DNRF52840_XXAA \
--DS140 \
 -DLOG_TO_SERIAL \
 -DHAS_SERIAL \
 
@@ -165,8 +163,8 @@ $(SDK_INCLUDES) \
 
 
 SDK_INCLUDES_DONGLE = \
--I./sdk/components/softdevice/s140/headers \
--I./sdk/components/softdevice/s140/headers/nrf52 \
+-I./sdk/components/drivers_nrf/nrf_soc_nosd/ \
+-I./sdk/components/softdevice/mbr/headers/ \
 $(SDK_INCLUDES) \
 
 
@@ -268,7 +266,7 @@ magic3-sw-flash: onx-sw-magic3
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-sw.hex" -c "reset run" -c exit
 
 dongle-flash: onx-iot
-	nrfutil pkg generate --hw-version 52 --sd-req 0xCA --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
 
 #-------------------------------:

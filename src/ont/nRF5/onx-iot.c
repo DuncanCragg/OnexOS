@@ -6,7 +6,6 @@
 #if defined(HAS_SERIAL)
 #include <onex-kernel/serial.h>
 #endif
-#include <onex-kernel/blenus.h>
 #include <onn.h>
 #include <onr.h>
 
@@ -31,7 +30,6 @@ int main()
 #if defined(HAS_SERIAL)
   serial_init(0,0);
 #endif
-  blenus_init(0,0);
 
   onex_init("");
 

@@ -1175,8 +1175,7 @@ static void draw_about(char* path, uint8_t g2d_node) {
                 "cpu: %s", object_pathpair(user, path, "cpu"));
 
   g2d_node_text(container_g2d_node, 10, 190, G2D_BLUE, G2D_BLACK, 1,
-                "build: %s %s", object_pathpair_get_n(user, path, "build-info", 1),
-                                object_pathpair_get_n(user, path, "build-info", 2));
+                "build: %s", object_pathpair(user, path, "build-info"));
 
   if(offy < 0) draw_links(path, container_g2d_node);
 

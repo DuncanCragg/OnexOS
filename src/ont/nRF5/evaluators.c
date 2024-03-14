@@ -16,7 +16,6 @@
 #include <g2d.h>
 
 extern char __BUILD_TIME;
-extern char __BOOTLOADER_NUMBER;
 
 #define ADC_CHANNEL 0
 
@@ -72,11 +71,8 @@ bool evaluate_button_in(object* btn, void* d) {
 
 bool evaluate_about_in(object* abt, void* d) {
 
-  object_property_set_fmt(abt, "build-info", "%lu %lu",
-                          (unsigned long)&__BUILD_TIME,
-                          (unsigned long)&__BOOTLOADER_NUMBER);
-
-  object_property_set_fmt(abt, "cpu", "%d%%", boot_cpu());
+  object_property_set_fmt(abt, "build-info", "%lu", (unsigned long)&__BUILD_TIME);
+  object_property_set_fmt(abt, "cpu",        "%d%%", boot_cpu());
 
   return true;
 }

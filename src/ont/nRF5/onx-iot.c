@@ -37,6 +37,9 @@ int main()
   gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);
   gpio_mode(LED1_G, OUTPUT);
   gpio_mode(LED2_B, OUTPUT);
+#elif defined(BOARD_ITSYBITSY)
+  gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);
+  gpio_mode(LED_1, OUTPUT);
 #endif
 
   onex_set_evaluators("evaluate_button", evaluate_edit_rule, evaluate_button_io, 0);
@@ -61,6 +64,8 @@ int main()
 #if defined(BOARD_PCA10059)
   gpio_set(LED1_G, LEDS_ACTIVE_STATE);
   gpio_set(LED2_B, !LEDS_ACTIVE_STATE);
+#elif defined(BOARD_ITSYBITSY)
+  gpio_set(LED_1, LEDS_ACTIVE_STATE);
 #endif
 
   while(1){
@@ -87,10 +92,14 @@ bool evaluate_light_io(object* light, void* d)
   if(object_property_is(light, "light", "on")){
 #if defined(BOARD_PCA10059)
     gpio_set(LED2_B, LEDS_ACTIVE_STATE);
+#elif defined(BOARD_ITSYBITSY)
+    gpio_set(LED_1, LEDS_ACTIVE_STATE);
 #endif
   } else {
 #if defined(BOARD_PCA10059)
     gpio_set(LED2_B, !LEDS_ACTIVE_STATE);
+#elif defined(BOARD_ITSYBITSY)
+    gpio_set(LED_1, !LEDS_ACTIVE_STATE);
 #endif
   }
   return true;

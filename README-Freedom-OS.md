@@ -37,7 +37,7 @@ I can grab a photo you let me see, and pin it onto my home wall, or into a media
 
 The spaces are created on our own devices.
 
-If you do something sitting next to me, I get the change via the wifi, not via California.
+If you do something sitting next to me, I get the change via the WiFi, not via California.
 
 ### It's declarative
 

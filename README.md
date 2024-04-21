@@ -9,60 +9,64 @@ Yes, it's an OS for PCs and nRF52-based devices.
 
 ### What's different about this one?
 
-It has no apps or applications!
+It manifests a virtual world!
 
 ### Oh, OK. Why would you do that?
 
-Well, without apps, there can be no "app trap"!
+Well, because the Metaverse should be the foundation of everything computers do!
 
-### What's the "app trap"?
+### Very bold, and abstract, but what do you see on boot-up?
 
-Apps - and their backing services - prevent our digital property working together.
-
-### Give me an example of our "digital property working together" in _your_ OS.
-
-OK: I could pin the reading from my thermostat into your slide deck, with your
-permission, and it will continue to be "live" there.
-
-### Ah yes, I can see that my slides app won't support that!
-
-Nor will my home automation app.
-
-### Cool. So, without apps, what do you see on boot-up?
-
-You're dropped immediately into a shared 3D space.
-
-### Wow. Why 3D?
-
-It's a "Parallel Digital Reality".
+You're dropped immediately into a 3D space: a "Parallel Digital Reality".
 
 ### Oh, like AR, VR - Spatial Computing?
 
-Yes. Now that we're free from apps, all of our digital property can be easily snapped
-together within a single, seamless, shared space.
+Yes. But unlike Spatial Computing, there are no apps.
 
-### So you build in 3D?
+### OK, so how is all of our stuff, our data, managed?
 
-Yes. Here, everything just works like reality. So you have rooms with calendars and
-notes pinned to the walls.
+All of our digital property is placed within this single, seamless, shared space.
+
+### Right, but how do you do anything?
+
+Everything can be easily snapped together how we like.
+
+### And "snapping" together is all we need?
+
+Mostly: here, everything just works like it would in reality.
+
+So you have rooms with stuff pinned to the walls.
 
 ### Pinning and snapping: sounds like LEGO!
 
-It should be that easy, yes. All that is achieved through the pervasive use of "links".
+It should be that easy, yes. All achieved through the pervasive use of "links".
 
 ### Links? Like URLs?
 
 Like enhanced URLs, yes! Links are handles onto every piece of digital property that we
-own: all world objects from a single paragraph or flower petal up to libraries and
-forests can be grabbed by their links.
+own.
+
+### Every piece?
+
+All world objects from a flower petal up to a forest can be grabbed by their links.
+
+### And these enhanced URLs work between my objects and yours?
+
+Yes, exactly: this is a distributed OS; we build this space together.
+
+### Across all of our devices?
+
+Yes, it works Local-first and peer-to-peer.
 
 ----------------
 
 OnexOS builds a single, seamless, global, live data fabric, owned by everyone and by
 no-one.
 
-With OnexOS, we can reclaim control, sovereignty and empowerment over our own devices,
-digital property and identities.
+The first target of OnexOS is to manifest a single, open, P2P Metaverse, in analogy to the Web.
+
+The vision of OnexOS if for us all to reclaim control, sovereignty and empowerment over
+our own devices, digital property and identities.
 
 ----------------
 

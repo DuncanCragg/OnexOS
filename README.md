@@ -70,6 +70,8 @@ our own devices, digital property and identities.
 
 ----------------
 
+Read more right here about the [Parallel Reality Computer](README-MetaWebOS.md)!
+
 <a href="https://duncancragg.substack.com/">More on Substack!</a>
 
 <br/>

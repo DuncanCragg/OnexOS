@@ -1,44 +1,30 @@
 _This is a description of what I'm working on now, not what the app does yet!_
 
-# The Parallel Reality Computer
+# OnexOS
 
-The Parallel Reality Computer or "PRC" runs an operating system that creates a single,
-seamless, 3D virtual world. This virtual world is manifested across all running PRCs.
-The PRC is always running this space and puts you right back where you were every time
-you open it.
-
-### What do you do there?
-
-In this "Parallel Reality" we can quickly and easily co-create vast interactive,
-engaging, fun, calm, beautiful and imaginative places. It's an endless world of whatever
-you like. Use the PRC for fun or to organise your thoughts; you can build a creative
-space, a thinking space, or a meeting space. Make a chill-out room with coloured lights
-and soft-coloured walls. You could type up poems or stories or pin inspirational quotes
-and images around your chill-out room. Organise your photos on gallery walls. Build your
-ideal house, then a street of houses with your family and friends, then construct entire
-cities together. Build forests and castles. You can create a magical tree, then copy
-that into a magical wood, then multiply that wood into a magical forest.
-
-### Who's it for?
-
-It's aimed at whole families; at people of any age.
+OnexOS is an operating system that creates a single, seamless, 3D virtual world. This
+virtual world is manifested across all running instances of OnexOS. The OS is always
+running this space and puts you right back where you were every time you open it.
 
 ### What's it most like?
 
-It's something like a mix between Minecraft Creative and Second Life.
+It's something like a mix between Minecraft Creative servers and Second Life, but
+running as an OS.
+
+### Who's it for?
+
+It's aimed at whole families; at people of any age, so less like Minecraft and Second
+Life in that regard!
+
+### What do you do there?
+
+All the usual virtual world things: meet, chat, share, build, co-create, work and play.
 
 ### What's novel about it?
 
-Everyone using a PRC owns their own chunks of the world that we're all building
+Everyone running OnexOS owns their own chunks of the world that we're all building
 together. We then all sew our virtual objects and places together - into a single, vast,
-seamless universe, owned by all of us, running across each and all of our PRCs.
-
-### How do I control who can see and change my stuff?
-
-Everything you build stays owned by you. You get to decide who can see or who can change
-your stuff: your objects can be set up to be seen only by your family or by the public.
-You can set up a virtual family kitchen with a message board, or a living room with a
-photo wall, all visible only to you and your family.
+seamless universe, owned by all of us, running across each and all of our devices.
 
 ### How is all our stuff "sewn together"?
 
@@ -63,15 +49,12 @@ walk across into it, or you can link to a leaf I made, and use it yourself.
 
 Petals link to flowers, vases to tables, rooms within houses, streets of cities.
 
-### What can you do?
+### How do I control who can see and change my stuff?
 
-All the usual virtual world things: meet, chat, share, build, co-create, work, and
-mainly play.
-
-The first thing you may do here is build a family room to share stuff. Just quickly snap
-or link together some panels into a room, then put a panel on the wall as a pinboard
-space to pin (i.e., link to) messages and photos. Everyone can visit this room on their
-own PRC and will see each other and can say "Hi!", and add to the pinboard.
+Everything you build stays owned by you. You get to decide who can see or who can change
+your stuff: your objects can be set up to be seen only by your family or by the public.
+You can set up a virtual family kitchen with a message board, or a living room with a
+photo wall, all visible only to you and your family.
 
 ### What's the cost?
 
@@ -88,6 +71,23 @@ Being open, it's free from lock-in to "walled gardens".
 
 Having everything in the world, from photos to cities and from leaves to forests, linked
 together allows us all to quickly create a potentially huge, single, shared universe.
+
+In this virtual world we can quickly and easily co-create vast interactive, engaging,
+fun, calm, beautiful and imaginative places. It's an endless world of whatever you like.
+Use the world for fun or to organise your thoughts; you can build a creative space, a
+thinking space, or a meeting space.
+
+Make a chill-out room with coloured lights and soft-coloured walls. You could type up
+poems or stories or pin inspirational quotes and images around your chill-out room.
+Organise your photos on gallery walls. Build your ideal house, then a street of houses
+with your family and friends, then construct entire cities together. Build forests and
+castles. You can create a magical tree, then copy that into a magical wood, then
+multiply that wood into a magical forest.
+
+The first thing you may do here is build a family room to share stuff. Just quickly snap
+together some panels into a room, then put a panel on the wall as a pinboard space to
+pin messages and photos. Everyone can visit this room on their own device and will see
+each other and can say "Hi!", then add to the pinboard.
 
 With links you can build a city:
 

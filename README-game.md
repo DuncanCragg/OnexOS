@@ -18,7 +18,7 @@ All the usual Open World Sandbox things: build, create and play. Except there's 
 World. You sew chunks of the world, virtual objects and places together into a single,
 vast, seamless universe.
 
-Our world objects are sewn into this single global fabric through **links**.
+Your world objects are sewn into this single global fabric through **links**.
 
 ### How do links work?
 
@@ -40,12 +40,6 @@ You can link to a city you've built from your virtual garden, which lets you see
 just walk across into it, or you can link to a leaf you made, and use it elsewhere.
 
 Petals link to flowers, vases to tables, rooms within houses, streets of cities.
-
-### What's the cost?
-
-There is none. Free and open software.
-
-There's no account set-up, and no adverts. You can just jump in and start creating!
 
 --------------------------------------------
 
@@ -73,7 +67,7 @@ pin notes and photos.
 With links you can build a city:
 
  - build a house from panels linked into rooms and rooms linked together
- - add more rooms to build your virtual home, perhaps one room for each of you
+ - add more rooms to build your virtual home, perhaps one room for each of your projects
  - then build a street made of links to more houses
  - add some extra houses by creating one house and dropping its link up the street
  - then build a city with links between the streets
@@ -133,7 +127,8 @@ windows that swing open and shut. You can build a wheeled buggy to jump into, th
 roll faster and faster down the street from the top of the hill.  Make a game of
 skittles or a game where you try to build a tower without it falling over. Because
 there's only one world, you can just sew these together into a game park, where your
-skittle balls can also knock over your tower!
+skittle balls can also knock over your tower! You can create a drawbridge for your
+castle pulled up on chains wrapped around pulleys.
 
 You can actually put in a special link from a door object to a button object so that
 pushing or standing on the button opens the door.
@@ -146,8 +141,8 @@ or even left lying around on the floor.
  - if you want to share a poster from your virtual bedroom, simply grab its link and pin
    it to the kitchen pinboard
  - now if you change anything on the poster, the one in the kitchen changes, too
- - drop in a link from your scrapbook of notes and photos to one of your mum's notes on
-   the desk in her virtual study
+ - drop in a link from your scrapbook of notes and photos to one of your notes on
+   the desk in your virtual study
  - pin a link in the middle of your virtual kitchen wall to one of your scrapbook photos
  - keep a shopping list in the virtual kitchen
  - you can quickly make a current shopping list by grabbing just the links to the
@@ -176,7 +171,7 @@ Or build a city library:
  - next to the city gallery on the high street, put down a library full of links
    collecting the best pinboards, billboards and inspirational messages you have created
    or discovered
- - maybe the holiday plans, favourite recipes or music posters you each have in your rooms
+ - maybe the holiday plans, favourite recipes or music posters you have in your rooms
  - collect an array of links to snippets of some text and images that you find useful for
    a short story you're writing
  - sit in the library and surround yourself with those snippets while you compose it

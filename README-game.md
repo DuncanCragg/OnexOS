@@ -96,7 +96,7 @@ Or a warehouse:
 You can build entire worlds:
 
  - create a pretty tree on a little hill
- - replicate a link from your tree to your sister's leaf, repeated all over it
+ - replicate a link from your tree to a leaf you made, repeated all over it
  - then multiply that tree up to a forest on a mountain by dropping hill and tree links
    all over
  - if you change the leaf to red in autumn, all trees that use the leaf go red
@@ -123,7 +123,8 @@ change the colour of the leaf to red in the autumn, all instances will change at
 ### Everything is live or interactive here
 
 Things in this world have physical properties: every house you make can have doors and
-windows that swing open and shut. You can build a wheeled buggy to jump into, that can
+windows that swing open and shut. You can make a windmill whose vanes turn when it's
+windy. You can build a wheeled buggy to jump into, that can
 roll faster and faster down the street from the top of the hill.  Make a game of
 skittles or a game where you try to build a tower without it falling over. Because
 there's only one world, you can just sew these together into a game park, where your
@@ -150,7 +151,7 @@ or even left lying around on the floor.
 
 You can easily build a new poster by simply collecting and dropping some links into it.
 These could be links to paragraph or message panels that you find elsewhere, links to
-messages or links to photos you like on someone's wall. You can of course, link to
+messages or links to photos you like on a gallery wall. You can of course, link to
 bigger things, like other posters, to complete 3D objects, or to an entire virtual city!
 
 With panels:

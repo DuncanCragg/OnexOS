@@ -2,9 +2,10 @@ _This is a description of what I'm working on now, not what the app does yet!_
 
 # OnexOS
 
-OnexOS is an operating system that creates a single, seamless, 3D virtual world. This
-virtual world is manifested across all running instances of OnexOS. The OS is always
-running this space and puts you right back where you were every time you open it.
+OnexOS (maybe that stands for "One Extreme Openworld Sandbox"?) is an operating system
+that creates a single, seamless, 3D virtual world. This virtual world is manifested
+across all running instances of OnexOS. The OS is always running this space and puts you
+right back where you were every time you open it.
 
 ### What's it most like?
 
@@ -14,7 +15,8 @@ regard!
 
 ### What do you do there?
 
-All the usual virtual world things: meet, chat, share, build, co-create, work and play.
+All the usual Open World Sandbox or virtual world things: meet, chat, share, build,
+co-create, work and play.
 
 ### Why is it an operating system?
 
@@ -147,11 +149,13 @@ change the colour of the leaf to red in the autumn, all instances will change at
 ### Everything is live or interactive here
 
 Things in this world have physical properties: every house you make can have doors and
-windows that swing open and shut. You can build a wheeled buggy to jump into, that can
-roll faster and faster down the street from the top of the hill.  Make a game of
-skittles or a game where you try to build a tower without it falling over. Because
-there's only one world, you can just sew these together into a game park, where my
-skittle balls can also knock over your tower!
+windows that swing open and shut. You can make a windmill whose vanes turn when it's
+windy. You can build a wheeled buggy to jump into, that can roll faster and faster down
+the street from the top of the hill.  Make a game of skittles or a game where you try to
+build a tower without it falling over. Because there's only one world, you can just sew
+these together into a game park, where my skittle balls can also knock over your tower!
+
+You can create a drawbridge for your castle pulled up on chains wrapped around pulleys.
 
 You can actually put in a special link from a door object to a button object so that
 pushing or standing on the button opens the door.

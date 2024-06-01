@@ -1,78 +1,105 @@
 
 # OnexOS
 
+A 3D distributed OS _with no apps_, for the [Parallel Reality Computer](https://duncancragg.substack.com/).
+
+Replaces apps and services with a single, seamless, shared 3D universe containing us and
+all our digital property, hosted on our own devices, that we can all link together.
+
+Also see the [Object Network](http://object.network/) site.
+
+-----
+
+### The app trap
+
+Apps trap and fragment your digital stuff so nothing works together seamlessly.
+
+### An OS without apps
+
+OnexOS is an OS without apps, hence no more app traps.
+
+### OnexOSes jointly manifest a single global 3D virtual universe for our stuff
+
+Our social network and media posts created in OnexOS all land in this single, shared universe (the "Parallel Reality").
+
+When you open your device running OnexOS, you enter this universe containing all your stuff, and everyone else's.
+
+### Everything just links together
+
+We can link together the spaces and things we own and build into super-spaces, spanning the globe.
+
+I can grab a photo you let me see, and pin it onto my home wall, or into a media post I'm writing.
+
+### It's decentralised
+
+The spaces are created on our own devices.
+
+If you do something sitting next to me, I get the change via the WiFi, not via California.
+
+### It's declarative
+
+Just like programming a spreadsheet, you can build your own behaviours easily, to animate any of your stuff in the world.
+
+-----
+
 _The following is an imaginary dialogue from the future, when I've written enough code!_
 
-### Interesting - sounds like an operating system?
+#### What's different about this OS?
 
-Yes, it's an OS for PCs and nRF52-based devices.
+It manifests a virtual universe.
 
-### What's different about this one?
+#### Ah, OK, but what do you see on boot-up?
 
-It manifests a virtual world!
+You're dropped immediately into a 3D space, the "[Parallel Reality](https://duncancragg.substack.com/)".
 
-### Oh, OK. Why would you do that?
-
-Well, because the Metaverse should be the foundation of everything computers do!
-
-### Very bold, and abstract, but what do you see on boot-up?
-
-You're dropped immediately into a 3D space: a "Parallel Digital Reality".
-
-### Oh, like AR, VR - Spatial Computing?
+#### Oh, like AR, VR - Spatial Computing?
 
 Yes. But unlike Spatial Computing, there are no apps.
 
-### OK, so how is all of our stuff, our data, managed?
+#### OK, so how is all of our stuff, our data, managed?
 
 All of our digital property is placed within this single, seamless, shared space.
 
-### Right, but how do you do anything?
+#### Right, but how do you do anything?
 
 Everything can be easily snapped together how we like.
 
-### And "snapping" together is all we need?
+#### And "snapping" together is all we need?
 
 Mostly: here, everything just works like it would in reality.
 
 So you have rooms with stuff pinned to the walls.
 
-### Pinning and snapping: sounds like LEGO!
+#### Pinning and snapping: sounds like LEGO!
 
 It should be that easy, yes. All achieved through the pervasive use of "links".
 
-### Links? Like URLs?
+#### Links? Like URLs?
 
-Like enhanced URLs, yes! Links are handles onto every piece of digital property that we
-own.
+Like _enhanced_ URLs, yes!
 
-### Every piece?
+Links are handles onto every piece of digital property that we own.
 
-All world objects from a flower petal up to a forest can be grabbed by their links.
+#### Every piece?
 
-### And these enhanced URLs work between my objects and yours?
+All world objects from a paragraph or flower petal up to a library, city or forest can be
+grabbed by their links.
 
-Yes, exactly: this is a distributed OS; we build this space together.
+#### And we build this space together?
 
-### Across all of our devices?
+These enhanced URLs work between my objects and yours; this is a distributed OS.
+
+#### Across all of our devices?
 
 Yes, it works Local-first and peer-to-peer.
 
-----------------
+#### What does this operating system run on?
 
-OnexOS builds a single, seamless, global, live data fabric, owned by everyone and by
-no-one.
-
-The first target of OnexOS is to manifest a single, open, P2P Metaverse, in analogy to the Web.
-
-The vision of OnexOS if for us all to reclaim control, sovereignty and empowerment over
-our own devices, digital property and identities.
+It's an OS for PCs and nRF52-based devices.
 
 ----------------
 
-Read more right here about the [Parallel Reality Computer](README-MetaWebOS.md)!
-
-<a href="https://duncancragg.substack.com/">More on Substack!</a>
+Read more here about the [Parallel Reality Computer](https://duncancragg.substack.com/).
 
 <br/>
 

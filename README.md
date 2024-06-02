@@ -1,7 +1,8 @@
 
 # OnexOS
 
-A 3D distributed OS _with no apps_, for the [Parallel Reality Computer](https://duncancragg.substack.com/).
+A 3D distributed OS _with no apps_, for the
+[Parallel Reality Computer](https://duncancragg.substack.com/).
 
 Replaces apps and services with a single, seamless, shared 3D universe containing us and
 all our digital property, hosted on our own devices, that we can all link together.
@@ -20,15 +21,19 @@ OnexOS is an OS without apps, hence no more app traps.
 
 ### OnexOSes jointly manifest a single global 3D virtual universe for our stuff
 
-Our social network and media posts created in OnexOS all land in this single, shared universe (the "Parallel Reality").
+Our social network and media posts created in OnexOS all land in this single, shared
+universe (the "Parallel Reality").
 
-When you open your device running OnexOS, you enter this universe containing all your stuff, and everyone else's.
+When you open your device running OnexOS, you enter this universe containing all your
+stuff, and everyone else's.
 
 ### Everything just links together
 
-We can link together the spaces and things we own and build into super-spaces, spanning the globe.
+We can link together the spaces and things we own and build into super-spaces, spanning
+the globe.
 
-I can grab a photo you let me see, and pin it onto my home wall, or into a media post I'm writing.
+I can grab a photo you let me see, and pin it onto my home wall, or into a media post I'm
+writing.
 
 ### It's decentralised
 
@@ -38,7 +43,15 @@ If you do something sitting next to me, I get the change via the WiFi, not via C
 
 ### It's declarative
 
-Just like programming a spreadsheet, you can build your own behaviours easily, to animate any of your stuff in the world.
+Just like programming a spreadsheet, you can build your own behaviours easily, to animate
+any of your stuff in the world.
+
+#### Only runs on Hardware that's sufficiently open
+
+It's an OS for PCs - Windows-capable tablets in particular - and nRF52-based devices.
+It's also for ARM-based boards that run the latest kernel and Vulkan, like the Pi 4. In
+fact, currently only the Pies, but I am watching for mainline Linux and Mesa open driver
+Vulkan support on Rockchip RK3588 and RISC-V ones such as the JH7110.
 
 -----
 
@@ -50,7 +63,8 @@ It manifests a virtual universe.
 
 #### Ah, OK, but what do you see on boot-up?
 
-You're dropped immediately into a 3D space, the "[Parallel Reality](https://duncancragg.substack.com/)".
+You're dropped immediately into a 3D space, the
+"[Parallel Reality](https://duncancragg.substack.com/)".
 
 #### Oh, like AR, VR - Spatial Computing?
 
@@ -93,15 +107,9 @@ These enhanced URLs work between my objects and yours; this is a distributed OS.
 
 Yes, it works Local-first and peer-to-peer.
 
-#### What does this operating system run on?
-
-It's an OS for PCs and nRF52-based devices.
-
 ----------------
 
 Read more here about the [Parallel Reality Computer](https://duncancragg.substack.com/).
-
-<br/>
 
 ----------------
 

@@ -46,12 +46,14 @@ If you do something sitting next to me, I get the change via the WiFi, not via C
 Just like programming a spreadsheet, you can build your own behaviours easily, to animate
 any of your stuff in the world.
 
-#### Only runs on Hardware that's sufficiently open
+### Only runs on Linux- and Vulkan-capable hardware
 
-It's an OS for PCs - Windows-capable tablets in particular - and nRF52-based devices.
-It's also for ARM-based boards that run the latest kernel and Vulkan, like the Pi 4. In
-fact, currently only the Pies, but I am watching for mainline Linux and Mesa open driver
-Vulkan support on Rockchip RK3588 and RISC-V ones such as the JH7110.
+It's an OS for PCs - Windows-capable tablets in particular. It's also for ARM-based
+boards that run the latest kernel and Vulkan, like the Pi 4. In fact, currently only the
+Pies, but I am watching for mainline Linux and Mesa open driver Vulkan support on
+Rockchip RK3588 and RISC-V ones such as the JH7110.
+
+It also runs on nRF52-based devices.
 
 -----
 

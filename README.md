@@ -46,6 +46,8 @@ If you do something sitting next to me, I get the change via the WiFi, not via C
 Just like programming a spreadsheet, you can build your own behaviours easily, to animate
 any of your stuff in the world.
 
+----
+
 ### Only runs on Linux- and Vulkan-capable hardware
 
 It's an OS for PCs - Windows-capable tablets in particular. It's also for ARM-based

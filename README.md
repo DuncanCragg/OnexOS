@@ -50,10 +50,7 @@ any of your stuff in the world.
 
 ### Only runs on Linux- and Vulkan-capable hardware
 
-It's an OS for PCs - Windows-capable tablets in particular. It's also for ARM-based
-boards that run the latest kernel and Vulkan, like the Pi 4. In fact, currently only the
-Pies, but I am watching for mainline Linux and Mesa open driver Vulkan support on
-Rockchip RK3588 and RISC-V ones such as the JH7110.
+It's an OS for PCs.
 
 It also runs on nRF52-based devices.
 

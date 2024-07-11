@@ -51,7 +51,7 @@ int main()
   buttonuid=object_property(button, "UID");
   lightuid=object_property(light, "UID");
 
-  object_property_set(button, "name", "£€§");
+  object_property_set(button, "name", "mango");
 
   object_property_set(light, "light", "off");
 

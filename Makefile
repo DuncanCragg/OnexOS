@@ -58,8 +58,8 @@ INC_DIR_XCB = \
  -I/usr/include/freetype2 \
  -I./src \
  -I./src/ont/g2d \
- -I../OnexLang/include \
  -I../OnexKernel/include \
+ -I../OnexLang/include \
 
 #-------------------------------------------------------------------------------
 

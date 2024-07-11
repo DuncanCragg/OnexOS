@@ -11,6 +11,7 @@
 onx.????.c
 *.ondb
 ,*
+.gitattributes
 .vimfiles
 dfu.zip
 onx-xcb

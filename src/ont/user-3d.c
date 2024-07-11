@@ -1,12 +1,15 @@
 // -----------------------------------------------------------
 
-#include "ont/unix/user-onx-vk.h"
-#include "ont/unix/linmath-plus.h"
+#include <linmath-plus.h>
 
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
+
+#include <onl.h>
 #include <onn.h>
 #include <onr.h>
+
+#include "unix/user-onx-vk.h"
 
 mat4x4 proj_matrix;
 mat4x4 view_matrix;

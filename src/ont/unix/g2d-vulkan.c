@@ -4,17 +4,18 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
-#include "ont/unix/user-onx-vk.h"
-#include "ont/unix/linmath-plus.h"
+#include <linmath-plus.h>
 
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
+
+#include <onl.h>
 #include <onn.h>
 #include <onr.h>
 
 #include <onex-kernel/log.h>
 
-#include <mathlib.h>
+#include "user-onx-vk.h"
 
 #include <g2d.h>
 #include <g2d-internal.h>

@@ -3,8 +3,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 
-#include "onl/onl.h"
-#include "ont/unix/outline.h"
+#include "outline.h"
 
 extern bool prepared;
 

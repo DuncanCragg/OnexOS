@@ -23,16 +23,12 @@ SOURCES_ONX_XCB = \
   ./src/ont/unix/onx-vk.c \
   ./src/ont/unix/outline.c \
   ./src/ont/unix/geometry.c \
-  ./src/ont/unix/vulkan/vk.c \
-  ./src/onl/onl.c \
-  ./src/onl/desktop/vulkan-xcb.c \
 
 #-------------------------------------------------------------------------------
 
 HEADERS_ONX_XCB = \
   ./src/ont/unix/outline.h \
   ./src/ont/unix/geometry.h \
-  ./src/ont/unix/onx-vk.h \
 
 #-------------------------------------------------------------------------------
 

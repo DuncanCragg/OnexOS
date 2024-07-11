@@ -1,10 +1,11 @@
 // ------------------------------------------------------------------------------------------------------------------------------------
 
-#include "ont/unix/user-onx-vk.h"
-#include "ont/unix/vulkan/vk.h"
-#include "ont/unix/onx-vk.h"
-
 #include <onex-kernel/log.h>
+#include <onx-vk.h>
+
+#include "user-onx-vk.h"
+
+extern void ont_vk_restart(); //!! FIXME
 
 static uint32_t image_count;
 static uint32_t image_index;
@@ -334,7 +335,7 @@ static char* font_face = "/usr/share/fonts/truetype/liberation2/LiberationSans-R
 
 static char *texture_files[] = {"ivory.ppm"};
 
-#include "ont/unix/ivory.ppm.h"
+#include "ivory.ppm.h"
 
 #define TEXTURE_COUNT 1
 

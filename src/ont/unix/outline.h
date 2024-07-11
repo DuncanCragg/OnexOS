@@ -4,8 +4,8 @@
 #include <ft2build.h>
 #include <assert.h>
 
-#include "ont/unix/linmath-plus.h"
-#include "ont/unix/geometry.h"
+#include <linmath-plus.h>
+#include "geometry.h"
 
 #include FT_FREETYPE_H
 #include FT_BBOX_H 

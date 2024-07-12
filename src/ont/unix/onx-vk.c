@@ -183,7 +183,7 @@ static void do_render_pass() {
 static bool            scene_ready = false;
 static pthread_mutex_t scene_lock;
 
-void set_up_scene_begin(void** vertices, void** glyphs) {
+void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs) {
 
   pthread_mutex_lock(&scene_lock);
   scene_ready = false;

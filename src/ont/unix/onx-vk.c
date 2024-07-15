@@ -211,6 +211,23 @@ void set_up_scene_end() {
   pthread_mutex_unlock(&scene_lock);
 }
 
+void onx_vk_update_uniforms() {
+
+  set_mvp_uniforms();
+
+  memcpy(uniform_mem[image_index].uniform_memory_ptr,
+         (const void*)&proj_matrix,  sizeof(proj_matrix));
+
+  memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
+         (const void*)&view_matrix,  sizeof(view_matrix));
+
+  memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
+         (const void*)&model_matrix, sizeof(model_matrix));
+
+  memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
+         (const void*)&text_ends, sizeof(text_ends));
+}
+
 void onx_vk_render_frame() {
 
   VkFence previous_fence = swapchain_image_resources[image_index].command_buffer_fence;
@@ -247,20 +264,6 @@ void onx_vk_render_frame() {
   VkFence current_fence = swapchain_image_resources[image_index].command_buffer_fence;
   vkWaitForFences(device, 1, &current_fence, VK_TRUE, UINT64_MAX);
   vkResetFences(device, 1, &current_fence);
-
-  set_mvp_uniforms();
-
-  memcpy(uniform_mem[image_index].uniform_memory_ptr,
-         (const void*)&proj_matrix,  sizeof(proj_matrix));
-
-  memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
-         (const void*)&view_matrix,  sizeof(view_matrix));
-
-  memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
-         (const void*)&model_matrix, sizeof(model_matrix));
-
-  memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
-         (const void*)&text_ends, sizeof(text_ends));
 
   VkSemaphore wait_semaphores[] = { image_acquired_semaphore };
   VkPipelineStageFlags wait_stages[] = {
@@ -1058,6 +1061,9 @@ void onx_vk_prepare_descriptor_layout(bool restart) {
                                        &descriptor_set_layout_ci,
                                        0,
                                        &descriptor_layout));
+}
+
+void onx_vk_prepare_pipeline_layout(bool restart) {
 
   VkPushConstantRange push_constant_range = {
     .offset = 0,

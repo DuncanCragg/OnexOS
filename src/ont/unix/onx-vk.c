@@ -916,6 +916,7 @@ void onx_vk_prepare_swapchain_images(bool restart) {
         VkImageViewCreateInfo image_view_ci = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
             .pNext = NULL,
+            .image = swapchainImages[i],
             .format = surface_format,
             .components =
                 {
@@ -930,7 +931,6 @@ void onx_vk_prepare_swapchain_images(bool restart) {
             .flags = 0,
         };
 
-        image_view_ci.image = swapchainImages[i];
         VK_CHECK(vkCreateImageView(device, &image_view_ci, NULL, &swapchain_image_resources[i].image_view));
     }
 

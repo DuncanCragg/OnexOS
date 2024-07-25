@@ -14,7 +14,8 @@ extern uint32_t num_panels;
 extern uint32_t num_glyphs;
 
 extern mat4x4 proj_matrix;
-extern mat4x4 view_matrix;
+extern mat4x4 view_l_matrix;
+extern mat4x4 view_r_matrix;
 extern mat4x4 model_matrix[MAX_PANELS];
 extern vec4   text_ends[MAX_PANELS];
 
@@ -31,6 +32,10 @@ typedef struct fd_GlyphInstance {
   uint32_t glyph_index;
   float    sharpness;
 } fd_GlyphInstance;
+
+extern VkDescriptorSetLayout descriptor_layout;
+
+extern float aspect_ratio_proj;
 
 void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs);
 void set_up_scene_end();

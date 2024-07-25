@@ -1,6 +1,7 @@
 #version 450
 #extension GL_ARB_shading_language_420pack : enable
 #extension GL_EXT_scalar_block_layout : enable
+#extension GL_EXT_multiview : enable
 
 struct glyph_info {
     vec4 bbox;
@@ -15,7 +16,8 @@ layout(push_constant) uniform constants {
 //      text_ends[MAX_PANELS]
 layout(std430, binding = 0) uniform buf0 {
   mat4 proj;
-  mat4 view;
+  mat4 view_l;
+  mat4 view_r;
   mat4 model[32];
   vec4 text_ends[32];
 } uniforms;
@@ -63,6 +65,8 @@ vec3 unproject(float x, float y, float z, mat4 view, mat4 proj) {
 
 void main() {
 
+  view = gl_ViewIndex==0? uniforms.view_l: uniforms.view_r;
+  proj = uniforms.proj;
   phase = push_constants.phase;
 
   if(phase == 0){ // ground plane
@@ -70,10 +74,8 @@ void main() {
     near = 0.004;
     far = 0.17;
     vec3 p = grid_plane[gl_VertexIndex].xyz;
-    near_point = unproject(p.x, p.y, 0.0, uniforms.view, uniforms.proj).xyz;
-    far_point = unproject(p.x, p.y, 1.0, uniforms.view, uniforms.proj).xyz;
-    view = uniforms.view;
-    proj = uniforms.proj;
+    near_point = unproject(p.x, p.y, 0.0, view, proj).xyz;
+    far_point  = unproject(p.x, p.y, 1.0, view, proj).xyz;
     gl_Position = vec4(p, 1.0);
   }
   else
@@ -81,8 +83,7 @@ void main() {
 
     texture_coord = vec4(uv, 0, 0);
 
-    gl_Position = uniforms.proj *
-                  uniforms.view *
+    gl_Position = proj * view *
                   uniforms.model[gl_InstanceIndex] *
                   vec4(vertex, 1.0);
 
@@ -129,8 +130,7 @@ void main() {
 
     float text_lift = -0.02;
 
-    gl_Position = uniforms.proj *
-                  uniforms.view *
+    gl_Position = proj * view *
                   uniforms.model[p] *
                   vec4(rv, text_lift, 1.0);
   }

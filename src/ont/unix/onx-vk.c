@@ -11,7 +11,8 @@ static VkDeviceMemory staging_buffer_memory;
 
 struct uniforms_size_template {
     float proj[4][4];
-    float view[4][4];
+    float view_l[4][4];
+    float view_r[4][4];
     float model[MAX_PANELS][4][4];
     vec4  text_ends[MAX_PANELS];
 };
@@ -199,15 +200,28 @@ void onx_vk_rd_update_uniforms() {
   set_proj_view();
 
   memcpy(uniform_mem[cur_img].uniform_memory_ptr,
-         (const void*)&proj_matrix,  sizeof(proj_matrix));
+         (const void*)&proj_matrix, sizeof(proj_matrix));
 
-  memcpy(uniform_mem[cur_img].uniform_memory_ptr+sizeof(proj_matrix),
-         (const void*)&view_matrix,  sizeof(view_matrix));
+  memcpy(uniform_mem[cur_img].uniform_memory_ptr +
+             sizeof(proj_matrix),
+         (const void*)&view_l_matrix, sizeof(view_l_matrix));
 
-  memcpy(uniform_mem[cur_img].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
+  memcpy(uniform_mem[cur_img].uniform_memory_ptr +
+             sizeof(proj_matrix) +
+             sizeof(view_l_matrix),
+         (const void*)&view_r_matrix, sizeof(view_r_matrix));
+
+  memcpy(uniform_mem[cur_img].uniform_memory_ptr +
+             sizeof(proj_matrix) +
+             sizeof(view_l_matrix) +
+             sizeof(view_r_matrix),
          (const void*)&model_matrix, sizeof(model_matrix));
 
-  memcpy(uniform_mem[cur_img].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
+  memcpy(uniform_mem[cur_img].uniform_memory_ptr +
+             sizeof(proj_matrix) +
+             sizeof(view_l_matrix) +
+             sizeof(view_r_matrix) +
+             sizeof(model_matrix),
          (const void*)&text_ends, sizeof(text_ends));
 }
 

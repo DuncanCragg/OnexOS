@@ -12,11 +12,16 @@
 #include "unix/user-onx-vk.h"
 
 mat4x4 proj_matrix;
-mat4x4 view_matrix;
+mat4x4 view_l_matrix;
+mat4x4 view_r_matrix;
+
+static const float eye_sep = 0.020; // eyes off-centre dist in m
+static const float eye_con = 0.020; // angle of convergence rads
 
 // 1.75m height
-// standing back 4m from origin
-static vec3  eye = { 0.0, 1.75, -4.0 };
+// standing back 5m from origin
+static vec3  eye_l = { -eye_sep, 1.75, -5.0 };
+static vec3  eye_r = {  eye_sep, 1.75, -5.0 };
 static vec3  up = { 0.0f, -1.0, 0.0 };
 
 static float eye_dir=0;
@@ -25,22 +30,30 @@ static float head_ver_dir=0;
 
 void set_proj_view() {
 
-    #define VIEWPORT_FOV   70.0f
+    #define VIEWPORT_FOV   43.0f
     #define VIEWPORT_NEAR   0.1f
     #define VIEWPORT_FAR  100.0f
 
-    float swap_aspect_ratio = 1.0f * io.swap_width / io.swap_height;
+    Mat4x4_perspective(proj_matrix,
+                       (float)degreesToRadians(VIEWPORT_FOV),
+                       aspect_ratio_proj,
+                       VIEWPORT_NEAR, VIEWPORT_FAR);
 
-    Mat4x4_perspective(proj_matrix, (float)degreesToRadians(VIEWPORT_FOV), swap_aspect_ratio, VIEWPORT_NEAR, VIEWPORT_FAR);
     proj_matrix[1][1] *= -1;
 
-    vec3 looking_at;
+    vec3 looking_at_l;
+    vec3 looking_at_r;
 
-    looking_at[0] = eye[0] + 100.0f * sin(eye_dir + head_hor_dir);
-    looking_at[1] = eye[1] - 100.0f * sin(          head_ver_dir);
-    looking_at[2] = eye[2] + 100.0f * cos(eye_dir + head_hor_dir);
+    looking_at_l[0] = eye_l[0] + 100.0f * sin(eye_dir + eye_con + head_hor_dir);
+    looking_at_l[1] = eye_l[1] - 100.0f * sin(                    head_ver_dir);
+    looking_at_l[2] = eye_l[2] + 100.0f * cos(eye_dir + eye_con + head_hor_dir);
 
-    mat4x4_look_at(view_matrix, eye, looking_at, up);
+    looking_at_r[0] = eye_r[0] + 100.0f * sin(eye_dir - eye_con + head_hor_dir);
+    looking_at_r[1] = eye_r[1] - 100.0f * sin(                    head_ver_dir);
+    looking_at_r[2] = eye_r[2] + 100.0f * cos(eye_dir - eye_con + head_hor_dir);
+
+    mat4x4_look_at(view_l_matrix, eye_l, looking_at_l, up);
+    mat4x4_look_at(view_r_matrix, eye_r, looking_at_r, up);
 }
 
 static bool     head_moving=false;
@@ -80,8 +93,10 @@ void onx_iostate_changed() {
 
     eye_dir += 0.5f* delta_x;
 
-    eye[0] += 4.0f * delta_y * sin(eye_dir);
-    eye[2] += 4.0f * delta_y * cos(eye_dir);
+    eye_l[0] += 4.0f * delta_y * sin(eye_dir);
+    eye_l[2] += 4.0f * delta_y * cos(eye_dir);
+    eye_r[0] += 4.0f * delta_y * sin(eye_dir);
+    eye_r[2] += 4.0f * delta_y * cos(eye_dir);
   }
   else
   if(!io.left_pressed && body_moving){

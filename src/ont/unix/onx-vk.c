@@ -9,7 +9,7 @@ static VkBuffer staging_buffer;
 static VkDeviceMemory vertex_buffer_memory;
 static VkDeviceMemory staging_buffer_memory;
 
-struct uniforms {
+struct uniforms_size_template {
     float proj[4][4];
     float view[4][4];
     float model[MAX_PANELS][4][4];
@@ -65,7 +65,7 @@ void onx_vk_rd_prepare_uniform_buffers(bool restart) {
   VkBufferCreateInfo buffer_ci = {
      .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
      .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-     .size = sizeof(struct uniforms),
+     .size = sizeof(struct uniforms_size_template),
   };
   for (uint32_t ii = 0; ii < max_img; ii++) {
 
@@ -77,7 +77,7 @@ void onx_vk_rd_prepare_uniform_buffers(bool restart) {
 
     VK_CHECK(vkMapMemory(device,
                          uniform_mem[ii].uniform_memory,
-                         0, sizeof(struct uniforms), 0,
+                         0, sizeof(struct uniforms_size_template), 0,
                         &uniform_mem[ii].uniform_memory_ptr));
   }
 }
@@ -196,7 +196,7 @@ void set_up_scene_end() {
 
 void onx_vk_rd_update_uniforms() {
 
-  set_mvp_uniforms();
+  set_proj_view();
 
   memcpy(uniform_mem[cur_img].uniform_memory_ptr,
          (const void*)&proj_matrix,  sizeof(proj_matrix));
@@ -729,7 +729,7 @@ void onx_vk_rd_prepare_descriptor_set(bool restart) {
 
   VkDescriptorBufferInfo uniform_info = {
     .offset = 0,
-    .range = sizeof(struct uniforms),
+    .range = sizeof(struct uniforms_size_template),
   };
 
   VkDescriptorBufferInfo glyph_info = {

@@ -23,7 +23,7 @@ static float eye_dir=0;
 static float head_hor_dir=0;
 static float head_ver_dir=0;
 
-void set_mvp_uniforms() {
+void set_proj_view() {
 
     #define VIEWPORT_FOV   70.0f
     #define VIEWPORT_NEAR   0.1f

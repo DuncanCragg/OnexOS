@@ -63,7 +63,9 @@ vec3 unproject(float x, float y, float z, mat4 view, mat4 proj) {
 
 void main() {
 
-  if(push_constants.phase == 0){ // ground plane
+  phase = push_constants.phase;
+
+  if(phase == 0){ // ground plane
 
     near = 0.004;
     far = 0.17;
@@ -75,7 +77,7 @@ void main() {
     gl_Position = vec4(p, 1.0);
   }
   else
-  if(push_constants.phase == 1){ // panels
+  if(phase == 1){ // panels
 
     texture_coord = vec4(uv, 0, 0);
 
@@ -88,7 +90,7 @@ void main() {
                 vec4(vertex, 1.0);
   }
   else
-  if(push_constants.phase == 2){ // text
+  if(phase == 2){ // text
 
     vec2 rv;
     if(gl_VertexIndex==0) rv = vec2(rect.x, rect.y);
@@ -133,5 +135,4 @@ void main() {
                   vec4(rv, text_lift, 1.0);
   }
   proj_pos = gl_Position;
-  phase = push_constants.phase;
 }

@@ -1,43 +1,20 @@
-// ------------------------------------------------------------------------------------------------------------------------------------
-
 #include <onex-kernel/log.h>
 #include <onx-vk.h>
 
 #include "user-onx-vk.h"
 
-extern void ont_vk_restart(); //!! FIXME
-
-static uint32_t image_count;
-static uint32_t image_index;
-
 static VkBuffer vertex_buffer;
 static VkBuffer staging_buffer;
-static VkBuffer storage_buffer;
-static VkBuffer instance_buffer;
-static VkBuffer instance_staging_buffer;
 
 static VkDeviceMemory vertex_buffer_memory;
 static VkDeviceMemory staging_buffer_memory;
-static VkDeviceMemory storage_buffer_memory;
-static VkDeviceMemory instance_buffer_memory;
-static VkDeviceMemory instance_staging_buffer_memory;
 
-static VkRenderPass render_pass;
-
-static VkSemaphore image_acquired_semaphore;
-static VkSemaphore render_complete_semaphore;
-
-static VkPipeline       pipeline;
-static VkPipelineLayout pipeline_layout;
-static VkPipelineCache  pipeline_cache;
-
-static VkDescriptorSetLayout descriptor_layout;
-static VkDescriptorPool      descriptor_pool;
-
-static VkFormatProperties               format_properties;
-static VkPhysicalDeviceMemoryProperties memory_properties;
-
-// ---------------------------------
+struct uniforms {
+    float proj[4][4];
+    float view[4][4];
+    float model[MAX_PANELS][4][4];
+    vec4  text_ends[MAX_PANELS];
+};
 
 typedef struct {
     VkBuffer        uniform_buffer;
@@ -48,35 +25,115 @@ typedef struct {
 
 static uniform_mem_t *uniform_mem;
 
-typedef struct {
-    VkFramebuffer   framebuffer;
-    VkImageView     image_view;
-    VkCommandBuffer command_buffer;
-    VkFence         command_buffer_fence;
-} SwapchainImageResources;
+static VkDescriptorPool descriptor_pool;
 
-static SwapchainImageResources *swapchain_image_resources;
+VkDescriptorSetLayout descriptor_layout;
 
-struct push_constants {
-  uint32_t phase;
-};
+static VkBuffer storage_buffer;
+static VkBuffer instance_buffer;
+static VkBuffer instance_staging_buffer;
 
-static void do_render_pass() {
+static VkDeviceMemory storage_buffer_memory;
+static VkDeviceMemory instance_buffer_memory;
+static VkDeviceMemory instance_staging_buffer_memory;
 
-  vkWaitForFences(device, 1, &swapchain_image_resources[image_index].command_buffer_fence, VK_TRUE, UINT64_MAX);
+static VkFormatProperties format_properties;
 
-  VkCommandBuffer cmd_buf = swapchain_image_resources[image_index].command_buffer;
+static void prepare_vertex_buffers(){
 
-  const VkCommandBufferBeginInfo command_buffer_bi = {
-    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-    .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
-    .pInheritanceInfo = NULL,
-    .pNext = 0,
+  VkBufferCreateInfo buffer_ci = {
+    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+    .size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
+                                2 * sizeof(float)  ),
+    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
 
-  VK_CHECK(vkBeginCommandBuffer(cmd_buf, &command_buffer_bi));
+  create_buffer_with_memory(&buffer_ci,
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                            &vertex_buffer,
+                            &vertex_buffer_memory);
+}
 
-  // --------------------------------------------
+void onx_vk_rd_prepare_uniform_buffers(bool restart) {
+
+  prepare_vertex_buffers();
+
+  uniform_mem = (uniform_mem_t*)malloc(sizeof(uniform_mem_t) * max_img);
+
+  VkBufferCreateInfo buffer_ci = {
+     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+     .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+     .size = sizeof(struct uniforms),
+  };
+  for (uint32_t ii = 0; ii < max_img; ii++) {
+
+    create_buffer_with_memory(&buffer_ci,
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT  |
+                              VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                              &uniform_mem[ii].uniform_buffer,
+                              &uniform_mem[ii].uniform_memory);
+
+    VK_CHECK(vkMapMemory(device,
+                         uniform_mem[ii].uniform_memory,
+                         0, sizeof(struct uniforms), 0,
+                        &uniform_mem[ii].uniform_memory_ptr));
+  }
+}
+
+static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
+
+
+  VkBuffer vertex_buffers[] = {
+    vertex_buffer,
+    instance_buffer,
+  };
+  VkDeviceSize offsets[] = { 0, 0 };
+  vkCmdBindVertexBuffers(cmd_buf, 0, 2, vertex_buffers, offsets);
+
+  vkCmdBindDescriptorSets(cmd_buf,
+                          VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          pipeline_layout,
+                          0, 1,
+                          &uniform_mem[ii].descriptor_set,
+                          0, NULL);
+
+  struct push_constants pc;
+
+  pc.phase = 0, // ground plane
+  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+                     sizeof(struct push_constants), &pc);
+  vkCmdDraw(cmd_buf, 6, 1, 0, 0);
+
+  pc.phase = 1, // panels
+  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+                     sizeof(struct push_constants), &pc);
+  for(uint32_t o=0; o<num_panels; o++){
+    vkCmdDraw(cmd_buf, 6*6, 1, o*6*6, o);
+  }
+
+  pc.phase = 2, // text
+  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+                     sizeof(struct push_constants), &pc);
+  vkCmdDraw(cmd_buf, 6, num_glyphs, 0, 0);
+}
+
+void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs) {
+
+  pthread_mutex_lock(&scene_lock);
+  scene_ready = false;
+
+  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
+                                           2 * sizeof(float)  );
+  size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
+
+  VK_CHECK(vkMapMemory(device, vertex_buffer_memory,           0, vertex_size, 0, vertices));
+  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size,  0, glyphs));
+}
+
+
+void copy_instance_buffers(VkCommandBuffer cmd_buf){
 
   uint32_t size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
   uint32_t offset = 0;
@@ -118,82 +175,6 @@ static void do_render_pass() {
       0, NULL,
       1, &barrier,
       0, NULL);
-
-  // --------------------------------------------
-
-  const VkClearValue clear_values[] = {
-    { .color.float32 = { 0.2f, 0.8f, 1.0f, 0.0f } },
-    { .depthStencil = { 1.0f, 0 }},
-  };
-
-  const VkRenderPassBeginInfo render_pass_bi = {
-      .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-      .renderPass = render_pass,
-      .framebuffer = swapchain_image_resources[image_index].framebuffer,
-      .renderArea.offset = { 0, 0 },
-      .renderArea.extent = swapchain_extent,
-      .clearValueCount = 2,
-      .pClearValues = clear_values,
-      .pNext = 0,
-  };
-
-  vkCmdBeginRenderPass(cmd_buf, &render_pass_bi, VK_SUBPASS_CONTENTS_INLINE);
-
-  // --------------------------------------------
-
-  VkBuffer vertex_buffers[] = {
-    vertex_buffer,
-    instance_buffer,
-  };
-  VkDeviceSize offsets[] = { 0, 0 };
-  vkCmdBindVertexBuffers(cmd_buf, 0, 2, vertex_buffers, offsets);
-
-  vkCmdBindDescriptorSets(cmd_buf,
-                          VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          pipeline_layout,
-                          0, 1,
-                          &uniform_mem[image_index].descriptor_set,
-                          0, NULL);
-
-  vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-
-  // --------------------------------------------
-
-  struct push_constants pc;
-
-  pc.phase = 0, // ground plane
-  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 6, 1, 0, 0);
-
-  pc.phase = 1, // panels
-  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  for(uint32_t o=0; o<num_panels; o++){
-    vkCmdDraw(cmd_buf, 6*6, 1, o*6*6, o);
-  }
-
-  pc.phase = 2, // text
-  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 6, num_glyphs, 0, 0);
-
-  vkCmdEndRenderPass(cmd_buf);
-
-  VK_CHECK(vkEndCommandBuffer(cmd_buf));
-}
-
-static bool            scene_ready = false;
-static pthread_mutex_t scene_lock;
-
-void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs) {
-
-  pthread_mutex_lock(&scene_lock);
-  scene_ready = false;
-
-  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
-                                           2 * sizeof(float)  );
-  size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
-
-  VK_CHECK(vkMapMemory(device, vertex_buffer_memory,           0, vertex_size, 0, vertices));
-  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size,  0, glyphs));
 }
 
 void set_up_scene_end() {
@@ -201,110 +182,34 @@ void set_up_scene_end() {
   vkUnmapMemory(device, vertex_buffer_memory);
   vkUnmapMemory(device, instance_staging_buffer_memory);
 
-  for (uint32_t i = 0; i < image_count; i++) {
-      image_index = i;
-      do_render_pass();
+  for (uint32_t ii = 0; ii < max_img; ii++) {
+      VkCommandBuffer cmd_buf = begin_cmd_buf(ii);
+      copy_instance_buffers(cmd_buf);
+      begin_render_pass(ii, cmd_buf);
+      do_cmd_buf_draw(ii, cmd_buf);
+      end_cmd_buf_and_render_pass(ii, cmd_buf);
   }
-  image_index = 0;
 
   scene_ready = true;
   pthread_mutex_unlock(&scene_lock);
 }
 
-void onx_vk_update_uniforms() {
+void onx_vk_rd_update_uniforms() {
 
   set_mvp_uniforms();
 
-  memcpy(uniform_mem[image_index].uniform_memory_ptr,
+  memcpy(uniform_mem[cur_img].uniform_memory_ptr,
          (const void*)&proj_matrix,  sizeof(proj_matrix));
 
-  memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix),
+  memcpy(uniform_mem[cur_img].uniform_memory_ptr+sizeof(proj_matrix),
          (const void*)&view_matrix,  sizeof(view_matrix));
 
-  memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
+  memcpy(uniform_mem[cur_img].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix),
          (const void*)&model_matrix, sizeof(model_matrix));
 
-  memcpy(uniform_mem[image_index].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
+  memcpy(uniform_mem[cur_img].uniform_memory_ptr+sizeof(proj_matrix)+sizeof(view_matrix)+sizeof(model_matrix),
          (const void*)&text_ends, sizeof(text_ends));
 }
-
-void onx_vk_render_frame() {
-
-  VkFence previous_fence = swapchain_image_resources[image_index].command_buffer_fence;
-  vkWaitForFences(device, 1, &previous_fence, VK_TRUE, UINT64_MAX);
-
-  pthread_mutex_lock(&scene_lock);
-  if(!scene_ready){
-    pthread_mutex_unlock(&scene_lock);
-    return;
-  }
-
-  VkResult err;
-  do {
-      err = vkAcquireNextImageKHR(device,
-                                  swapchain,
-                                  UINT64_MAX,
-                                  image_acquired_semaphore,
-                                  VK_NULL_HANDLE,
-                                  &image_index);
-
-      if (err == VK_SUCCESS || err == VK_SUBOPTIMAL_KHR){
-        break;
-      }
-      else
-      if (err == VK_ERROR_OUT_OF_DATE_KHR) {
-        ont_vk_restart();
-      }
-      else {
-        pthread_mutex_unlock(&scene_lock);
-        return;
-      }
-  } while(true);
-
-  VkFence current_fence = swapchain_image_resources[image_index].command_buffer_fence;
-  vkWaitForFences(device, 1, &current_fence, VK_TRUE, UINT64_MAX);
-  vkResetFences(device, 1, &current_fence);
-
-  VkSemaphore wait_semaphores[] = { image_acquired_semaphore };
-  VkPipelineStageFlags wait_stages[] = {
-    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
-  };
-  VkSemaphore signal_semaphores[] = { render_complete_semaphore };
-
-  VkSubmitInfo submit_info = {
-    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-    .waitSemaphoreCount = 1,
-    .pWaitSemaphores = wait_semaphores,
-    .pWaitDstStageMask = wait_stages,
-    .commandBufferCount = 1,
-    .pCommandBuffers = &swapchain_image_resources[image_index].command_buffer,
-    .signalSemaphoreCount = 1,
-    .pSignalSemaphores = signal_semaphores,
-  };
-
-  err = vkQueueSubmit(queue, 1, &submit_info, current_fence);
-
-  VkPresentInfoKHR present_info = {
-    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-    .waitSemaphoreCount = 1,
-    .pWaitSemaphores = signal_semaphores,
-    .swapchainCount = 1,
-    .pSwapchains = &swapchain,
-    .pImageIndices = &image_index,
-    .pNext = NULL,
-  };
-
-  err = vkQueuePresentKHR(queue, &present_info);
-
-  if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
-    ont_vk_restart();
-  }
-  pthread_mutex_unlock(&scene_lock);
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-
-static VkFormat texture_format = VK_FORMAT_R8G8B8A8_UNORM;
 
 struct texture_object {
     int32_t texture_width;
@@ -317,26 +222,12 @@ struct texture_object {
     VkImageView image_view;
 };
 
-struct {
-    VkFormat format;
-    VkDeviceMemory device_memory;
-    VkImage image;
-    VkImageView image_view;
-} depth;
-
-struct uniforms {
-    float proj[4][4];
-    float view[4][4];
-    float model[MAX_PANELS][4][4];
-    vec4  text_ends[MAX_PANELS];
-};
-
 #if defined(VK_USE_PLATFORM_XCB_KHR) // Ubuntu Desktop; Pi4
 //static char* font_face = "/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf";
 static char* font_face = "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf";
 #endif
 
-static char *texture_files[] = {"ivory.ppm"};
+static char *texture_files[] = { "ivory.ppm" };
 
 #include "ivory.ppm.h"
 
@@ -345,111 +236,7 @@ static char *texture_files[] = {"ivory.ppm"};
 struct texture_object textures[TEXTURE_COUNT];
 struct texture_object staging_texture;
 
-// ---------------------------------
-
-static bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
-    for (uint32_t i = 0; i < VK_MAX_MEMORY_TYPES; i++) {
-        if ((typeBits & 1) == 1) {
-            if ((memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
-                *typeIndex = i;
-                return true;
-            }
-        }
-        typeBits >>= 1;
-    }
-    return false;
-}
-
-static uint32_t create_buffer_with_memory(VkBufferCreateInfo*   buffer_ci,
-                                          VkMemoryPropertyFlags prop_flags,
-                                          VkBuffer*             buffer,
-                                          VkDeviceMemory*       memory){
-
-  VK_CHECK(vkCreateBuffer(device, buffer_ci, 0, buffer));
-
-  VkMemoryRequirements mem_reqs;
-  vkGetBufferMemoryRequirements(device, *buffer, &mem_reqs);
-
-  VkMemoryAllocateInfo memory_ai = {
-    .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-    .allocationSize = mem_reqs.size,
-  };
-  assert(memory_type_from_properties(mem_reqs.memoryTypeBits,
-                                     prop_flags,
-                                     &memory_ai.memoryTypeIndex));
-
-  VK_CHECK(vkAllocateMemory(device, &memory_ai, 0, memory));
-
-  VK_CHECK(vkBindBufferMemory(device, *buffer, *memory, 0));
-
-  return memory_ai.allocationSize;
-}
-
-static uint32_t create_image_with_memory(VkImageCreateInfo*    image_ci,
-                                         VkMemoryPropertyFlags prop_flags,
-                                         VkImage*              image,
-                                         VkDeviceMemory*       memory) {
-
-  VK_CHECK(vkCreateImage(device, image_ci, 0, image));
-
-  VkMemoryRequirements mem_reqs;
-  vkGetImageMemoryRequirements(device, *image, &mem_reqs);
-
-  VkMemoryAllocateInfo memory_ai = {
-    .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-    .allocationSize = mem_reqs.size,
-  };
-  assert(memory_type_from_properties(mem_reqs.memoryTypeBits,
-                                     prop_flags,
-                                     &memory_ai.memoryTypeIndex));
-
-  VK_CHECK(vkAllocateMemory(device, &memory_ai, 0, memory));
-
-  VK_CHECK(vkBindImageMemory(device, *image, *memory, 0));
-
-  return memory_ai.allocationSize;
-}
-
-static void create_uniform_buffer_with_memory(VkBufferCreateInfo* buffer_ci,
-                                              VkMemoryPropertyFlags prop_flags,
-                                              uint32_t ii){
-    VK_CHECK(vkCreateBuffer(device,
-                            buffer_ci,
-                            0,
-                            &uniform_mem[ii].uniform_buffer
-    ));
-
-    VkMemoryRequirements mem_reqs;
-    vkGetBufferMemoryRequirements(
-                            device,
-                            uniform_mem[ii].uniform_buffer,
-                            &mem_reqs);
-
-    VkMemoryAllocateInfo memory_ai = {
-      .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-      .allocationSize = mem_reqs.size,
-    };
-    assert(memory_type_from_properties(mem_reqs.memoryTypeBits,
-                                       prop_flags,
-                                       &memory_ai.memoryTypeIndex));
-
-    VK_CHECK(vkAllocateMemory(device,
-                             &memory_ai,
-                              0,
-                             &uniform_mem[ii].uniform_memory));
-
-    VK_CHECK(vkMapMemory(device,
-                         uniform_mem[ii].uniform_memory,
-                         0, sizeof(struct uniforms), 0,
-                        &uniform_mem[ii].uniform_memory_ptr));
-
-    VK_CHECK(vkBindBufferMemory(device,
-                                uniform_mem[ii].uniform_buffer,
-                                uniform_mem[ii].uniform_memory,
-                                0));
-}
-
-// ---------------------------------
+static VkFormat texture_format = VK_FORMAT_R8G8B8A8_UNORM;
 
 static bool load_texture(const char *filename, uint8_t *rgba_data, uint64_t row_pitch, int32_t *w, int32_t *h) {
     (void)filename;
@@ -481,31 +268,6 @@ static bool load_texture(const char *filename, uint8_t *rgba_data, uint64_t row_
         rgba_data += row_pitch;
     }
     return true;
-}
-
-extern unsigned char src_ont_unix_onx_frag_spv[];
-extern unsigned int  src_ont_unix_onx_frag_spv_len;
-extern unsigned char src_ont_unix_onx_vert_spv[];
-extern unsigned int  src_ont_unix_onx_vert_spv_len;
-
-static VkShaderModule load_c_shader(bool load_frag) {
-
-    VkShaderModuleCreateInfo module_ci = {
-        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-        .codeSize = load_frag? src_ont_unix_onx_frag_spv_len:
-                               src_ont_unix_onx_vert_spv_len,
-        .pCode = load_frag? src_ont_unix_onx_frag_spv:
-                            src_ont_unix_onx_vert_spv,
-        .flags = 0,
-        .pNext = 0,
-    };
-
-    VkShaderModule module;
-    VK_CHECK(vkCreateShaderModule(device,
-                                  &module_ci,
-                                  0,
-                                  &module));
-    return module;
 }
 
 // ---------------------------------
@@ -661,46 +423,6 @@ static void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkIma
     VkImageMemoryBarrier *pmemory_barrier = &image_memory_barrier;
 
     vkCmdPipelineBarrier(initcmd, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
-}
-
-static void prepare_depth() {
-    const VkFormat depth_format = VK_FORMAT_D16_UNORM;
-    VkImageCreateInfo image_ci = {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-        .pNext = NULL,
-        .imageType = VK_IMAGE_TYPE_2D,
-        .format = depth_format,
-        .extent = { io.swap_width, io.swap_height, 1},
-        .mipLevels = 1,
-        .arrayLayers = 1,
-        .samples = VK_SAMPLE_COUNT_1_BIT,
-        .tiling = VK_IMAGE_TILING_OPTIMAL,
-        .usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-        .flags = 0,
-    };
-
-    VkImageViewCreateInfo image_view_ci = {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .pNext = NULL,
-        .image = VK_NULL_HANDLE,
-        .format = depth_format,
-        .subresourceRange =
-            {.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1},
-        .flags = 0,
-        .viewType = VK_IMAGE_VIEW_TYPE_2D,
-    };
-
-    depth.format = depth_format;
-
-    VkMemoryPropertyFlags prop_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-    create_image_with_memory(&image_ci,
-                             prop_flags,
-                             &depth.image,
-                             &depth.device_memory);
-
-    image_view_ci.image = depth.image;
-    VK_CHECK(vkCreateImageView(device, &image_view_ci, NULL, &depth.image_view));
 }
 
 static void prepare_glyph_buffers() {
@@ -881,140 +603,50 @@ static void prepare_textures(){
     }
 }
 
-static void prepare_vertex_buffers(){
+// -----------------------------------------------------------------------------------
 
-  VkBufferCreateInfo buffer_ci = {
-    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
-                                2 * sizeof(float)  ),
-    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-  };
-
-  create_buffer_with_memory(&buffer_ci,
-                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                            &vertex_buffer,
-                            &vertex_buffer_memory);
-}
-
-// --------------------------------------------------------------------------------------------------------
-
-void onx_vk_prepare_swapchain_images(bool restart) {
-    VkResult err;
-    err = vkGetSwapchainImagesKHR(device, swapchain, &image_count, NULL);
-    assert(!err);
-
-    VkImage *swapchainImages = (VkImage *)malloc(image_count * sizeof(VkImage));
-    assert(swapchainImages);
-    err = vkGetSwapchainImagesKHR(device, swapchain, &image_count, swapchainImages);
-    assert(!err);
-
-    swapchain_image_resources = (SwapchainImageResources *)malloc(sizeof(SwapchainImageResources) * image_count);
-
-    for (uint32_t i = 0; i < image_count; i++) {
-        VkImageViewCreateInfo image_view_ci = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-            .pNext = NULL,
-            .image = swapchainImages[i],
-            .format = surface_format,
-            .components =
-                {
-                    .r = VK_COMPONENT_SWIZZLE_IDENTITY,
-                    .g = VK_COMPONENT_SWIZZLE_IDENTITY,
-                    .b = VK_COMPONENT_SWIZZLE_IDENTITY,
-                    .a = VK_COMPONENT_SWIZZLE_IDENTITY,
-                },
-            .subresourceRange =
-                {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1},
-            .viewType = VK_IMAGE_VIEW_TYPE_2D,
-            .flags = 0,
-        };
-
-        VK_CHECK(vkCreateImageView(device, &image_view_ci, NULL, &swapchain_image_resources[i].image_view));
-    }
-
-    if (NULL != swapchainImages) {
-        free(swapchainImages);
-    }
-}
-
-void onx_vk_prepare_semaphores_and_fences(bool restart) {
-
-  VkFenceCreateInfo fence_ci = {
-      .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-      .flags = VK_FENCE_CREATE_SIGNALED_BIT,
-      .pNext = 0,
-  };
-
-  for (uint32_t i = 0; i < image_count; i++) {
-      VK_CHECK(vkCreateFence(device, &fence_ci, 0, &swapchain_image_resources[i].command_buffer_fence));
+VkVertexInputBindingDescription vibds[] = {
+  {
+    .binding = 0,
+    .stride = 3 * sizeof(float) +
+              2 * sizeof(float),
+    .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+  },
+  {
+    .binding = 1,
+    .stride = sizeof(fd_GlyphInstance),
+    .inputRate = VK_VERTEX_INPUT_RATE_INSTANCE,
   }
+};
 
-  VkSemaphoreCreateInfo semaphore_ci = {
-      .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-      .pNext = 0,
-  };
+VkVertexInputAttributeDescription vertex_input_attributes[] = {
+  { 0, 0, VK_FORMAT_R32G32B32_SFLOAT,    0 }, // vertex
+  { 1, 0, VK_FORMAT_R32G32_SFLOAT,      12 }, // uv
+  { 2, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0 }, // fd_GlyphInstance.rect
+  { 3, 1, VK_FORMAT_R32_UINT,           16 }, // fd_GlyphInstance.glyph_index
+  { 4, 1, VK_FORMAT_R32_SFLOAT,         20 }, // fd_GlyphInstance.sharpness
+};
 
-  VK_CHECK(vkCreateSemaphore(device, &semaphore_ci, 0, &image_acquired_semaphore));
-  VK_CHECK(vkCreateSemaphore(device, &semaphore_ci, 0, &render_complete_semaphore));
-}
-
-void onx_vk_prepare_command_buffers(bool restart){
-
-  VkCommandBufferAllocateInfo command_buffer_ai = {
-      .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-      .commandPool = command_pool,
-      .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-      .commandBufferCount = 1,
-      .pNext = 0,
-  };
-
-  for (uint32_t i = 0; i < image_count; i++) {
-      VK_CHECK(vkAllocateCommandBuffers(
-                       device,
-                       &command_buffer_ai,
-                       &swapchain_image_resources[i].command_buffer
-      ));
-  }
-}
-
-void onx_vk_prepare_render_data(bool restart) {
+void onx_vk_rd_prepare_render_data(bool restart) {
 
   VkPhysicalDeviceProperties gpu_props;
   vkGetPhysicalDeviceProperties(gpu, &gpu_props);
-
   load_font(font_face, gpu_props.limits.minStorageBufferOffsetAlignment);
 
   vkGetPhysicalDeviceFormatProperties(gpu, texture_format, &format_properties);
-  vkGetPhysicalDeviceMemoryProperties(gpu, &memory_properties);
 
-  prepare_depth();
   prepare_glyph_buffers();
   prepare_textures();
+
+  // ----------
+
+  vertex_input_state_ci.vertexBindingDescriptionCount = 2;
+  vertex_input_state_ci.pVertexBindingDescriptions = vibds;
+  vertex_input_state_ci.vertexAttributeDescriptionCount = 5;
+  vertex_input_state_ci.pVertexAttributeDescriptions = vertex_input_attributes;
 }
 
-void onx_vk_prepare_uniform_buffers(bool restart) {
-
-  prepare_vertex_buffers();
-
-  uniform_mem = (uniform_mem_t*)malloc(sizeof(uniform_mem_t) * image_count);
-
-  VkBufferCreateInfo buffer_ci = {
-     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-     .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-     .size = sizeof(struct uniforms),
-  };
-  for (uint32_t i = 0; i < image_count; i++) {
-
-    create_uniform_buffer_with_memory(&buffer_ci,
-                                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT  |
-                                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                      i);
-  }
-}
-
-void onx_vk_prepare_descriptor_layout(bool restart) {
+void onx_vk_rd_prepare_descriptor_layout(bool restart) {
 
   VkDescriptorSetLayoutBinding bindings[] = {
       {
@@ -1063,43 +695,20 @@ void onx_vk_prepare_descriptor_layout(bool restart) {
                                        &descriptor_layout));
 }
 
-void onx_vk_prepare_pipeline_layout(bool restart) {
-
-  VkPushConstantRange push_constant_range = {
-    .offset = 0,
-    .size = sizeof(struct push_constants),
-    .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-  };
-
-  VkPipelineLayoutCreateInfo pipeline_layout_ci = {
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-      .setLayoutCount = 1,
-      .pSetLayouts = &descriptor_layout,
-      .pPushConstantRanges = &push_constant_range,
-      .pushConstantRangeCount = 1,
-      .pNext = 0,
-  };
-
-  VK_CHECK(vkCreatePipelineLayout(device,
-                                  &pipeline_layout_ci,
-                                  0,
-                                  &pipeline_layout));
-}
-
-void onx_vk_prepare_descriptor_pool(bool restart) {
+void onx_vk_rd_prepare_descriptor_pool(bool restart) {
 
   VkDescriptorPoolSize pool_sizes[] = {
       { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-        image_count                 },
+        max_img                 },
       { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-        image_count * 3             },
+        max_img * 3             },
       { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-        image_count * TEXTURE_COUNT },
+        max_img * TEXTURE_COUNT },
   };
 
   VkDescriptorPoolCreateInfo descriptor_pool_ci = {
       .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-      .maxSets = (image_count * 3) + image_count + (image_count * TEXTURE_COUNT) + 23, //// ??
+      .maxSets = (max_img * 3) + max_img + (max_img * TEXTURE_COUNT) + 23, //// ??
       .poolSizeCount = 3,
       .pPoolSizes = pool_sizes,
       .pNext = 0,
@@ -1108,7 +717,7 @@ void onx_vk_prepare_descriptor_pool(bool restart) {
   VK_CHECK(vkCreateDescriptorPool(device, &descriptor_pool_ci, NULL, &descriptor_pool));
 }
 
-void onx_vk_prepare_descriptor_set(bool restart) {
+void onx_vk_rd_prepare_descriptor_set(bool restart) {
 
   VkDescriptorSetAllocateInfo descriptor_set_ai = {
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
@@ -1191,7 +800,7 @@ void onx_vk_prepare_descriptor_set(bool restart) {
     },
   };
 
-  for (uint32_t i = 0; i < image_count; i++) {
+  for (uint32_t i = 0; i < max_img; i++) {
 
     VK_CHECK(vkAllocateDescriptorSets(
                               device,
@@ -1209,305 +818,44 @@ void onx_vk_prepare_descriptor_set(bool restart) {
   }
 }
 
-void onx_vk_prepare_render_pass(bool restart) {
-    const VkAttachmentDescription attachments[2] = {
-        [0] =
-            {
-                .format = surface_format,
-                .flags = 0,
-                .samples = VK_SAMPLE_COUNT_1_BIT,
-                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-                .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-            },
-        [1] =
-            {
-                .format = depth.format,
-                .flags = 0,
-                .samples = VK_SAMPLE_COUNT_1_BIT,
-                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                .finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            },
-    };
-    const VkAttachmentReference color_reference = {
-        .attachment = 0,
-        .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-    };
-    const VkAttachmentReference depth_reference = {
-        .attachment = 1,
-        .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    };
-    const VkSubpassDescription subpass = {
-        .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+extern unsigned char src_ont_unix_onx_frag_spv[];
+extern unsigned int  src_ont_unix_onx_frag_spv_len;
+extern unsigned char src_ont_unix_onx_vert_spv[];
+extern unsigned int  src_ont_unix_onx_vert_spv_len;
+
+VkShaderModule vert_shader_module;
+VkShaderModule frag_shader_module;
+
+static VkShaderModule load_c_shader(bool load_frag) {
+
+    VkShaderModuleCreateInfo module_ci = {
+        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .codeSize = load_frag? src_ont_unix_onx_frag_spv_len:
+                               src_ont_unix_onx_vert_spv_len,
+        .pCode = load_frag? src_ont_unix_onx_frag_spv:
+                            src_ont_unix_onx_vert_spv,
         .flags = 0,
-        .inputAttachmentCount = 0,
-        .pInputAttachments = NULL,
-        .colorAttachmentCount = 1,
-        .pColorAttachments = &color_reference,
-        .pResolveAttachments = NULL,
-        .pDepthStencilAttachment = &depth_reference,
-        .preserveAttachmentCount = 0,
-        .pPreserveAttachments = NULL,
+        .pNext = 0,
     };
 
-    VkSubpassDependency attachmentDependencies[2] = {
-        [0] =
-            {
-                .srcSubpass = VK_SUBPASS_EXTERNAL,
-                .dstSubpass = 0,
-                .srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-                .dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-                .srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                .dependencyFlags = 0,
-            },
-        [1] =
-            {
-                .srcSubpass = VK_SUBPASS_EXTERNAL,
-                .dstSubpass = 0,
-                .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                .srcAccessMask = 0,
-                .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
-                .dependencyFlags = 0,
-            },
-    };
-
-    const VkRenderPassCreateInfo rp_info = {
-        .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-        .pNext = NULL,
-        .flags = 0,
-        .attachmentCount = 2,
-        .pAttachments = attachments,
-        .subpassCount = 1,
-        .pSubpasses = &subpass,
-        .dependencyCount = 2,
-        .pDependencies = attachmentDependencies,
-    };
-    VkResult err;
-
-    err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
-    assert(!err);
+    VkShaderModule module;
+    VK_CHECK(vkCreateShaderModule(device,
+                                  &module_ci,
+                                  0,
+                                  &module));
+    return module;
 }
 
-void onx_vk_prepare_pipeline(bool restart) {
-
-  VkShaderModule vert_shader_module = load_c_shader(false);
-  VkShaderModule frag_shader_module = load_c_shader(true);
-
-  VkPipelineShaderStageCreateInfo shader_stages[] = {
-    {
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-      .stage = VK_SHADER_STAGE_VERTEX_BIT,
-      .module = vert_shader_module,
-      .pName = "main",
-    },
-    {
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-      .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
-      .module = frag_shader_module,
-      .pName = "main",
-    }
-  };
-
-  VkVertexInputBindingDescription vertices_input_binding = {
-    .binding = 0,
-    .stride = 3 * sizeof(float) +
-              2 * sizeof(float),
-    .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-  };
-
-  VkVertexInputBindingDescription vertex_input_binding = {
-    .binding = 1,
-    .stride = sizeof(fd_GlyphInstance),
-    .inputRate = VK_VERTEX_INPUT_RATE_INSTANCE,
-  };
-
-  VkVertexInputAttributeDescription vertex_input_attributes[] = {
-    { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 },     // vertex
-    { 1, 0, VK_FORMAT_R32G32_SFLOAT, 12 },       // uv
-    { 2, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },  // fd_GlyphInstance.rect
-    { 3, 1, VK_FORMAT_R32_UINT, 16 },            // fd_GlyphInstance.glyph_index
-    { 4, 1, VK_FORMAT_R32_SFLOAT, 20 },          // fd_GlyphInstance.sharpness
-  };
-
-  VkVertexInputBindingDescription vibds[] = {
-    vertices_input_binding,
-    vertex_input_binding,
-  };
-
-  VkPipelineVertexInputStateCreateInfo vertex_input_state = {
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-      .vertexBindingDescriptionCount = 2,
-      .pVertexBindingDescriptions = vibds,
-      .vertexAttributeDescriptionCount = 5,
-      .pVertexAttributeDescriptions = vertex_input_attributes,
-  };
-
-  VkPipelineInputAssemblyStateCreateInfo input_assembly_state = {
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-      .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-      .primitiveRestartEnable = VK_FALSE,
-  };
-
-  VkViewport viewport = {
-      .x = 0.0f,
-      .y = 0.0f,
-      .width  = io.swap_width,
-      .height = io.swap_height,
-      .minDepth = 0.0f,
-      .maxDepth = 1.0f,
-  };
-
-  VkRect2D scissor = {
-      .offset = { 0, 0 },
-      .extent = swapchain_extent,
-  };
-
-  VkPipelineViewportStateCreateInfo viewport_state = {
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
-      .viewportCount = 1,
-      .scissorCount = 1,
-      .pViewports = &viewport,
-      .pScissors = &scissor,
-  };
-
-  VkPipelineRasterizationStateCreateInfo rasterizer_state = {
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
-      .polygonMode = VK_POLYGON_MODE_FILL,
-      .cullMode = VK_CULL_MODE_BACK_BIT,
-      .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
-      .depthClampEnable = VK_FALSE,
-      .rasterizerDiscardEnable = VK_FALSE,
-      .depthBiasEnable = VK_FALSE,
-      .lineWidth = 1.0f,
-  };
-
-  VkPipelineMultisampleStateCreateInfo multisample_ci = {
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-      .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
-      .sampleShadingEnable = VK_FALSE,
-      .pSampleMask = NULL,
-  };
-
-  VkPipelineColorBlendAttachmentState color_blend_as = {
-      .colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                        VK_COLOR_COMPONENT_G_BIT |
-                        VK_COLOR_COMPONENT_B_BIT |
-                        VK_COLOR_COMPONENT_A_BIT,
-      .blendEnable = VK_TRUE,
-      .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
-      .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-      .colorBlendOp = VK_BLEND_OP_ADD,
-      .srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
-      .dstAlphaBlendFactor = VK_BLEND_FACTOR_DST_ALPHA,
-      .alphaBlendOp = VK_BLEND_OP_MAX,
-  };
-
-  VkPipelineColorBlendStateCreateInfo blend_state_ci = {
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-      .attachmentCount = 1,
-      .pAttachments = &color_blend_as,
-      .logicOpEnable = VK_FALSE,
-      .logicOp = VK_LOGIC_OP_COPY, // enabled?
-  };
-
-  VkPipelineDepthStencilStateCreateInfo depth_stencil_ci = {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-    .depthTestEnable = VK_TRUE,
-    .depthWriteEnable = VK_TRUE,
-    .depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL,
-    .depthBoundsTestEnable = VK_FALSE,
-    .back.failOp = VK_STENCIL_OP_KEEP,
-    .back.passOp = VK_STENCIL_OP_KEEP,
-    .back.compareOp = VK_COMPARE_OP_ALWAYS,
-    .stencilTestEnable = VK_FALSE,
-  };
-  depth_stencil_ci.front = depth_stencil_ci.back;
-
-  VkPipelineCacheCreateInfo pipeline_cache_ci = {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
-  };
-
-  VK_CHECK(vkCreatePipelineCache(device,
-                                 &pipeline_cache_ci,
-                                 0,
-                                 &pipeline_cache));
-
-  VkGraphicsPipelineCreateInfo graphics_pipeline_ci[] = {
-    {
-      .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-      .stageCount = 2,
-      .pViewportState = &viewport_state,
-      .pRasterizationState = &rasterizer_state,
-      .pMultisampleState = &multisample_ci,
-      .pColorBlendState = &blend_state_ci,
-      .pDepthStencilState = &depth_stencil_ci,
-      .pStages = shader_stages,
-      .pVertexInputState = &vertex_input_state,
-      .pInputAssemblyState = &input_assembly_state,
-      .layout = pipeline_layout,
-      .renderPass = render_pass,
-      .subpass = 0,
-    },
-  };
-
-  // this call takes several seconds on Konstakang
-  VK_CHECK(vkCreateGraphicsPipelines(device,
-                                     pipeline_cache,
-                                     1,
-                                     graphics_pipeline_ci,
-                                     0,
-                                     &pipeline));
-
-  vkDestroyShaderModule(device, frag_shader_module, NULL);
-  vkDestroyShaderModule(device, vert_shader_module, NULL);
-}
-
-void onx_vk_prepare_framebuffers(bool restart) {
-    VkImageView attachments[2];
-    attachments[1] = depth.image_view;
-
-    const VkFramebufferCreateInfo fb_info = {
-        .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-        .pNext = NULL,
-        .renderPass = render_pass,
-        .attachmentCount = 2,
-        .pAttachments = attachments,
-        .width =  io.swap_width,
-        .height = io.swap_height,
-        .layers = 1,
-    };
-    VkResult err;
-    uint32_t i;
-
-    for (i = 0; i < image_count; i++) {
-        attachments[0] = swapchain_image_resources[i].image_view;
-        err = vkCreateFramebuffer(device, &fb_info, NULL, &swapchain_image_resources[i].framebuffer);
-        assert(!err);
-    }
+void onx_vk_rd_prepare_shaders(bool restart){
+  vert_shader_module = load_c_shader(false);
+  frag_shader_module = load_c_shader(true);
 }
 
 // ----------------------------------------------------------------------------------------
 
-void onx_vk_finish() {
+void onx_vk_rd_finish_render_data() {
 
   scene_ready = false;
-
-  for (uint32_t i = 0; i < image_count; i++) {
-    vkWaitForFences(device, 1, &swapchain_image_resources[i].command_buffer_fence, VK_TRUE, UINT64_MAX);
-    vkDestroyFence(device, swapchain_image_resources[i].command_buffer_fence, NULL);
-  }
-
-  vkDestroyPipeline(device, pipeline, NULL);
-  vkDestroyPipelineCache(device, pipeline_cache, NULL);
 
   // ---------------------------------
 
@@ -1526,15 +874,11 @@ void onx_vk_finish() {
   // ---------------------------------
 
   vkDestroyDescriptorPool(device, descriptor_pool, NULL);
-
-  // ---------------------------------
-
-  vkDestroyPipelineLayout(device, pipeline_layout, NULL);
   vkDestroyDescriptorSetLayout(device, descriptor_layout, NULL);
 
   // ---------------------------------
 
-  for (uint32_t i = 0; i < image_count; i++) {
+  for (uint32_t i = 0; i < max_img; i++) {
       vkDestroyBuffer(device, uniform_mem[i].uniform_buffer, NULL);
       vkUnmapMemory(device, uniform_mem[i].uniform_memory);
       vkFreeMemory(device, uniform_mem[i].uniform_memory, NULL);
@@ -1554,27 +898,6 @@ void onx_vk_finish() {
      if(staging_texture.image) vkDestroyImage(device, staging_texture.image, NULL);
      vkDestroyBuffer(device, staging_texture.buffer, NULL);
   }
-
-  vkDestroyImageView(device, depth.image_view, NULL);
-  vkDestroyImage(device, depth.image, NULL);
-  vkFreeMemory(device, depth.device_memory, NULL);
-
-  uint32_t i;
-  if (swapchain_image_resources) {
-     for (i = 0; i < image_count; i++) {
-         vkFreeCommandBuffers(device, command_pool, 1, &swapchain_image_resources[i].command_buffer);
-         vkDestroyFramebuffer(device, swapchain_image_resources[i].framebuffer, NULL);
-         vkDestroyImageView(device, swapchain_image_resources[i].image_view, NULL);
-     }
-     free(swapchain_image_resources);
-  }
-
-  // ---------------------------------
-
-  VK_DESTROY(vkDestroySemaphore, device, image_acquired_semaphore);
-  VK_DESTROY(vkDestroySemaphore, device, render_complete_semaphore);
-
-  vkDestroyRenderPass(device, render_pass, NULL);
 }
 
 // ---------------------------------

@@ -141,7 +141,7 @@ void load_font(char* font_face) {
   int err=FT_New_Face(library, font_face, 0, &face);
   if(err){
     log_write("Font loading failed or font not found: %s\n", font_face);
-    onl_vk_exit();
+    onl_vk_quit();
   }
 
   FT_CHECK(FT_Set_Char_Size(face, 0, 1000 * 64, 96, 96));

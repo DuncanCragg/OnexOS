@@ -75,12 +75,12 @@ static void prepare_glyph_buffers() {
                                    &staging_buffer_memory);
 
   void *staging_buffer_ptr;
-  VK_CHECK(vkMapMemory(onl_vk_device,
-                       staging_buffer_memory,
-                       0,
-                       glyph_data_size,
-                       0,
-                       &staging_buffer_ptr));
+  ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
+                                staging_buffer_memory,
+                                0,
+                                glyph_data_size,
+                                0,
+                                &staging_buffer_ptr));
 
   memcpy(staging_buffer_ptr, glyph_data, glyph_data_size);
 
@@ -223,7 +223,8 @@ static void prepare_texture_image(const char *filename,
         vkGetImageSubresourceLayout(onl_vk_device, texture_obj->image, &subres, &layout);
 
         void *data;
-        VK_CHECK(vkMapMemory(onl_vk_device, texture_obj->device_memory, 0, size, 0, &data));
+        ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device, texture_obj->device_memory,
+                                      0, size, 0, &data));
 
         if (!load_texture(filename, data, layout.rowPitch, &texture_width, &texture_height)) {
             log_write("Error loading texture: %s\n", filename);
@@ -396,7 +397,8 @@ static void prepare_textures(){
         assert(!err);
 
         image_view_ci.image = textures[i].image;
-        VK_CHECK(vkCreateImageView(onl_vk_device, &image_view_ci, NULL, &textures[i].image_view));
+        ONL_VK_CHECK_EXIT(vkCreateImageView(onl_vk_device, &image_view_ci,
+                                            0, &textures[i].image_view));
     }
 }
 
@@ -484,10 +486,10 @@ void ont_vk_prepare_uniform_buffers(bool restart) {
                                      &uniform_mem[ii].uniform_buffer,
                                      &uniform_mem[ii].uniform_memory);
 
-    VK_CHECK(vkMapMemory(onl_vk_device,
-                         uniform_mem[ii].uniform_memory,
-                         0, sizeof(struct uniforms_size_template), 0,
-                        &uniform_mem[ii].uniform_memory_ptr));
+    ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
+                                  uniform_mem[ii].uniform_memory,
+                                  0, sizeof(struct uniforms_size_template), 0,
+                                 &uniform_mem[ii].uniform_memory_ptr));
   }
 }
 
@@ -534,10 +536,9 @@ void ont_vk_prepare_descriptor_layout(bool restart) {
       .pBindings = bindings,
   };
 
-  VK_CHECK(vkCreateDescriptorSetLayout(onl_vk_device,
-                                       &descriptor_set_layout_ci,
-                                       0,
-                                       &descriptor_layout));
+  ONL_VK_CHECK_EXIT(vkCreateDescriptorSetLayout(onl_vk_device,
+                                                &descriptor_set_layout_ci,
+                                                0, &descriptor_layout));
 }
 
 void ont_vk_prepare_pipeline_layout(bool restart) {
@@ -557,10 +558,9 @@ void ont_vk_prepare_pipeline_layout(bool restart) {
       .pNext = 0,
   };
 
-  VK_CHECK(vkCreatePipelineLayout(onl_vk_device,
-                                  &pipeline_layout_ci,
-                                  0,
-                                  &onl_vk_pipeline_layout));
+  ONL_VK_CHECK_EXIT(vkCreatePipelineLayout(onl_vk_device,
+                                           &pipeline_layout_ci,
+                                           0, &onl_vk_pipeline_layout));
 }
 
 static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
@@ -610,13 +610,13 @@ void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs) {
 
   size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
 
-  VK_CHECK(vkMapMemory(onl_vk_device,
-                       vertex_buffer_memory,
-                       0, vertex_size, 0, vertices));
+  ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
+                                vertex_buffer_memory,
+                                0, vertex_size, 0, vertices));
 
-  VK_CHECK(vkMapMemory(onl_vk_device,
-                       instance_staging_buffer_memory,
-                       0, glyph_size,  0, glyphs));
+  ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
+                                instance_staging_buffer_memory,
+                                0, glyph_size,  0, glyphs));
 }
 
 
@@ -700,7 +700,8 @@ void ont_vk_prepare_descriptor_pool(bool restart) {
       .pNext = 0,
   };
 
-  VK_CHECK(vkCreateDescriptorPool(onl_vk_device, &descriptor_pool_ci, NULL, &descriptor_pool));
+  ONL_VK_CHECK_EXIT(vkCreateDescriptorPool(onl_vk_device, &descriptor_pool_ci,
+                                           0, &descriptor_pool));
 }
 
 void ont_vk_prepare_descriptor_set(bool restart) {
@@ -788,10 +789,9 @@ void ont_vk_prepare_descriptor_set(bool restart) {
 
   for (uint32_t i = 0; i < onl_vk_max_img; i++) {
 
-    VK_CHECK(vkAllocateDescriptorSets(
-                              onl_vk_device,
-                             &descriptor_set_ai,
-                             &uniform_mem[i].descriptor_set));
+    ONL_VK_CHECK_EXIT(vkAllocateDescriptorSets(onl_vk_device,
+                                               &descriptor_set_ai,
+                                               &uniform_mem[i].descriptor_set));
 
     uniform_info.buffer = uniform_mem[i].uniform_buffer;
     writes[0].dstSet = uniform_mem[i].descriptor_set;
@@ -824,10 +824,10 @@ static VkShaderModule load_c_shader(bool load_frag) {
     };
 
     VkShaderModule module;
-    VK_CHECK(vkCreateShaderModule(onl_vk_device,
-                                  &module_ci,
-                                  0,
-                                  &module));
+    ONL_VK_CHECK_EXIT(vkCreateShaderModule(onl_vk_device,
+                                           &module_ci,
+                                           0,
+                                           &module));
     return module;
 }
 

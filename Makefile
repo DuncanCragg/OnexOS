@@ -8,8 +8,7 @@ targets:
 
 #-------------------------------------------------------------------------------
 
-TARGETS = onx-pi4 \
-          onx-xcb \
+TARGETS = onx-xcb \
 
 #-------------------------------------------------------------------------------
 
@@ -38,16 +37,6 @@ SHADERS = \
 
 #-------------------------------------------------------------------------------
 
-INC_DIR_PI4 = \
- -I./include/vulkan \
- -I/usr/aarch64-linux-gnu/include \
- -I/usr/include \
- -I/usr/include/freetype2 \
- -I./src \
- -I./src/ont/g2d \
- -I../OnexLang/include \
- -I../OnexKernel/include \
-
 INC_DIR_XCB = \
  -I./include/vulkan \
  -I/usr/include \
@@ -59,33 +48,11 @@ INC_DIR_XCB = \
 
 #-------------------------------------------------------------------------------
 
-LIB_DIR_PI4 =                      -L./lib    -L../OnexLang -L../OnexKernel
-LIB_DIR_XCB =                      -L/usr/lib -L../OnexLang -L../OnexKernel
-
-LIBS_ONX_PI4 = \
- -lonex-lang-arm \
- -lonex-kernel-arm \
- -lvulkan \
- -lxcb \
- -l:libfreetype.so.6.17.4 \
- -l:libbrotlidec.so.1 \
- -lbrotlicommon \
- -lXau \
- -lXdmcp \
- -l:libpng16.so.16 \
- -l:libz.so.1.2.11 \
- -lbsd \
- -lmd \
- -l:libm.so.6 \
- -l:libpthread-2.31.so \
- -l:libdl-2.31.so \
- -l:libc-2.31.so \
- -l:ld-2.31.so \
-
+LIB_DIR_XCB = -L/usr/lib -L../OnexLang -L../OnexKernel
 
 LIBS_ONX_XCB = \
  -lonex-lang-x86 \
- -lonex-kernel-x86 \
+ -lonex-kernel-xcb \
  -lvulkan \
  -lxcb \
  -lfreetype \
@@ -93,18 +60,6 @@ LIBS_ONX_XCB = \
 
 
 #-------------------------------------------------------------------------------
-
-onx-pi4: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
-onx-pi4: INC_DIR=${INC_DIR_PI4}
-onx-pi4: CC=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-gcc
-onx-pi4: LDX=/home/duncan/x-tools/aarch64-unknown-linux-gnu/bin/aarch64-unknown-linux-gnu-gcc
-onx-pi4: ${SOURCES_ONX_XCB:.c=.o} ${HEADERS_ONX_XCB} ${SHADERS:.spv=.o}
-	@echo ================
-	@echo $@ '<=' ${SOURCES_ONX_XCB:.c=.o} ${SHADERS:.spv=.o}
-	@echo -----
-	$(LDX) -o $@ ${SOURCES_ONX_XCB:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIR_PI4) $(LIBS_ONX_PI4)
-	mkdir -p onx
-	cp $@ onx
 
 onx-xcb: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
 onx-xcb: INC_DIR=${INC_DIR_XCB}
@@ -168,9 +123,6 @@ clean:
 	@echo "------------------------------"
 	@echo "files not cleaned:"
 	@git ls-files --others --exclude-from=.git/info/exclude | xargs -r ls -Fla
-
-copy-raspad: onx-pi4
-	rsync -ruav --stats --progress --delete onx/ raspad:onx
 
 SHELL=/usr/bin/bash
 

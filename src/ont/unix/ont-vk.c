@@ -1,7 +1,8 @@
 #include <onex-kernel/log.h>
-#include <onx-vk.h>
 
-#include "user-onx-vk.h"
+#include "user-onl-vk.h"
+
+VkPipelineLayout onl_vk_pipeline_layout;
 
 static VkBuffer vertex_buffer;
 static VkBuffer staging_buffer;
@@ -26,9 +27,12 @@ typedef struct {
 
 static uniform_mem_t *uniform_mem;
 
-static VkDescriptorPool descriptor_pool;
+struct push_constants {
+  uint32_t phase;
+};
 
-VkDescriptorSetLayout descriptor_layout;
+static VkDescriptorPool      descriptor_pool;
+static VkDescriptorSetLayout descriptor_layout;
 
 static VkBuffer storage_buffer;
 static VkBuffer instance_buffer;
@@ -38,7 +42,28 @@ static VkDeviceMemory storage_buffer_memory;
 static VkDeviceMemory instance_buffer_memory;
 static VkDeviceMemory instance_staging_buffer_memory;
 
-static VkFormatProperties format_properties;
+void ont_vk_prepare_pipeline_layout(bool restart) {
+
+  VkPushConstantRange push_constant_range = {
+    .offset = 0,
+    .size = sizeof(struct push_constants),
+    .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+  };
+
+  VkPipelineLayoutCreateInfo pipeline_layout_ci = {
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+      .setLayoutCount = 1,
+      .pSetLayouts = &descriptor_layout,
+      .pPushConstantRanges = &push_constant_range,
+      .pushConstantRangeCount = 1,
+      .pNext = 0,
+  };
+
+  VK_CHECK(vkCreatePipelineLayout(onl_vk_device,
+                                  &pipeline_layout_ci,
+                                  0,
+                                  &onl_vk_pipeline_layout));
+}
 
 static void prepare_vertex_buffers(){
 
@@ -50,33 +75,33 @@ static void prepare_vertex_buffers(){
     .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
 
-  create_buffer_with_memory(&buffer_ci,
-                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                            &vertex_buffer,
-                            &vertex_buffer_memory);
+  onl_vk_create_buffer_with_memory(&buffer_ci,
+                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                   &vertex_buffer,
+                                   &vertex_buffer_memory);
 }
 
-void onx_vk_rd_prepare_uniform_buffers(bool restart) {
+void ont_vk_prepare_uniform_buffers(bool restart) {
 
   prepare_vertex_buffers();
 
-  uniform_mem = (uniform_mem_t*)malloc(sizeof(uniform_mem_t) * max_img);
+  uniform_mem = (uniform_mem_t*)malloc(sizeof(uniform_mem_t) * onl_vk_max_img);
 
   VkBufferCreateInfo buffer_ci = {
      .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
      .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
      .size = sizeof(struct uniforms_size_template),
   };
-  for (uint32_t ii = 0; ii < max_img; ii++) {
+  for (uint32_t ii = 0; ii < onl_vk_max_img; ii++) {
 
-    create_buffer_with_memory(&buffer_ci,
-                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT  |
-                              VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                              &uniform_mem[ii].uniform_buffer,
-                              &uniform_mem[ii].uniform_memory);
+    onl_vk_create_buffer_with_memory(&buffer_ci,
+                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT  |
+                                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                     &uniform_mem[ii].uniform_buffer,
+                                     &uniform_mem[ii].uniform_memory);
 
-    VK_CHECK(vkMapMemory(device,
+    VK_CHECK(vkMapMemory(onl_vk_device,
                          uniform_mem[ii].uniform_memory,
                          0, sizeof(struct uniforms_size_template), 0,
                         &uniform_mem[ii].uniform_memory_ptr));
@@ -95,7 +120,7 @@ static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
 
   vkCmdBindDescriptorSets(cmd_buf,
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          pipeline_layout,
+                          onl_vk_pipeline_layout,
                           0, 1,
                           &uniform_mem[ii].descriptor_set,
                           0, NULL);
@@ -103,34 +128,34 @@ static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
   struct push_constants pc;
 
   pc.phase = 0, // ground plane
-  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
                      sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 6, 1, 0, 0);
 
   pc.phase = 1, // panels
-  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
                      sizeof(struct push_constants), &pc);
   for(uint32_t o=0; o<num_panels; o++){
     vkCmdDraw(cmd_buf, 6*6, 1, o*6*6, o);
   }
 
   pc.phase = 2, // text
-  vkCmdPushConstants(cmd_buf, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
                      sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 6, num_glyphs, 0, 0);
 }
 
 void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs) {
 
-  pthread_mutex_lock(&scene_lock);
-  scene_ready = false;
+  pthread_mutex_lock(&onl_vk_scene_lock);
+  onl_vk_scene_ready = false;
 
   size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
                                            2 * sizeof(float)  );
   size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
 
-  VK_CHECK(vkMapMemory(device, vertex_buffer_memory,           0, vertex_size, 0, vertices));
-  VK_CHECK(vkMapMemory(device, instance_staging_buffer_memory, 0, glyph_size,  0, glyphs));
+  VK_CHECK(vkMapMemory(onl_vk_device, vertex_buffer_memory,           0, vertex_size, 0, vertices));
+  VK_CHECK(vkMapMemory(onl_vk_device, instance_staging_buffer_memory, 0, glyph_size,  0, glyphs));
 }
 
 
@@ -180,44 +205,44 @@ void copy_instance_buffers(VkCommandBuffer cmd_buf){
 
 void set_up_scene_end() {
 
-  vkUnmapMemory(device, vertex_buffer_memory);
-  vkUnmapMemory(device, instance_staging_buffer_memory);
+  vkUnmapMemory(onl_vk_device, vertex_buffer_memory);
+  vkUnmapMemory(onl_vk_device, instance_staging_buffer_memory);
 
-  for (uint32_t ii = 0; ii < max_img; ii++) {
-      VkCommandBuffer cmd_buf = begin_cmd_buf(ii);
+  for (uint32_t ii = 0; ii < onl_vk_max_img; ii++) {
+      VkCommandBuffer cmd_buf = onl_vk_begin_cmd_buf(ii);
       copy_instance_buffers(cmd_buf);
-      begin_render_pass(ii, cmd_buf);
+      onl_vk_begin_render_pass(ii, cmd_buf);
       do_cmd_buf_draw(ii, cmd_buf);
-      end_cmd_buf_and_render_pass(ii, cmd_buf);
+      onl_vk_end_cmd_buf_and_render_pass(ii, cmd_buf);
   }
 
-  scene_ready = true;
-  pthread_mutex_unlock(&scene_lock);
+  onl_vk_scene_ready = true;
+  pthread_mutex_unlock(&onl_vk_scene_lock);
 }
 
-void onx_vk_rd_update_uniforms() {
+void ont_vk_update_uniforms() {
 
   set_proj_view();
 
-  memcpy(uniform_mem[cur_img].uniform_memory_ptr,
+  memcpy(uniform_mem[onl_vk_cur_img].uniform_memory_ptr,
          (const void*)&proj_matrix, sizeof(proj_matrix));
 
-  memcpy(uniform_mem[cur_img].uniform_memory_ptr +
+  memcpy(uniform_mem[onl_vk_cur_img].uniform_memory_ptr +
              sizeof(proj_matrix),
          (const void*)&view_l_matrix, sizeof(view_l_matrix));
 
-  memcpy(uniform_mem[cur_img].uniform_memory_ptr +
+  memcpy(uniform_mem[onl_vk_cur_img].uniform_memory_ptr +
              sizeof(proj_matrix) +
              sizeof(view_l_matrix),
          (const void*)&view_r_matrix, sizeof(view_r_matrix));
 
-  memcpy(uniform_mem[cur_img].uniform_memory_ptr +
+  memcpy(uniform_mem[onl_vk_cur_img].uniform_memory_ptr +
              sizeof(proj_matrix) +
              sizeof(view_l_matrix) +
              sizeof(view_r_matrix),
          (const void*)&model_matrix, sizeof(model_matrix));
 
-  memcpy(uniform_mem[cur_img].uniform_memory_ptr +
+  memcpy(uniform_mem[onl_vk_cur_img].uniform_memory_ptr +
              sizeof(proj_matrix) +
              sizeof(view_l_matrix) +
              sizeof(view_r_matrix) +
@@ -296,7 +321,7 @@ static void prepare_texture_image(const char *filename,
     VkResult err;
 
     if (!load_texture(filename, NULL, 0, &texture_width, &texture_height)) {
-        ERR_EXIT("Failed to load textures");
+        ONL_VK_ERR_EXIT("Failed to load textures");
     }
 
     texture_obj->texture_width = texture_width;
@@ -317,10 +342,10 @@ static void prepare_texture_image(const char *filename,
         .initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED,
     };
 
-    uint32_t size = create_image_with_memory(&image_ci,
-                                             prop_flags,
-                                             &texture_obj->image,
-                                             &texture_obj->device_memory);
+    uint32_t size = onl_vk_create_image_with_memory(&image_ci,
+                                                    prop_flags,
+                                                    &texture_obj->image,
+                                                    &texture_obj->device_memory);
 
     if (prop_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) {
         const VkImageSubresource subres = {
@@ -330,15 +355,15 @@ static void prepare_texture_image(const char *filename,
         };
         VkSubresourceLayout layout;
 
-        vkGetImageSubresourceLayout(device, texture_obj->image, &subres, &layout);
+        vkGetImageSubresourceLayout(onl_vk_device, texture_obj->image, &subres, &layout);
 
         void *data;
-        VK_CHECK(vkMapMemory(device, texture_obj->device_memory, 0, size, 0, &data));
+        VK_CHECK(vkMapMemory(onl_vk_device, texture_obj->device_memory, 0, size, 0, &data));
 
         if (!load_texture(filename, data, layout.rowPitch, &texture_width, &texture_height)) {
             log_write("Error loading texture: %s\n", filename);
         }
-        vkUnmapMemory(device, texture_obj->device_memory);
+        vkUnmapMemory(onl_vk_device, texture_obj->device_memory);
     }
     texture_obj->image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
@@ -350,7 +375,7 @@ static void prepare_texture_buffer(const char *filename, struct texture_object *
     VkResult err;
 
     if (!load_texture(filename, 0, 0, &texture_width, &texture_height)) {
-        ERR_EXIT("Failed to load textures");
+        ONL_VK_ERR_EXIT("Failed to load textures");
     }
 
     texture_obj->texture_width = texture_width;
@@ -369,74 +394,23 @@ static void prepare_texture_buffer(const char *filename, struct texture_object *
 
     VkFlags prop_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
-    uint32_t size = create_buffer_with_memory(&buffer_ci,
-                                              prop_flags,
-                                              &texture_obj->buffer,
-                                              &texture_obj->device_memory);
+    uint32_t size = onl_vk_create_buffer_with_memory(&buffer_ci,
+                                                     prop_flags,
+                                                     &texture_obj->buffer,
+                                                     &texture_obj->device_memory);
     VkSubresourceLayout layout;
     memset(&layout, 0, sizeof(layout));
     layout.rowPitch = texture_width * 4;
 
     void *data;
-    err = vkMapMemory(device, texture_obj->device_memory, 0, size, 0, &data);
+    err = vkMapMemory(onl_vk_device, texture_obj->device_memory, 0, size, 0, &data);
     assert(!err);
 
     if (!load_texture(filename, data, layout.rowPitch, &texture_width, &texture_height)) {
         log_write("Error loading texture: %s\n", filename);
     }
 
-    vkUnmapMemory(device, texture_obj->device_memory);
-}
-
-static void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout,
-                             VkImageLayout new_image_layout, VkAccessFlagBits srcAccessMask, VkPipelineStageFlags src_stages,
-                             VkPipelineStageFlags dest_stages) {
-
-    VkImageMemoryBarrier image_memory_barrier = {.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                                                 .pNext = NULL,
-                                                 .srcAccessMask = srcAccessMask,
-                                                 .dstAccessMask = 0,
-                                                 .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                                                 .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                                                 .oldLayout = old_image_layout,
-                                                 .newLayout = new_image_layout,
-                                                 .image = image,
-                                                 .subresourceRange = {aspectMask, 0, 1, 0, 1}};
-
-    switch (new_image_layout) {
-        case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-            /* Make sure anything that was copying from this image has completed */
-            image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            break;
-
-        case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
-            image_memory_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            break;
-
-        case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-            image_memory_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-            break;
-
-        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-            image_memory_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
-            break;
-
-        case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-            image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-            break;
-
-        case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
-            image_memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-            break;
-
-        default:
-            image_memory_barrier.dstAccessMask = 0;
-            break;
-    }
-
-    VkImageMemoryBarrier *pmemory_barrier = &image_memory_barrier;
-
-    vkCmdPipelineBarrier(initcmd, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+    vkUnmapMemory(onl_vk_device, texture_obj->device_memory);
 }
 
 static void prepare_glyph_buffers() {
@@ -450,10 +424,10 @@ static void prepare_glyph_buffers() {
       .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
 
-  create_buffer_with_memory(&storage_ci,
-                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                            &storage_buffer,
-                            &storage_buffer_memory);
+  onl_vk_create_buffer_with_memory(&storage_ci,
+                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                   &storage_buffer,
+                                   &storage_buffer_memory);
 
   // ------------------
 
@@ -465,14 +439,14 @@ static void prepare_glyph_buffers() {
   };
 
 
-  create_buffer_with_memory(&staging_ci,
-                            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                            &staging_buffer,
-                            &staging_buffer_memory);
+  onl_vk_create_buffer_with_memory(&staging_ci,
+                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                                   &staging_buffer,
+                                   &staging_buffer_memory);
 
   void *staging_buffer_ptr;
-  VK_CHECK(vkMapMemory(device,
+  VK_CHECK(vkMapMemory(onl_vk_device,
                        staging_buffer_memory,
                        0,
                        glyph_data_size,
@@ -481,12 +455,12 @@ static void prepare_glyph_buffers() {
 
   memcpy(staging_buffer_ptr, glyph_data, glyph_data_size);
 
-  vkUnmapMemory(device, staging_buffer_memory);
+  vkUnmapMemory(onl_vk_device, staging_buffer_memory);
 
 
   VkBufferCopy copy = { 0, 0, glyph_data_size };
 
-  vkCmdCopyBuffer(initcmd, staging_buffer, storage_buffer, 1, &copy);
+  vkCmdCopyBuffer(onl_vk_init_cmdbuf, staging_buffer, storage_buffer, 1, &copy);
 
   free(glyph_data);
   glyph_data = NULL;
@@ -500,10 +474,10 @@ static void prepare_glyph_buffers() {
       .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
 
-  create_buffer_with_memory(&instance_ci,
-                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                            &instance_buffer,
-                            &instance_buffer_memory);
+  onl_vk_create_buffer_with_memory(&instance_ci,
+                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                   &instance_buffer,
+                                   &instance_buffer_memory);
 
   // ------------------
 
@@ -514,11 +488,11 @@ static void prepare_glyph_buffers() {
       .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
 
-  create_buffer_with_memory(&instance_staging_ci,
-                            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                            &instance_staging_buffer,
-                            &instance_staging_buffer_memory);
+  onl_vk_create_buffer_with_memory(&instance_staging_ci,
+                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                                   &instance_staging_buffer,
+                                   &instance_staging_buffer_memory);
 }
 
 static void prepare_textures(){
@@ -529,30 +503,42 @@ static void prepare_textures(){
         VkResult err;
 
 #if defined(LIMIT_TO_LINEAR_AND_NO_STAGING_BUFFER)
-        if ((format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)) {
+        if ((onl_vk_texture_format_properties.linearTilingFeatures &
+             VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)) {
 
             prepare_texture_image(texture_files[i], &textures[i], VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-            set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
-                             textures[i].image_layout, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+            onl_vk_transition_image(onl_vk_init_cmdbuf, textures[i].image,
+                                    VK_IMAGE_LAYOUT_PREINITIALIZED,
+                                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                    0,
+                                    VK_ACCESS_SHADER_READ_BIT |
+                                    VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
+                                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
             staging_texture.image = 0;
         } else
 #endif
-        if (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
+        if(onl_vk_texture_format_properties.optimalTilingFeatures &
+           VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT){
 
             memset(&staging_texture, 0, sizeof(staging_texture));
             prepare_texture_buffer(texture_files[i], &staging_texture);
 
-            prepare_texture_image(texture_files[i], &textures[i], VK_IMAGE_TILING_OPTIMAL,
-                                       (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT),
-                                       VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            prepare_texture_image(texture_files[i], &textures[i],
+                                  VK_IMAGE_TILING_OPTIMAL,
+                                  VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                                  VK_IMAGE_USAGE_SAMPLED_BIT,
+                                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-            set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
-                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                  VK_PIPELINE_STAGE_TRANSFER_BIT);
+            onl_vk_transition_image(onl_vk_init_cmdbuf, textures[i].image,
+                                    VK_IMAGE_LAYOUT_PREINITIALIZED,
+                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                    0, VK_ACCESS_TRANSFER_WRITE_BIT,
+                                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                    VK_PIPELINE_STAGE_TRANSFER_BIT);
 
             VkBufferImageCopy copy_region = {
                 .bufferOffset = 0,
@@ -560,15 +546,22 @@ static void prepare_textures(){
                 .bufferImageHeight = staging_texture.texture_height,
                 .imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
                 .imageOffset = {0, 0, 0},
-                .imageExtent = {staging_texture.texture_width, staging_texture.texture_height, 1},
+                .imageExtent = { staging_texture.texture_width,
+                                 staging_texture.texture_height, 1 },
             };
 
-            vkCmdCopyBufferToImage(initcmd, staging_texture.buffer, textures[i].image,
+            vkCmdCopyBufferToImage(onl_vk_init_cmdbuf, staging_texture.buffer,
+                                   textures[i].image,
                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
 
-            set_image_layout(textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  textures[i].image_layout, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+            onl_vk_transition_image(onl_vk_init_cmdbuf, textures[i].image,
+                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                    VK_ACCESS_TRANSFER_WRITE_BIT,
+                                    VK_ACCESS_SHADER_READ_BIT |
+                                    VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
+                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
         } else {
             assert(!"No support for R8G8B8A8_UNORM as texture image format");
         }
@@ -609,11 +602,11 @@ static void prepare_textures(){
             .flags = 0,
         };
 
-        err = vkCreateSampler(device, &sampler, NULL, &textures[i].sampler);
+        err = vkCreateSampler(onl_vk_device, &sampler, NULL, &textures[i].sampler);
         assert(!err);
 
         image_view_ci.image = textures[i].image;
-        VK_CHECK(vkCreateImageView(device, &image_view_ci, NULL, &textures[i].image_view));
+        VK_CHECK(vkCreateImageView(onl_vk_device, &image_view_ci, NULL, &textures[i].image_view));
     }
 }
 
@@ -641,26 +634,28 @@ VkVertexInputAttributeDescription vertex_input_attributes[] = {
   { 4, 1, VK_FORMAT_R32_SFLOAT,         20 }, // fd_GlyphInstance.sharpness
 };
 
-void onx_vk_rd_prepare_render_data(bool restart) {
+void ont_vk_prepare_render_data(bool restart) {
 
-  VkPhysicalDeviceProperties gpu_props;
-  vkGetPhysicalDeviceProperties(gpu, &gpu_props);
-  load_font(font_face, gpu_props.limits.minStorageBufferOffsetAlignment);
+  load_font(font_face);
 
-  vkGetPhysicalDeviceFormatProperties(gpu, texture_format, &format_properties);
+  // ----------
+
+  onl_vk_begin_init_command_buffer();
 
   prepare_glyph_buffers();
   prepare_textures();
 
+  onl_vk_end_init_command_buffer();
+
   // ----------
 
-  vertex_input_state_ci.vertexBindingDescriptionCount = 2;
-  vertex_input_state_ci.pVertexBindingDescriptions = vibds;
-  vertex_input_state_ci.vertexAttributeDescriptionCount = 5;
-  vertex_input_state_ci.pVertexAttributeDescriptions = vertex_input_attributes;
+  onl_vk_vertex_input_state_ci.vertexBindingDescriptionCount = 2;
+  onl_vk_vertex_input_state_ci.pVertexBindingDescriptions = vibds;
+  onl_vk_vertex_input_state_ci.vertexAttributeDescriptionCount = 5;
+  onl_vk_vertex_input_state_ci.pVertexAttributeDescriptions = vertex_input_attributes;
 }
 
-void onx_vk_rd_prepare_descriptor_layout(bool restart) {
+void ont_vk_prepare_descriptor_layout(bool restart) {
 
   VkDescriptorSetLayoutBinding bindings[] = {
       {
@@ -703,35 +698,35 @@ void onx_vk_rd_prepare_descriptor_layout(bool restart) {
       .pBindings = bindings,
   };
 
-  VK_CHECK(vkCreateDescriptorSetLayout(device,
+  VK_CHECK(vkCreateDescriptorSetLayout(onl_vk_device,
                                        &descriptor_set_layout_ci,
                                        0,
                                        &descriptor_layout));
 }
 
-void onx_vk_rd_prepare_descriptor_pool(bool restart) {
+void ont_vk_prepare_descriptor_pool(bool restart) {
 
   VkDescriptorPoolSize pool_sizes[] = {
       { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-        max_img                 },
+        onl_vk_max_img                 },
       { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-        max_img * 3             },
+        onl_vk_max_img * 3             },
       { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-        max_img * TEXTURE_COUNT },
+        onl_vk_max_img * TEXTURE_COUNT },
   };
 
   VkDescriptorPoolCreateInfo descriptor_pool_ci = {
       .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-      .maxSets = (max_img * 3) + max_img + (max_img * TEXTURE_COUNT) + 23, //// ??
+      .maxSets = (onl_vk_max_img * 3) + onl_vk_max_img + (onl_vk_max_img * TEXTURE_COUNT) + 23, //// ??
       .poolSizeCount = 3,
       .pPoolSizes = pool_sizes,
       .pNext = 0,
   };
 
-  VK_CHECK(vkCreateDescriptorPool(device, &descriptor_pool_ci, NULL, &descriptor_pool));
+  VK_CHECK(vkCreateDescriptorPool(onl_vk_device, &descriptor_pool_ci, NULL, &descriptor_pool));
 }
 
-void onx_vk_rd_prepare_descriptor_set(bool restart) {
+void ont_vk_prepare_descriptor_set(bool restart) {
 
   VkDescriptorSetAllocateInfo descriptor_set_ai = {
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
@@ -814,10 +809,10 @@ void onx_vk_rd_prepare_descriptor_set(bool restart) {
     },
   };
 
-  for (uint32_t i = 0; i < max_img; i++) {
+  for (uint32_t i = 0; i < onl_vk_max_img; i++) {
 
     VK_CHECK(vkAllocateDescriptorSets(
-                              device,
+                              onl_vk_device,
                              &descriptor_set_ai,
                              &uniform_mem[i].descriptor_set));
 
@@ -828,7 +823,7 @@ void onx_vk_rd_prepare_descriptor_set(bool restart) {
     writes[3].dstSet = uniform_mem[i].descriptor_set;
     writes[4].dstSet = uniform_mem[i].descriptor_set;
 
-    vkUpdateDescriptorSets(device, 5, writes, 0, 0);
+    vkUpdateDescriptorSets(onl_vk_device, 5, writes, 0, 0);
   }
 }
 
@@ -836,9 +831,6 @@ extern unsigned char src_ont_unix_onx_frag_spv[];
 extern unsigned int  src_ont_unix_onx_frag_spv_len;
 extern unsigned char src_ont_unix_onx_vert_spv[];
 extern unsigned int  src_ont_unix_onx_vert_spv_len;
-
-VkShaderModule vert_shader_module;
-VkShaderModule frag_shader_module;
 
 static VkShaderModule load_c_shader(bool load_frag) {
 
@@ -853,64 +845,65 @@ static VkShaderModule load_c_shader(bool load_frag) {
     };
 
     VkShaderModule module;
-    VK_CHECK(vkCreateShaderModule(device,
+    VK_CHECK(vkCreateShaderModule(onl_vk_device,
                                   &module_ci,
                                   0,
                                   &module));
     return module;
 }
 
-void onx_vk_rd_prepare_shaders(bool restart){
-  vert_shader_module = load_c_shader(false);
-  frag_shader_module = load_c_shader(true);
+void ont_vk_prepare_shaders(bool restart){
+  onl_vk_vert_shader_module = load_c_shader(false);
+  onl_vk_frag_shader_module = load_c_shader(true);
 }
 
 // ----------------------------------------------------------------------------------------
 
-void onx_vk_rd_finish_render_data() {
+void ont_vk_finish_render_data() {
 
-  scene_ready = false;
-
-  // ---------------------------------
-
-  vkFreeMemory(device, vertex_buffer_memory, NULL);
-  vkFreeMemory(device, staging_buffer_memory, NULL);
-  vkFreeMemory(device, storage_buffer_memory, NULL);
-  vkFreeMemory(device, instance_buffer_memory, NULL);
-  vkFreeMemory(device, instance_staging_buffer_memory, NULL);
-
-  vkDestroyBuffer(device, vertex_buffer, NULL);
-  vkDestroyBuffer(device, staging_buffer, NULL);
-  vkDestroyBuffer(device, storage_buffer, NULL);
-  vkDestroyBuffer(device, instance_buffer, NULL);
-  vkDestroyBuffer(device, instance_staging_buffer, NULL);
+  onl_vk_scene_ready = false;
 
   // ---------------------------------
 
-  vkDestroyDescriptorPool(device, descriptor_pool, NULL);
-  vkDestroyDescriptorSetLayout(device, descriptor_layout, NULL);
+  vkFreeMemory(onl_vk_device, vertex_buffer_memory, NULL);
+  vkFreeMemory(onl_vk_device, staging_buffer_memory, NULL);
+  vkFreeMemory(onl_vk_device, storage_buffer_memory, NULL);
+  vkFreeMemory(onl_vk_device, instance_buffer_memory, NULL);
+  vkFreeMemory(onl_vk_device, instance_staging_buffer_memory, NULL);
+
+  vkDestroyBuffer(onl_vk_device, vertex_buffer, NULL);
+  vkDestroyBuffer(onl_vk_device, staging_buffer, NULL);
+  vkDestroyBuffer(onl_vk_device, storage_buffer, NULL);
+  vkDestroyBuffer(onl_vk_device, instance_buffer, NULL);
+  vkDestroyBuffer(onl_vk_device, instance_staging_buffer, NULL);
 
   // ---------------------------------
 
-  for (uint32_t i = 0; i < max_img; i++) {
-      vkDestroyBuffer(device, uniform_mem[i].uniform_buffer, NULL);
-      vkUnmapMemory(device, uniform_mem[i].uniform_memory);
-      vkFreeMemory(device, uniform_mem[i].uniform_memory, NULL);
+  vkDestroyDescriptorPool(onl_vk_device, descriptor_pool, NULL);
+  vkDestroyDescriptorSetLayout(onl_vk_device, descriptor_layout, NULL);
+  vkDestroyPipelineLayout(onl_vk_device, onl_vk_pipeline_layout, NULL);
+
+  // ---------------------------------
+
+  for (uint32_t i = 0; i < onl_vk_max_img; i++) {
+      vkDestroyBuffer(onl_vk_device, uniform_mem[i].uniform_buffer, NULL);
+      vkUnmapMemory(onl_vk_device, uniform_mem[i].uniform_memory);
+      vkFreeMemory(onl_vk_device, uniform_mem[i].uniform_memory, NULL);
   }
   free(uniform_mem);
 
   // ---------------------------------
 
   for (uint32_t i = 0; i < TEXTURE_COUNT; i++) {
-    vkDestroyImageView(device, textures[i].image_view, NULL);
-    vkDestroyImage(device, textures[i].image, NULL);
-    vkFreeMemory(device, textures[i].device_memory, NULL);
-    vkDestroySampler(device, textures[i].sampler, NULL);
+    vkDestroyImageView(onl_vk_device, textures[i].image_view, NULL);
+    vkDestroyImage(onl_vk_device, textures[i].image, NULL);
+    vkFreeMemory(onl_vk_device, textures[i].device_memory, NULL);
+    vkDestroySampler(onl_vk_device, textures[i].sampler, NULL);
   }
   if(staging_texture.buffer) {
-     vkFreeMemory(device, staging_texture.device_memory, NULL);
-     if(staging_texture.image) vkDestroyImage(device, staging_texture.image, NULL);
-     vkDestroyBuffer(device, staging_texture.buffer, NULL);
+     vkFreeMemory(onl_vk_device, staging_texture.device_memory, NULL);
+     if(staging_texture.image) vkDestroyImage(onl_vk_device, staging_texture.image, NULL);
+     vkDestroyBuffer(onl_vk_device, staging_texture.buffer, NULL);
   }
 }
 

@@ -5,7 +5,7 @@
 
 #include "outline.h"
 
-extern bool prepared;
+#include <onl-vk.h>
 
 #define MAX_PANELS 32 // TODO set src/ont/unix/onx.vert
 extern uint32_t num_panels;
@@ -33,12 +33,11 @@ typedef struct fd_GlyphInstance {
   float    sharpness;
 } fd_GlyphInstance;
 
-extern VkDescriptorSetLayout descriptor_layout;
-
-extern float aspect_ratio_proj;
-
 void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs);
 void set_up_scene_end();
 
 void set_proj_view();
-void load_font(char* font_face, uint32_t alignment);
+void load_font(char* font_face);
+
+
+

@@ -5,11 +5,10 @@
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
 
-#include <onl.h>
+#include "unix/user-onl-vk.h"
+
 #include <onn.h>
 #include <onr.h>
-
-#include "unix/user-onx-vk.h"
 
 mat4x4 proj_matrix;
 mat4x4 view_l_matrix;
@@ -36,7 +35,7 @@ void set_proj_view() {
 
     Mat4x4_perspective(proj_matrix,
                        (float)degreesToRadians(VIEWPORT_FOV),
-                       aspect_ratio_proj,
+                       onl_vk_aspect_ratio_proj,
                        VIEWPORT_NEAR, VIEWPORT_FAR);
 
     proj_matrix[1][1] *= -1;
@@ -66,9 +65,9 @@ static float dwell(float delta, float width){
                     min(delta + width, 0.0f);
 }
 
-void onx_iostate_changed() {
+void ont_vk_iostate_changed() {
   /*
-  log_write("onx_iostate_changed [%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
+  log_write("ont_vk_iostate_changed [%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
            io.swap_width, io.swap_height,
            io.mouse_x, io.mouse_y,
            io.left_pressed, io.middle_pressed, io.right_pressed,

@@ -9,13 +9,10 @@
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
 
-#include <onl.h>
+#include "user-onl-vk.h"
+
 #include <onn.h>
 #include <onr.h>
-
-#include <onex-kernel/log.h>
-
-#include "user-onx-vk.h"
 
 #include <g2d.h>
 #include <g2d-internal.h>
@@ -135,7 +132,7 @@ typedef struct fd_DeviceGlyphInfo {
 static fd_Outline       outlines[NUMBER_OF_GLYPHS];
 static fd_HostGlyphInfo glyph_infos[NUMBER_OF_GLYPHS];
 
-void load_font(char* font_face, uint32_t alignment) {
+void load_font(char* font_face) {
 
   FT_Library library;
   FT_CHECK(FT_Init_FreeType(&library));
@@ -144,7 +141,7 @@ void load_font(char* font_face, uint32_t alignment) {
   int err=FT_New_Face(library, font_face, 0, &face);
   if(err){
     log_write("Font loading failed or font not found: %s\n", font_face);
-    onl_exit(-1);
+    onl_vk_exit();
   }
 
   FT_CHECK(FT_Set_Char_Size(face, 0, 1000 * 64, 96, 96));
@@ -176,6 +173,8 @@ void load_font(char* font_face, uint32_t alignment) {
   glyph_info_size = sizeof(fd_DeviceGlyphInfo) * num_glyph_chars;
   glyph_cells_size = sizeof(uint32_t) * total_cells;
   glyph_points_size = sizeof(vec2) * total_points;
+
+  uint32_t alignment = onl_vk_min_storage_buffer_offset_alignment;
 
   glyph_cells_offset = align_uint32(glyph_info_size, alignment);
   glyph_points_offset = align_uint32(glyph_info_size + glyph_cells_size, alignment);
@@ -481,12 +480,17 @@ static void do_3d_stuff() {
 #define ODD_Y_COMPENSATION 0.70f
 #define Y_UP_OFFSET        2.0f
 
+static bool prepared = true;
+
 void g2d_init() {
 }
 
 bool g2d_clear_screen(uint8_t colour) {
 
-  if(!prepared) return false;
+  if(!prepared){
+    log_write("g2d_clear_screen() called when not prepared!\n");
+    return false;
+  }
 
   set_up_scene_begin(&vertices, &glyphs);
 

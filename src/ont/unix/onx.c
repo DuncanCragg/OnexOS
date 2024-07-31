@@ -108,7 +108,7 @@ static void* do_onex_loop(void* d) {
 
 static pthread_t loop_onex_thread_id;
 
-void onx_init(){
+void ont_vk_init(){
   init_onex();
   pthread_create(&loop_onex_thread_id, 0, do_onex_loop, 0);
 }

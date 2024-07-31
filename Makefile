@@ -20,7 +20,7 @@ SOURCES_ONX_XCB = \
   ./src/ont/keyboard.c \
   ./src/ont/unix/g2d-vulkan.c \
   ./src/ont/unix/onx.c \
-  ./src/ont/unix/onx-vk.c \
+  ./src/ont/unix/ont-vk.c \
   ./src/ont/unix/outline.c \
   ./src/ont/unix/geometry.c \
 

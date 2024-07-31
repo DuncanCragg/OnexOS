@@ -33,10 +33,10 @@ typedef struct fd_GlyphInstance {
   float    sharpness;
 } fd_GlyphInstance;
 
+void set_proj_view();
 void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs);
 void set_up_scene_end();
 
-void set_proj_view();
 void load_font(char* font_face);
 
 

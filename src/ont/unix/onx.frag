@@ -35,6 +35,10 @@ vec4 grid_colour(vec3 pos, float scale) {
     float line = min(grid.x, grid.y);
     float rgb=clamp(1-line, 0, 1)/20;
     vec4 color = vec4(rgb, rgb, rgb, 1.0) + vec4(0, 0.3, 0, 1.0);
+    float minimumx = min(derivative.x, 1);
+    float minimumz = min(derivative.y, 1);
+    if(pos.x > -1.0 * minimumx && pos.x < 1.0 * minimumx) color = vec4(0.2,0.4,0.2,1.0);
+    if(pos.z > -1.0 * minimumz && pos.z < 1.0 * minimumz) color = vec4(0.2,0.4,0.2,1.0);
     return color;
 }
 

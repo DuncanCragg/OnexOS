@@ -424,10 +424,8 @@ static VkVertexInputAttributeDescription vertex_input_attributes[] = {
   { 4, 1, VK_FORMAT_R32_SFLOAT,         20 }, // fd_GlyphInstance.sharpness
 };
 
-#if defined(VK_USE_PLATFORM_XCB_KHR) // Ubuntu Desktop; Pi4
 //static char* font_face = "/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf";
-static char* font_face = "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf";
-#endif
+static char* font_face = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
 
 void ont_vk_prepare_render_data(bool restart) {
 

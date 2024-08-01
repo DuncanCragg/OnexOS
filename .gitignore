@@ -15,7 +15,7 @@ onx.????.c
 .vimfiles
 dfu.zip
 onx-xcb
-onx-pi4
+onx-drm
 onx/
 sdk
 external/freetype

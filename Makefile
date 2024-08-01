@@ -9,10 +9,11 @@ targets:
 #-------------------------------------------------------------------------------
 
 TARGETS = onx-xcb \
+          onx-drm \
 
 #-------------------------------------------------------------------------------
 
-SOURCES_ONX_XCB = \
+SOURCES_ONX = \
   ./src/ont/user-2d.c \
   ./src/ont/user-3d.c \
   ./src/ont/g2d/g2d.c \
@@ -25,7 +26,7 @@ SOURCES_ONX_XCB = \
 
 #-------------------------------------------------------------------------------
 
-HEADERS_ONX_XCB = \
+HEADERS_ONX = \
   ./src/ont/unix/outline.h \
   ./src/ont/unix/geometry.h \
 
@@ -37,7 +38,7 @@ SHADERS = \
 
 #-------------------------------------------------------------------------------
 
-INC_DIR_XCB = \
+INC_DIRS = \
  -I./include/vulkan \
  -I/usr/include \
  -I/usr/include/freetype2 \
@@ -48,7 +49,7 @@ INC_DIR_XCB = \
 
 #-------------------------------------------------------------------------------
 
-LIB_DIR_XCB = -L/usr/lib -L../OnexLang -L../OnexKernel
+LIB_DIRS = -L/usr/lib -L../OnexLang -L../OnexKernel
 
 LIBS_ONX_XCB = \
  -lonex-lang-x86 \
@@ -59,16 +60,34 @@ LIBS_ONX_XCB = \
  -lm \
 
 
+LIBS_ONX_DRM = \
+ -lonex-lang-x86 \
+ -lonex-kernel-drm \
+ -lvulkan \
+ -lxcb \
+ -lfreetype \
+ -lm \
+
+
 #-------------------------------------------------------------------------------
 
 onx-xcb: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
-onx-xcb: INC_DIR=${INC_DIR_XCB}
+onx-xcb: INC_DIR=${INC_DIRS}
 onx-xcb: LDX=gcc
-onx-xcb: ${SOURCES_ONX_XCB:.c=.o} ${HEADERS_ONX_XCB} ${SHADERS:.spv=.o}
+onx-xcb: ${SOURCES_ONX:.c=.o} ${HEADERS_ONX} ${SHADERS:.spv=.o}
 	@echo ================
-	@echo $@ '<=' ${SOURCES_ONX_XCB:.c=.o} ${SHADERS:.spv=.o}
+	@echo $@ '<=' ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o}
 	@echo -----
-	$(LDX) -o $@ ${SOURCES_ONX_XCB:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIR_XCB) $(LIBS_ONX_XCB)
+	$(LDX) -o $@ ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIRS) $(LIBS_ONX_XCB)
+
+onx-drm: CONFIGFLAGS=-DVK_USE_PLATFORM_DISPLAY_KHR
+onx-drm: INC_DIR=${INC_DIRS}
+onx-drm: LDX=gcc
+onx-drm: ${SOURCES_ONX:.c=.o} ${HEADERS_ONX} ${SHADERS:.spv=.o}
+	@echo ================
+	@echo $@ '<=' ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o}
+	@echo -----
+	$(LDX) -o $@ ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIRS) $(LIBS_ONX_DRM)
 
 shaderc: ${SHADERS:.spv=.c}
 	@echo ================

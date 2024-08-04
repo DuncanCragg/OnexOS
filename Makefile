@@ -49,11 +49,12 @@ INC_DIRS = \
 
 #-------------------------------------------------------------------------------
 
-LIB_DIRS = -L/usr/lib -L../OnexLang -L../OnexKernel
+LIB_DIRS = -L/usr/lib -L../OnexLang -L../OnexKernel -Wl,-rpath,./libraries -L./libraries
 
 LIBS_ONX_XCB = \
  -lonex-lang-x86 \
  -lonex-kernel-xcb \
+ -lviture_one_sdk \
  -lvulkan \
  -lxcb \
  -lfreetype \
@@ -63,6 +64,7 @@ LIBS_ONX_XCB = \
 LIBS_ONX_DRM = \
  -lonex-lang-x86 \
  -lonex-kernel-drm \
+ -lviture_one_sdk \
  -lvulkan \
  -lxcb \
  -lfreetype \

@@ -29,7 +29,7 @@ static float head_ver_dir=0;
 
 void set_proj_view() {
 
-    #define VIEWPORT_FOV   43.0f
+    #define VIEWPORT_FOV   21.5f
     #define VIEWPORT_NEAR   0.1f
     #define VIEWPORT_FAR  100.0f
 
@@ -66,13 +66,17 @@ static float dwell(float delta, float width){
 }
 
 void ont_vk_iostate_changed() {
-  /*
-  log_write("ont_vk_iostate_changed [%d,%d] @(%d %d) buttons=(%d %d %d) key=%d\n",
+
+#define LOG_IQ
+#ifdef LOG_IO
+  log_write("ont_vk_iostate_changed [%d,%d] @(%d %d) @(%f %f %f) buttons=(%d %d %d) key=%d\n",
            io.swap_width, io.swap_height,
            io.mouse_x, io.mouse_y,
+           io.yaw, io.pitch, io.roll,
            io.left_pressed, io.middle_pressed, io.right_pressed,
            io.key);
-  */
+#endif
+
   bool bottom_left = io.mouse_x < io.swap_width / 3 && io.mouse_y > io.swap_height / 2;
 
   if(io.left_pressed && !body_moving && bottom_left){
@@ -125,6 +129,11 @@ void ont_vk_iostate_changed() {
 
     head_hor_dir=0;
     head_ver_dir=0;
+  }
+  else
+  if(io.yaw != 0.0f && io.pitch != 0.0f){
+    head_hor_dir=io.yaw;
+    head_ver_dir=io.pitch;
   }
 }
 

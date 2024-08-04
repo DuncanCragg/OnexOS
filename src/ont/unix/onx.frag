@@ -148,7 +148,7 @@ void main() {
     uint cell = cell_buffer.cells[cell_index];
    
     float v = cell_signed_dist(cell_info.x, cell, glyph_pos);
-    float alpha = clamp(v * sharpness / (4.3*proj_pos.z) + 0.5, 0.0, 1.0);
+    float alpha = clamp(v * sharpness / (2.1*proj_pos.z) + 0.5, 0.0, 1.0);
 
     color = vec4(0.0, 0.0, 0.0, 0.8*alpha);
     gl_FragDepth = proj_pos.z / proj_pos.w;

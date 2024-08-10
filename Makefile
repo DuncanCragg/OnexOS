@@ -57,6 +57,7 @@ LIBS_ONX_XCB = \
  -lviture_one_sdk \
  -lvulkan \
  -lxcb \
+ -levdev \
  -lfreetype \
  -lm \
 
@@ -66,7 +67,7 @@ LIBS_ONX_DRM = \
  -lonex-kernel-drm \
  -lviture_one_sdk \
  -lvulkan \
- -lxcb \
+ -levdev \
  -lfreetype \
  -lm \
 

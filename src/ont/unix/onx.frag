@@ -19,12 +19,14 @@ layout(location = 4)      in  vec4  texture_coord;
 layout(location = 5)      in  vec4  model_pos;
 layout(location = 6)      in  vec4  proj_pos;
 layout(location = 7) flat in  uint  phase;
-layout(location = 8)      in  float near;
-layout(location = 9)      in  float far;
-layout(location = 10)     in  vec3  near_point;
-layout(location = 11)     in  vec3  far_point;
-layout(location = 12)     in  mat4  view;
-layout(location = 16)     in  mat4  proj;
+layout(location = 8)      in  vec2  left_touch;
+layout(location = 9)      in  vec2  overlay_uv;
+layout(location = 10)     in  float near;
+layout(location = 11)     in  float far;
+layout(location = 12)     in  vec3  near_point;
+layout(location = 13)     in  vec3  far_point;
+layout(location = 14)     in  mat4  view;
+layout(location = 18)     in  mat4  proj;
 
 layout(location = 0)      out vec4  color;
 
@@ -152,6 +154,19 @@ void main() {
 
     color = vec4(0.0, 0.0, 0.0, 0.8*alpha);
     gl_FragDepth = proj_pos.z / proj_pos.w;
+  }
+  else
+  if(phase == 3){ // overlay
+
+    float r = 0.1;
+    float d = distance(overlay_uv, left_touch);
+
+    if (d <= r) {
+        color = vec4(0.7, 0.7, 0.7, 0.2);
+        gl_FragDepth = -1.0;
+    } else {
+        discard;
+    }
   }
 }
 

@@ -18,6 +18,7 @@ extern mat4x4 view_l_matrix;
 extern mat4x4 view_r_matrix;
 extern mat4x4 model_matrix[MAX_PANELS];
 extern vec4   text_ends[MAX_PANELS];
+extern float  left_touch_vec[2];
 
 extern void*    glyph_data;
 extern uint32_t glyph_data_size;

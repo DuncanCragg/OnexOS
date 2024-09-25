@@ -20,6 +20,7 @@ layout(std430, binding = 0) uniform buf0 {
   mat4 view_r;
   mat4 model[32];
   vec4 text_ends[32];
+  vec2 left_touch;
 } uniforms;
 
 layout (set = 0, binding = 1) buffer buf1 {
@@ -40,12 +41,14 @@ layout(location = 4)  out vec4  texture_coord;
 layout(location = 5)  out vec4  model_pos;
 layout(location = 6)  out vec4  proj_pos;
 layout(location = 7)  out uint  phase;
-layout(location = 8)  out float near;
-layout(location = 9)  out float far;
-layout(location = 10) out vec3  near_point;
-layout(location = 11) out vec3  far_point;
-layout(location = 12) out mat4  view;
-layout(location = 16) out mat4  proj;
+layout(location = 8)  out vec2  left_touch;
+layout(location = 9)  out vec2  overlay_uv;
+layout(location = 10) out float near;
+layout(location = 11) out float far;
+layout(location = 12) out vec3  near_point;
+layout(location = 13) out vec3  far_point;
+layout(location = 14) out mat4  view;
+layout(location = 18) out mat4  proj;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -63,11 +66,24 @@ vec3 unproject(float x, float y, float z, mat4 view, mat4 proj) {
     return unprojected_point.xyz / unprojected_point.w;
 }
 
+vec2 overlay_quad[4] = vec2[](
+    vec2(-1.0, -1.0), // bottom-left
+    vec2( 1.0, -1.0), // bottom-right
+    vec2(-1.0,  1.0), // top-left
+    vec2( 1.0,  1.0)  // top-right
+);
+
+int overlay_quad_indices[6] = int[](
+    2, 3, 0,
+    0, 3, 1
+);
+
 void main() {
 
   view = gl_ViewIndex==0? uniforms.view_l: uniforms.view_r;
   proj = uniforms.proj;
   phase = push_constants.phase;
+  left_touch = uniforms.left_touch;
 
   if(phase == 0){ // ground plane
 
@@ -131,6 +147,13 @@ void main() {
     gl_Position = proj * view *
                   uniforms.model[p] *
                   vec4(rv, text_lift, 1.0);
+  }
+  else
+  if(phase == 3){ // overlay
+
+    gl_Position = vec4(overlay_quad[overlay_quad_indices[gl_VertexIndex]], 0.0, 1.0);
+    float aspect_ratio = 1.778;
+    overlay_uv = vec2((gl_Position.x * 0.5 + 0.5)*aspect_ratio, gl_Position.y * 0.5 + 0.5);
   }
   proj_pos = gl_Position;
 }

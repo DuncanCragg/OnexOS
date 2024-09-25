@@ -16,6 +16,7 @@ struct uniforms_size_template {
     float view_r[4][4];
     float model[MAX_PANELS][4][4];
     vec4  text_ends[MAX_PANELS];
+    float left_touch[2];
 };
 
 typedef struct {
@@ -596,6 +597,11 @@ static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
   vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
                      sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 6, num_glyphs, 0, 0);
+
+  pc.phase = 3; // overlay
+  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+                     sizeof(struct push_constants), &pc);
+  vkCmdDraw(cmd_buf, 6, 1, 0, 0);
 }
 
 void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs) {
@@ -862,6 +868,14 @@ void ont_vk_update_uniforms() {
              sizeof(view_r_matrix) +
              sizeof(model_matrix),
          (const void*)&text_ends, sizeof(text_ends));
+
+  memcpy(uniform_mem[onl_vk_cur_img].uniform_memory_ptr +
+             sizeof(proj_matrix) +
+             sizeof(view_l_matrix) +
+             sizeof(view_r_matrix) +
+             sizeof(model_matrix) +
+             sizeof(text_ends),
+         (const void*)&left_touch_vec, sizeof(left_touch_vec));
 }
 
 // ----------------------------------------------------------------------------------------

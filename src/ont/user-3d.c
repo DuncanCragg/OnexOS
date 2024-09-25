@@ -14,7 +14,7 @@ mat4x4 proj_matrix;
 mat4x4 view_l_matrix;
 mat4x4 view_r_matrix;
 
-static const float eye_sep = 0.030; // eyes off-centre dist in m
+static const float eye_sep = 0.010; // eyes off-centre dist in m
 static const float eye_con = 0.000; // angle of convergence rads
 
 // 1.75m height
@@ -116,62 +116,6 @@ void ont_vk_iostate_changed() {
 
   head_hor_dir=io.yaw;
   head_ver_dir=io.pitch;
-
-/*
-  bool bottom_left = io.mouse_x < swap_width / 3 && io.mouse_y > swap_height / 2;
-
-  if(io.mouse_left && !body_moving && bottom_left){
-    body_moving=true;
-
-    x_on_press = io.mouse_x;
-    y_on_press = io.mouse_y;
-  }
-  else
-  if(io.mouse_left && body_moving){
-
-    float delta_x =  0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
-    float delta_y = -0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
-
-    delta_x = dwell(delta_x, 0.0015f);
-    delta_y = dwell(delta_y, 0.0015f);
-
-    body_dir += 0.5f* delta_x;
-
-    eye_l[0] += 4.0f * delta_y * sin(body_dir);
-    eye_l[2] += 4.0f * delta_y * cos(body_dir);
-    eye_r[0] += 4.0f * delta_y * sin(body_dir);
-    eye_r[2] += 4.0f * delta_y * cos(body_dir);
-  }
-  else
-  if(!io.mouse_left && body_moving){
-    body_moving=false;
-  }
-  else
-  if(io.mouse_left && !head_moving){
-
-    head_moving=true;
-
-    x_on_press = io.mouse_x;
-    y_on_press = io.mouse_y;
-  }
-  else
-  if(io.mouse_left && head_moving){
-
-    float delta_x = 0.00007f * ((int32_t)io.mouse_x - (int32_t)x_on_press);
-    float delta_y = 0.00007f * ((int32_t)io.mouse_y - (int32_t)y_on_press);
-
-    head_hor_dir = 35.0f*dwell(delta_x, 0.0015f);
-    head_ver_dir = 35.0f*dwell(delta_y, 0.0015f);
-  }
-  else
-  if(!io.mouse_left && head_moving){
-
-    head_moving=false;
-
-    head_hor_dir=0;
-    head_ver_dir=0;
-  }
-*/
 }
 
 // ---------------------------------

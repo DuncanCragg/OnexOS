@@ -20,6 +20,12 @@ extern mat4x4 model_matrix[MAX_PANELS];
 extern vec4   text_ends[MAX_PANELS];
 extern float  left_touch_vec[2];
 
+extern float    vertex_buffer_data[];
+extern uint32_t vertex_buffer_end;
+
+extern float    uv_buffer_data[];
+extern uint32_t uv_buffer_end;
+
 extern void*    glyph_data;
 extern uint32_t glyph_data_size;
 extern uint32_t glyph_info_size;
@@ -34,11 +40,28 @@ typedef struct fd_GlyphInstance {
   float    sharpness;
 } fd_GlyphInstance;
 
+extern fd_GlyphInstance* glyphs;
+
 void set_proj_view();
 void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs);
 void set_up_scene_end();
 
 void load_font(char* font_face);
 
+typedef struct panel {
+
+  vec3  dimensions;
+  vec3  position;
+  vec3  rotation;
+  char* text;
+
+} panel;
+
+void add_panel(panel* panel, int p);
+
+void add_text_whs(float left, float top,
+                  float w,    float h,
+                  float scale,
+                  char* text           );
 
 

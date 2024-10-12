@@ -17,8 +17,8 @@ float  left_touch_vec[] = { 0.25, 0.75 };
 
 // 1.75m height
 // standing back 5m from origin
-static vec3  body_pos = { 0, 1.75, -5.0 }; // 1.75 is still nose bridge pos
-static float body_dir = 0.6852;
+static vec3  body_pos = { 1.667, 1.75, -10.0 }; // 1.75 is still nose bridge pos
+static float body_dir = 0.0;
 static float body_xv = 0.0f;
 static float body_zv = 0.0f;
 
@@ -98,17 +98,17 @@ void ont_vk_iostate_changed() {
 
   float sd = sin(body_dir);
   float cd = cos(body_dir);
-  float sp = 0.02f;
+  float sp = 0.01f;
 
   body_xv = 0.0f; body_zv = 0.0f;
 
   if(io.d_pad_up){
-    body_xv +=  sp * sd;
-    body_zv +=  sp * cd;
+    body_xv +=  sp * sd * 2.0f;
+    body_zv +=  sp * cd * 2.0f;
   }
   if(io.d_pad_down){
-    body_xv += -sp * sd;
-    body_zv += -sp * cd;
+    body_xv += -sp * sd * 2.0f;
+    body_zv += -sp * cd * 2.0f;
   }
   if(io.d_pad_right){
     body_xv +=  sp * cd;
@@ -145,19 +145,19 @@ void ont_vk_iostate_changed() {
     float x =  (float)io.touch_x                    / (onl_vk_width  / 3);
     float y = ((float)io.touch_y-(onl_vk_height/2)) / (onl_vk_height / 2);
 
-    if(x>0.333 && x< 0.666 && y < 0.333){
-      body_xv +=  sp * sd;
-      body_zv +=  sp * cd;
+    if(x>0.333 && x< 0.666 && y < 0.333){ // forwards
+      body_xv +=  sp * sd * 2.0f;
+      body_zv +=  sp * cd * 2.0f;
     }
-    if(x>0.333 && x< 0.666 && y > 0.666){
-      body_xv += -sp * sd;
-      body_zv += -sp * cd;
+    if(x>0.333 && x< 0.666 && y > 0.666){ // backwards
+      body_xv += -sp * sd * 2.0f;
+      body_zv += -sp * cd * 2.0f;
     }
-    if(x>0.666 && y > 0.333 && y < 0.666){
+    if(x>0.666 && y > 0.333 && y < 0.666){ // right
       body_xv +=  sp * cd;
       body_zv += -sp * sd;
     }
-    if(x<0.333 && y > 0.333 && y < 0.666){
+    if(x<0.333 && y > 0.333 && y < 0.666){ // left
       body_xv += -sp * cd;
       body_zv +=  sp * sd;
     }

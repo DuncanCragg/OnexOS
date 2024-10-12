@@ -381,9 +381,11 @@ static void add_text_whs(float left, float top,
         inst->sharpness = scale * 2500;
 
         if (inst->rect.max_x < w) {
+            // still fits on line, keep going
         }
         else
         if(inst->rect.min_y > top) {
+            // need to wrap, but check top of glyph is ...?
 
             x = left;
             y += scale*2000.0f;

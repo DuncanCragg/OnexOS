@@ -40,8 +40,6 @@ typedef struct fd_GlyphInstance {
   float    sharpness;
 } fd_GlyphInstance;
 
-extern fd_GlyphInstance* glyphs;
-
 void set_proj_view();
 void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs);
 void set_up_scene_end();

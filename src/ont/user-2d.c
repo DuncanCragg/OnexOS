@@ -327,9 +327,7 @@ static void draw_raw(char* path, uint8_t g2d_node);
 #define LIST_ADD_NEW_BOT 2
 #define LIST_BACKGROUND  3
 
-extern void do_3d_stuff();
-
-bool evaluate_user(object* usr, void* d) {
+bool evaluate_user_2d(object* usr, void* d) {
 
   if(!user_active) return true;
 
@@ -475,8 +473,6 @@ bool evaluate_user(object* usr, void* d) {
 #if defined(LOG_TO_GFX)
   show_gfx_log(root_g2d_node);
 #endif
-
-  do_3d_stuff();
 
   g2d_render();
 

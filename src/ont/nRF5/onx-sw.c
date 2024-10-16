@@ -150,7 +150,7 @@ extern char __BUILD_TIMESTAMP;
 uint32_t loop_time=0;
 
 extern bool evaluate_default(object* o, void* d);
-extern bool evaluate_user(object* o, void* d);
+extern bool evaluate_user_2d(object* o, void* d);
 extern bool evaluate_battery_in(object* o, void* d);
 extern bool evaluate_touch_in(object* o, void* d);
 #if defined(HAS_MOTION)
@@ -183,6 +183,11 @@ static char note_text_big[] =
   "with behaviour rules you can write yourself "
   "and animate ourselves with spreadsheet-like rules "
   "----- ----- ----- ----- -----";
+
+bool evaluate_user(object* usr, void* d) {
+
+  return evaluate_user_2d(usr, d);
+}
 
 static void init_onex(){
 

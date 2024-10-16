@@ -19,20 +19,7 @@
 void g2d_init() {
 }
 
-static float* vertices;
-
-fd_GlyphInstance* glyphs;
-
-
 bool g2d_clear_screen(uint8_t colour) {
-
-  set_up_scene_begin(&vertices, &glyphs);
-
-  vertex_buffer_end = 0;
-  uv_buffer_end = 0;
-
-  num_panels = 0;
-  num_glyphs = 0;
 
   panel p ={
    .dimensions = { 1.0f, 1.0f, 0.03f },
@@ -50,19 +37,8 @@ bool g2d_clear_screen(uint8_t colour) {
   return true;
 }
 
-
 void g2d_render() {
-
-  for(unsigned int i = 0; i < num_panels * 6*6; i++) {
-    *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
-    *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
-    *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
-    *(vertices+i*5+3) = uv_buffer_data[i*2+0];
-    *(vertices+i*5+4) = uv_buffer_data[i*2+1];
-  }
-  set_up_scene_end();
 }
-
 
 void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
                             uint16_t cxbr, uint16_t cybr,

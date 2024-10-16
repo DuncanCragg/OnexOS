@@ -1,5 +1,6 @@
 
 #include <pthread.h>
+#include <string.h>
 
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
@@ -40,17 +41,26 @@ static bool evaluate_default(object* o, void* d) {
   return true;
 }
 
+static char note_text[] = "the fat cat sat on me the quick brown fox jumps over the lazy doggie";
+
 void init_onex() {
 
   onex_set_evaluators("default", evaluate_default, 0);
   onex_set_evaluators("device",  evaluate_device_logic, 0);
   onex_set_evaluators("clock",   evaluate_clock, 0);
   onex_set_evaluators("user",    evaluate_user, 0);
+  onex_set_evaluators("notes",   evaluate_edit_rule, 0);
 
   onex_init("./onex.ondb");
 
   object* home;
   object* inventory;
+
+  object* panel3d;
+  object* note;
+
+  char* panel3duid;
+  char* noteuid;
 
   config=onex_get_from_cache("uid-0");
 
@@ -64,6 +74,21 @@ void init_onex() {
 
     inventory=object_new(0, "editable",  "list editable", 4);
     inventoryuid=object_property(inventory, "UID");
+
+    panel3d=object_new(0, "notes", "3d text editable", 4);
+    panel3duid=object_property(panel3d, "UID");
+
+    note=object_new(0, "notes", "text editable", 4);
+    noteuid=object_property(note, "UID");
+
+    char* strtok_state = 0;
+    char* word = strtok_r(note_text, " ", &strtok_state);
+    while(word){
+      object_property_add(note, "text", word);
+      word = strtok_r(0, " ", &strtok_state);
+    }
+
+    object_property_add(panel3d, "contains", noteuid);
 
     responses=object_new(0, "default",   "user responses", 12);
 
@@ -83,6 +108,8 @@ void init_onex() {
     object_property_set(config, "clock",     clockuid);
 
     object_property_set(user, "viewing", clockuid);
+//  object_property_set(user, "viewing", noteuid);
+//  object_property_set(user, "viewing", panel3duid);
   }
   else{
     useruid=     object_property(config, "user");

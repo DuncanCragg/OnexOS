@@ -6,6 +6,7 @@
 #include <onex-kernel/log.h>
 
 #include "unix/user-onl-vk.h"
+#include <g2d.h>
 
 #include <onn.h>
 #include <onr.h>
@@ -31,6 +32,9 @@ static const float eye_con = 0.000; // angle of convergence rads
 static vec3  up = { 0.0f, -1.0, 0.0 };
 
 // ---------------------------------
+
+static float*            vertices;
+static fd_GlyphInstance* glyphs;
 
 uint32_t num_panels;
 uint32_t num_glyphs;
@@ -477,6 +481,33 @@ void do_3d_stuff() {
   else log_write("reached MAX_PANELS\n");
 }
 
+bool scene_begin() {
+
+  set_up_scene_begin(&vertices, &glyphs);
+
+  vertex_buffer_end = 0;
+  uv_buffer_end = 0;
+
+  num_panels = 0;
+  num_glyphs = 0;
+
+  return true;
+}
+
+
+void scene_end() {
+
+  for(unsigned int i = 0; i < num_panels * 6*6; i++) {
+    *(vertices+i*5+0) = vertex_buffer_data[i*3+0];
+    *(vertices+i*5+1) = vertex_buffer_data[i*3+1];
+    *(vertices+i*5+2) = vertex_buffer_data[i*3+2];
+    *(vertices+i*5+3) = uv_buffer_data[i*2+0];
+    *(vertices+i*5+4) = uv_buffer_data[i*2+1];
+  }
+  set_up_scene_end();
+}
+
+
 // ---------------
 
 void set_proj_view() {
@@ -638,6 +669,41 @@ void ont_vk_iostate_changed() {
 
   head_hor_dir+=io.yaw;
   head_ver_dir+=io.pitch;
+}
+
+// ---------------------------------
+
+static bool draw_by_type(object* user, char* path);
+static void draw_3d(char* path);
+
+extern bool evaluate_user_2d(object* usr, void* d);
+
+bool evaluate_user(object* user, void* d) {
+
+  bool r = true;
+
+  scene_begin();
+
+  if(!draw_by_type(user, "viewing")){
+
+    r = evaluate_user_2d(user, d);
+  }
+
+  scene_end();
+
+  return r;
+}
+
+static bool draw_by_type(object* user, char* path) {
+
+  if(object_pathpair_contains(user, path, "is", "3d")) draw_3d(path);
+  else return false;
+  return true;
+}
+
+static void draw_3d(char* path){
+
+  do_3d_stuff();
 }
 
 // ---------------------------------

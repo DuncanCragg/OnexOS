@@ -2,7 +2,7 @@
 # OnexOS
 
 A 3D distributed OS _with no apps_, for the
-[Parallel Reality Computer](https://duncancragg.substack.com/).
+[Reality Computer](https://duncancragg.substack.com/).
 
 Replaces apps and services with a single, seamless, shared 3D universe containing us and
 all our digital property, hosted on our own devices, that we can all link together.
@@ -22,7 +22,7 @@ OnexOS is an OS without apps, hence no more app traps.
 ### OnexOSes jointly manifest a single global 3D virtual universe for our stuff
 
 Our social network and media posts created in OnexOS all land in this single, shared
-universe (the "Parallel Reality").
+universe (the "Reality Net").
 
 When you open your device running OnexOS, you enter this universe containing all your
 stuff, and everyone else's.
@@ -65,7 +65,7 @@ It manifests a virtual universe.
 #### Ah, OK, but what do you see on boot-up?
 
 You're dropped immediately into a 3D space, the
-"[Parallel Reality](https://duncancragg.substack.com/)".
+"[Reality Net](https://duncancragg.substack.com/)".
 
 #### Oh, like AR, VR - Spatial Computing?
 
@@ -110,7 +110,7 @@ Yes, it works Local-first and peer-to-peer.
 
 ----------------
 
-Read more here about the [Parallel Reality Computer](https://duncancragg.substack.com/).
+Read more here about the [Reality Computer](https://duncancragg.substack.com/).
 
 ----------------
 

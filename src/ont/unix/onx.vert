@@ -49,6 +49,8 @@ layout(location = 12) out vec3  near_point;
 layout(location = 13) out vec3  far_point;
 layout(location = 14) out mat4  view;
 layout(location = 18) out mat4  proj;
+layout(location = 22) out mat4  inv_view;
+layout(location = 26) out mat4  inv_proj;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -149,7 +151,10 @@ void main() {
                   vec4(rv, text_lift, 1.0);
   }
   else
-  if(phase == 3){ // overlay
+  if(phase == 3 || phase == 4){ // overlay or SDF
+
+    inv_view = inverse(view);
+    inv_proj = inverse(proj);
 
     gl_Position = vec4(overlay_quad[overlay_quad_indices[gl_VertexIndex]], 0.0, 1.0);
     float aspect_ratio = 1.778;

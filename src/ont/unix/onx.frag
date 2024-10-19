@@ -27,6 +27,8 @@ layout(location = 12)     in  vec3  near_point;
 layout(location = 13)     in  vec3  far_point;
 layout(location = 14)     in  mat4  view;
 layout(location = 18)     in  mat4  proj;
+layout(location = 22)     in  mat4  inv_view;
+layout(location = 26)     in  mat4  inv_proj;
 
 layout(location = 0)      out vec4  color;
 
@@ -120,6 +122,188 @@ float cell_signed_dist(uint point_offset, uint cell, vec2 p) {
   return v;
 }
 
+// ---------------------------------------------------
+
+vec3 cube1_pos = vec3(  3.0,  0.2,  -2.0);
+vec3 cube2_pos = vec3(  7.0,  1.0,  -1.0);
+vec3 cube3_pos = vec3( -3.0,  1.6, -14.0);
+vec3 cube4_pos = vec3(  3.0,  1.6, -14.0);
+
+vec3 cube1_shape = vec3(0.5, 0.2, 0.01);
+vec3 cube2_shape = vec3(2.0, 1.0, 0.01);
+vec3 cube3_shape = vec3(1.5, 1.6, 0.10);
+vec3 cube4_shape = vec3(1.5, 1.6, 0.10);
+
+vec3 sphr1_pos = vec3(0.0, 0.0, 0.0);
+vec3 sphr2_pos = vec3(26.0, 10.0, -40.0);
+
+float sphr1_radius = 0.5;
+float sphr2_radius = 5.0;
+
+float plane_height = -0.01;
+
+float ray_plane_intersection(vec3 ro, vec3 rd) {
+  if(abs(rd.y) > 0.001) {
+    float t = (plane_height - ro.y) / rd.y;
+    if(t > 0.0) return t;
+  }
+  return -1.0;
+}
+
+vec4 grid_pattern(vec3 position) {
+  vec2 uv = position.xz;
+  float gridSize = 1.0;
+  float grid = step(0.01, mod(uv.x * gridSize, 1.0)) +
+               step(0.01, mod(uv.y * gridSize, 1.0));
+  return vec4(vec3(0.0, 0.6, 0.0) * (1.0 - grid * 0.1), 1.0);
+}
+
+float sdf_sphere(vec3 p, vec3 pos, float r) {
+  return length(p - pos) - r;
+}
+
+float max_cube_radius(vec3 cube_shape) {
+
+    return sqrt(cube_shape.x * cube_shape.x +
+                cube_shape.y * cube_shape.y +
+                cube_shape.z * cube_shape.z);
+}
+
+float sdf_cube(vec3 p, vec3 pos, vec3 cube_shape) {
+  vec3 d = abs(p - pos) - cube_shape;
+  return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
+}
+
+float sdf_cuboid(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape) {
+
+//  return sdf_cube(p, pos, cube_shape);
+
+    vec3 local_p = p - pos;
+
+    vec3 min_corner = -cube_shape;
+    vec3 max_corner =  cube_shape;
+
+    vec3 inv_dir = 1.0 / rd;
+
+    vec3 t_min = (min_corner - local_p) * inv_dir;
+    vec3 t_max = (max_corner - local_p) * inv_dir;
+
+    vec3 t1 = min(t_min, t_max);
+    vec3 t2 = max(t_min, t_max);
+
+    float t_near = max(max(t1.x, t1.y), t1.z);
+    float t_far  = min(min(t2.x, t2.y), t2.z);
+
+    if (t_near > t_far || t_far < 0.0) return 1e6;
+
+    return (t_near >= 0.0 ? t_near : t_far) * 0.999;
+}
+
+bool ray_hits_sphere(vec3 ro, vec3 rd, vec3 center, float radius) {
+  vec3 oc = ro - center;
+  float b = dot(oc, rd);
+  float c = dot(oc, oc) - radius * radius;
+  float h = b * b - c;
+  return h >= 0.0;
+}
+
+const int NUM_OBJECTS = 10;
+
+int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS]) {
+
+  bool skip_this = false;
+  for (int i = 0; i < NUM_OBJECTS; i++) objects[i] = skip_this;
+  if(skip_this) return NUM_OBJECTS;
+
+  objects[1]=ray_hits_sphere(ro, rd, cube1_pos, max_cube_radius(cube1_shape));
+  objects[2]=ray_hits_sphere(ro, rd, cube2_pos, max_cube_radius(cube2_shape));
+  objects[3]=ray_hits_sphere(ro, rd, sphr1_pos, sphr1_radius);
+  objects[4]=ray_hits_sphere(ro, rd, sphr2_pos, sphr2_radius);
+  objects[5]=ray_hits_sphere(ro, rd, cube3_pos, max_cube_radius(cube3_shape));
+  objects[6]=ray_hits_sphere(ro, rd, cube4_pos, max_cube_radius(cube4_shape));
+
+  int num_to_scan = 0;
+  for (int i = 0; i < NUM_OBJECTS; i++) if(objects[i]) num_to_scan++;
+  return num_to_scan;
+}
+
+vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS]) {
+
+  float d = 1e6;
+  int   n = -1;
+
+  float s;
+
+  if (objects[1]) {
+    s = sdf_cuboid(p, rd, cube1_pos, cube1_shape);
+    if(s<d){ d=s; n=1; }
+  }
+  if (objects[2]) {
+    s = sdf_cuboid(p, rd, cube2_pos, cube2_shape);
+    if(s<d){ d=s; n=2; }
+  }
+  if (objects[3]) {
+    s = sdf_sphere(p, sphr1_pos, sphr1_radius);
+    if(s<d){ d=s; n=3; }
+  }
+  if (objects[4]) {
+    s = sdf_sphere(p, sphr2_pos, sphr2_radius);
+    if(s<d){ d=s; n=4; }
+  }
+  if (objects[5]) {
+    s = sdf_cuboid(p, rd, cube3_pos, cube3_shape);
+    if(s<d){ d=s; n=5; }
+  }
+  if (objects[6]) {
+    s = sdf_cuboid(p, rd, cube4_pos, cube4_shape);
+    if(s<d){ d=s; n=6; }
+  }
+
+  return vec2(d,n);
+}
+
+float sdf_norm(vec3 p, vec3 rd, int obj){
+
+  bool objects[NUM_OBJECTS];
+  for (int i = 0; i < NUM_OBJECTS; i++) objects[i] = false;
+  objects[obj] = true;
+
+  return scene_sdf(p, rd, objects)[0];
+}
+
+vec3 calc_normal(vec3 p, vec3 rd, int obj) {
+  float e = 0.001;
+  return normalize(vec3(
+    sdf_norm(p+vec3(e, 0.0, 0.0), rd, obj)-sdf_norm(p-vec3(e, 0.0, 0.0), rd, obj),
+    sdf_norm(p+vec3(0.0, e, 0.0), rd, obj)-sdf_norm(p-vec3(0.0, e, 0.0), rd, obj),
+    sdf_norm(p+vec3(0.0, 0.0, e), rd, obj)-sdf_norm(p-vec3(0.0, 0.0, e), rd, obj)
+  ));
+}
+
+vec2 ray_march(vec3 ro, vec3 rd) {
+
+  float pd = ray_plane_intersection(ro, rd);
+
+  bool objects[NUM_OBJECTS];
+  int num_to_scan = narrow_objects(ro, rd, objects);
+  if(num_to_scan == 0) return vec2(pd, 0);
+
+  float dist = 0.0;
+  int iterations = (num_to_scan == 1)? 3: 100;
+  for (int i = 0; i < iterations; i++) {
+
+    vec3 p = ro + rd * dist;
+    vec2 dn = scene_sdf(p, rd, objects);
+
+    if (pd > 0.0 && pd < dn[0]) return vec2(pd, 0);
+
+    if (dn[0] < 0.001) return vec2(dist, dn[1]);
+
+    dist += dn[0];
+  }
+  return vec2(pd, 0);
+}
+
 void main() {
 
   if(phase == 0){ // ground plane
@@ -148,7 +332,7 @@ void main() {
     uvec2 c = min(uvec2(cell_coord), cell_info.zw - 1);
     uint cell_index = cell_info.y + cell_info.z * c.y + c.x;
     uint cell = cell_buffer.cells[cell_index];
-   
+
     float v = cell_signed_dist(cell_info.x, cell, glyph_pos);
     float alpha = clamp(v * sharpness / (2.1*proj_pos.z) + 0.5, 0.0, 1.0);
 
@@ -156,7 +340,9 @@ void main() {
     gl_FragDepth = proj_pos.z / proj_pos.w;
   }
   else
-  if(phase == 3){ // overlay
+  if(phase == 3 || phase == 4){ // overlay or SDF
+
+   if(phase == 3){
 
     float r = 0.1;
     float d = distance(overlay_uv, left_touch);
@@ -167,6 +353,50 @@ void main() {
     } else {
         discard;
     }
+
+   } else { // SDF
+
+    vec2 resolution = vec2(1920.0, 1080.0);
+
+    vec2 uv = (gl_FragCoord.xy / resolution.xy) * 2.0 - 1.0;
+
+    vec4 clip_pos  = vec4(uv, -1.0, 1.0);
+    vec4 view_pos  = inv_proj * clip_pos; view_pos /= view_pos.w;
+    vec4 world_pos = inv_view * vec4(view_pos.xyz, 1.0);
+
+    vec3 ro = vec3(inv_view[3]);
+    vec3 rd = normalize(world_pos.xyz - ro);
+
+    vec2 dn = ray_march(ro, rd);
+    float dist = dn[0];
+
+    if (dist > 0.0) {
+
+      vec3 p = ro + rd * dist;
+
+      if(dn[1] == 0){
+
+        color = grid_pattern(p);
+
+      } else {
+
+        vec3 light_pos = vec3(30.0, 30.0, 30.0);
+        vec3 light_col = vec3(1.0, 1.0, 1.0);
+        vec3 ambient_col = vec3(0.3);
+
+        vec3 normal = calc_normal(p, rd, int(dn[1]));
+        vec3 light_dir = normalize(light_pos - p);
+        vec3 diffuse_col = light_col * max(dot(normal, light_dir), 0.0);
+
+        color = vec4(ambient_col + diffuse_col, 1.0);
+      }
+
+      gl_FragDepth = -1.0;
+
+    } else {
+      discard;
+    }
+   }
   }
 }
 

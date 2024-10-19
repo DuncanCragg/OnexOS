@@ -110,6 +110,7 @@ void init_onex() {
     object_property_set(user, "viewing", clockuid);
 //  object_property_set(user, "viewing", noteuid);
 //  object_property_set(user, "viewing", panel3duid);
+//  object_property_set(user, "viewing", deviceuid);
   }
   else{
     useruid=     object_property(config, "user");

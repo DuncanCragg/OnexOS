@@ -580,7 +580,8 @@ static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
                           0, NULL);
 
   struct push_constants pc;
-
+#define DO_SDF
+#ifndef DO_SDF
   pc.phase = 0; // ground plane
   vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
                      sizeof(struct push_constants), &pc);
@@ -602,6 +603,12 @@ static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
   vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
                      sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 6, 1, 0, 0);
+#else
+  pc.phase = 4; // SDF
+  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+                     sizeof(struct push_constants), &pc);
+  vkCmdDraw(cmd_buf, 6, 1, 0, 0);
+#endif
 }
 
 void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs) {

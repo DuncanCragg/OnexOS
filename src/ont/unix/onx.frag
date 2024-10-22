@@ -145,8 +145,8 @@ vec3 cube2_shape = objects_buf.cuboids[1].shape;
 vec3 cube3_shape = vec3(1.5, 1.6, 0.10);
 vec3 cube4_shape = vec3(1.5, 1.6, 0.10);
 
-vec3 sphr1_pos = vec3(0.0, 0.0, 0.0);
-vec3 sphr2_pos = vec3(26.0, 10.0, -40.0);
+vec3 sphr1_pos = vec3( 0.0, 0.5, 0.0);
+vec3 sphr2_pos = vec3(-3.0, 5.0, 5.0);
 
 float sphr1_radius = 0.5;
 float sphr2_radius = 5.0;
@@ -161,12 +161,12 @@ float ray_plane_intersection(vec3 ro, vec3 rd) {
   return -1.0;
 }
 
-vec4 grid_pattern(vec3 position) {
+vec3 grid_pattern(vec3 position) {
   vec2 uv = position.xz;
   float gridSize = 1.0;
   float grid = step(0.01, mod(uv.x * gridSize, 1.0)) +
                step(0.01, mod(uv.y * gridSize, 1.0));
-  return vec4(vec3(0.0, 0.6, 0.0) * (1.0 - grid * 0.1), 1.0);
+  return vec3(0.0, 0.6, 0.0) * (1.0 - grid * 0.1);
 }
 
 float sdf_sphere(vec3 p, vec3 pos, float r) {
@@ -185,9 +185,12 @@ float sdf_cube(vec3 p, vec3 pos, vec3 cube_shape) {
   return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
+//  until I fix the normals
+bool fast_cuboid = false;
+
 float sdf_cuboid(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape) {
 
-//  return sdf_cube(p, pos, cube_shape);
+    if(!fast_cuboid) return sdf_cube(p, pos, cube_shape);
 
     vec3 local_p = p - pos;
 
@@ -299,6 +302,26 @@ vec3 calc_normal(vec3 p, vec3 rd, int obj) {
                    sdf_norm(p-e.yyx, rd, obj)));
 }
 
+float soft_shadows(vec3 ro, vec3 rd, float min_t, float max_t, float k) {
+
+  bool objects[NUM_OBJECTS];
+  int num_to_scan = narrow_objects(ro, rd, objects);
+  if(num_to_scan == 0) return 1.0;
+
+  float r = 1.0;
+  float t = min_t;
+  for(int i = 0; i < 50 && t < max_t; i++) {
+      vec3 p = ro + rd * t;
+      float h = scene_sdf(p, rd, objects)[0];
+
+      if(h < 0.001) return 0.0;
+
+      r = min(r, k*h/t );
+      t += h;
+  }
+  return r;
+}
+
 vec2 ray_march(vec3 ro, vec3 rd) {
 
   float pd = ray_plane_intersection(ro, rd);
@@ -308,7 +331,11 @@ vec2 ray_march(vec3 ro, vec3 rd) {
   if(num_to_scan == 0) return vec2(pd, 0);
 
   float dist = 0.0;
-  int iterations = (num_to_scan == 1)? 3: 100;
+
+  int many_hops = 64;
+  int single_hoppish = fast_cuboid? 3: many_hops;
+  int iterations = (num_to_scan == 1)? single_hoppish: many_hops;
+
   for (int i = 0; i < iterations; i++) {
 
     vec3 p = ro + rd * dist;
@@ -393,21 +420,23 @@ void main() {
 
       vec3 p = ro + rd * dist;
 
+      vec3 light_pos = vec3(30.0, 30.0, -30.0);
+      vec3 light_dir = normalize(light_pos - p);
+
       if(dn[1] == 0){
 
-        color = grid_pattern(p);
+        float shadows = 0.8 + 0.2 * soft_shadows(p, light_dir, 0.1, 5.0, 16.0);
+        color = vec4(grid_pattern(p) * shadows, 1.0);
 
       } else {
 
-        vec3 light_pos = vec3(30.0, 30.0, 30.0);
-        vec3 light_col = vec3(1.0, 1.0, 1.0);
+        vec3 light_col = vec3(1.0);
         vec3 ambient_col = vec3(0.3);
 
         vec3 normal = calc_normal(p, rd, int(dn[1]));
-        vec3 light_dir = normalize(light_pos - p);
-        vec3 diffuse_col = light_col * max(dot(normal, light_dir), 0.0);
+        float diffuse = max(dot(normal, light_dir), 0.0);
 
-        color = vec4(ambient_col + diffuse_col, 1.0);
+        color = vec4(ambient_col + light_col * diffuse, 1.0);
       }
 
       gl_FragDepth = -1.0;

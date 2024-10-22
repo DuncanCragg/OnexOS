@@ -282,13 +282,21 @@ float sdf_norm(vec3 p, vec3 rd, int obj){
   return scene_sdf(p, rd, objects)[0];
 }
 
-vec3 calc_normal(vec3 p, vec3 rd, int obj) {
+vec3 calc_normal_trad(vec3 p, vec3 rd, int obj) {
   float e = 0.001;
   return normalize(vec3(
     sdf_norm(p+vec3(e, 0.0, 0.0), rd, obj)-sdf_norm(p-vec3(e, 0.0, 0.0), rd, obj),
     sdf_norm(p+vec3(0.0, e, 0.0), rd, obj)-sdf_norm(p-vec3(0.0, e, 0.0), rd, obj),
     sdf_norm(p+vec3(0.0, 0.0, e), rd, obj)-sdf_norm(p-vec3(0.0, 0.0, e), rd, obj)
   ));
+}
+
+vec3 calc_normal(vec3 p, vec3 rd, int obj) {
+  vec2 e = vec2(.01, 0);
+  return normalize(sdf_norm(p,       rd, obj) -
+              vec3(sdf_norm(p-e.xyy, rd, obj),
+                   sdf_norm(p-e.yxy, rd, obj),
+                   sdf_norm(p-e.yyx, rd, obj)));
 }
 
 vec2 ray_march(vec3 ro, vec3 rd) {

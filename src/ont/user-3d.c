@@ -53,6 +53,16 @@ uint32_t glyph_points_size;
 #define NUMBER_OF_GLYPHS 96
 uint32_t num_glyph_chars=NUMBER_OF_GLYPHS;
 
+struct cuboid {
+  float position[3];
+  float pad1;
+  float shape[3];
+  float pad2;
+};
+
+uint32_t objects_size;
+void*    objects_data;
+
 panel welcome_banner ={
  .dimensions = { 1.0f, 0.4f, 0.03f },
  .position   = { 3.0f, 2.0f, -2.0f },
@@ -227,6 +237,23 @@ void load_font(char* font_face) {
 
   FT_CHECK(FT_Done_Face(face));
   FT_CHECK(FT_Done_FreeType(library));
+}
+
+void make_me_an_object(){
+
+  objects_size = (sizeof(uint32_t) * 4) + (sizeof(struct cuboid) * 1);
+  objects_data = malloc(objects_size);
+
+  uint32_t* size_p = (uint32_t*)objects_data;
+  *size_p = 1;
+
+  struct cuboid* an_object = (struct cuboid*)(objects_data + sizeof(uint32_t) * 4);
+  an_object->position[0] =  3.0f;
+  an_object->position[1] =  0.2f;
+  an_object->position[2] = -2.0f;
+  an_object->shape[0] = 0.5f;
+  an_object->shape[1] = 0.2f;
+  an_object->shape[2] = 0.01f;
 }
 
 static void make_box(vec3 dimensions){

@@ -43,6 +43,40 @@ static VkDeviceMemory storage_buffer_memory;
 static VkDeviceMemory instance_buffer_memory;
 static VkDeviceMemory instance_staging_buffer_memory;
 
+static VkBuffer       objects_buffer;
+static VkDeviceMemory objects_buffer_memory;
+
+static void prepare_object_buffers() {
+
+  VkBufferCreateInfo objects_ci = {
+    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+    .size = objects_size,
+    .usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+  };
+
+  onl_vk_create_buffer_with_memory(&objects_ci,
+                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                   &objects_buffer,
+                                   &objects_buffer_memory);
+
+  void *objects_buffer_ptr;
+  ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
+                                objects_buffer_memory,
+                                0,
+                                objects_size,
+                                0,
+                                &objects_buffer_ptr));
+
+  memcpy(objects_buffer_ptr, objects_data, objects_size);
+
+  vkUnmapMemory(onl_vk_device, objects_buffer_memory);
+
+  free(objects_data); //!!
+  objects_data = 0;
+}
+
 static void prepare_glyph_buffers() {
 
   // ------------------
@@ -432,12 +466,16 @@ void ont_vk_prepare_render_data(bool restart) {
 
   load_font(font_face);
 
+  make_me_an_object();
+
   // ----------
 
   onl_vk_begin_init_command_buffer();
 
   prepare_glyph_buffers();
   prepare_textures();
+
+  prepare_object_buffers();
 
   onl_vk_end_init_command_buffer();
 
@@ -514,18 +552,26 @@ void ont_vk_prepare_descriptor_layout(bool restart) {
           .descriptorCount = 1,
           .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
       },
+/*
       {
           .binding = 3,
           .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
           .descriptorCount = 1,
           .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
       },
+*/
       {
-          .binding = 4,
+          .binding = 3,
           .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
           .descriptorCount = TEXTURE_COUNT,
           .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
           .pImmutableSamplers = NULL,
+      },
+      {
+          .binding = 4,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+          .descriptorCount = 1,
+          .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
       },
   };
 
@@ -757,6 +803,12 @@ void ont_vk_prepare_descriptor_set(bool restart) {
     texture_descs[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
   }
 
+  VkDescriptorBufferInfo objects_info = {
+    .buffer = objects_buffer,
+    .offset = 0,
+    .range = objects_size, // VK_WHOLE_SIZE?
+  };
+
   VkWriteDescriptorSet writes[] = {
     {
       .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -781,6 +833,7 @@ void ont_vk_prepare_descriptor_set(bool restart) {
       .dstArrayElement = 0,
       .descriptorCount = 1,
     },
+/*
     {
       .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
       .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -789,13 +842,22 @@ void ont_vk_prepare_descriptor_set(bool restart) {
       .dstArrayElement = 0,
       .descriptorCount = 1,
     },
+*/
     {
       .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
       .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-      .dstBinding = 4,
+      .dstBinding = 3,
       .pImageInfo = texture_descs,
       .descriptorCount = TEXTURE_COUNT,
     },
+    {
+      .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+      .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+      .dstBinding = 4,
+      .pBufferInfo = &objects_info,
+      .dstArrayElement = 0,
+      .descriptorCount = 1,
+    }
   };
 
   for (uint32_t i = 0; i < onl_vk_max_img; i++) {

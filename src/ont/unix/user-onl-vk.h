@@ -34,6 +34,11 @@ extern uint32_t glyph_cells_size;
 extern uint32_t glyph_points_offset;
 extern uint32_t glyph_points_size;
 
+extern uint32_t objects_size;
+extern void*    objects_data;
+
+void make_me_an_object();
+
 typedef struct fd_GlyphInstance {
   fd_Rect  rect;
   uint32_t glyph_index;

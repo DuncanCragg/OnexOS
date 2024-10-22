@@ -4,12 +4,22 @@
 layout (set = 0, binding = 2) buffer buf2 {
   uint cells[];
 } cell_buffer;
-
+/*
 layout (set = 0, binding = 3) buffer buf3 {
   vec2 points[];
 } point_buffer;
+*/
+layout (set = 0, binding = 3) uniform sampler2D tex;
 
-layout (set = 0, binding = 4) uniform sampler2D tex;
+struct cuboid {
+  vec3 position;
+  vec3 shape;
+};
+
+layout(std430, binding = 4) buffer buf4 {
+  int size;
+  cuboid cuboids[];
+} objects_buf;
 
 layout(location = 0)      in  vec2  glyph_pos;
 layout(location = 1) flat in  uvec4 cell_info;
@@ -28,7 +38,7 @@ layout(location = 13)     in  vec3  far_point;
 layout(location = 14)     in  mat4  view;
 layout(location = 18)     in  mat4  proj;
 layout(location = 22)     in  mat4  inv_view;
-layout(location = 26)     in  mat4  inv_proj;
+layout(location = 26)     in  mat4  inv_proj; /// !!! too many inputs
 
 layout(location = 0)      out vec4  color;
 
@@ -70,7 +80,7 @@ float dist_to_bezier2(vec2 p0, vec2 p1, vec2 p2, float t, vec2 p) {
 }
 
 #define UDIST_BIAS 0.001
-
+/*
 void process_bezier2(vec2 p, uint i, inout float min_udist, inout float v) {
 
   vec2 p0 = point_buffer.points[i];
@@ -121,15 +131,16 @@ float cell_signed_dist(uint point_offset, uint cell, vec2 p) {
 
   return v;
 }
+*/
 
 // ---------------------------------------------------
 
-vec3 cube1_pos = vec3(  3.0,  0.2,  -2.0);
+vec3 cube1_pos = objects_buf.cuboids[0].position;
 vec3 cube2_pos = vec3(  7.0,  1.0,  -1.0);
 vec3 cube3_pos = vec3( -3.0,  1.6, -14.0);
 vec3 cube4_pos = vec3(  3.0,  1.6, -14.0);
 
-vec3 cube1_shape = vec3(0.5, 0.2, 0.01);
+vec3 cube1_shape = objects_buf.cuboids[0].shape;
 vec3 cube2_shape = vec3(2.0, 1.0, 0.01);
 vec3 cube3_shape = vec3(1.5, 1.6, 0.10);
 vec3 cube4_shape = vec3(1.5, 1.6, 0.10);
@@ -333,7 +344,7 @@ void main() {
     uint cell_index = cell_info.y + cell_info.z * c.y + c.x;
     uint cell = cell_buffer.cells[cell_index];
 
-    float v = cell_signed_dist(cell_info.x, cell, glyph_pos);
+    float v = 0.0f; //cell_signed_dist(cell_info.x, cell, glyph_pos);
     float alpha = clamp(v * sharpness / (2.1*proj_pos.z) + 0.5, 0.0, 1.0);
 
     color = vec4(0.0, 0.0, 0.0, 0.8*alpha);

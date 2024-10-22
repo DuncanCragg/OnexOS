@@ -37,7 +37,7 @@ extern uint32_t glyph_points_size;
 extern uint32_t objects_size;
 extern void*    objects_data;
 
-void make_me_an_object();
+void create_objects();
 
 typedef struct fd_GlyphInstance {
   fd_Rect  rect;

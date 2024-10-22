@@ -239,21 +239,31 @@ void load_font(char* font_face) {
   FT_CHECK(FT_Done_FreeType(library));
 }
 
-void make_me_an_object(){
+void create_objects(){
 
-  objects_size = (sizeof(uint32_t) * 4) + (sizeof(struct cuboid) * 1);
+  uint32_t num_objects = 2;
+
+  objects_size = (sizeof(uint32_t) * 4) + (sizeof(struct cuboid) * num_objects);
   objects_data = malloc(objects_size);
 
   uint32_t* size_p = (uint32_t*)objects_data;
-  *size_p = 1;
+  *size_p = num_objects;
 
-  struct cuboid* an_object = (struct cuboid*)(objects_data + sizeof(uint32_t) * 4);
-  an_object->position[0] =  3.0f;
-  an_object->position[1] =  0.2f;
-  an_object->position[2] = -2.0f;
-  an_object->shape[0] = 0.5f;
-  an_object->shape[1] = 0.2f;
-  an_object->shape[2] = 0.01f;
+  struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
+
+  obj_array[0].position[0] =  3.0f;
+  obj_array[0].position[1] =  0.2f;
+  obj_array[0].position[2] = -2.0f;
+  obj_array[0].shape[0] = 0.5f;
+  obj_array[0].shape[1] = 0.2f;
+  obj_array[0].shape[2] = 0.01f;
+
+  obj_array[1].position[0] =  7.0f;
+  obj_array[1].position[1] =  1.0f;
+  obj_array[1].position[2] = -1.0f;
+  obj_array[1].shape[0] = 2.0f;
+  obj_array[1].shape[1] = 1.0f;
+  obj_array[1].shape[2] = 0.01f;
 }
 
 static void make_box(vec3 dimensions){

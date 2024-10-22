@@ -466,7 +466,7 @@ void ont_vk_prepare_render_data(bool restart) {
 
   load_font(font_face);
 
-  make_me_an_object();
+  create_objects();
 
   // ----------
 

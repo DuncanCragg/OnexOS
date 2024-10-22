@@ -136,12 +136,12 @@ float cell_signed_dist(uint point_offset, uint cell, vec2 p) {
 // ---------------------------------------------------
 
 vec3 cube1_pos = objects_buf.cuboids[0].position;
-vec3 cube2_pos = vec3(  7.0,  1.0,  -1.0);
+vec3 cube2_pos = objects_buf.cuboids[1].position;
 vec3 cube3_pos = vec3( -3.0,  1.6, -14.0);
 vec3 cube4_pos = vec3(  3.0,  1.6, -14.0);
 
 vec3 cube1_shape = objects_buf.cuboids[0].shape;
-vec3 cube2_shape = vec3(2.0, 1.0, 0.01);
+vec3 cube2_shape = objects_buf.cuboids[1].shape;
 vec3 cube3_shape = vec3(1.5, 1.6, 0.10);
 vec3 cube4_shape = vec3(1.5, 1.6, 0.10);
 

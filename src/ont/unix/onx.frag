@@ -151,6 +151,9 @@ vec3 sphr2_pos = vec3(-3.0, 5.0, 5.0);
 float sphr1_radius = 0.5;
 float sphr2_radius = 5.0;
 
+vec3 glph1_pos   = vec3(1.0, 1.0, 0.0);
+vec2 glph1_shape = vec2(0.5, 0.5);
+
 float plane_height = 0.0;
 
 float ray_plane_intersection(vec3 ro, vec3 rd) {
@@ -180,14 +183,14 @@ float max_cube_radius(vec3 cube_shape) {
                 cube_shape.z * cube_shape.z);
 }
 
-float sdf_cube(vec3 p, vec3 pos, vec3 cube_shape) {
+float sdf_cuboid_true(vec3 p, vec3 pos, vec3 cube_shape) {
   vec3 d = abs(p - pos) - cube_shape;
   return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
 float sdf_cuboid(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape, bool fast) {
 
-    if(!fast) return sdf_cube(p, pos, cube_shape);
+    if(!fast) return sdf_cuboid_true(p, pos, cube_shape);
 
     vec3 local_p = p - pos;
 
@@ -208,6 +211,28 @@ float sdf_cuboid(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape, bool fast) {
     if (t_near > t_far || t_far < 0.0) return 1e6;
 
     return (t_near >= 0.0 ? t_near : t_far) * 0.999;
+}
+
+float sdf_glyph_true(vec3 p, vec3 rd, vec3 pos, vec2 shape){
+  vec3 local_p = p - pos;
+  vec2 glyph_pos_2d = local_p.xy;
+  vec2 d = abs(glyph_pos_2d) - shape * 0.5;
+  float dist_2d = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+  float dist_z = abs(local_p.z);
+  return max(dist_2d, dist_z);
+}
+
+float sdf_glyph(vec3 p, vec3 rd, vec3 pos, vec2 shape, bool fast) {
+
+  if (!fast) return sdf_glyph_true(p, rd, pos, shape);
+
+  vec3 local_p = p - pos;
+  float t_near = -(local_p.z / rd.z);
+  vec3 intersect_p = local_p + t_near * rd;
+  vec2 d = abs(intersect_p.xy) - shape * 0.5;
+
+  if (max(d.x, d.y) > 0.0 || t_near < 0.0) return 1e6;
+  return t_near * 0.999;
 }
 
 bool ray_hits_sphere(vec3 ro, vec3 rd, vec3 center, float radius) {
@@ -231,6 +256,7 @@ int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS], bool really)
   objects[4]=ray_hits_sphere(ro, rd, sphr2_pos, sphr2_radius);
   objects[5]=ray_hits_sphere(ro, rd, cube3_pos, max_cube_radius(cube3_shape));
   objects[6]=ray_hits_sphere(ro, rd, cube4_pos, max_cube_radius(cube4_shape));
+  objects[7]=ray_hits_sphere(ro, rd, glph1_pos, max_cube_radius(vec3(glph1_shape,0.0)));
 
   int num_to_scan = 0;
   for (int i = 0; i < NUM_OBJECTS; i++){
@@ -272,6 +298,10 @@ vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS], bool fast) {
   if (objects[6]) {
     s = sdf_cuboid(p, rd, cube4_pos, cube4_shape, fast);
     if(s<d){ d=s; n=6; }
+  }
+  if (objects[7]) {
+    s = sdf_glyph(p, rd, glph1_pos, glph1_shape, fast);
+    if(s<d){ d=s; n=7; }
   }
 
   return vec2(d,n);
@@ -440,6 +470,11 @@ void main() {
 
         float shadows = 0.8 + 0.2 * soft_shadows(p, light_dir, 16.0);
         color = vec4(grid_pattern(p) * shadows, 1.0);
+
+      } else
+      if(obj_index == 7){
+
+        color = vec4(0,0,0,1);
 
       } else {
 

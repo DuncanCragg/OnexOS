@@ -151,7 +151,8 @@ vec3 sphr2_pos = vec3(-3.0, 5.0, 5.0);
 float sphr1_radius = 0.5;
 float sphr2_radius = 5.0;
 
-vec3 glph1_pos   = vec3(1.0, 1.0, 0.0);
+vec3 glph1_pos = objects_buf.cuboids[1].position +
+                 objects_buf.cuboids[1].shape * vec3(0,0,-1.00001);
 vec2 glph1_shape = vec2(0.5, 0.5);
 
 float plane_height = 0.0;
@@ -232,7 +233,12 @@ float sdf_glyph(vec3 p, vec3 rd, vec3 pos, vec2 shape, bool fast) {
   vec2 d = abs(intersect_p.xy) - shape * 0.5;
 
   if (max(d.x, d.y) > 0.0 || t_near < 0.0) return 1e6;
-  return t_near * 0.999;
+
+  float circle_radius = shape.x * 0.5;
+  float dist_to_center = length(intersect_p.xy);
+
+  if (dist_to_center <= circle_radius) return t_near * 0.999;
+  return t_near + (dist_to_center - circle_radius);
 }
 
 bool ray_hits_sphere(vec3 ro, vec3 rd, vec3 center, float radius) {

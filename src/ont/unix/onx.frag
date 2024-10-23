@@ -185,12 +185,9 @@ float sdf_cube(vec3 p, vec3 pos, vec3 cube_shape) {
   return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
-//  until I fix the normals
-bool fast_cuboid = false;
+float sdf_cuboid(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape, bool fast) {
 
-float sdf_cuboid(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape) {
-
-    if(!fast_cuboid) return sdf_cube(p, pos, cube_shape);
+    if(!fast) return sdf_cube(p, pos, cube_shape);
 
     vec3 local_p = p - pos;
 
@@ -241,7 +238,7 @@ int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS]) {
   return num_to_scan;
 }
 
-vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS]) {
+vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS], bool fast) {
 
   float d = 1e6;
   int   n = -1;
@@ -249,11 +246,11 @@ vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS]) {
   float s;
 
   if (objects[1]) {
-    s = sdf_cuboid(p, rd, cube1_pos, cube1_shape);
+    s = sdf_cuboid(p, rd, cube1_pos, cube1_shape, fast);
     if(s<d){ d=s; n=1; }
   }
   if (objects[2]) {
-    s = sdf_cuboid(p, rd, cube2_pos, cube2_shape);
+    s = sdf_cuboid(p, rd, cube2_pos, cube2_shape, fast);
     if(s<d){ d=s; n=2; }
   }
   if (objects[3]) {
@@ -265,15 +262,23 @@ vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS]) {
     if(s<d){ d=s; n=4; }
   }
   if (objects[5]) {
-    s = sdf_cuboid(p, rd, cube3_pos, cube3_shape);
+    s = sdf_cuboid(p, rd, cube3_pos, cube3_shape, fast);
     if(s<d){ d=s; n=5; }
   }
   if (objects[6]) {
-    s = sdf_cuboid(p, rd, cube4_pos, cube4_shape);
+    s = sdf_cuboid(p, rd, cube4_pos, cube4_shape, fast);
     if(s<d){ d=s; n=6; }
   }
 
   return vec2(d,n);
+}
+
+float scene_sdf_fine(vec3 p, vec3 rd, bool objects[NUM_OBJECTS]){
+  return scene_sdf(p, rd, objects, false)[0];
+}
+
+vec2 scene_sdf_fast(vec3 p, vec3 rd, bool objects[NUM_OBJECTS]){
+  return scene_sdf(p, rd, objects, true);
 }
 
 float sdf_norm(vec3 p, vec3 rd, int obj){
@@ -282,7 +287,7 @@ float sdf_norm(vec3 p, vec3 rd, int obj){
   for (int i = 0; i < NUM_OBJECTS; i++) objects[i] = false;
   objects[obj] = true;
 
-  return scene_sdf(p, rd, objects)[0];
+  return scene_sdf_fine(p, rd, objects);
 }
 
 vec3 calc_normal_trad(vec3 p, vec3 rd, int obj) {
@@ -312,7 +317,7 @@ float soft_shadows(vec3 ro, vec3 rd, float min_t, float max_t, float k) {
   float t = min_t;
   for(int i = 0; i < 50 && t < max_t; i++) {
       vec3 p = ro + rd * t;
-      float h = scene_sdf(p, rd, objects)[0];
+      float h = scene_sdf_fine(p, rd, objects);
 
       if(h < 0.001) return 0.0;
 
@@ -321,6 +326,9 @@ float soft_shadows(vec3 ro, vec3 rd, float min_t, float max_t, float k) {
   }
   return r;
 }
+
+const int MANY_HOPS      = 64;
+const int SINGLE_HOP_ISH =  3;
 
 vec2 ray_march(vec3 ro, vec3 rd) {
 
@@ -332,14 +340,12 @@ vec2 ray_march(vec3 ro, vec3 rd) {
 
   float dist = 0.0;
 
-  int many_hops = 64;
-  int single_hoppish = fast_cuboid? 3: many_hops;
-  int iterations = (num_to_scan == 1)? single_hoppish: many_hops;
+  int iterations = (num_to_scan == 1)? SINGLE_HOP_ISH: MANY_HOPS;
 
   for (int i = 0; i < iterations; i++) {
 
     vec3 p = ro + rd * dist;
-    vec2 dn = scene_sdf(p, rd, objects);
+    vec2 dn = scene_sdf_fast(p, rd, objects);
 
     if (pd > 0.0 && pd < dn[0]) return vec2(pd, 0);
 
@@ -423,17 +429,20 @@ void main() {
       vec3 light_pos = vec3(30.0, 30.0, -30.0);
       vec3 light_dir = normalize(light_pos - p);
 
-      if(dn[1] == 0){
+      int obj_index = int(dn[1]);
+
+      if(obj_index == 0){
 
         float shadows = 0.8 + 0.2 * soft_shadows(p, light_dir, 0.1, 5.0, 16.0);
         color = vec4(grid_pattern(p) * shadows, 1.0);
 
       } else {
 
+        vec3 normal = calc_normal(p, rd, obj_index);
+
         vec3 light_col = vec3(1.0);
         vec3 ambient_col = vec3(0.3);
 
-        vec3 normal = calc_normal(p, rd, int(dn[1]));
         float diffuse = max(dot(normal, light_dir), 0.0);
 
         color = vec4(ambient_col + light_col * diffuse, 1.0);

@@ -234,7 +234,12 @@ int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS]) {
   objects[6]=ray_hits_sphere(ro, rd, cube4_pos, max_cube_radius(cube4_shape));
 
   int num_to_scan = 0;
-  for (int i = 0; i < NUM_OBJECTS; i++) if(objects[i]) num_to_scan++;
+  for (int i = 0; i < NUM_OBJECTS; i++){
+    if(objects[i]){
+      num_to_scan++;
+      if(i==3 || i==4) num_to_scan++;
+    }
+  }
   return num_to_scan;
 }
 

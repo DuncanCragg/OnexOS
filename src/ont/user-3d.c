@@ -615,7 +615,7 @@ void ont_vk_iostate_changed() {
 
   float sd = sin(body_dir);
   float cd = cos(body_dir);
-  float sp = 0.01f;
+  float sp = 0.04f;
 
   body_xv = 0.0f; body_zv = 0.0f;
 

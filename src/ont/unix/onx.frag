@@ -151,7 +151,7 @@ vec3 sphr2_pos = vec3(-3.0, 5.0, 5.0);
 float sphr1_radius = 0.5;
 float sphr2_radius = 5.0;
 
-float plane_height = -0.01;
+float plane_height = 0.0;
 
 float ray_plane_intersection(vec3 ro, vec3 rd) {
   if(abs(rd.y) > 0.001) {

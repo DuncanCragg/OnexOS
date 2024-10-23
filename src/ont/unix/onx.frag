@@ -311,22 +311,23 @@ vec3 calc_normal(vec3 p, vec3 rd, int obj) {
                    sdf_norm(p-e.yyx, rd, obj)));
 }
 
-float soft_shadows(vec3 ro, vec3 rd, float min_t, float max_t, float k) {
+float soft_shadows(vec3 ro, vec3 rd, float hardness) {
 
   bool objects[NUM_OBJECTS];
   int num_to_scan = narrow_objects(ro, rd, objects, true);
   if(num_to_scan == 0) return 1.0;
 
   float r = 1.0;
-  float t = min_t;
-  for(int i = 0; i < 50 && t < max_t; i++) {
-      vec3 p = ro + rd * t;
+  float d = 0.0;
+  for(int i = 0; i < 10; i++) {
+
+      vec3 p = ro + rd * d;
       float h = scene_sdf_fine(p, rd, objects);
-
       if(h < 0.001) return 0.0;
+      d += h;
+      if(d > 5.0) return r;
 
-      r = min(r, k*h/t );
-      t += h;
+      r = min(r, hardness * h / d );
   }
   return r;
 }
@@ -437,7 +438,7 @@ void main() {
 
       if(obj_index == 0){
 
-        float shadows = 0.8 + 0.2 * soft_shadows(p, light_dir, 0.1, 5.0, 16.0);
+        float shadows = 0.8 + 0.2 * soft_shadows(p, light_dir, 16.0);
         color = vec4(grid_pattern(p) * shadows, 1.0);
 
       } else {

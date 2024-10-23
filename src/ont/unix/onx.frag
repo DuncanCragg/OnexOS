@@ -220,11 +220,10 @@ bool ray_hits_sphere(vec3 ro, vec3 rd, vec3 center, float radius) {
 
 const int NUM_OBJECTS = 10;
 
-int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS]) {
+int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS], bool really) {
 
-  bool skip_this = false;
-  for (int i = 0; i < NUM_OBJECTS; i++) objects[i] = skip_this;
-  if(skip_this) return NUM_OBJECTS;
+  for (int i = 0; i < NUM_OBJECTS; i++) objects[i] = !really;
+  if(!really) return NUM_OBJECTS;
 
   objects[1]=ray_hits_sphere(ro, rd, cube1_pos, max_cube_radius(cube1_shape));
   objects[2]=ray_hits_sphere(ro, rd, cube2_pos, max_cube_radius(cube2_shape));
@@ -315,7 +314,7 @@ vec3 calc_normal(vec3 p, vec3 rd, int obj) {
 float soft_shadows(vec3 ro, vec3 rd, float min_t, float max_t, float k) {
 
   bool objects[NUM_OBJECTS];
-  int num_to_scan = narrow_objects(ro, rd, objects);
+  int num_to_scan = narrow_objects(ro, rd, objects, true);
   if(num_to_scan == 0) return 1.0;
 
   float r = 1.0;
@@ -340,7 +339,7 @@ vec2 ray_march(vec3 ro, vec3 rd) {
   float pd = ray_plane_intersection(ro, rd);
 
   bool objects[NUM_OBJECTS];
-  int num_to_scan = narrow_objects(ro, rd, objects);
+  int num_to_scan = narrow_objects(ro, rd, objects, true);
   if(num_to_scan == 0) return vec2(pd, 0);
 
   float dist = 0.0;

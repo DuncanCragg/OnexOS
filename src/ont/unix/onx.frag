@@ -300,21 +300,11 @@ vec2 ray_march(vec3 ro, vec3 rd) {
   return vec2(pd, 0);
 }
 
+const float LEFT_TOUCH_RADIUS = 0.1;
+
 void main() {
 
-   if(false){
-
-    float r = 0.1;
-    float d = distance(overlay_uv, left_touch);
-
-    if (d <= r) {
-        color = vec4(0.7, 0.7, 0.7, 0.2);
-        gl_FragDepth = -1.0;
-    } else {
-        discard;
-    }
-
-   } else {
+    bool in_left_touch_area = distance(overlay_uv, left_touch) <= LEFT_TOUCH_RADIUS;
 
     vec2 resolution = vec2(1920.0, 1080.0);
 
@@ -361,12 +351,15 @@ void main() {
         color = vec4(ambient_col + light_col * diffuse, 1.0);
       }
 
+      if(in_left_touch_area) color -= vec4(0.1);
+
       gl_FragDepth = -1.0;
 
     } else {
-      discard;
+
+      if(in_left_touch_area) color = vec4(0.1);
+      else discard;
     }
-   }
 }
 
 // ------------------------------

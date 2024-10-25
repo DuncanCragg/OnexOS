@@ -4,18 +4,10 @@
 
 VkPipelineLayout onl_vk_pipeline_layout;
 
-static VkBuffer vertex_buffer;
-static VkBuffer staging_buffer;
-
-static VkDeviceMemory vertex_buffer_memory;
-static VkDeviceMemory staging_buffer_memory;
-
 struct uniforms_size_template {
     float proj[4][4];
     float view_l[4][4];
     float view_r[4][4];
-    float model[MAX_PANELS][4][4];
-    vec4  text_ends[MAX_PANELS];
     float left_touch[2];
 };
 
@@ -30,14 +22,6 @@ static uniform_mem_t *uniform_mem;
 
 static VkDescriptorPool      descriptor_pool;
 static VkDescriptorSetLayout descriptor_layout;
-
-static VkBuffer storage_buffer;
-static VkBuffer instance_buffer;
-static VkBuffer instance_staging_buffer;
-
-static VkDeviceMemory storage_buffer_memory;
-static VkDeviceMemory instance_buffer_memory;
-static VkDeviceMemory instance_staging_buffer_memory;
 
 static VkBuffer       objects_buffer;
 static VkDeviceMemory objects_buffer_memory;
@@ -71,88 +55,6 @@ static void prepare_object_buffers() {
 
   free(objects_data); //!!
   objects_data = 0;
-}
-
-static void prepare_glyph_buffers() {
-
-  // ------------------
-
-  VkBufferCreateInfo storage_ci = {
-      .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-      .size = glyph_data_size,
-      .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-      .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-  };
-
-  onl_vk_create_buffer_with_memory(&storage_ci,
-                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                   &storage_buffer,
-                                   &storage_buffer_memory);
-
-  // ------------------
-
-  VkBufferCreateInfo staging_ci = {
-      .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-      .size = glyph_data_size,
-      .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-      .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-  };
-
-
-  onl_vk_create_buffer_with_memory(&staging_ci,
-                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                                   &staging_buffer,
-                                   &staging_buffer_memory);
-
-  void *staging_buffer_ptr;
-  ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
-                                staging_buffer_memory,
-                                0,
-                                glyph_data_size,
-                                0,
-                                &staging_buffer_ptr));
-
-  memcpy(staging_buffer_ptr, glyph_data, glyph_data_size);
-
-  vkUnmapMemory(onl_vk_device, staging_buffer_memory);
-
-
-  VkBufferCopy copy = { 0, 0, glyph_data_size };
-
-  vkCmdCopyBuffer(onl_vk_init_cmdbuf, staging_buffer, storage_buffer, 1, &copy);
-
-  free(glyph_data);
-  glyph_data = NULL;
-
-  // ------------------
-
-  VkBufferCreateInfo instance_ci = {
-      .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-      .size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance),
-      .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-      .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-  };
-
-  onl_vk_create_buffer_with_memory(&instance_ci,
-                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                   &instance_buffer,
-                                   &instance_buffer_memory);
-
-  // ------------------
-
-  VkBufferCreateInfo instance_staging_ci = {
-      .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-      .size = instance_ci.size,
-      .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-      .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-  };
-
-  onl_vk_create_buffer_with_memory(&instance_staging_ci,
-                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                                   &instance_staging_buffer,
-                                   &instance_staging_buffer_memory);
 }
 
 #define TEXTURE_COUNT 1
@@ -433,34 +335,7 @@ static void prepare_textures(){
     }
 }
 
-static VkVertexInputBindingDescription vibds[] = {
-  {
-    .binding = 0,
-    .stride = 3 * sizeof(float) +
-              2 * sizeof(float),
-    .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-  },
-  {
-    .binding = 1,
-    .stride = sizeof(fd_GlyphInstance),
-    .inputRate = VK_VERTEX_INPUT_RATE_INSTANCE,
-  }
-};
-
-static VkVertexInputAttributeDescription vertex_input_attributes[] = {
-  { 0, 0, VK_FORMAT_R32G32B32_SFLOAT,    0 }, // vertex
-  { 1, 0, VK_FORMAT_R32G32_SFLOAT,      12 }, // uv
-  { 2, 1, VK_FORMAT_R32G32B32A32_SFLOAT, 0 }, // fd_GlyphInstance.rect
-  { 3, 1, VK_FORMAT_R32_UINT,           16 }, // fd_GlyphInstance.glyph_index
-  { 4, 1, VK_FORMAT_R32_SFLOAT,         20 }, // fd_GlyphInstance.sharpness
-};
-
-//static char* font_face = "/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf";
-static char* font_face = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf";
-
 void ont_vk_prepare_render_data(bool restart) {
-
-  load_font(font_face);
 
   create_objects();
 
@@ -468,41 +343,15 @@ void ont_vk_prepare_render_data(bool restart) {
 
   onl_vk_begin_init_command_buffer();
 
-  prepare_glyph_buffers();
   prepare_textures();
 
   prepare_object_buffers();
 
   onl_vk_end_init_command_buffer();
 
-  // ----------
-
-  onl_vk_vertex_input_state_ci.vertexBindingDescriptionCount = 2;
-  onl_vk_vertex_input_state_ci.pVertexBindingDescriptions = vibds;
-  onl_vk_vertex_input_state_ci.vertexAttributeDescriptionCount = 5;
-  onl_vk_vertex_input_state_ci.pVertexAttributeDescriptions = vertex_input_attributes;
-}
-
-static void prepare_vertex_buffers(){
-
-  VkBufferCreateInfo buffer_ci = {
-    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
-                                2 * sizeof(float)  ),
-    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-  };
-
-  onl_vk_create_buffer_with_memory(&buffer_ci,
-                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                   &vertex_buffer,
-                                   &vertex_buffer_memory);
 }
 
 void ont_vk_prepare_uniform_buffers(bool restart) {
-
-  prepare_vertex_buffers();
 
   uniform_mem = (uniform_mem_t*)malloc(sizeof(uniform_mem_t) * onl_vk_max_img);
 
@@ -538,33 +387,13 @@ void ont_vk_prepare_descriptor_layout(bool restart) {
       },
       {
           .binding = 1,
-          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-          .descriptorCount = 1,
-          .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-      },
-      {
-          .binding = 2,
-          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-          .descriptorCount = 1,
-          .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-      },
-/*
-      {
-          .binding = 3,
-          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-          .descriptorCount = 1,
-          .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-      },
-*/
-      {
-          .binding = 3,
           .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
           .descriptorCount = TEXTURE_COUNT,
           .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
           .pImmutableSamplers = NULL,
       },
       {
-          .binding = 4,
+          .binding = 2,
           .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
           .descriptorCount = 1,
           .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -573,7 +402,7 @@ void ont_vk_prepare_descriptor_layout(bool restart) {
 
   VkDescriptorSetLayoutCreateInfo descriptor_set_layout_ci = {
       .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-      .bindingCount = 5,
+      .bindingCount = 3,
       .pBindings = bindings,
   };
 
@@ -600,14 +429,6 @@ void ont_vk_prepare_pipeline_layout(bool restart) {
 
 static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
 
-
-  VkBuffer vertex_buffers[] = {
-    vertex_buffer,
-    instance_buffer,
-  };
-  VkDeviceSize offsets[] = { 0, 0 };
-  vkCmdBindVertexBuffers(cmd_buf, 0, 2, vertex_buffers, offsets);
-
   vkCmdBindDescriptorSets(cmd_buf,
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
                           onl_vk_pipeline_layout,
@@ -618,78 +439,16 @@ static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
   vkCmdDraw(cmd_buf, 6, 1, 0, 0);
 }
 
-void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs) {
+void set_up_scene_begin() {
 
   pthread_mutex_lock(&onl_vk_scene_lock);
   onl_vk_scene_ready = false;
-
-  size_t vertex_size = MAX_PANELS * 6*6 * (3 * sizeof(float) +
-                                           2 * sizeof(float)  );
-
-  size_t glyph_size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
-
-  ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
-                                vertex_buffer_memory,
-                                0, vertex_size, 0, vertices));
-
-  ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
-                                instance_staging_buffer_memory,
-                                0, glyph_size,  0, glyphs));
-}
-
-
-void copy_instance_buffers(VkCommandBuffer cmd_buf){
-
-  uint32_t size = MAX_VISIBLE_GLYPHS * sizeof(fd_GlyphInstance);
-  uint32_t offset = 0;
-
-  VkBufferMemoryBarrier barrier = {
-      .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-      .srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
-      .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-      .buffer = instance_buffer,
-      .offset = 0,
-      .size = size,
-  };
-
-  vkCmdPipelineBarrier(
-      cmd_buf,
-      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-      VK_PIPELINE_STAGE_TRANSFER_BIT,
-      0,
-      0, NULL,
-      1, &barrier,
-      0, NULL);
-
-  VkBufferCopy copy = {
-      .srcOffset = offset,
-      .dstOffset = 0,
-      .size = size,
-  };
-
-  vkCmdCopyBuffer(cmd_buf, instance_staging_buffer, instance_buffer, 1, &copy);
-
-  barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-  barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
-
-  vkCmdPipelineBarrier(
-      cmd_buf,
-      VK_PIPELINE_STAGE_TRANSFER_BIT,
-      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-      0,
-      0, NULL,
-      1, &barrier,
-      0, NULL);
 }
 
 void set_up_scene_end() {
 
-  vkUnmapMemory(onl_vk_device, vertex_buffer_memory);
-  vkUnmapMemory(onl_vk_device, instance_staging_buffer_memory);
-
   for (uint32_t ii = 0; ii < onl_vk_max_img; ii++) {
       VkCommandBuffer cmd_buf = onl_vk_begin_cmd_buf(ii);
-      copy_instance_buffers(cmd_buf);
       onl_vk_begin_render_pass(ii, cmd_buf);
       do_cmd_buf_draw(ii, cmd_buf);
       onl_vk_end_cmd_buf_and_render_pass(ii, cmd_buf);
@@ -737,24 +496,6 @@ void ont_vk_prepare_descriptor_set(bool restart) {
     .range = sizeof(struct uniforms_size_template),
   };
 
-  VkDescriptorBufferInfo glyph_info = {
-    .buffer = storage_buffer,
-    .offset = 0,
-    .range = glyph_info_size,
-  };
-
-  VkDescriptorBufferInfo cells_info = {
-    .buffer = storage_buffer,
-    .offset = glyph_cells_offset,
-    .range = glyph_cells_size,
-  };
-
-  VkDescriptorBufferInfo points_info = {
-    .buffer = storage_buffer,
-    .offset = glyph_points_offset,
-    .range = glyph_points_size,
-  };
-
   VkDescriptorImageInfo texture_descs[TEXTURE_COUNT];
   memset(&texture_descs, 0, sizeof(texture_descs));
 
@@ -780,41 +521,15 @@ void ont_vk_prepare_descriptor_set(bool restart) {
     },
     {
       .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-      .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-      .dstBinding = 1,
-      .pBufferInfo = &glyph_info,
-      .dstArrayElement = 0,
-      .descriptorCount = 1,
-    },
-    {
-      .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-      .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-      .dstBinding = 2,
-      .pBufferInfo = &cells_info,
-      .dstArrayElement = 0,
-      .descriptorCount = 1,
-    },
-/*
-    {
-      .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-      .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-      .dstBinding = 3,
-      .pBufferInfo = &points_info,
-      .dstArrayElement = 0,
-      .descriptorCount = 1,
-    },
-*/
-    {
-      .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
       .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-      .dstBinding = 3,
+      .dstBinding = 1,
       .pImageInfo = texture_descs,
       .descriptorCount = TEXTURE_COUNT,
     },
     {
       .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
       .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-      .dstBinding = 4,
+      .dstBinding = 2,
       .pBufferInfo = &objects_info,
       .dstArrayElement = 0,
       .descriptorCount = 1,
@@ -831,10 +546,8 @@ void ont_vk_prepare_descriptor_set(bool restart) {
     writes[0].dstSet = uniform_mem[i].descriptor_set;
     writes[1].dstSet = uniform_mem[i].descriptor_set;
     writes[2].dstSet = uniform_mem[i].descriptor_set;
-    writes[3].dstSet = uniform_mem[i].descriptor_set;
-    writes[4].dstSet = uniform_mem[i].descriptor_set;
 
-    vkUpdateDescriptorSets(onl_vk_device, 5, writes, 0, 0);
+    vkUpdateDescriptorSets(onl_vk_device, 3, writes, 0, 0);
   }
 }
 
@@ -890,21 +603,6 @@ void ont_vk_update_uniforms() {
              sizeof(proj_matrix) +
              sizeof(view_l_matrix) +
              sizeof(view_r_matrix),
-         (const void*)&model_matrix, sizeof(model_matrix));
-
-  memcpy(uniform_mem[onl_vk_cur_img].uniform_memory_ptr +
-             sizeof(proj_matrix) +
-             sizeof(view_l_matrix) +
-             sizeof(view_r_matrix) +
-             sizeof(model_matrix),
-         (const void*)&text_ends, sizeof(text_ends));
-
-  memcpy(uniform_mem[onl_vk_cur_img].uniform_memory_ptr +
-             sizeof(proj_matrix) +
-             sizeof(view_l_matrix) +
-             sizeof(view_r_matrix) +
-             sizeof(model_matrix) +
-             sizeof(text_ends),
          (const void*)&left_touch_vec, sizeof(left_touch_vec));
 }
 
@@ -913,20 +611,6 @@ void ont_vk_update_uniforms() {
 void ont_vk_finish_render_data() {
 
   onl_vk_scene_ready = false;
-
-  // ---------------------------------
-
-  vkFreeMemory(onl_vk_device, vertex_buffer_memory, NULL);
-  vkFreeMemory(onl_vk_device, staging_buffer_memory, NULL);
-  vkFreeMemory(onl_vk_device, storage_buffer_memory, NULL);
-  vkFreeMemory(onl_vk_device, instance_buffer_memory, NULL);
-  vkFreeMemory(onl_vk_device, instance_staging_buffer_memory, NULL);
-
-  vkDestroyBuffer(onl_vk_device, vertex_buffer, NULL);
-  vkDestroyBuffer(onl_vk_device, staging_buffer, NULL);
-  vkDestroyBuffer(onl_vk_device, storage_buffer, NULL);
-  vkDestroyBuffer(onl_vk_device, instance_buffer, NULL);
-  vkDestroyBuffer(onl_vk_device, instance_staging_buffer, NULL);
 
   // ---------------------------------
 

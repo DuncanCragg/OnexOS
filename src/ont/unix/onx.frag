@@ -1,14 +1,14 @@
 #version 450
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (set = 0, binding = 3) uniform sampler2D tex;
+layout (set = 0, binding = 1) uniform sampler2D tex;
 
 struct cuboid {
   vec3 position;
   vec3 shape;
 };
 
-layout(std430, binding = 4) buffer buf4 {
+layout(std430, binding = 2) buffer buf4 {
   int size;
   cuboid cuboids[];
 } objects_buf;

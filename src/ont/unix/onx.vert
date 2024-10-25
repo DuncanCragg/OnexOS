@@ -9,16 +9,8 @@ layout(std430, binding = 0) uniform buf0 {
   mat4 proj;
   mat4 view_l;
   mat4 view_r;
-  mat4 model[32];
-  vec4 text_ends[32];
   vec2 left_touch;
 } uniforms;
-
-layout(location = 0)  in  vec3  vertex;
-layout(location = 1)  in  vec2  uv;
-layout(location = 2)  in  vec4  rect;
-layout(location = 3)  in  uint  glyph_index;
-layout(location = 4)  in  float sharpness_i;
 
 layout(location = 0)  out vec2  glyph_pos;
 layout(location = 1)  out uvec4 cell_info;

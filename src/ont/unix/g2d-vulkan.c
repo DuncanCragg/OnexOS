@@ -20,20 +20,13 @@ void g2d_init() {
 }
 
 bool g2d_clear_screen(uint8_t colour) {
-
+/*
   panel p ={
    .dimensions = { 1.0f, 1.0f, 0.03f },
    .position   = { 0, Y_UP_OFFSET, -2.19f },
    .rotation   = { 0.0f, 0.0f, 0.0f },
   };
-
-  add_panel(&p, 0);
-
-  text_ends[0][0]=0;
-  text_ends[0][1]=0;
-
-  num_panels++;
-
+*/
   return true;
 }
 
@@ -44,11 +37,6 @@ void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
                             uint16_t cxbr, uint16_t cybr,
                             uint16_t colour){
 
-  if(num_panels==MAX_PANELS){
-    log_write("reached MAX_PANELS\n");
-    return;
-  }
-
   float w=  (cxbr-cxtl)/(SCREEN_WIDTH *1.0f);
   float h=( (cybr-cytl)/(SCREEN_HEIGHT*1.0f))*ODD_Y_COMPENSATION;
   float x=(-1.00f+cxtl/(SCREEN_WIDTH /2.0f)+w);
@@ -58,19 +46,13 @@ void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
   log_write("g2d_internal_rectangle() %d,%d %d,%d\n", cxtl, cytl, cxbr, cybr);
   log_write("(x=%.2f,y=%.2f)(w=%.2f,h=%.2f)\n", x,y, w,h);
   #endif
-
+/*
   panel p ={
    .dimensions = { w, h, 0.03f },
    .position   = { x, y, -2.2f },
    .rotation   = { 0.0f, 0.0f, 0.0f },
   };
-
-  add_panel(&p, num_panels);
-
-  text_ends[num_panels][0]=0;
-  text_ends[num_panels][1]=0;
-
-  num_panels++;
+*/
 }
 
 
@@ -91,12 +73,7 @@ void g2d_internal_text(int16_t ox, int16_t oy,
   float h = 1.0f;
   float scale = (size/2.0f)*(w/17000.0f);
 
-  uint32_t s=num_glyphs;
-  add_text_whs(left, top, w, h, scale, text);
-  uint32_t e=num_glyphs;
-
-  text_ends[0][0]=0;
-  text_ends[0][1]=e;
+  // add_text_whs(left, top, w, h, scale, text);
 }
 
 

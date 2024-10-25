@@ -462,16 +462,16 @@ void ont_vk_prepare_descriptor_pool(bool restart) {
 
   VkDescriptorPoolSize pool_sizes[] = {
       { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-        onl_vk_max_img                 },
-      { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-        onl_vk_max_img * 3             },
+        onl_vk_max_img * 1             },
       { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
         onl_vk_max_img * TEXTURE_COUNT },
+      { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+        onl_vk_max_img * 1             },
   };
 
   VkDescriptorPoolCreateInfo descriptor_pool_ci = {
       .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-      .maxSets = (onl_vk_max_img * 3) + onl_vk_max_img + (onl_vk_max_img * TEXTURE_COUNT) + 23, //// ??
+      .maxSets = (1 + TEXTURE_COUNT + 1) * onl_vk_max_img + 23, //// ??
       .poolSizeCount = 3,
       .pPoolSizes = pool_sizes,
       .pNext = 0,

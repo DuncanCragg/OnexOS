@@ -307,14 +307,11 @@ vec3 obj_index_to_shape(int i){
 }
 
 vec2 uv_from_p_on_obj(vec3 p, int obj_index){
-
   vec3 obj_pos   = obj_index_to_pos(obj_index);
   vec3 obj_shape = obj_index_to_shape(obj_index);
-
   vec3 local_p = p - obj_pos;
-  vec2 uv;
-    uv = 0.5 - local_p.xy / obj_shape.xy;
-  return uv;
+  vec2 norm_p = local_p.xy / obj_shape.xy;
+  return ((norm_p + 1.0) / 2.0) * vec2(1,-1) + vec2(0,1);
 }
 
 const float LEFT_TOUCH_RADIUS = 0.1;

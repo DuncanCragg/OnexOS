@@ -13,26 +13,12 @@ layout(std430, binding = 2) buffer buf4 {
   cuboid cuboids[];
 } objects_buf;
 
-layout(location = 0)      in  vec2  glyph_pos;
-layout(location = 1) flat in  uvec4 cell_info;
-layout(location = 2)      in  float sharpness;
-layout(location = 3)      in  vec2  cell_coord;
-layout(location = 4)      in  vec4  texture_coord;
-layout(location = 5)      in  vec4  model_pos;
-layout(location = 6)      in  vec4  proj_pos;
-layout(location = 7) flat in  uint  phase;
-layout(location = 8)      in  vec2  left_touch;
-layout(location = 9)      in  vec2  overlay_uv;
-layout(location = 10)     in  float near;
-layout(location = 11)     in  float far;
-layout(location = 12)     in  vec3  near_point;
-layout(location = 13)     in  vec3  far_point;
-layout(location = 14)     in  mat4  view;
-layout(location = 18)     in  mat4  proj;
-layout(location = 22)     in  mat4  inv_view;
-layout(location = 26)     in  mat4  inv_proj; /// !!! too many inputs
+layout(location = 0) in  vec2  left_touch;
+layout(location = 1) in  vec2  overlay_uv;
+layout(location = 2) in  mat4  inv_view;
+layout(location = 6) in  mat4  inv_proj;
 
-layout(location = 0)      out vec4  color;
+layout(location = 0) out vec4  color;
 
 // ---------------------------------------------------
 

@@ -28,10 +28,6 @@ typedef struct {
 
 static uniform_mem_t *uniform_mem;
 
-struct push_constants {
-  uint32_t phase;
-};
-
 static VkDescriptorPool      descriptor_pool;
 static VkDescriptorSetLayout descriptor_layout;
 
@@ -588,18 +584,12 @@ void ont_vk_prepare_descriptor_layout(bool restart) {
 
 void ont_vk_prepare_pipeline_layout(bool restart) {
 
-  VkPushConstantRange push_constant_range = {
-    .offset = 0,
-    .size = sizeof(struct push_constants),
-    .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-  };
-
   VkPipelineLayoutCreateInfo pipeline_layout_ci = {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
       .setLayoutCount = 1,
       .pSetLayouts = &descriptor_layout,
-      .pPushConstantRanges = &push_constant_range,
-      .pushConstantRangeCount = 1,
+      .pPushConstantRanges = 0,
+      .pushConstantRangeCount = 0,
       .pNext = 0,
   };
 
@@ -625,36 +615,7 @@ static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
                           &uniform_mem[ii].descriptor_set,
                           0, NULL);
 
-  struct push_constants pc;
-#define DO_SDF
-#ifndef DO_SDF
-  pc.phase = 0; // ground plane
-  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
-                     sizeof(struct push_constants), &pc);
   vkCmdDraw(cmd_buf, 6, 1, 0, 0);
-
-  pc.phase = 1; // panels
-  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
-                     sizeof(struct push_constants), &pc);
-  for(uint32_t o=0; o<num_panels; o++){
-    vkCmdDraw(cmd_buf, 6*6, 1, o*6*6, o);
-  }
-
-  pc.phase = 2; // text
-  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
-                     sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 6, num_glyphs, 0, 0);
-
-  pc.phase = 3; // overlay
-  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
-                     sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 6, 1, 0, 0);
-#else
-  pc.phase = 4; // SDF
-  vkCmdPushConstants(cmd_buf, onl_vk_pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0,
-                     sizeof(struct push_constants), &pc);
-  vkCmdDraw(cmd_buf, 6, 1, 0, 0);
-#endif
 }
 
 void set_up_scene_begin(float** vertices, fd_GlyphInstance** glyphs) {

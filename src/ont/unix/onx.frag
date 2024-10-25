@@ -286,6 +286,37 @@ vec2 ray_march(vec3 ro, vec3 rd) {
   return vec2(pd, 0);
 }
 
+vec3 obj_index_to_pos(int i){
+  if(i==1) return cube1_pos;
+  if(i==2) return cube2_pos;
+  if(i==3) return sphr1_pos;
+  if(i==4) return sphr2_pos;
+  if(i==5) return cube3_pos;
+  if(i==6) return cube4_pos;
+  return vec3(0.0);
+}
+
+vec3 obj_index_to_shape(int i){
+  if(i==1) return cube1_shape;
+  if(i==2) return cube2_shape;
+  if(i==3) return vec3(0.0);
+  if(i==4) return vec3(0.0);
+  if(i==5) return cube3_shape;
+  if(i==6) return cube4_shape;
+  return vec3(0.0);
+}
+
+vec2 uv_from_p_on_obj(vec3 p, int obj_index){
+
+  vec3 obj_pos   = obj_index_to_pos(obj_index);
+  vec3 obj_shape = obj_index_to_shape(obj_index);
+
+  vec3 local_p = p - obj_pos;
+  vec2 uv;
+    uv = 0.5 - local_p.xy / obj_shape.xy;
+  return uv;
+}
+
 const float LEFT_TOUCH_RADIUS = 0.1;
 
 void main() {
@@ -327,14 +358,17 @@ void main() {
 
       } else {
 
-        vec3 normal = calc_normal(p, rd, obj_index);
-
         vec3 light_col = vec3(1.0);
-        vec3 ambient_col = vec3(0.3);
+
+        vec4 ambient_col = vec4(0.3, 0.3, 0.3, 1.0);
+
+        vec3 normal = calc_normal(p, rd, obj_index);
 
         float diffuse = max(dot(normal, light_dir), 0.0);
 
-        color = vec4(ambient_col + light_col * diffuse, 1.0);
+        vec2 texuv = uv_from_p_on_obj(p, obj_index);
+
+        color = ambient_col + diffuse * texture(tex, texuv);
       }
 
       if(in_left_touch_area) color -= vec4(0.1);

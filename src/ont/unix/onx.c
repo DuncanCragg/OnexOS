@@ -33,7 +33,10 @@ static object* oclock;
 
 static char* clockuid=0;
 
-static void every_second(){ onex_run_evaluators(clockuid, 0); }
+static void every_second(){
+  onex_run_evaluators(clockuid, 0);
+  onex_run_evaluators(useruid, 0);
+}
 
 static bool evaluate_default(object* o, void* d) {
 

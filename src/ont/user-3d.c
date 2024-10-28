@@ -47,28 +47,6 @@ static uint32_t align_uint32(uint32_t value, uint32_t alignment) {
     return (value + alignment - 1) / alignment * alignment;
 }
 
-void update_objects(){
-
-  uint32_t* size_p = (uint32_t*)objects_data;
-  *size_p = NUM_OBJECTS;
-
-  struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
-
-  obj_array[0].position[0] =  3.0f;
-  obj_array[0].position[1] =  0.2f;
-  obj_array[0].position[2] = -2.0f;
-  obj_array[0].shape[0] = 0.5f;
-  obj_array[0].shape[1] = 0.2f;
-  obj_array[0].shape[2] = 0.01f;
-
-  obj_array[1].position[0] =  7.0f;
-  obj_array[1].position[1] =  1.0f;
-  obj_array[1].position[2] = -1.0f;
-  obj_array[1].shape[0] = 2.0f;
-  obj_array[1].shape[1] = 1.0f;
-  obj_array[1].shape[2] = 0.01f;
-}
-
 // -----------------------------------------
 
 void set_proj_view() {
@@ -262,6 +240,21 @@ static bool draw_by_type(object* user, char* path) {
   return true;
 }
 
+void init_objects(){
+
+  uint32_t* size_p = (uint32_t*)objects_data;
+  *size_p = NUM_OBJECTS;
+
+  struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
+
+  obj_array[1].position[0] =  3.0f;
+  obj_array[1].position[1] =  1.0f;
+  obj_array[1].position[2] = -1.0f;
+  obj_array[1].shape[0] = 2.0f;
+  obj_array[1].shape[1] = 1.0f;
+  obj_array[1].shape[2] = 0.01f;
+}
+
 static void draw_3d(object* user, char* path){
 
   char* px=object_pathpair(user, path, "position:1");
@@ -284,9 +277,12 @@ static void draw_3d(object* user, char* path){
 
   struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
 
+  static float dibble = 0.0f;
+  dibble += 0.01f;
+
   obj_array[0].position[0] = pxval;
   obj_array[0].position[1] = pyval;
-  obj_array[0].position[2] = pzval;
+  obj_array[0].position[2] = pzval + dibble;
   obj_array[0].shape[0] = sxval;
   obj_array[0].shape[1] = syval;
   obj_array[0].shape[2] = szval;

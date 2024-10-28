@@ -338,7 +338,6 @@ void ont_vk_prepare_render_data(bool restart) {
   onl_vk_end_init_command_buffer();
 
   prepare_object_buffers();
-  init_objects();
 }
 
 void ont_vk_prepare_uniform_buffers(bool restart) {

@@ -240,21 +240,6 @@ static bool draw_by_type(object* user, char* path) {
   return true;
 }
 
-void init_objects(){
-
-  uint32_t* size_p = (uint32_t*)objects_data;
-  *size_p = NUM_OBJECTS;
-
-  struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
-
-  obj_array[1].position[0] =  3.0f;
-  obj_array[1].position[1] =  1.0f;
-  obj_array[1].position[2] = -1.0f;
-  obj_array[1].shape[0] = 2.0f;
-  obj_array[1].shape[1] = 1.0f;
-  obj_array[1].shape[2] = 0.01f;
-}
-
 static void draw_3d(object* user, char* path){
 
   char* px=object_pathpair(user, path, "position:1");
@@ -275,6 +260,11 @@ static void draw_3d(object* user, char* path){
   float syval=sy? strtof(sy,&e): 0.0;
   float szval=sz? strtof(sz,&e): 0.0;
 
+  // -----------
+
+  uint32_t* size_p = (uint32_t*)objects_data;
+  *size_p = NUM_OBJECTS;
+
   struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
 
   static float dibble = 0.0f;
@@ -286,6 +276,13 @@ static void draw_3d(object* user, char* path){
   obj_array[0].shape[0] = sxval;
   obj_array[0].shape[1] = syval;
   obj_array[0].shape[2] = szval;
+
+  obj_array[1].position[0] =  3.0f;
+  obj_array[1].position[1] =  1.0f;
+  obj_array[1].position[2] = -1.0f;
+  obj_array[1].shape[0] = 2.0f;
+  obj_array[1].shape[1] = 1.0f + dibble;
+  obj_array[1].shape[2] = 0.01f;
 }
 
 // ---------------------------------

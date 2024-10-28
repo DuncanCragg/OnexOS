@@ -110,7 +110,7 @@ Yes, it works Local-first and peer-to-peer.
 
 ----------------
 
-Read more here about the [Reality Computer](https://duncancragg.substack.com/).
+Read more here about the [Reality Computer](https://duncancragg.substack.com/about).
 
 ----------------
 

@@ -15,7 +15,7 @@ extern float  left_touch_vec[2];
 extern uint32_t objects_size;
 extern void*    objects_data;
 
-void create_objects();
+void update_objects();
 
 void set_proj_view();
 void set_up_scene_begin();

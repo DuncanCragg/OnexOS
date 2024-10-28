@@ -23,6 +23,8 @@ static uniform_mem_t *uniform_mem;
 static VkDescriptorPool      descriptor_pool;
 static VkDescriptorSetLayout descriptor_layout;
 
+void* objects_data;
+
 static VkBuffer       objects_buffer;
 static VkDeviceMemory objects_buffer_memory;
 
@@ -41,20 +43,12 @@ static void prepare_object_buffers() {
                                    &objects_buffer,
                                    &objects_buffer_memory);
 
-  void *objects_buffer_ptr;
   ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
                                 objects_buffer_memory,
                                 0,
                                 objects_size,
                                 0,
-                                &objects_buffer_ptr));
-
-  memcpy(objects_buffer_ptr, objects_data, objects_size);
-
-  vkUnmapMemory(onl_vk_device, objects_buffer_memory);
-
-  free(objects_data); //!!
-  objects_data = 0;
+                                &objects_data));
 }
 
 #define TEXTURE_COUNT 1
@@ -337,18 +331,14 @@ static void prepare_textures(){
 
 void ont_vk_prepare_render_data(bool restart) {
 
-  create_objects();
-
-  // ----------
-
   onl_vk_begin_init_command_buffer();
-
-  prepare_textures();
-
-  prepare_object_buffers();
-
+  {
+    prepare_textures();
+  }
   onl_vk_end_init_command_buffer();
 
+  prepare_object_buffers();
+  update_objects();
 }
 
 void ont_vk_prepare_uniform_buffers(bool restart) {
@@ -626,6 +616,8 @@ void ont_vk_finish_render_data() {
       vkFreeMemory(onl_vk_device, uniform_mem[i].uniform_memory, NULL);
   }
   free(uniform_mem);
+
+  vkUnmapMemory(onl_vk_device, objects_buffer_memory);
 
   // ---------------------------------
 

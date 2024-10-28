@@ -56,10 +56,13 @@ void init_onex() {
   object* home;
   object* inventory;
 
-  object* panel3d;
-  object* note;
+  object* floorpanel;
+  object* backpanel;
 
-  char* panel3duid;
+  char* floorpaneluid;
+  char* backpaneluid;
+
+  object* note;
   char* noteuid;
 
   config=onex_get_from_cache("uid-0");
@@ -75,8 +78,20 @@ void init_onex() {
     inventory=object_new(0, "editable",  "list editable", 4);
     inventoryuid=object_property(inventory, "UID");
 
-    panel3d=object_new(0, "notes", "3d text editable", 4);
-    panel3duid=object_property(panel3d, "UID");
+    // -----------
+
+    floorpanel=object_new(0, "editable", "3d cuboid", 4);
+    floorpaneluid=object_property(floorpanel, "UID");
+
+    object_property_set_list(floorpanel, "position", "0.0", "0.1", "-14.0", 0);
+    object_property_set_list(floorpanel, "shape",    "1.5", "0.1", "1.5", 0);
+
+    backpanel=object_new(0, "editable", "3d cuboid", 4);
+    backpaneluid=object_property(backpanel, "UID");
+
+    object_property_add(floorpanel, "contains", backpaneluid);
+
+    // -----------
 
     note=object_new(0, "notes", "text editable", 4);
     noteuid=object_property(note, "UID");
@@ -88,14 +103,18 @@ void init_onex() {
       word = strtok_r(0, " ", &strtok_state);
     }
 
-    object_property_add(panel3d, "contains", noteuid);
+    // -----------
 
     responses=object_new(0, "default",   "user responses", 12);
+
+    // -----------
 
     oclock=object_new(0, "clock", "clock event", 12);
     object_set_persist(oclock, "none");
     object_property_set(oclock, "title", "OnexOS Clock");
     clockuid=object_property(oclock, "UID");
+
+    // -----------
 
     object_set_evaluator(onex_device_object, "device");
     char* deviceuid=object_property(onex_device_object, "UID");
@@ -103,13 +122,17 @@ void init_onex() {
     object_property_add(onex_device_object, "user", useruid);
     object_property_add(onex_device_object, "io", clockuid);
 
+    // -----------
+
     config=object_new("uid-0", 0, "config", 10);
     object_property_set(config, "user",      useruid);
     object_property_set(config, "clock",     clockuid);
 
-    object_property_set(user, "viewing", clockuid);
+    // -----------
+
+    object_property_set(user, "viewing", floorpaneluid);
+//  object_property_set(user, "viewing", clockuid);
 //  object_property_set(user, "viewing", noteuid);
-//  object_property_set(user, "viewing", panel3duid);
 //  object_property_set(user, "viewing", deviceuid);
   }
   else{

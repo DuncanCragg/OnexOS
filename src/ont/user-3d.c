@@ -40,22 +40,17 @@ struct cuboid {
   float pad2;
 };
 
-uint32_t objects_size;
-void*    objects_data;
+#define NUM_OBJECTS 2
+uint32_t objects_size = (sizeof(uint32_t) * 4) + (sizeof(struct cuboid) * NUM_OBJECTS);
 
 static uint32_t align_uint32(uint32_t value, uint32_t alignment) {
     return (value + alignment - 1) / alignment * alignment;
 }
 
-void create_objects(){
-
-  uint32_t num_objects = 2;
-
-  objects_size = (sizeof(uint32_t) * 4) + (sizeof(struct cuboid) * num_objects);
-  objects_data = malloc(objects_size);
+void update_objects(){
 
   uint32_t* size_p = (uint32_t*)objects_data;
-  *size_p = num_objects;
+  *size_p = NUM_OBJECTS;
 
   struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
 
@@ -240,7 +235,7 @@ void ont_vk_iostate_changed() {
 // ---------------------------------
 
 static bool draw_by_type(object* user, char* path);
-static void draw_3d(char* path);
+static void draw_3d(object* user, char* path);
 
 extern bool evaluate_user_2d(object* usr, void* d);
 
@@ -262,13 +257,39 @@ bool evaluate_user(object* user, void* d) {
 
 static bool draw_by_type(object* user, char* path) {
 
-  if(object_pathpair_contains(user, path, "is", "3d")) draw_3d(path);
+  if(object_pathpair_contains(user, path, "is", "3d")) draw_3d(user, path);
   else return false;
   return true;
 }
 
-static void draw_3d(char* path){
+static void draw_3d(object* user, char* path){
 
+  char* px=object_pathpair(user, path, "position:1");
+  char* py=object_pathpair(user, path, "position:2");
+  char* pz=object_pathpair(user, path, "position:3");
+
+  char* sx=object_pathpair(user, path, "shape:1");
+  char* sy=object_pathpair(user, path, "shape:2");
+  char* sz=object_pathpair(user, path, "shape:3");
+
+  char* e;
+
+  float pxval=px? strtof(px,&e): 0.0;
+  float pyval=py? strtof(py,&e): 0.0;
+  float pzval=pz? strtof(pz,&e): 0.0;
+
+  float sxval=sx? strtof(sx,&e): 0.0;
+  float syval=sy? strtof(sy,&e): 0.0;
+  float szval=sz? strtof(sz,&e): 0.0;
+
+  struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
+
+  obj_array[0].position[0] = pxval;
+  obj_array[0].position[1] = pyval;
+  obj_array[0].position[2] = pzval;
+  obj_array[0].shape[0] = sxval;
+  obj_array[0].shape[1] = syval;
+  obj_array[0].shape[2] = szval;
 }
 
 // ---------------------------------

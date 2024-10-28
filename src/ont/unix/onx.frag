@@ -24,13 +24,13 @@ layout(location = 0) out vec4  color;
 
 vec3 cube1_pos = objects_buf.cuboids[0].position;
 vec3 cube2_pos = objects_buf.cuboids[1].position;
-vec3 cube3_pos = vec3( -3.0,  1.6, -14.0);
-vec3 cube4_pos = vec3(  3.0,  1.6, -14.0);
+vec3 cube3_pos = vec3( -3.0,  1.5, -14.0);
+vec3 cube4_pos = vec3(  3.0,  1.5, -14.0);
 
 vec3 cube1_shape = objects_buf.cuboids[0].shape;
 vec3 cube2_shape = objects_buf.cuboids[1].shape;
-vec3 cube3_shape = vec3(1.5, 1.6, 0.10);
-vec3 cube4_shape = vec3(1.5, 1.6, 0.10);
+vec3 cube3_shape = vec3(1.5, 1.5, 0.1);
+vec3 cube4_shape = vec3(1.5, 1.5, 0.1);
 
 vec3 sphr1_pos = vec3( 0.0, 0.5, 0.0);
 vec3 sphr2_pos = vec3(-3.0, 5.0, 5.0);

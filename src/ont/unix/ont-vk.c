@@ -210,6 +210,8 @@ static void prepare_texture_buffer(char *filename, struct texture_object *textur
 
 static void prepare_textures(){
 
+    onl_vk_begin_init_command_buffer();
+
     uint32_t i;
 
     for (i = 0; i < TEXTURE_COUNT; i++) {
@@ -327,16 +329,12 @@ static void prepare_textures(){
         ONL_VK_CHECK_EXIT(vkCreateImageView(onl_vk_device, &image_view_ci,
                                             0, &textures[i].image_view));
     }
+
+    onl_vk_end_init_command_buffer();
 }
 
 void ont_vk_prepare_render_data(bool restart) {
-
-  onl_vk_begin_init_command_buffer();
-  {
-    prepare_textures();
-  }
-  onl_vk_end_init_command_buffer();
-
+  prepare_textures();
   prepare_object_buffers();
 }
 

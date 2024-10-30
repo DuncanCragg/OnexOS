@@ -155,6 +155,7 @@ static void best_propname_for_link_drop(char* propname, uint16_t len, uint16_t i
   *(propname+s-1)=0;
 }
 
+#if defined(LOG_TO_GFX)
 static void show_gfx_log(uint8_t root_g2d_node){
 
   uint64_t pre_render_time=time_ms();
@@ -203,6 +204,7 @@ static void show_gfx_log(uint8_t root_g2d_node){
     }
   }
 }
+#endif
 
 static void show_touch_point(uint8_t g2d_node){
   g2d_node_rectangle(g2d_node, 0,touch_info.y, 240,1, G2D_MAGENTA);

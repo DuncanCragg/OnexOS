@@ -614,7 +614,9 @@ void ont_vk_finish_render_data() {
   }
   free(uniform_mem);
 
+  vkDestroyBuffer(onl_vk_device, objects_buffer, NULL);
   vkUnmapMemory(onl_vk_device, objects_buffer_memory);
+  vkFreeMemory(onl_vk_device, objects_buffer_memory, NULL);
 
   // ---------------------------------
 

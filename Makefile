@@ -76,21 +76,23 @@ LIBS_ONX_DRM = \
 
 onx-xcb: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
 onx-xcb: INC_DIR=${INC_DIRS}
-onx-xcb: LDX=gcc
+onx-xcb: CC=gcc
+onx-xcb: LD=gcc
 onx-xcb: ${SOURCES_ONX:.c=.o} ${HEADERS_ONX} ${SHADERS:.spv=.o}
 	@echo ================
 	@echo $@ '<=' ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o}
 	@echo -----
-	$(LDX) -o $@ ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIRS) $(LIBS_ONX_XCB)
+	$(LD) -o $@ ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIRS) $(LIBS_ONX_XCB)
 
 onx-drm: CONFIGFLAGS=-DVK_USE_PLATFORM_DISPLAY_KHR
 onx-drm: INC_DIR=${INC_DIRS}
-onx-drm: LDX=gcc
+onx-xcb: CC=gcc
+onx-xcb: LD=gcc
 onx-drm: ${SOURCES_ONX:.c=.o} ${HEADERS_ONX} ${SHADERS:.spv=.o}
 	@echo ================
 	@echo $@ '<=' ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o}
 	@echo -----
-	$(LDX) -o $@ ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIRS) $(LIBS_ONX_DRM)
+	$(LD) -o $@ ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o} $(LIB_DIRS) $(LIBS_ONX_DRM)
 
 shaderc: ${SHADERS:.spv=.c}
 	@echo ================

@@ -96,10 +96,21 @@ shaderc: ${SHADERS:.spv=.c}
 	@echo ================
 	@echo $@ '<=' ${SHADERS:.spv=.c}
 
+run.xcb: onx-xcb
+	rm -f onex.ondb
+	sudo prlimit --core=unlimited ./onx-xcb
+
+run.valgrind: onx-xcb
+	rm -f onex.ondb
+	valgrind --leak-check=yes --undef-value-errors=no ./onx-xcb
+
 #-------------------------------------------------------------------------------
 
-CCFLAGS  = -std=gnu17 -g -O2 -pthread -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-switch
-CPPFLAGS = -std=gnu++17 -g -O2 -pthread -Wall -Werror -Wextra -Wno-unused-parameter
+DOBUG_FLAGS= -g     -O2
+DEBUG_FLAGS= -ggdb3 -O0
+
+CCFLAGS  = $(DEBUG_FLAGS) -std=gnu17 -pthread -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-switch
+CPPFLAGS = $(DEBUG_FLAGS) -std=gnu++17 -pthread -Wall -Werror -Wextra -Wno-unused-parameter
 
 %.o: %.c
 	@echo ================
@@ -141,7 +152,7 @@ clean:
 	find . -name '*.o' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
 	rm -rf ${TARGETS} src/ont/unix/*.{inc,spv,vert.c,frag.c} onx/
-	rm -f core bin/core
+	rm -f core.*
 	@echo "------------------------------"
 	@echo "files not cleaned:"
 	@git ls-files --others --exclude-from=.git/info/exclude | xargs -r ls -Fla

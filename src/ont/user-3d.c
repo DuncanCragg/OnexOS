@@ -253,13 +253,29 @@ static void draw_3d(object* user, char* path){
 
   char* e;
 
-  float pxval=px? strtof(px,&e): 0.0;
-  float pyval=py? strtof(py,&e): 0.0;
-  float pzval=pz? strtof(pz,&e): 0.0;
+  float px1val=px? strtof(px,&e): 0.0;
+  float py1val=py? strtof(py,&e): 0.0;
+  float pz1val=pz? strtof(pz,&e): 0.0;
 
-  float sxval=sx? strtof(sx,&e): 0.0;
-  float syval=sy? strtof(sy,&e): 0.0;
-  float szval=sz? strtof(sz,&e): 0.0;
+  float sx1val=sx? strtof(sx,&e): 0.0;
+  float sy1val=sy? strtof(sy,&e): 0.0;
+  float sz1val=sz? strtof(sz,&e): 0.0;
+
+        px=object_pathpair(user, path, "contains:position:1");
+        py=object_pathpair(user, path, "contains:position:2");
+        pz=object_pathpair(user, path, "contains:position:3");
+
+        sx=object_pathpair(user, path, "contains:shape:1");
+        sy=object_pathpair(user, path, "contains:shape:2");
+        sz=object_pathpair(user, path, "contains:shape:3");
+
+  float px2val=px? strtof(px,&e): 0.0;
+  float py2val=py? strtof(py,&e): 0.0;
+  float pz2val=pz? strtof(pz,&e): 0.0;
+
+  float sx2val=sx? strtof(sx,&e): 0.0;
+  float sy2val=sy? strtof(sy,&e): 0.0;
+  float sz2val=sz? strtof(sz,&e): 0.0;
 
   // -----------
 
@@ -271,19 +287,20 @@ static void draw_3d(object* user, char* path){
   static float dibble = 0.0f;
   dibble += 0.01f;
 
-  obj_array[0].position[0] = pxval;
-  obj_array[0].position[1] = pyval;
-  obj_array[0].position[2] = pzval + dibble;
-  obj_array[0].shape[0] = sxval;
-  obj_array[0].shape[1] = syval;
-  obj_array[0].shape[2] = szval;
+  obj_array[0].position[0] = px1val;
+  obj_array[0].position[1] = py1val;
+  obj_array[0].position[2] = pz1val + dibble;
+  obj_array[0].shape[0]    = sx1val;
+  obj_array[0].shape[1]    = sy1val;
+  obj_array[0].shape[2]    = sz1val;
 
-  obj_array[1].position[0] =  3.0f;
-  obj_array[1].position[1] =  1.0f;
-  obj_array[1].position[2] = -1.0f;
-  obj_array[1].shape[0] = 2.0f;
-  obj_array[1].shape[1] = 1.0f + dibble;
-  obj_array[1].shape[2] = 0.01f;
+  obj_array[1].position[0] = px2val;
+  obj_array[1].position[1] = py2val;
+  obj_array[1].position[2] = pz2val + dibble;
+  obj_array[1].shape[0]    = sx2val;
+  obj_array[1].shape[1]    = sy2val;
+  obj_array[1].shape[2]    = sz2val;
+
 }
 
 // ---------------------------------

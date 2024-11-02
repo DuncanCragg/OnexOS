@@ -92,6 +92,9 @@ void init_onex() {
     backpanel=object_new(0, "editable", "3d cuboid", 4);
     backpaneluid=object_property(backpanel, "UID");
 
+    object_property_set_list(backpanel, "position", "0.0", "1.5", "-15.5", 0);
+    object_property_set_list(backpanel, "shape",    "1.5", "1.5", "0.1", 0);
+
     object_property_add(floorpanel, "contains", backpaneluid);
 
     // -----------

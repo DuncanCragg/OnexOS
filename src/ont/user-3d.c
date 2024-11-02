@@ -221,14 +221,15 @@ bool evaluate_user(object* user, void* d) {
 
   bool r = true;
 
-  set_up_scene_begin();
+  if(set_up_scene_begin()){
 
-  if(!draw_by_type(user, "viewing")){
+    if(!draw_by_type(user, "viewing")){
+   
+      r = evaluate_user_2d(user, d);
+    }
 
-    r = evaluate_user_2d(user, d);
+    set_up_scene_end();
   }
-
-  set_up_scene_end();
 
   return r;
 }

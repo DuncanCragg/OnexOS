@@ -426,10 +426,13 @@ static void do_cmd_buf_draw(uint32_t ii, VkCommandBuffer cmd_buf) {
   vkCmdDraw(cmd_buf, 6, 1, 0, 0);
 }
 
-void set_up_scene_begin() {
-
-  pthread_mutex_lock(&onl_vk_scene_lock);
-  onl_vk_scene_ready = false;
+bool set_up_scene_begin() {
+  pthread_mutex_lock(&onl_vk_render_stage_lock);
+  if(onl_vk_render_stage == ONL_VK_RENDER_STAGE_FINISHING){
+    pthread_mutex_unlock(&onl_vk_render_stage_lock);
+    return false;
+  }
+  return true;
 }
 
 void set_up_scene_end() {
@@ -441,8 +444,8 @@ void set_up_scene_end() {
       onl_vk_end_cmd_buf_and_render_pass(ii, cmd_buf);
   }
 
-  onl_vk_scene_ready = true;
-  pthread_mutex_unlock(&onl_vk_scene_lock);
+  onl_vk_render_stage = ONL_VK_RENDER_STAGE_RUNNING;
+  pthread_mutex_unlock(&onl_vk_render_stage_lock);
 }
 
 void ont_vk_prepare_descriptor_pool(bool restart) {
@@ -596,10 +599,6 @@ void ont_vk_update_uniforms() {
 // ----------------------------------------------------------------------------------------
 
 void ont_vk_finish_render_data() {
-
-  onl_vk_scene_ready = false;
-
-  // ---------------------------------
 
   vkDestroyDescriptorPool(onl_vk_device, descriptor_pool, NULL);
   vkDestroyDescriptorSetLayout(onl_vk_device, descriptor_layout, NULL);

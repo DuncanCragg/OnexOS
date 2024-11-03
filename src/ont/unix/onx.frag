@@ -21,25 +21,10 @@ layout(location = 6) in  mat4  inv_proj;
 layout(location = 0) out vec4  color;
 
 // ---------------------------------------------------
-/*
-vec3 sphr1_pos = vec3( 0.0, 0.5, 0.0);
-vec3 sphr2_pos = vec3(-3.0, 5.0, 5.0);
-
-float sphr1_radius = 0.5;
-float sphr2_radius = 5.0;
-
-vec3 glph1_pos = objects_buf.cuboids[1].position +
-                 objects_buf.cuboids[1].shape * vec3(0,0,-1.00001);
-vec2 glph1_shape = vec2(0.5, 0.5);
-*/
-
-float plane_height = 0.0;
-
-// ---------------------------------------------------
 
 float ray_plane_intersection(vec3 ro, vec3 rd) {
   if(abs(rd.y) > 0.001) {
-    float t = (plane_height - ro.y) / rd.y;
+    float t = -ro.y / rd.y;
     if(t > 0.0) return t;
   }
   return -1.0;
@@ -148,15 +133,6 @@ int narrow_objects(vec3 ro, vec3 rd) {
   return num_to_scan;
 }
 
-/*
-  objects[3]=ray_hits_sphere(ro, rd, sphr1_pos, sphr1_radius);
-  objects[4]=ray_hits_sphere(ro, rd, sphr2_pos, sphr2_radius);
-  objects[7]=ray_hits_sphere(ro, rd, glph1_pos, max_cube_radius(vec3(glph1_shape,0.0)));
-  objects[7]=ray_hits_cuboid(ro, rd, glph1_pos, vec3(glph1_shape,0.0));
-
-      if(i==3 || i==4) num_to_scan++;
-*/
-
 vec2 scene_sdf(vec3 p, vec3 rd, bool fast) {
 
   float d = 1e6;
@@ -171,21 +147,6 @@ vec2 scene_sdf(vec3 p, vec3 rd, bool fast) {
   }
   return vec2(d,n);
 }
-
-/*
-  if (objects[3]) {
-    s = sdf_sphere(p, sphr1_pos, sphr1_radius);
-    if(s<d){ d=s; n=3; }
-  }
-  if (objects[4]) {
-    s = sdf_sphere(p, sphr2_pos, sphr2_radius);
-    if(s<d){ d=s; n=4; }
-  }
-  if (objects[7]) {
-    s = sdf_glyph(p, rd, glph1_pos, glph1_shape, fast);
-    if(s<d){ d=s; n=7; }
-  }
-*/
 
 float scene_sdf_fine(vec3 p, vec3 rd){
   return scene_sdf(p, rd, false)[0];
@@ -315,12 +276,7 @@ void main() {
 
         float shadows = 0.8 + 0.2 * soft_shadows(p, light_dir, 16.0);
         color = vec4(grid_pattern(p) * shadows, 1.0);
-/*
-      } else
-      if(obj_index == 7){
 
-        color = vec4(0,0,0,1);
-*/
       } else {
 
         vec3 light_col = vec3(1.0);

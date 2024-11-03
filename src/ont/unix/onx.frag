@@ -129,6 +129,11 @@ bool ray_hits_sphere(vec3 ro, vec3 rd, vec3 center, float radius) {
   return h >= 0.0;
 }
 
+bool ray_hits_cuboid(vec3 ro, vec3 rd, vec3 pos, vec3 shape) {
+  float s = sdf_cuboid(ro, rd, pos, shape, true);
+  return s < 1e6;
+}
+
 const int NUM_OBJECTS = 10; // !!
 
 int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS], bool really) {
@@ -137,13 +142,14 @@ int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS], bool really)
   if(!really) return NUM_OBJECTS;
 
   for(int i = 0; i < objects_buf.size; i++){
-    objects[i]=ray_hits_sphere(ro, rd,         objects_buf.cuboids[i].position,
-                               max_cube_radius(objects_buf.cuboids[i].shape));
+    objects[i]=ray_hits_cuboid(ro, rd, objects_buf.cuboids[i].position,
+                                       objects_buf.cuboids[i].shape);
   }
 /*
   objects[3]=ray_hits_sphere(ro, rd, sphr1_pos, sphr1_radius);
   objects[4]=ray_hits_sphere(ro, rd, sphr2_pos, sphr2_radius);
   objects[7]=ray_hits_sphere(ro, rd, glph1_pos, max_cube_radius(vec3(glph1_shape,0.0)));
+  objects[7]=ray_hits_cuboid(ro, rd, glph1_pos, vec3(glph1_shape,0.0));
 */
 
   int num_to_scan = 0;

@@ -21,17 +21,7 @@ layout(location = 6) in  mat4  inv_proj;
 layout(location = 0) out vec4  color;
 
 // ---------------------------------------------------
-
-vec3 cube1_pos = objects_buf.cuboids[0].position;
-vec3 cube2_pos = objects_buf.cuboids[1].position;
-vec3 cube3_pos = objects_buf.cuboids[2].position;
-vec3 cube4_pos = objects_buf.cuboids[3].position;
-
-vec3 cube1_shape = objects_buf.cuboids[0].shape;
-vec3 cube2_shape = objects_buf.cuboids[1].shape;
-vec3 cube3_shape = objects_buf.cuboids[2].shape;
-vec3 cube4_shape = objects_buf.cuboids[3].shape;
-
+/*
 vec3 sphr1_pos = vec3( 0.0, 0.5, 0.0);
 vec3 sphr2_pos = vec3(-3.0, 5.0, 5.0);
 
@@ -41,6 +31,7 @@ float sphr2_radius = 5.0;
 vec3 glph1_pos = objects_buf.cuboids[1].position +
                  objects_buf.cuboids[1].shape * vec3(0,0,-1.00001);
 vec2 glph1_shape = vec2(0.5, 0.5);
+*/
 
 float plane_height = 0.0;
 
@@ -138,26 +129,28 @@ bool ray_hits_sphere(vec3 ro, vec3 rd, vec3 center, float radius) {
   return h >= 0.0;
 }
 
-const int NUM_OBJECTS = 10;
+const int NUM_OBJECTS = 10; // !!
 
 int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS], bool really) {
 
   for (int i = 0; i < NUM_OBJECTS; i++) objects[i] = !really;
   if(!really) return NUM_OBJECTS;
 
-  objects[1]=ray_hits_sphere(ro, rd, cube1_pos, max_cube_radius(cube1_shape));
-  objects[2]=ray_hits_sphere(ro, rd, cube2_pos, max_cube_radius(cube2_shape));
+  for(int i = 0; i < objects_buf.size; i++){
+    objects[i]=ray_hits_sphere(ro, rd,         objects_buf.cuboids[i].position,
+                               max_cube_radius(objects_buf.cuboids[i].shape));
+  }
+/*
   objects[3]=ray_hits_sphere(ro, rd, sphr1_pos, sphr1_radius);
   objects[4]=ray_hits_sphere(ro, rd, sphr2_pos, sphr2_radius);
-  objects[5]=ray_hits_sphere(ro, rd, cube3_pos, max_cube_radius(cube3_shape));
-  objects[6]=ray_hits_sphere(ro, rd, cube4_pos, max_cube_radius(cube4_shape));
   objects[7]=ray_hits_sphere(ro, rd, glph1_pos, max_cube_radius(vec3(glph1_shape,0.0)));
+*/
 
   int num_to_scan = 0;
   for (int i = 0; i < NUM_OBJECTS; i++){
     if(objects[i]){
       num_to_scan++;
-      if(i==3 || i==4) num_to_scan++;
+//    if(i==3 || i==4) num_to_scan++;
     }
   }
   return num_to_scan;
@@ -168,16 +161,14 @@ vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS], bool fast) {
   float d = 1e6;
   int   n = -1;
 
-  float s;
-
-  if (objects[1]) {
-    s = sdf_cuboid(p, rd, cube1_pos, cube1_shape, fast);
-    if(s<d){ d=s; n=1; }
+  for(int i = 0; i < objects_buf.size; i++){
+    if(objects[i]) {
+      float s = sdf_cuboid(p, rd, objects_buf.cuboids[i].position,
+                                  objects_buf.cuboids[i].shape, fast);
+      if(s<d){ d=s; n=i; }
+    }
   }
-  if (objects[2]) {
-    s = sdf_cuboid(p, rd, cube2_pos, cube2_shape, fast);
-    if(s<d){ d=s; n=2; }
-  }
+/*
   if (objects[3]) {
     s = sdf_sphere(p, sphr1_pos, sphr1_radius);
     if(s<d){ d=s; n=3; }
@@ -186,19 +177,11 @@ vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS], bool fast) {
     s = sdf_sphere(p, sphr2_pos, sphr2_radius);
     if(s<d){ d=s; n=4; }
   }
-  if (objects[5]) {
-    s = sdf_cuboid(p, rd, cube3_pos, cube3_shape, fast);
-    if(s<d){ d=s; n=5; }
-  }
-  if (objects[6]) {
-    s = sdf_cuboid(p, rd, cube4_pos, cube4_shape, fast);
-    if(s<d){ d=s; n=6; }
-  }
   if (objects[7]) {
     s = sdf_glyph(p, rd, glph1_pos, glph1_shape, fast);
     if(s<d){ d=s; n=7; }
   }
-
+*/
   return vec2(d,n);
 }
 
@@ -210,30 +193,36 @@ vec2 scene_sdf_fast(vec3 p, vec3 rd, bool objects[NUM_OBJECTS]){
   return scene_sdf(p, rd, objects, true);
 }
 
-float sdf_norm(vec3 p, vec3 rd, int obj){
+float sdf_norm(vec3 p, vec3 rd, int obj_index){
 
   bool objects[NUM_OBJECTS];
   for (int i = 0; i < NUM_OBJECTS; i++) objects[i] = false;
-  objects[obj] = true;
+  objects[obj_index] = true;
 
   return scene_sdf_fine(p, rd, objects);
 }
 
-vec3 calc_normal_trad(vec3 p, vec3 rd, int obj) {
+vec3 calc_normal_trad(vec3 p, vec3 rd, int obj_index) {
   float e = 0.001;
   return normalize(vec3(
-    sdf_norm(p+vec3(e, 0.0, 0.0), rd, obj)-sdf_norm(p-vec3(e, 0.0, 0.0), rd, obj),
-    sdf_norm(p+vec3(0.0, e, 0.0), rd, obj)-sdf_norm(p-vec3(0.0, e, 0.0), rd, obj),
-    sdf_norm(p+vec3(0.0, 0.0, e), rd, obj)-sdf_norm(p-vec3(0.0, 0.0, e), rd, obj)
+
+    sdf_norm(p+vec3(e, 0.0, 0.0), rd, obj_index) -
+    sdf_norm(p-vec3(e, 0.0, 0.0), rd, obj_index),
+
+    sdf_norm(p+vec3(0.0, e, 0.0), rd, obj_index) -
+    sdf_norm(p-vec3(0.0, e, 0.0), rd, obj_index),
+
+    sdf_norm(p+vec3(0.0, 0.0, e), rd, obj_index) -
+    sdf_norm(p-vec3(0.0, 0.0, e), rd, obj_index)
   ));
 }
 
-vec3 calc_normal(vec3 p, vec3 rd, int obj) {
+vec3 calc_normal(vec3 p, vec3 rd, int obj_index) {
   vec2 e = vec2(.01, 0);
-  return normalize(sdf_norm(p,       rd, obj) -
-              vec3(sdf_norm(p-e.xyy, rd, obj),
-                   sdf_norm(p-e.yxy, rd, obj),
-                   sdf_norm(p-e.yyx, rd, obj)));
+  return normalize(sdf_norm(p,       rd, obj_index) -
+              vec3(sdf_norm(p-e.xyy, rd, obj_index),
+                   sdf_norm(p-e.yxy, rd, obj_index),
+                   sdf_norm(p-e.yyx, rd, obj_index)));
 }
 
 float soft_shadows(vec3 ro, vec3 rd, float hardness) {
@@ -266,7 +255,7 @@ vec2 ray_march(vec3 ro, vec3 rd) {
 
   bool objects[NUM_OBJECTS];
   int num_to_scan = narrow_objects(ro, rd, objects, true);
-  if(num_to_scan == 0) return vec2(pd, 0);
+  if(num_to_scan == 0) return vec2(pd, -1);
 
   float dist = 0.0;
 
@@ -277,38 +266,18 @@ vec2 ray_march(vec3 ro, vec3 rd) {
     vec3 p = ro + rd * dist;
     vec2 dn = scene_sdf_fast(p, rd, objects);
 
-    if (pd > 0.0 && pd < dn[0]) return vec2(pd, 0);
+    if (pd > 0.0 && pd < dn[0]) return vec2(pd, -1);
 
     if (dn[0] < 0.001) return vec2(dist, dn[1]);
 
     dist += dn[0];
   }
-  return vec2(pd, 0);
-}
-
-vec3 obj_index_to_pos(int i){
-  if(i==1) return cube1_pos;
-  if(i==2) return cube2_pos;
-  if(i==3) return sphr1_pos;
-  if(i==4) return sphr2_pos;
-  if(i==5) return cube3_pos;
-  if(i==6) return cube4_pos;
-  return vec3(0.0);
-}
-
-vec3 obj_index_to_shape(int i){
-  if(i==1) return cube1_shape;
-  if(i==2) return cube2_shape;
-  if(i==3) return vec3(0.0);
-  if(i==4) return vec3(0.0);
-  if(i==5) return cube3_shape;
-  if(i==6) return cube4_shape;
-  return vec3(0.0);
+  return vec2(pd, -1);
 }
 
 vec2 uv_from_p_on_obj(vec3 p, int obj_index){
-  vec3 obj_pos   = obj_index_to_pos(obj_index);
-  vec3 obj_shape = obj_index_to_shape(obj_index);
+  vec3 obj_pos   = objects_buf.cuboids[obj_index].position;
+  vec3 obj_shape = objects_buf.cuboids[obj_index].shape;
   vec3 local_p = p - obj_pos;
   vec2 norm_p = local_p.xy / obj_shape.xy;
   return ((norm_p + 1.0) / 2.0) * vec2(1,-1) + vec2(0,1);
@@ -343,16 +312,16 @@ void main() {
 
       int obj_index = int(dn[1]);
 
-      if(obj_index == 0){
+      if(obj_index == -1){
 
         float shadows = 0.8 + 0.2 * soft_shadows(p, light_dir, 16.0);
         color = vec4(grid_pattern(p) * shadows, 1.0);
-
+/*
       } else
       if(obj_index == 7){
 
         color = vec4(0,0,0,1);
-
+*/
       } else {
 
         vec3 light_col = vec3(1.0);

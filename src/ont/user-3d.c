@@ -269,29 +269,44 @@ static void draw_3d(object* user, char* path){
 
   // -----------
 
-  uint32_t num_objects = 3;
-  uint32_t* size_p = (uint32_t*)objects_data;
-  *size_p = num_objects;
-
   struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
 
   static float dibble = 0.0f;
   dibble += 0.01f;
 
-  obj_array[0].position[0] = px1val;
-  obj_array[0].position[1] = py1val;
-  obj_array[0].position[2] = pz1val + dibble;
-  obj_array[0].shape[0]    = sx1val;
-  obj_array[0].shape[1]    = sy1val;
-  obj_array[0].shape[2]    = sz1val;
+  uint32_t num_objects = 0;
 
-  obj_array[1].position[0] = px2val;
-  obj_array[1].position[1] = py2val;
-  obj_array[1].position[2] = pz2val + dibble;
-  obj_array[1].shape[0]    = sx2val;
-  obj_array[1].shape[1]    = sy2val;
-  obj_array[1].shape[2]    = sz2val;
+  obj_array[num_objects].position[0] = px1val;
+  obj_array[num_objects].position[1] = py1val;
+  obj_array[num_objects].position[2] = pz1val + dibble;
+  obj_array[num_objects].shape[0]    = sx1val;
+  obj_array[num_objects].shape[1]    = sy1val;
+  obj_array[num_objects].shape[2]    = sz1val;
 
+  num_objects++;
+
+  obj_array[num_objects].position[0] = px2val;
+  obj_array[num_objects].position[1] = py2val;
+  obj_array[num_objects].position[2] = pz2val + dibble;
+  obj_array[num_objects].shape[0]    = sx2val;
+  obj_array[num_objects].shape[1]    = sy2val;
+  obj_array[num_objects].shape[2]    = sz2val;
+
+  num_objects++;
+
+  while(num_objects < 4){
+
+    obj_array[num_objects].position[0] = px2val + num_objects * 3;
+    obj_array[num_objects].position[1] = py2val;
+    obj_array[num_objects].position[2] = pz2val + num_objects * 3;
+    obj_array[num_objects].shape[0]    = sx2val;
+    obj_array[num_objects].shape[1]    = sy2val;
+    obj_array[num_objects].shape[2]    = sz2val;
+
+    num_objects++;
+  }
+  uint32_t* size_p = (uint32_t*)objects_data;
+  *size_p = num_objects;
 }
 
 // ---------------------------------

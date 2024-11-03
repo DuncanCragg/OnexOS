@@ -23,8 +23,7 @@ static uniform_mem_t *uniform_mem;
 static VkDescriptorPool      descriptor_pool;
 static VkDescriptorSetLayout descriptor_layout;
 
-void* objects_data;
-
+void*                 objects_data;
 static VkBuffer       objects_buffer;
 static VkDeviceMemory objects_buffer_memory;
 
@@ -32,7 +31,7 @@ static void prepare_object_buffers() {
 
   VkBufferCreateInfo objects_ci = {
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-    .size = objects_size,
+    .size = OBJECTS_SIZE,
     .usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
     .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
   };
@@ -46,7 +45,7 @@ static void prepare_object_buffers() {
   ONL_VK_CHECK_EXIT(vkMapMemory(onl_vk_device,
                                 objects_buffer_memory,
                                 0,
-                                objects_size,
+                                OBJECTS_SIZE,
                                 0,
                                 &objects_data));
 }
@@ -498,7 +497,7 @@ void ont_vk_prepare_descriptor_set(bool restart) {
   VkDescriptorBufferInfo objects_info = {
     .buffer = objects_buffer,
     .offset = 0,
-    .range = objects_size, // VK_WHOLE_SIZE?
+    .range = OBJECTS_SIZE, // VK_WHOLE_SIZE?
   };
 
   VkWriteDescriptorSet writes[] = {

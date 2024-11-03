@@ -33,16 +33,6 @@ static vec3  up = { 0.0f, -1.0, 0.0 };
 
 // ---------------------------------
 
-struct cuboid {
-  float position[3];
-  float pad1;
-  float shape[3];
-  float pad2;
-};
-
-#define NUM_OBJECTS 2
-uint32_t objects_size = (sizeof(uint32_t) * 4) + (sizeof(struct cuboid) * NUM_OBJECTS);
-
 static uint32_t align_uint32(uint32_t value, uint32_t alignment) {
     return (value + alignment - 1) / alignment * alignment;
 }
@@ -279,8 +269,9 @@ static void draw_3d(object* user, char* path){
 
   // -----------
 
+  uint32_t num_objects = 3;
   uint32_t* size_p = (uint32_t*)objects_data;
-  *size_p = NUM_OBJECTS;
+  *size_p = num_objects;
 
   struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
 

@@ -134,35 +134,30 @@ bool ray_hits_cuboid(vec3 ro, vec3 rd, vec3 pos, vec3 shape) {
   return s < 1e6;
 }
 
-const int NUM_OBJECTS = 10; // !!
+const int NUM_OBJECTS = 32; // !!
+bool objects[NUM_OBJECTS];
 
-int narrow_objects(vec3 ro, vec3 rd, out bool objects[NUM_OBJECTS], bool really) {
+int narrow_objects(vec3 ro, vec3 rd) {
 
-  for (int i = 0; i < NUM_OBJECTS; i++) objects[i] = !really;
-  if(!really) return NUM_OBJECTS;
-
+  int num_to_scan = 0;
   for(int i = 0; i < objects_buf.size; i++){
     objects[i]=ray_hits_cuboid(ro, rd, objects_buf.cuboids[i].position,
                                        objects_buf.cuboids[i].shape);
+    if(objects[i]) num_to_scan++;
   }
+  return num_to_scan;
+}
+
 /*
   objects[3]=ray_hits_sphere(ro, rd, sphr1_pos, sphr1_radius);
   objects[4]=ray_hits_sphere(ro, rd, sphr2_pos, sphr2_radius);
   objects[7]=ray_hits_sphere(ro, rd, glph1_pos, max_cube_radius(vec3(glph1_shape,0.0)));
   objects[7]=ray_hits_cuboid(ro, rd, glph1_pos, vec3(glph1_shape,0.0));
+
+      if(i==3 || i==4) num_to_scan++;
 */
 
-  int num_to_scan = 0;
-  for (int i = 0; i < NUM_OBJECTS; i++){
-    if(objects[i]){
-      num_to_scan++;
-//    if(i==3 || i==4) num_to_scan++;
-    }
-  }
-  return num_to_scan;
-}
-
-vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS], bool fast) {
+vec2 scene_sdf(vec3 p, vec3 rd, bool fast) {
 
   float d = 1e6;
   int   n = -1;
@@ -174,6 +169,9 @@ vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS], bool fast) {
       if(s<d){ d=s; n=i; }
     }
   }
+  return vec2(d,n);
+}
+
 /*
   if (objects[3]) {
     s = sdf_sphere(p, sphr1_pos, sphr1_radius);
@@ -188,53 +186,49 @@ vec2 scene_sdf(vec3 p, vec3 rd, bool objects[NUM_OBJECTS], bool fast) {
     if(s<d){ d=s; n=7; }
   }
 */
-  return vec2(d,n);
+
+float scene_sdf_fine(vec3 p, vec3 rd){
+  return scene_sdf(p, rd, false)[0];
 }
 
-float scene_sdf_fine(vec3 p, vec3 rd, bool objects[NUM_OBJECTS]){
-  return scene_sdf(p, rd, objects, false)[0];
-}
-
-vec2 scene_sdf_fast(vec3 p, vec3 rd, bool objects[NUM_OBJECTS]){
-  return scene_sdf(p, rd, objects, true);
-}
-
-float sdf_norm(vec3 p, vec3 rd, int obj_index){
-
-  bool objects[NUM_OBJECTS];
-  for (int i = 0; i < NUM_OBJECTS; i++) objects[i] = false;
-  objects[obj_index] = true;
-
-  return scene_sdf_fine(p, rd, objects);
+vec2 scene_sdf_fast(vec3 p, vec3 rd){
+  return scene_sdf(p, rd, true);
 }
 
 vec3 calc_normal_trad(vec3 p, vec3 rd, int obj_index) {
+
+  for (int i = 0; i < objects_buf.size; i++) objects[i] = false;
+  objects[obj_index] = true;
+
   float e = 0.001;
   return normalize(vec3(
 
-    sdf_norm(p+vec3(e, 0.0, 0.0), rd, obj_index) -
-    sdf_norm(p-vec3(e, 0.0, 0.0), rd, obj_index),
+    scene_sdf_fine(p+vec3(e, 0.0, 0.0), rd) -
+    scene_sdf_fine(p-vec3(e, 0.0, 0.0), rd),
 
-    sdf_norm(p+vec3(0.0, e, 0.0), rd, obj_index) -
-    sdf_norm(p-vec3(0.0, e, 0.0), rd, obj_index),
+    scene_sdf_fine(p+vec3(0.0, e, 0.0), rd) -
+    scene_sdf_fine(p-vec3(0.0, e, 0.0), rd),
 
-    sdf_norm(p+vec3(0.0, 0.0, e), rd, obj_index) -
-    sdf_norm(p-vec3(0.0, 0.0, e), rd, obj_index)
+    scene_sdf_fine(p+vec3(0.0, 0.0, e), rd) -
+    scene_sdf_fine(p-vec3(0.0, 0.0, e), rd)
   ));
 }
 
 vec3 calc_normal(vec3 p, vec3 rd, int obj_index) {
+
+  for (int i = 0; i < objects_buf.size; i++) objects[i] = false;
+  objects[obj_index] = true;
+
   vec2 e = vec2(.01, 0);
-  return normalize(sdf_norm(p,       rd, obj_index) -
-              vec3(sdf_norm(p-e.xyy, rd, obj_index),
-                   sdf_norm(p-e.yxy, rd, obj_index),
-                   sdf_norm(p-e.yyx, rd, obj_index)));
+  return normalize(scene_sdf_fine(p,       rd) -
+              vec3(scene_sdf_fine(p-e.xyy, rd),
+                   scene_sdf_fine(p-e.yxy, rd),
+                   scene_sdf_fine(p-e.yyx, rd)));
 }
 
 float soft_shadows(vec3 ro, vec3 rd, float hardness) {
 
-  bool objects[NUM_OBJECTS];
-  int num_to_scan = narrow_objects(ro, rd, objects, true);
+  int num_to_scan = narrow_objects(ro, rd);
   if(num_to_scan == 0) return 1.0;
 
   float r = 1.0;
@@ -242,7 +236,7 @@ float soft_shadows(vec3 ro, vec3 rd, float hardness) {
   for(int i = 0; i < 10; i++) {
 
       vec3 p = ro + rd * d;
-      float h = scene_sdf_fine(p, rd, objects);
+      float h = scene_sdf_fine(p, rd);
       if(h < 0.001) return 0.0;
       d += h;
       if(d > 5.0) return r;
@@ -259,8 +253,7 @@ vec2 ray_march(vec3 ro, vec3 rd) {
 
   float pd = ray_plane_intersection(ro, rd);
 
-  bool objects[NUM_OBJECTS];
-  int num_to_scan = narrow_objects(ro, rd, objects, true);
+  int num_to_scan = narrow_objects(ro, rd);
   if(num_to_scan == 0) return vec2(pd, -1);
 
   float dist = 0.0;
@@ -270,7 +263,7 @@ vec2 ray_march(vec3 ro, vec3 rd) {
   for (int i = 0; i < iterations; i++) {
 
     vec3 p = ro + rd * dist;
-    vec2 dn = scene_sdf_fast(p, rd, objects);
+    vec2 dn = scene_sdf_fast(p, rd);
 
     if (pd > 0.0 && pd < dn[0]) return vec2(pd, -1);
 

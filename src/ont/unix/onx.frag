@@ -281,15 +281,15 @@ void main() {
 
         vec3 light_col = vec3(1.0);
 
-        vec4 ambient_col = vec4(0.3, 0.3, 0.3, 1.0);
 
+        vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
         vec3 normal = calc_normal(p, rd, obj_index);
 
         float diffuse = max(dot(normal, light_dir), 0.0);
 
         vec2 texuv = uv_from_p_on_obj(p, obj_index);
 
-        color = ambient_col + diffuse * texture(tex, texuv);
+        color = ambient_col + 0.5 * diffuse * texture(tex, texuv);
       }
 
       if(in_left_touch_area) color -= vec4(0.1);

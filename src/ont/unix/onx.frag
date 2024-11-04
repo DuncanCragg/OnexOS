@@ -114,12 +114,12 @@ bool ray_hits_sphere(vec3 ro, vec3 rd, vec3 center, float radius) {
   return h >= 0.0;
 }
 
+const int NUM_OBJECTS = 128; // !!
 bool ray_hits_cuboid(vec3 ro, vec3 rd, vec3 pos, vec3 shape) {
   float s = sdf_cuboid(ro, rd, pos, shape, true);
   return s < 1e6;
 }
 
-const int NUM_OBJECTS = 32; // !!
 
 int num_to_scan=0;
 int object_index[NUM_OBJECTS];

@@ -120,17 +120,18 @@ bool ray_hits_cuboid(vec3 ro, vec3 rd, vec3 pos, vec3 shape) {
 }
 
 const int NUM_OBJECTS = 32; // !!
-bool objects[NUM_OBJECTS];
 
-int narrow_objects(vec3 ro, vec3 rd) {
+int num_to_scan=0;
+int object_index[NUM_OBJECTS];
 
-  int num_to_scan = 0;
+void narrow_objects(vec3 ro, vec3 rd) {
+  num_to_scan=0;
   for(int i = 0; i < objects_buf.size; i++){
-    objects[i]=ray_hits_cuboid(ro, rd, objects_buf.cuboids[i].position,
-                                       objects_buf.cuboids[i].shape);
-    if(objects[i]) num_to_scan++;
+    if(ray_hits_cuboid(ro, rd, objects_buf.cuboids[i].position,
+                               objects_buf.cuboids[i].shape    )){
+      object_index[num_to_scan++] = i;
+    }
   }
-  return num_to_scan;
 }
 
 vec2 scene_sdf(vec3 p, vec3 rd, bool fast) {
@@ -138,12 +139,11 @@ vec2 scene_sdf(vec3 p, vec3 rd, bool fast) {
   float d = 1e6;
   int   n = -1;
 
-  for(int i = 0; i < objects_buf.size; i++){
-    if(objects[i]) {
-      float s = sdf_cuboid(p, rd, objects_buf.cuboids[i].position,
-                                  objects_buf.cuboids[i].shape, fast);
-      if(s<d){ d=s; n=i; }
-    }
+  for(int oi=0; oi<num_to_scan; oi++){
+    int i = object_index[oi];
+    float s = sdf_cuboid(p, rd, objects_buf.cuboids[i].position,
+                                objects_buf.cuboids[i].shape, fast);
+    if(s<d){ d=s; n=i; }
   }
   return vec2(d,n);
 }
@@ -158,8 +158,8 @@ vec2 scene_sdf_fast(vec3 p, vec3 rd){
 
 vec3 calc_normal_trad(vec3 p, vec3 rd, int obj_index) {
 
-  for (int i = 0; i < objects_buf.size; i++) objects[i] = false;
-  objects[obj_index] = true;
+  num_to_scan=1;
+  object_index[0] = obj_index;
 
   float e = 0.001;
   return normalize(vec3(
@@ -177,8 +177,8 @@ vec3 calc_normal_trad(vec3 p, vec3 rd, int obj_index) {
 
 vec3 calc_normal(vec3 p, vec3 rd, int obj_index) {
 
-  for (int i = 0; i < objects_buf.size; i++) objects[i] = false;
-  objects[obj_index] = true;
+  num_to_scan=1;
+  object_index[0] = obj_index;
 
   vec2 e = vec2(.01, 0);
   return normalize(scene_sdf_fine(p,       rd) -
@@ -189,7 +189,7 @@ vec3 calc_normal(vec3 p, vec3 rd, int obj_index) {
 
 float soft_shadows(vec3 ro, vec3 rd, float hardness) {
 
-  int num_to_scan = narrow_objects(ro, rd);
+  narrow_objects(ro, rd);
   if(num_to_scan == 0) return 1.0;
 
   float r = 1.0;
@@ -214,7 +214,7 @@ vec2 ray_march(vec3 ro, vec3 rd) {
 
   float pd = ray_plane_intersection(ro, rd);
 
-  int num_to_scan = narrow_objects(ro, rd);
+  narrow_objects(ro, rd);
   if(num_to_scan == 0) return vec2(pd, -1);
 
   float dist = 0.0;

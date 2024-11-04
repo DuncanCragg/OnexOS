@@ -38,25 +38,27 @@ vec3 grid_pattern(vec3 position) {
   return vec3(0.0, 0.6, 0.0) * (1.0 - grid * 0.1);
 }
 
-float sdf_sphere(vec3 p, vec3 pos, float r) {
+// ---------------------------------------------------
+
+float sdf_sphere_near(vec3 p, vec3 pos, float r) {
   return length(p - pos) - r;
 }
 
-float max_cube_radius(vec3 cube_shape) {
-
-    return sqrt(cube_shape.x * cube_shape.x +
-                cube_shape.y * cube_shape.y +
-                cube_shape.z * cube_shape.z);
+float sdf_sphere_cast(vec3 p, vec3 rd, vec3 pos, float r) {
+  vec3 oc = p - pos;
+  float b = dot(oc, rd);
+  float c = dot(oc, oc) - r * r;
+  return b * b - c;
 }
 
-float sdf_cuboid_true(vec3 p, vec3 pos, vec3 cube_shape) {
+// ---------------------------------------------------
+
+float sdf_cuboid_near(vec3 p, vec3 pos, vec3 cube_shape) {
   vec3 d = abs(p - pos) - cube_shape;
   return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
-float sdf_cuboid(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape, bool fast) {
-
-    if(!fast) return sdf_cuboid_true(p, pos, cube_shape);
+float sdf_cuboid_cast(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape) {
 
     vec3 local_p = p - pos;
 
@@ -79,7 +81,9 @@ float sdf_cuboid(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape, bool fast) {
     return (t_near >= 0.0 ? t_near : t_far) * 0.999;
 }
 
-float sdf_glyph_true(vec3 p, vec3 rd, vec3 pos, vec2 shape){
+// ---------------------------------------------------
+
+float sdf_glyph_near(vec3 p, vec3 pos, vec2 shape){
   vec3 local_p = p - pos;
   vec2 glyph_pos_2d = local_p.xy;
   vec2 d = abs(glyph_pos_2d) - shape * 0.5;
@@ -88,9 +92,7 @@ float sdf_glyph_true(vec3 p, vec3 rd, vec3 pos, vec2 shape){
   return max(dist_2d, dist_z);
 }
 
-float sdf_glyph(vec3 p, vec3 rd, vec3 pos, vec2 shape, bool fast) {
-
-  if (!fast) return sdf_glyph_true(p, rd, pos, shape);
+float sdf_glyph_cast(vec3 p, vec3 rd, vec3 pos, vec2 shape) {
 
   vec3 local_p = p - pos;
   float t_near = -(local_p.z / rd.z);
@@ -106,98 +108,108 @@ float sdf_glyph(vec3 p, vec3 rd, vec3 pos, vec2 shape, bool fast) {
   return t_near + (dist_to_center - circle_radius);
 }
 
-bool ray_hits_sphere(vec3 ro, vec3 rd, vec3 center, float radius) {
-  vec3 oc = ro - center;
-  float b = dot(oc, rd);
-  float c = dot(oc, oc) - radius * radius;
-  float h = b * b - c;
-  return h >= 0.0;
+// ---------------------------------------------------
+
+int   object_index;
+float object_dist;
+
+float scene_sdf(vec3 p) {
+
+    return sdf_cuboid_near(p, objects_buf.cuboids[object_index].position,
+                              objects_buf.cuboids[object_index].shape);
 }
 
-const int NUM_OBJECTS = 128; // !!
-bool ray_hits_cuboid(vec3 ro, vec3 rd, vec3 pos, vec3 shape) {
-  float s = sdf_cuboid(ro, rd, pos, shape, true);
-  return s < 1e6;
-}
+// ---------------------------------------------------
 
+void get_nearest_object(vec3 ro) {
 
-int num_to_scan=0;
-int object_index[NUM_OBJECTS];
+  object_index = -1;
+  object_dist = 1e6;
 
-void narrow_objects(vec3 ro, vec3 rd) {
-  num_to_scan=0;
   for(int i = 0; i < objects_buf.size; i++){
-    if(ray_hits_cuboid(ro, rd, objects_buf.cuboids[i].position,
-                               objects_buf.cuboids[i].shape    )){
-      object_index[num_to_scan++] = i;
+
+    float s = sdf_cuboid_near(ro, objects_buf.cuboids[i].position,
+                                  objects_buf.cuboids[i].shape);
+    if(s<object_dist){
+
+      object_index = i;
+      object_dist = s;
     }
   }
 }
 
-vec2 scene_sdf(vec3 p, vec3 rd, bool fast) {
+void get_object_hit(vec3 ro, vec3 rd) {
 
-  float d = 1e6;
-  int   n = -1;
+  object_index = -1;
+  object_dist = 1e6;
 
-  for(int oi=0; oi<num_to_scan; oi++){
-    int i = object_index[oi];
-    float s = sdf_cuboid(p, rd, objects_buf.cuboids[i].position,
-                                objects_buf.cuboids[i].shape, fast);
-    if(s<d){ d=s; n=i; }
+  for(int i = 0; i < objects_buf.size; i++){
+
+    float s = sdf_cuboid_cast(ro, rd, objects_buf.cuboids[i].position,
+                                      objects_buf.cuboids[i].shape);
+    if(s<object_dist){
+
+      object_index = i;
+      object_dist = s;
+    }
   }
-  return vec2(d,n);
 }
 
-float scene_sdf_fine(vec3 p, vec3 rd){
-  return scene_sdf(p, rd, false)[0];
-}
+// ---------------------------------------------------
 
-vec2 scene_sdf_fast(vec3 p, vec3 rd){
-  return scene_sdf(p, rd, true);
-}
-
-vec3 calc_normal_trad(vec3 p, vec3 rd, int obj_index) {
-
-  num_to_scan=1;
-  object_index[0] = obj_index;
+vec3 calc_normal_trad(vec3 p) {
 
   float e = 0.001;
   return normalize(vec3(
 
-    scene_sdf_fine(p+vec3(e, 0.0, 0.0), rd) -
-    scene_sdf_fine(p-vec3(e, 0.0, 0.0), rd),
+    scene_sdf(p+vec3(e, 0.0, 0.0)) -
+    scene_sdf(p-vec3(e, 0.0, 0.0)),
 
-    scene_sdf_fine(p+vec3(0.0, e, 0.0), rd) -
-    scene_sdf_fine(p-vec3(0.0, e, 0.0), rd),
+    scene_sdf(p+vec3(0.0, e, 0.0)) -
+    scene_sdf(p-vec3(0.0, e, 0.0)),
 
-    scene_sdf_fine(p+vec3(0.0, 0.0, e), rd) -
-    scene_sdf_fine(p-vec3(0.0, 0.0, e), rd)
+    scene_sdf(p+vec3(0.0, 0.0, e)) -
+    scene_sdf(p-vec3(0.0, 0.0, e))
   ));
 }
 
-vec3 calc_normal(vec3 p, vec3 rd, int obj_index) {
-
-  num_to_scan=1;
-  object_index[0] = obj_index;
+vec3 calc_normal(vec3 p) {
 
   vec2 e = vec2(.01, 0);
-  return normalize(scene_sdf_fine(p,       rd) -
-              vec3(scene_sdf_fine(p-e.xyy, rd),
-                   scene_sdf_fine(p-e.yxy, rd),
-                   scene_sdf_fine(p-e.yyx, rd)));
+  return normalize(scene_sdf(p      ) -
+              vec3(scene_sdf(p-e.xyy),
+                   scene_sdf(p-e.yxy),
+                   scene_sdf(p-e.yyx)));
+}
+
+// ---------------------------------------------------
+
+void ray_cast(vec3 ro, vec3 rd) {
+
+  float pd = ray_plane_intersection(ro, rd);
+
+  get_object_hit(ro, rd);
+
+  if(object_index == -1){
+    object_dist = pd;
+  }
+  else
+  if(pd > 0.0 && pd < object_dist){
+    object_index = -1;
+    object_dist = pd;
+  };
 }
 
 float soft_shadows(vec3 ro, vec3 rd, float hardness) {
 
-  narrow_objects(ro, rd);
-  if(num_to_scan == 0) return 1.0;
+  get_nearest_object(ro);
 
   float r = 1.0;
   float d = 0.0;
   for(int i = 0; i < 10; i++) {
 
       vec3 p = ro + rd * d;
-      float h = scene_sdf_fine(p, rd);
+      float h = scene_sdf(p);
       if(h < 0.001) return 0.0;
       d += h;
       if(d > 5.0) return r;
@@ -207,41 +219,41 @@ float soft_shadows(vec3 ro, vec3 rd, float hardness) {
   return r;
 }
 
-const int MANY_HOPS      = 64;
 const int SINGLE_HOP_ISH =  3;
 
-vec2 ray_march(vec3 ro, vec3 rd) {
+float ray_march(vec3 ro, vec3 rd) {
 
   float pd = ray_plane_intersection(ro, rd);
 
-  narrow_objects(ro, rd);
-  if(num_to_scan == 0) return vec2(pd, -1);
+  get_nearest_object(ro);
 
   float dist = 0.0;
 
-  int iterations = (num_to_scan == 1)? SINGLE_HOP_ISH: MANY_HOPS;
-
-  for (int i = 0; i < iterations; i++) {
+  for (int i = 0; i < SINGLE_HOP_ISH; i++) {
 
     vec3 p = ro + rd * dist;
-    vec2 dn = scene_sdf_fast(p, rd);
+    float d = scene_sdf(p);
 
-    if (pd > 0.0 && pd < dn[0]) return vec2(pd, -1);
+    if (pd > 0.0 && pd < d) return pd;
 
-    if (dn[0] < 0.001) return vec2(dist, dn[1]);
+    if (d < 0.001) return dist;
 
-    dist += dn[0];
+    dist += d;
   }
-  return vec2(pd, -1);
+  return pd;
 }
 
-vec2 uv_from_p_on_obj(vec3 p, int obj_index){
-  vec3 obj_pos   = objects_buf.cuboids[obj_index].position;
-  vec3 obj_shape = objects_buf.cuboids[obj_index].shape;
+// ---------------------------------------------------
+
+vec2 uv_from_p_on_obj(vec3 p){
+  vec3 obj_pos   = objects_buf.cuboids[object_index].position;
+  vec3 obj_shape = objects_buf.cuboids[object_index].shape;
   vec3 local_p = p - obj_pos;
   vec2 norm_p = local_p.xy / obj_shape.xy;
   return ((norm_p + 1.0) / 2.0) * vec2(1,-1) + vec2(0,1);
 }
+
+// ---------------------------------------------------
 
 const float LEFT_TOUCH_RADIUS = 0.1;
 
@@ -260,19 +272,16 @@ void main() {
     vec3 ro = vec3(inv_view[3]);
     vec3 rd = normalize(world_pos.xyz - ro);
 
-    vec2 dn = ray_march(ro, rd);
-    float dist = dn[0];
+    ray_cast(ro, rd);
 
-    if (dist > 0.0) {
+    if (object_dist > 0.0) {
 
-      vec3 p = ro + rd * dist;
+      vec3 p = ro + rd * object_dist;
 
       vec3 light_pos = vec3(30.0, 30.0, -30.0);
       vec3 light_dir = normalize(light_pos - p);
 
-      int obj_index = int(dn[1]);
-
-      if(obj_index == -1){
+      if(object_index == -1){
 
         float shadows = 0.8 + 0.2 * soft_shadows(p, light_dir, 16.0);
         color = vec4(grid_pattern(p) * shadows, 1.0);
@@ -280,14 +289,10 @@ void main() {
       } else {
 
         vec3 light_col = vec3(1.0);
-
-
         vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
-        vec3 normal = calc_normal(p, rd, obj_index);
-
+        vec3 normal = calc_normal(p);
         float diffuse = max(dot(normal, light_dir), 0.0);
-
-        vec2 texuv = uv_from_p_on_obj(p, obj_index);
+        vec2 texuv = uv_from_p_on_obj(p);
 
         color = ambient_col + 0.5 * diffuse * texture(tex, texuv);
       }

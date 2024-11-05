@@ -127,12 +127,14 @@ float scene_sdf(vec3 p) {
 
 // ---------------------------------------------------
 
-void get_nearest_object(vec3 ro) {
+void get_nearest_object(vec3 ro, int current_object_index) {
 
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
 
   for(int i = 0; i < objects_buf.size; i++){
+
+    if(i==current_object_index) continue;
 
     float s = sdf_cuboid_near(ro, objects_buf.cuboids[i].position,
                                   objects_buf.cuboids[i].shape);
@@ -196,7 +198,7 @@ float ray_march(vec3 ro, vec3 rd) {
 
   float pd = dist_to_ground(ro, rd);
 
-  get_nearest_object(ro);
+  get_nearest_object(ro, NO_OBJECT);
 
   float dist = 0.0;
 
@@ -281,7 +283,7 @@ float ambient_occlusion(vec3 ro, vec3 normal) {
 
 float soft_shadows(vec3 ro, vec3 rd, float hardness) {
 
-  get_nearest_object(ro);
+  get_nearest_object(ro, object_index);
 
   float r = 1.0;
   float d = 0.0;
@@ -330,18 +332,19 @@ void main() {
     ray_cast(ro, rd);
 
     bool do_ao = false;
+    float ss = 0.2;
 
     if (object_index != NO_OBJECT) {
 
-      vec3 p = ro + rd * object_dist;
+      vec3 p = ro + rd * object_dist * 0.999;
 
       vec3 light_pos = vec3(30.0, 30.0, -30.0);
       vec3 light_dir = normalize(light_pos - p);
 
       if(object_index == GROUND_PLANE){
 
-        float shadows = 0.8 + 0.2 * (do_ao? ambient_occlusion(p, vec3(0,1,0)):
-                                            soft_shadows(p, light_dir, 16.0));
+        float shadows = (1.0-ss) + ss * (do_ao? ambient_occlusion(p, vec3(0,1,0)):
+                                                soft_shadows(p, light_dir, 16.0));
         color = vec4(grid_pattern(p) * shadows, 1.0);
 
       } else {
@@ -349,7 +352,8 @@ void main() {
         vec3 light_col = vec3(1.0);
         vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
         vec3 normal = calc_normal(p);
-        float shadows = 0.8 + 0.2 * (do_ao? ambient_occlusion(p, normal): 1.0);
+        float shadows = (1.0-ss) + ss * (do_ao? ambient_occlusion(p, normal):
+                                                soft_shadows(p, light_dir, 16.0));
         float diffuse = max(dot(normal, light_dir), 0.0);
         vec2 texuv = uv_from_p_on_obj(p);
 

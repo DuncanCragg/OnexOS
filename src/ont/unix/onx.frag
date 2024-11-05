@@ -78,7 +78,7 @@ float sdf_cuboid_cast(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape) {
 
     if (t_near > t_far || t_far < 0.0) return 1e6;
 
-    return (t_near >= 0.0 ? t_near : t_far) * 0.999;
+    return (t_near >= 0.0 ? t_near : t_far);
 }
 
 // ---------------------------------------------------
@@ -138,7 +138,7 @@ void get_nearest_object(vec3 ro) {
   }
 }
 
-void get_object_hit(vec3 ro, vec3 rd) {
+void get_first_object_hit(vec3 ro, vec3 rd) {
 
   object_index = -1;
   object_dist = 1e6;
@@ -184,7 +184,7 @@ vec3 calc_normal(vec3 p) {
 
 // ---------------------------------------------------
 
-const int SINGLE_HOP_ISH =  3;
+const int RAY_MARCH_ITERATIONS = 30;
 
 float ray_march(vec3 ro, vec3 rd) {
 
@@ -194,7 +194,7 @@ float ray_march(vec3 ro, vec3 rd) {
 
   float dist = 0.0;
 
-  for (int i = 0; i < SINGLE_HOP_ISH; i++) {
+  for (int i = 0; i < RAY_MARCH_ITERATIONS; i++) {
 
     vec3 p = ro + rd * dist;
     float d = scene_sdf(p);
@@ -212,7 +212,7 @@ void ray_cast(vec3 ro, vec3 rd) {
 
   float pd = ray_plane_intersection(ro, rd);
 
-  get_object_hit(ro, rd);
+  get_first_object_hit(ro, rd);
 
   if(object_index == -1){
     object_dist = pd;
@@ -260,7 +260,7 @@ float ambient_occlusion(vec3 ro, vec3 normal) {
 
   for (int i = 0; i < rdnum; i++) {
 
-//  get_object_hit(ro, rds[i]);
+//  get_first_object_hit(ro, rds[i]);
     get_nearest_object(ro + rds[i] * sampleRadius);
 
     if(object_index == -1 || object_index == shadowing_object){

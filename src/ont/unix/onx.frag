@@ -22,7 +22,13 @@ layout(location = 0) out vec4  color;
 
 // ---------------------------------------------------
 
-float ray_plane_intersection(vec3 ro, vec3 rd) {
+const int   GROUND_PLANE = -1;
+const int   NO_OBJECT    = -2;
+const float FAR_FAR_AWAY = 1e6;
+
+// ---------------------------------------------------
+
+float dist_to_ground(vec3 ro, vec3 rd) {
   if(abs(rd.y) > 0.001) {
     float t = -ro.y / rd.y;
     if(t > 0.0) return t;
@@ -76,7 +82,7 @@ float sdf_cuboid_cast(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape) {
     float t_near = max(max(t1.x, t1.y), t1.z);
     float t_far  = min(min(t2.x, t2.y), t2.z);
 
-    if (t_near > t_far || t_far < 0.0) return 1e6;
+    if (t_near > t_far || t_far < 0.0) return FAR_FAR_AWAY;
 
     return (t_near >= 0.0 ? t_near : t_far);
 }
@@ -99,7 +105,7 @@ float sdf_glyph_cast(vec3 p, vec3 rd, vec3 pos, vec2 shape) {
   vec3 intersect_p = local_p + t_near * rd;
   vec2 d = abs(intersect_p.xy) - shape * 0.5;
 
-  if (max(d.x, d.y) > 0.0 || t_near < 0.0) return 1e6;
+  if (max(d.x, d.y) > 0.0 || t_near < 0.0) return FAR_FAR_AWAY;
 
   float circle_radius = shape.x * 0.5;
   float dist_to_center = length(intersect_p.xy);
@@ -123,8 +129,8 @@ float scene_sdf(vec3 p) {
 
 void get_nearest_object(vec3 ro) {
 
-  object_index = -1;
-  object_dist = 1e6;
+  object_index = NO_OBJECT;
+  object_dist = FAR_FAR_AWAY;
 
   for(int i = 0; i < objects_buf.size; i++){
 
@@ -140,8 +146,8 @@ void get_nearest_object(vec3 ro) {
 
 void get_first_object_hit(vec3 ro, vec3 rd) {
 
-  object_index = -1;
-  object_dist = 1e6;
+  object_index = NO_OBJECT;
+  object_dist = FAR_FAR_AWAY;
 
   for(int i = 0; i < objects_buf.size; i++){
 
@@ -188,7 +194,7 @@ const int RAY_MARCH_ITERATIONS = 30;
 
 float ray_march(vec3 ro, vec3 rd) {
 
-  float pd = ray_plane_intersection(ro, rd);
+  float pd = dist_to_ground(ro, rd);
 
   get_nearest_object(ro);
 
@@ -210,18 +216,18 @@ float ray_march(vec3 ro, vec3 rd) {
 
 void ray_cast(vec3 ro, vec3 rd) {
 
-  float pd = ray_plane_intersection(ro, rd);
+  float pd = dist_to_ground(ro, rd);
 
   get_first_object_hit(ro, rd);
 
-  if(object_index == -1){
+  bool hits_ground    = (pd > 0.0);
+  bool is_object      = (object_index != NO_OBJECT);
+  bool ground_nearest = hits_ground && (!is_object || (is_object && (object_dist > pd)));
+
+  if(ground_nearest){
+    object_index = GROUND_PLANE;
     object_dist = pd;
   }
-  else
-  if(pd > 0.0 && pd < object_dist){
-    object_index = -1;
-    object_dist = pd;
-  };
 }
 
 // ---------------------------------------------------
@@ -299,7 +305,7 @@ vec2 uv_from_p_on_obj(vec3 p){
   vec3 obj_shape = objects_buf.cuboids[object_index].shape;
   vec3 local_p = p - obj_pos;
   vec2 norm_p = local_p.xy / obj_shape.xy;
-  return ((norm_p + 1.0) / 2.0) * vec2(1,-1) + vec2(0,1);
+  return ((norm_p + 1.0) / 2.0) * vec2(1.0,-1.0) + vec2(0,1);
 }
 
 // ---------------------------------------------------
@@ -325,14 +331,14 @@ void main() {
 
     bool do_ao = false;
 
-    if (object_dist > 0.0) {
+    if (object_index != NO_OBJECT) {
 
       vec3 p = ro + rd * object_dist;
 
       vec3 light_pos = vec3(30.0, 30.0, -30.0);
       vec3 light_dir = normalize(light_pos - p);
 
-      if(object_index == -1){
+      if(object_index == GROUND_PLANE){
 
         float shadows = 0.8 + 0.2 * (do_ao? ambient_occlusion(p, vec3(0,1,0)):
                                             soft_shadows(p, light_dir, 16.0));

@@ -234,6 +234,8 @@ void ray_cast(vec3 ro, vec3 rd) {
 
 // ---------------------------------------------------
 
+const float AO_RADIUS = 0.1;
+
 float ambient_occlusion(vec3 ro, vec3 normal) {
 
   vec3 tangent;
@@ -262,21 +264,15 @@ float ambient_occlusion(vec3 ro, vec3 normal) {
   rds[6] = normalize(normal + tangent - bitangent);
   rds[7] = normalize(normal - tangent - bitangent);
 
-  int shadowing_object = object_index;
-  const float sampleRadius = 0.1;
-  float ao = 0.0;
+  int current_object_index = object_index;
 
+  float ao = 0.0;
   for (int i = 0; i < rdnum; i++) {
 
 //  get_first_object_hit(ro, rds[i]);
-    get_nearest_object(ro + rds[i] * sampleRadius);
+    get_nearest_object(ro + rds[i] * AO_RADIUS, current_object_index);
 
-    if(object_index == -1 || object_index == shadowing_object){
-      ao += 1.0;
-    } else {
-      ao += smoothstep(0.0, sampleRadius, object_dist);
-    }
-
+    ao += smoothstep(0.0, AO_RADIUS, object_dist);
   }
   return (ao / rdnum);
 }

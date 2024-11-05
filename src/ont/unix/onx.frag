@@ -184,6 +184,30 @@ vec3 calc_normal(vec3 p) {
 
 // ---------------------------------------------------
 
+const int SINGLE_HOP_ISH =  3;
+
+float ray_march(vec3 ro, vec3 rd) {
+
+  float pd = ray_plane_intersection(ro, rd);
+
+  get_nearest_object(ro);
+
+  float dist = 0.0;
+
+  for (int i = 0; i < SINGLE_HOP_ISH; i++) {
+
+    vec3 p = ro + rd * dist;
+    float d = scene_sdf(p);
+
+    if (pd > 0.0 && pd < d) return pd;
+
+    if (d < 0.001) return dist;
+
+    dist += d;
+  }
+  return pd;
+}
+
 void ray_cast(vec3 ro, vec3 rd) {
 
   float pd = ray_plane_intersection(ro, rd);
@@ -266,30 +290,6 @@ float soft_shadows(vec3 ro, vec3 rd, float hardness) {
       r = min(r, hardness * h / d );
   }
   return r;
-}
-
-const int SINGLE_HOP_ISH =  3;
-
-float ray_march(vec3 ro, vec3 rd) {
-
-  float pd = ray_plane_intersection(ro, rd);
-
-  get_nearest_object(ro);
-
-  float dist = 0.0;
-
-  for (int i = 0; i < SINGLE_HOP_ISH; i++) {
-
-    vec3 p = ro + rd * dist;
-    float d = scene_sdf(p);
-
-    if (pd > 0.0 && pd < d) return pd;
-
-    if (d < 0.001) return dist;
-
-    dist += d;
-  }
-  return pd;
 }
 
 // ---------------------------------------------------

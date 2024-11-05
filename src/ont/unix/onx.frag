@@ -200,6 +200,55 @@ void ray_cast(vec3 ro, vec3 rd) {
   };
 }
 
+// ---------------------------------------------------
+
+float ambient_occlusion(vec3 ro, vec3 normal) {
+
+  vec3 tangent;
+
+  for(int xyz = 0; xyz < 3; xyz++){
+    vec3 t;
+    if(xyz==0) t = cross(normal, vec3(1.0, 0.0, 0.0));
+    if(xyz==1) t = cross(normal, vec3(0.0, 1.0, 0.0));
+    if(xyz==2) t = cross(normal, vec3(0.0, 0.0, 1.0));
+    if(length(t) > 0.01){
+      tangent = normalize(t);
+      break;
+    }
+  }
+
+  vec3 bitangent = cross(normal, tangent);
+
+  const int rdnum = 8;
+  vec3 rds[rdnum];
+  rds[0] = normalize(normal + tangent);
+  rds[1] = normalize(normal - tangent);
+  rds[2] = normalize(normal + bitangent);
+  rds[3] = normalize(normal - bitangent);
+  rds[4] = normalize(normal + tangent + bitangent);
+  rds[5] = normalize(normal - tangent + bitangent);
+  rds[6] = normalize(normal + tangent - bitangent);
+  rds[7] = normalize(normal - tangent - bitangent);
+
+  int shadowing_object = object_index;
+  const float sampleRadius = 0.1;
+  float ao = 0.0;
+
+  for (int i = 0; i < rdnum; i++) {
+
+//  get_object_hit(ro, rds[i]);
+    get_nearest_object(ro + rds[i] * sampleRadius);
+
+    if(object_index == -1 || object_index == shadowing_object){
+      ao += 1.0;
+    } else {
+      ao += smoothstep(0.0, sampleRadius, object_dist);
+    }
+
+  }
+  return (ao / rdnum);
+}
+
 float soft_shadows(vec3 ro, vec3 rd, float hardness) {
 
   get_nearest_object(ro);
@@ -274,6 +323,8 @@ void main() {
 
     ray_cast(ro, rd);
 
+    bool do_ao = false;
+
     if (object_dist > 0.0) {
 
       vec3 p = ro + rd * object_dist;
@@ -283,7 +334,8 @@ void main() {
 
       if(object_index == -1){
 
-        float shadows = 0.8 + 0.2 * soft_shadows(p, light_dir, 16.0);
+        float shadows = 0.8 + 0.2 * (do_ao? ambient_occlusion(p, vec3(0,1,0)):
+                                            soft_shadows(p, light_dir, 16.0));
         color = vec4(grid_pattern(p) * shadows, 1.0);
 
       } else {
@@ -291,10 +343,11 @@ void main() {
         vec3 light_col = vec3(1.0);
         vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
         vec3 normal = calc_normal(p);
+        float shadows = 0.8 + 0.2 * (do_ao? ambient_occlusion(p, normal): 1.0);
         float diffuse = max(dot(normal, light_dir), 0.0);
         vec2 texuv = uv_from_p_on_obj(p);
 
-        color = ambient_col + 0.5 * diffuse * texture(tex, texuv);
+        color = (ambient_col+0.5*diffuse*texture(tex, texuv))*vec4(vec3(shadows),1.0);
       }
 
       if(in_left_touch_area) color -= vec4(0.1);

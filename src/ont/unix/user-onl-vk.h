@@ -20,7 +20,6 @@ struct sub_object {
 
 struct scene_object {
   float shape[3];          float pad1;
-  float position[3];       float pad2;
   float bb_position[3];    float pad3;
   float bb_shape[3];       float pad4;
   struct sub_object subs[32];

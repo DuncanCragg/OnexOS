@@ -269,39 +269,48 @@ static void draw_3d(object* user, char* path){
 
   // -----------
 
-  struct scene_object* obj_array = (struct scene_object*)(objects_data + (sizeof(uint32_t) * 4));
+  struct scene_object* objects = (struct scene_object*)(objects_data + (sizeof(uint32_t) * 4));
 
   static float dibble = 0.0f;
   dibble += 0.01f;
 
   uint32_t num_objects = 0;
 
-  obj_array[num_objects].position[0] = px1val;
-  obj_array[num_objects].position[1] = py1val;
-  obj_array[num_objects].position[2] = pz1val + dibble;
-  obj_array[num_objects].shape[0]    = sx1val;
-  obj_array[num_objects].shape[1]    = sy1val;
-  obj_array[num_objects].shape[2]    = sz1val;
+  objects[0].subs[num_objects].position[0] = px1val;
+  objects[0].subs[num_objects].position[1] = py1val;
+  objects[0].subs[num_objects].position[2] = pz1val + dibble;
+
+  objects[0].subs[num_objects].obj_index = num_objects + 1;
+
+  objects[num_objects + 1].shape[0] = sx1val;
+  objects[num_objects + 1].shape[1] = sy1val;
+  objects[num_objects + 1].shape[2] = sz1val;
 
   num_objects++;
 
-  obj_array[num_objects].position[0] = px2val;
-  obj_array[num_objects].position[1] = py2val;
-  obj_array[num_objects].position[2] = pz2val + dibble;
-  obj_array[num_objects].shape[0]    = sx2val;
-  obj_array[num_objects].shape[1]    = sy2val;
-  obj_array[num_objects].shape[2]    = sz2val;
+  objects[0].subs[num_objects].position[0] = px2val;
+  objects[0].subs[num_objects].position[1] = py2val;
+  objects[0].subs[num_objects].position[2] = pz2val + dibble;
+
+  objects[0].subs[num_objects].obj_index = num_objects + 1;
+
+  objects[num_objects + 1].shape[0] = sx2val;
+  objects[num_objects + 1].shape[1] = sy2val;
+  objects[num_objects + 1].shape[2] = sz2val;
 
   num_objects++;
 
   while(num_objects < 4){
 
-    obj_array[num_objects].position[0] = px2val + num_objects * 3;
-    obj_array[num_objects].position[1] = py2val;
-    obj_array[num_objects].position[2] = pz2val + num_objects * 3;
-    obj_array[num_objects].shape[0]    = sx2val;
-    obj_array[num_objects].shape[1]    = sy2val;
-    obj_array[num_objects].shape[2]    = sz2val;
+    objects[0].subs[num_objects].position[0] = px2val + num_objects * 3;
+    objects[0].subs[num_objects].position[1] = py2val;
+    objects[0].subs[num_objects].position[2] = pz2val + num_objects * 3;
+
+    objects[0].subs[num_objects].obj_index = num_objects + 1;
+
+    objects[num_objects + 1].shape[0] = sx2val;
+    objects[num_objects + 1].shape[1] = sy2val;
+    objects[num_objects + 1].shape[2] = sz2val;
 
     num_objects++;
   }

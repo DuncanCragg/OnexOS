@@ -3,9 +3,19 @@
 
 layout (set = 0, binding = 1) uniform sampler2D tex;
 
+struct sub_object {
+  vec3 position;
+  vec3 rotation;
+  int  obj_index;
+  int  padding[3];
+};
+
 struct scene_object {
   vec3 shape;
   vec3 position;
+  vec3 bb_position;
+  vec3 bb_shape;
+  sub_object subs[32];
 };
 
 layout(std430, binding = 2) buffer buf4 {

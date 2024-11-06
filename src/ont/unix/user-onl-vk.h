@@ -12,9 +12,18 @@ extern mat4x4 view_l_matrix;
 extern mat4x4 view_r_matrix;
 extern float  left_touch_vec[2];
 
+struct sub_object {
+  float    position[3]; float  pad1;
+  float    rotation[3]; float  pad2;
+  uint32_t obj_index;   float  pad3[3];
+};
+
 struct scene_object {
-  float shape[3];    float pad2;
-  float position[3]; float pad1;
+  float shape[3];          float pad1;
+  float position[3];       float pad2;
+  float bb_position[3];    float pad3;
+  float bb_shape[3];       float pad4;
+  struct sub_object subs[32];
 };
 
 #define OBJECTS_MAX_NUM 1024

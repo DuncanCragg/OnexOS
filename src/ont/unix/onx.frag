@@ -3,14 +3,14 @@
 
 layout (set = 0, binding = 1) uniform sampler2D tex;
 
-struct cuboid {
+struct scene_object {
   vec3 position;
   vec3 shape;
 };
 
 layout(std430, binding = 2) buffer buf4 {
   int size;
-  cuboid cuboids[];
+  scene_object objects[];
 } objects_buf;
 
 layout(location = 0) in  vec2  left_touch;
@@ -121,8 +121,8 @@ float object_dist;
 
 float scene_sdf(vec3 p) {
 
-    return sdf_cuboid_near(p, objects_buf.cuboids[object_index].position,
-                              objects_buf.cuboids[object_index].shape);
+    return sdf_cuboid_near(p, objects_buf.objects[object_index].position,
+                              objects_buf.objects[object_index].shape);
 }
 
 // ---------------------------------------------------
@@ -136,8 +136,8 @@ void get_nearest_object(vec3 ro, int current_object_index) {
 
     if(i==current_object_index) continue;
 
-    float s = sdf_cuboid_near(ro, objects_buf.cuboids[i].position,
-                                  objects_buf.cuboids[i].shape);
+    float s = sdf_cuboid_near(ro, objects_buf.objects[i].position,
+                                  objects_buf.objects[i].shape);
     if(s<object_dist){
 
       object_index = i;
@@ -153,8 +153,8 @@ void get_first_object_hit(vec3 ro, vec3 rd) {
 
   for(int i = 0; i < objects_buf.size; i++){
 
-    float s = sdf_cuboid_cast(ro, rd, objects_buf.cuboids[i].position,
-                                      objects_buf.cuboids[i].shape);
+    float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[i].position,
+                                      objects_buf.objects[i].shape);
     if(s<object_dist){
 
       object_index = i;
@@ -299,8 +299,8 @@ float soft_shadows(vec3 ro, vec3 rd, float hardness) {
 // ---------------------------------------------------
 
 vec2 uv_from_p_on_obj(vec3 p){
-  vec3 obj_pos   = objects_buf.cuboids[object_index].position;
-  vec3 obj_shape = objects_buf.cuboids[object_index].shape;
+  vec3 obj_pos   = objects_buf.objects[object_index].position;
+  vec3 obj_shape = objects_buf.objects[object_index].shape;
   vec3 local_p = p - obj_pos;
   vec2 norm_p = local_p.xy / obj_shape.xy;
   return ((norm_p + 1.0) / 2.0) * vec2(1.0,-1.0) + vec2(0,1);

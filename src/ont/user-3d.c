@@ -269,7 +269,7 @@ static void draw_3d(object* user, char* path){
 
   // -----------
 
-  struct cuboid* obj_array = (struct cuboid*)(objects_data + (sizeof(uint32_t) * 4));
+  struct scene_object* obj_array = (struct scene_object*)(objects_data + (sizeof(uint32_t) * 4));
 
   static float dibble = 0.0f;
   dibble += 0.01f;

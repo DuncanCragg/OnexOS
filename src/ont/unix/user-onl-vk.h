@@ -12,15 +12,13 @@ extern mat4x4 view_l_matrix;
 extern mat4x4 view_r_matrix;
 extern float  left_touch_vec[2];
 
-struct cuboid {
-  float position[3];
-  float pad1;
-  float shape[3];
-  float pad2;
+struct scene_object {
+  float position[3]; float pad1;
+  float shape[3];    float pad2;
 };
 
 #define OBJECTS_MAX_NUM 1024
-#define OBJECTS_SIZE ((sizeof(uint32_t) * 4) + (sizeof(struct cuboid) * OBJECTS_MAX_NUM))
+#define OBJECTS_SIZE ((sizeof(uint32_t) * 4) + (sizeof(struct scene_object) * OBJECTS_MAX_NUM))
 
 extern void* objects_data;
 

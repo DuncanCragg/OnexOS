@@ -4,8 +4,8 @@
 layout (set = 0, binding = 1) uniform sampler2D tex;
 
 struct scene_object {
-  vec3 position;
   vec3 shape;
+  vec3 position;
 };
 
 layout(std430, binding = 2) buffer buf4 {

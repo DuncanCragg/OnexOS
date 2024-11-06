@@ -13,8 +13,8 @@ extern mat4x4 view_r_matrix;
 extern float  left_touch_vec[2];
 
 struct scene_object {
-  float position[3]; float pad1;
   float shape[3];    float pad2;
+  float position[3]; float pad1;
 };
 
 #define OBJECTS_MAX_NUM 1024

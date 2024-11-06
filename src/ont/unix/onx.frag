@@ -166,6 +166,10 @@ void get_first_object_hit(vec3 ro, vec3 rd) {
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
 
+  float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[0].bb_position,
+                                    objects_buf.objects[0].bb_shape);
+  if(s==FAR_FAR_AWAY) return;
+
   for(int i = 0; i < objects_buf.size; i++){
 
     vec3 position = objects_buf.objects[0].subs[i].position;

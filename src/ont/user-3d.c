@@ -1,5 +1,7 @@
 // -----------------------------------------------------------
 
+#include <math.h>
+
 #include <linmath-plus.h>
 
 #include <onex-kernel/time.h>
@@ -231,6 +233,38 @@ static bool draw_by_type(object* user, char* path) {
   return true;
 }
 
+void update_bb(struct scene_object* objects,
+               uint32_t oi,
+               float position[3],
+               float shape[3]              ) {
+
+    float bb_min[3] = { objects[oi].bb_position[0] - objects[oi].bb_shape[0],
+                        objects[oi].bb_position[1] - objects[oi].bb_shape[1],
+                        objects[oi].bb_position[2] - objects[oi].bb_shape[2] };
+
+    float bb_max[3] = { objects[oi].bb_position[0] + objects[oi].bb_shape[0],
+                        objects[oi].bb_position[1] + objects[oi].bb_shape[1],
+                        objects[oi].bb_position[2] + objects[oi].bb_shape[2] };
+
+    float obj_min[3] = { position[0] - shape[0],
+                         position[1] - shape[1],
+                         position[2] - shape[2] };
+
+    float obj_max[3] = { position[0] + shape[0],
+                         position[1] + shape[0],
+                         position[2] + shape[2] };
+
+    for (int i = 0; i < 3; i++) {
+        bb_min[i] = fmin(bb_min[i], obj_min[i]);
+        bb_max[i] = fmax(bb_max[i], obj_max[i]);
+    }
+
+    for (int i = 0; i < 3; i++) {
+        objects[oi].bb_position[i] = (bb_min[i] + bb_max[i]) / 2.0f;
+        objects[oi].bb_shape[i]    = (bb_max[i] - bb_min[i]) / 2.0f;
+    }
+}
+
 static void draw_3d(object* user, char* path){
 
   char* px=object_pathpair(user, path, "position:1");
@@ -274,6 +308,13 @@ static void draw_3d(object* user, char* path){
   static float dibble = 0.0f;
   dibble += 0.01f;
 
+  objects[0].bb_position[0] = 0.0f;
+  objects[0].bb_position[1] = 0.0f;
+  objects[0].bb_position[2] = 0.0f;
+  objects[0].bb_shape[0] = 0.0f;
+  objects[0].bb_shape[1] = 0.0f;
+  objects[0].bb_shape[2] = 0.0f;
+
   uint32_t num_objects = 0;
 
   objects[0].subs[num_objects].position[0] = px1val;
@@ -286,6 +327,9 @@ static void draw_3d(object* user, char* path){
   objects[num_objects + 1].shape[1] = sy1val;
   objects[num_objects + 1].shape[2] = sz1val;
 
+  update_bb(objects, 0, objects[0].subs[num_objects].position,
+                        objects[num_objects + 1].shape);
+
   num_objects++;
 
   objects[0].subs[num_objects].position[0] = px2val;
@@ -297,6 +341,9 @@ static void draw_3d(object* user, char* path){
   objects[num_objects + 1].shape[0] = sx2val;
   objects[num_objects + 1].shape[1] = sy2val;
   objects[num_objects + 1].shape[2] = sz2val;
+
+  update_bb(objects, 0, objects[0].subs[num_objects].position,
+                        objects[num_objects + 1].shape);
 
   num_objects++;
 
@@ -311,6 +358,9 @@ static void draw_3d(object* user, char* path){
     objects[num_objects + 1].shape[0] = sx2val;
     objects[num_objects + 1].shape[1] = sy2val;
     objects[num_objects + 1].shape[2] = sz2val;
+
+    update_bb(objects, 0, objects[0].subs[num_objects].position,
+                          objects[num_objects + 1].shape);
 
     num_objects++;
   }

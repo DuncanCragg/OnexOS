@@ -355,15 +355,15 @@ static void draw_3d(object* user, char* path){
   int n=0;
   for(; n<8; n++){
 
-    objects[3].subs[n].position[0] = px2val + (n+2) * 3;
-    objects[3].subs[n].position[1] = py2val;
-    objects[3].subs[n].position[2] = pz2val + (n+2) * 3;
+    objects[3].subs[n].position[0] = (n%2? px1val: px2val) + (n-n%2+1) * 3;
+    objects[3].subs[n].position[1] = (n%2? py1val: py2val);
+    objects[3].subs[n].position[2] = (n%2? pz1val: pz2val) + (n-n%2+1) * 3;
 
     objects[3].subs[n].obj_index = n+4;
 
-    objects[n+4].shape[0] = sx2val;
-    objects[n+4].shape[1] = sy2val;
-    objects[n+4].shape[2] = sz2val;
+    objects[n+4].shape[0] = (n%2? sx1val: sx2val);
+    objects[n+4].shape[1] = (n%2? sy1val: sy2val);
+    objects[n+4].shape[2] = (n%2? sz1val: sz2val);
 
     update_bb(objects, 3, objects[3].subs[n].position,
                           objects[n+4].shape);

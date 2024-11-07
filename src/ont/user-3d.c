@@ -333,9 +333,9 @@ static void draw_3d(object* user, char* path){
 
     for(n=0; n<8; n++){
 
-      objects[parind].subs[n].position[0] = (n%2? px1val: px2val) + (p-n%2+1) * 5;
+      objects[parind].subs[n].position[0] = (n%2? px1val: px2val) + p * 5;
       objects[parind].subs[n].position[1] = (n%2? py1val: py2val);
-      objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val) + (n-n%2+1) * 3;
+      objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val) + n * 5;
 
       top_object++;
       objects[parind].subs[n].obj_index = top_object;

@@ -308,6 +308,10 @@ static void draw_3d(object* user, char* path){
   static float dibble = 0.0f;
   dibble += 0.01f;
 
+  objects[0].subs[0].obj_index = 1;
+  objects[0].subs[1].obj_index = 4;
+  objects[0].subs[2].obj_index = 0;
+
   objects[1].bb_position[0] = 0.0f;
   objects[1].bb_position[1] = 0.0f;
   objects[1].bb_position[2] = 0.0f;

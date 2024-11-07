@@ -238,6 +238,15 @@ void update_bb(struct scene_object* objects,
                float position[3],
                float shape[3]              ) {
 
+    if(objects[oi].bb_shape[0] < 0.0){
+
+      for (int i = 0; i < 3; i++) {
+        objects[oi].bb_position[i] =  position[i];
+        objects[oi].bb_shape[i]    =  shape[i];
+      }
+      return;
+    }
+
     float bb_min[3] = { objects[oi].bb_position[0] - objects[oi].bb_shape[0],
                         objects[oi].bb_position[1] - objects[oi].bb_shape[1],
                         objects[oi].bb_position[2] - objects[oi].bb_shape[2] };
@@ -318,12 +327,7 @@ static void draw_3d(object* user, char* path){
     uint32_t parind = top_object;
     objects[0].subs[p].obj_index = parind;
 
-    objects[parind].bb_position[0] = 0.0f;
-    objects[parind].bb_position[1] = 0.0f;
-    objects[parind].bb_position[2] = 0.0f;
-    objects[parind].bb_shape[0] = 0.0f;
-    objects[parind].bb_shape[1] = 0.0f;
-    objects[parind].bb_shape[2] = 0.0f;
+    objects[parind].bb_shape[0] = -1.0f;
 
     int n;
 

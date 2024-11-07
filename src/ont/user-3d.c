@@ -216,7 +216,7 @@ bool evaluate_user(object* user, void* d) {
   if(set_up_scene_begin()){
 
     if(!draw_by_type(user, "viewing")){
-   
+
       r = evaluate_user_2d(user, d);
     }
 
@@ -314,58 +314,70 @@ static void draw_3d(object* user, char* path){
 
   // ------
 
-  objects[1].bb_position[0] = 0.0f;
-  objects[1].bb_position[1] = 0.0f;
-  objects[1].bb_position[2] = 0.0f;
-  objects[1].bb_shape[0] = 0.0f;
-  objects[1].bb_shape[1] = 0.0f;
-  objects[1].bb_shape[2] = 0.0f;
+  uint32_t top_object = 1;
 
-  int n;
+  for(int p=0; p<1; p++){
 
-  for(n=0; n<2; n++){
+    uint32_t parind = top_object;
 
-    objects[1].subs[n].position[0] = (n%2? px1val: px2val);
-    objects[1].subs[n].position[1] = (n%2? py1val: py2val);
-    objects[1].subs[n].position[2] = (n%2? pz1val: pz2val) + dibble;
+    objects[parind].bb_position[0] = 0.0f;
+    objects[parind].bb_position[1] = 0.0f;
+    objects[parind].bb_position[2] = 0.0f;
+    objects[parind].bb_shape[0] = 0.0f;
+    objects[parind].bb_shape[1] = 0.0f;
+    objects[parind].bb_shape[2] = 0.0f;
 
-    objects[1].subs[n].obj_index = n+2;
+    int n;
 
-    objects[n+2].shape[0] = (n%2? sx1val: sx2val);
-    objects[n+2].shape[1] = (n%2? sy1val: sy2val);
-    objects[n+2].shape[2] = (n%2? sz1val: sz2val);
+    for(n=0; n<2; n++){
 
-    update_bb(objects, 1, objects[1].subs[n].position,
-                          objects[n+2].shape);
+      objects[parind].subs[n].position[0] = (n%2? px1val: px2val);
+      objects[parind].subs[n].position[1] = (n%2? py1val: py2val);
+      objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val) + dibble;
+
+      top_object++;
+      objects[parind].subs[n].obj_index = top_object;
+
+      objects[top_object].shape[0] = (n%2? sx1val: sx2val);
+      objects[top_object].shape[1] = (n%2? sy1val: sy2val);
+      objects[top_object].shape[2] = (n%2? sz1val: sz2val);
+
+      update_bb(objects, parind, objects[parind].subs[n].position,
+                                 objects[top_object].shape);
+    }
+    objects[parind].subs[n].obj_index = 0;
+
+    // ------
+
+    top_object++;
+
+    parind = top_object;
+
+    objects[parind].bb_position[0] = 0.0f;
+    objects[parind].bb_position[1] = 0.0f;
+    objects[parind].bb_position[2] = 0.0f;
+    objects[parind].bb_shape[0] = 0.0f;
+    objects[parind].bb_shape[1] = 0.0f;
+    objects[parind].bb_shape[2] = 0.0f;
+
+    for(n=0; n<8; n++){
+
+      objects[parind].subs[n].position[0] = (n%2? px1val: px2val) + (n-n%2+1) * 3;
+      objects[parind].subs[n].position[1] = (n%2? py1val: py2val);
+      objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val) + (n-n%2+1) * 3;
+
+      top_object++;
+      objects[parind].subs[n].obj_index = top_object;
+
+      objects[top_object].shape[0] = (n%2? sx1val: sx2val);
+      objects[top_object].shape[1] = (n%2? sy1val: sy2val);
+      objects[top_object].shape[2] = (n%2? sz1val: sz2val);
+
+      update_bb(objects, parind, objects[parind].subs[n].position,
+                                 objects[top_object].shape);
+    }
+    objects[parind].subs[n].obj_index = 0;
   }
-  objects[1].subs[n].obj_index = 0;
-
-  // ------
-
-  objects[4].bb_position[0] = 0.0f;
-  objects[4].bb_position[1] = 0.0f;
-  objects[4].bb_position[2] = 0.0f;
-  objects[4].bb_shape[0] = 0.0f;
-  objects[4].bb_shape[1] = 0.0f;
-  objects[4].bb_shape[2] = 0.0f;
-
-  for(n=0; n<8; n++){
-
-    objects[4].subs[n].position[0] = (n%2? px1val: px2val) + (n-n%2+1) * 3;
-    objects[4].subs[n].position[1] = (n%2? py1val: py2val);
-    objects[4].subs[n].position[2] = (n%2? pz1val: pz2val) + (n-n%2+1) * 3;
-
-    objects[4].subs[n].obj_index = n+5;
-
-    objects[n+5].shape[0] = (n%2? sx1val: sx2val);
-    objects[n+5].shape[1] = (n%2? sy1val: sy2val);
-    objects[n+5].shape[2] = (n%2? sz1val: sz2val);
-
-    update_bb(objects, 4, objects[4].subs[n].position,
-                          objects[n+5].shape);
-
-  }
-  objects[4].subs[n].obj_index = 0;
 }
 
 // ---------------------------------

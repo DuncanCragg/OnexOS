@@ -303,7 +303,7 @@ static void draw_3d(object* user, char* path){
 
   // -----------
 
-  struct scene_object* objects = (struct scene_object*)(objects_data + (sizeof(uint32_t) * 4));
+  struct scene_object* objects = (struct scene_object*)objects_data;
 
   static float dibble = 0.0f;
   dibble += 0.01f;
@@ -315,57 +315,55 @@ static void draw_3d(object* user, char* path){
   objects[0].bb_shape[1] = 0.0f;
   objects[0].bb_shape[2] = 0.0f;
 
-  uint32_t num_objects = 0;
+  objects[0].subs[0].position[0] = px1val;
+  objects[0].subs[0].position[1] = py1val;
+  objects[0].subs[0].position[2] = pz1val + dibble;
 
-  objects[0].subs[num_objects].position[0] = px1val;
-  objects[0].subs[num_objects].position[1] = py1val;
-  objects[0].subs[num_objects].position[2] = pz1val + dibble;
+  objects[0].subs[0].obj_index = 1;
 
-  objects[0].subs[num_objects].obj_index = num_objects + 1;
+  objects[1].shape[0] = sx1val;
+  objects[1].shape[1] = sy1val;
+  objects[1].shape[2] = sz1val;
 
-  objects[num_objects + 1].shape[0] = sx1val;
-  objects[num_objects + 1].shape[1] = sy1val;
-  objects[num_objects + 1].shape[2] = sz1val;
+  update_bb(objects, 0, objects[0].subs[0].position,
+                        objects[1].shape);
 
-  update_bb(objects, 0, objects[0].subs[num_objects].position,
-                        objects[num_objects + 1].shape);
+  objects[0].subs[1].position[0] = px2val;
+  objects[0].subs[1].position[1] = py2val;
+  objects[0].subs[1].position[2] = pz2val + dibble;
 
-  num_objects++;
+  objects[0].subs[1].obj_index = 2;
 
-  objects[0].subs[num_objects].position[0] = px2val;
-  objects[0].subs[num_objects].position[1] = py2val;
-  objects[0].subs[num_objects].position[2] = pz2val + dibble;
+  objects[2].shape[0] = sx2val;
+  objects[2].shape[1] = sy2val;
+  objects[2].shape[2] = sz2val;
 
-  objects[0].subs[num_objects].obj_index = num_objects + 1;
+  update_bb(objects, 0, objects[0].subs[1].position,
+                        objects[2].shape);
 
-  objects[num_objects + 1].shape[0] = sx2val;
-  objects[num_objects + 1].shape[1] = sy2val;
-  objects[num_objects + 1].shape[2] = sz2val;
+  objects[3].bb_position[0] = 0.0f;
+  objects[3].bb_position[1] = 0.0f;
+  objects[3].bb_position[2] = 0.0f;
+  objects[3].bb_shape[0] = 0.0f;
+  objects[3].bb_shape[1] = 0.0f;
+  objects[3].bb_shape[2] = 0.0f;
 
-  update_bb(objects, 0, objects[0].subs[num_objects].position,
-                        objects[num_objects + 1].shape);
+  for(int n=0; n<2; n++){
 
-  num_objects++;
+    objects[3].subs[n].position[0] = px2val + (n+2) * 3;
+    objects[3].subs[n].position[1] = py2val;
+    objects[3].subs[n].position[2] = pz2val + (n+2) * 3;
 
-  while(num_objects < 4){
+    objects[3].subs[n].obj_index = n+4;
 
-    objects[0].subs[num_objects].position[0] = px2val + num_objects * 3;
-    objects[0].subs[num_objects].position[1] = py2val;
-    objects[0].subs[num_objects].position[2] = pz2val + num_objects * 3;
+    objects[n+4].shape[0] = sx2val;
+    objects[n+4].shape[1] = sy2val;
+    objects[n+4].shape[2] = sz2val;
 
-    objects[0].subs[num_objects].obj_index = num_objects + 1;
+    update_bb(objects, 3, objects[3].subs[n].position,
+                          objects[n+4].shape);
 
-    objects[num_objects + 1].shape[0] = sx2val;
-    objects[num_objects + 1].shape[1] = sy2val;
-    objects[num_objects + 1].shape[2] = sz2val;
-
-    update_bb(objects, 0, objects[0].subs[num_objects].position,
-                          objects[num_objects + 1].shape);
-
-    num_objects++;
   }
-  uint32_t* size_p = (uint32_t*)objects_data;
-  *size_p = num_objects;
 }
 
 // ---------------------------------

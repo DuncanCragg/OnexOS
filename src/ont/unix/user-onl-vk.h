@@ -26,7 +26,7 @@ struct scene_object {
 };
 
 #define OBJECTS_MAX_NUM 1024
-#define OBJECTS_SIZE ((sizeof(uint32_t) * 4) + (sizeof(struct scene_object) * OBJECTS_MAX_NUM))
+#define OBJECTS_SIZE (sizeof(struct scene_object) * OBJECTS_MAX_NUM)
 
 extern void* objects_data;
 

@@ -17,7 +17,6 @@ struct scene_object {
 };
 
 layout(std430, binding = 2) buffer buf4 {
-  int size;
   scene_object objects[];
 } objects_buf;
 
@@ -30,8 +29,8 @@ layout(location = 0) out vec4  color;
 
 // ---------------------------------------------------
 
-const int   GROUND_PLANE = -1;
-const int   NO_OBJECT    = -2;
+const ivec3 GROUND_PLANE = ivec3(-1);
+const ivec3 NO_OBJECT    = ivec3(-2);
 const float FAR_FAR_AWAY = 1e6;
 
 // ---------------------------------------------------
@@ -124,38 +123,43 @@ float sdf_glyph_cast(vec3 p, vec3 rd, vec3 pos, vec2 shape) {
 
 // ---------------------------------------------------
 
-int   object_index;
+ivec3 object_index;
 float object_dist;
 
 float scene_sdf(vec3 p) {
 
-    vec3 position = objects_buf.objects[0].subs[object_index].position;
-    int  o        = objects_buf.objects[0].subs[object_index].obj_index.x;
-    vec3 shape    = objects_buf.objects[o].shape;
+    vec3 position = objects_buf.objects[object_index.x].subs[object_index.y].position;
+    vec3 shape    = objects_buf.objects[object_index.z].shape;
 
     return sdf_cuboid_near(p, position, shape);
 }
 
 // ---------------------------------------------------
 
-void get_nearest_object(vec3 ro, int current_object_index) {
+void get_nearest_object(vec3 ro, ivec3 current_object_index) {
 
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
 
-  for(int i = 0; i < objects_buf.size; i++){
+  float s0 = sdf_cuboid_near(ro, objects_buf.objects[0].bb_position,
+                                 objects_buf.objects[0].bb_shape);
+  float s3 = sdf_cuboid_near(ro, objects_buf.objects[3].bb_position,
+                                 objects_buf.objects[3].bb_shape);
+  int parent = s0 < s3? 0: 3;
 
-    if(i==current_object_index) continue;
+  for(int i = 0; i < 2; i++){
 
-    vec3 position = objects_buf.objects[0].subs[i].position;
-    int  o        = objects_buf.objects[0].subs[i].obj_index.x;
+    vec3 position = objects_buf.objects[parent].subs[i].position;
+    int  o        = objects_buf.objects[parent].subs[i].obj_index.x;
     vec3 shape    = objects_buf.objects[o].shape;
+
+    if(ivec3(parent,i,o)==current_object_index) continue;
 
     float s = sdf_cuboid_near(ro, position, shape);
 
     if(s<object_dist){
 
-      object_index = i;
+      object_index = ivec3(parent,i,o);
       object_dist = s;
     }
   }
@@ -166,23 +170,28 @@ void get_first_object_hit(vec3 ro, vec3 rd) {
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
 
-  float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[0].bb_position,
-                                    objects_buf.objects[0].bb_shape);
-  if(s==FAR_FAR_AWAY) return;
+  int parent = 0;
+  while(true){
 
-  for(int i = 0; i < objects_buf.size; i++){
+    float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[parent].bb_position,
+                                      objects_buf.objects[parent].bb_shape);
+    if(s!=FAR_FAR_AWAY)
+    for(int i = 0; i < 2; i++){
 
-    vec3 position = objects_buf.objects[0].subs[i].position;
-    int  o        = objects_buf.objects[0].subs[i].obj_index.x;
-    vec3 shape    = objects_buf.objects[o].shape;
+      vec3 position = objects_buf.objects[parent].subs[i].position;
+      int  o        = objects_buf.objects[parent].subs[i].obj_index.x;
+      vec3 shape    = objects_buf.objects[o].shape;
 
-    float s = sdf_cuboid_cast(ro, rd, position, shape);
+      float s = sdf_cuboid_cast(ro, rd, position, shape);
 
-    if(s<object_dist){
+      if(s<object_dist){
 
-      object_index = i;
-      object_dist = s;
+        object_index = ivec3(parent,i,o);
+        object_dist = s;
+      }
     }
+    if(parent == 0) parent = 3;
+    else break;
   }
 }
 
@@ -287,7 +296,7 @@ float ambient_occlusion(vec3 ro, vec3 normal) {
   rds[6] = normalize(normal + tangent - bitangent);
   rds[7] = normalize(normal - tangent - bitangent);
 
-  int current_object_index = object_index;
+  ivec3 current_object_index = object_index;
 
   float ao = 0.0;
   for (int i = 0; i < rdnum; i++) {
@@ -322,11 +331,10 @@ float soft_shadows(vec3 ro, vec3 rd, float hardness) {
 // ---------------------------------------------------
 
 vec2 uv_from_p_on_obj(vec3 p){
-  vec3 obj_pos   = objects_buf.objects[0].subs[object_index].position;
-  int  o         = objects_buf.objects[0].subs[object_index].obj_index.x;
-  vec3 obj_shape = objects_buf.objects[o].shape;
-  vec3 local_p = p - obj_pos;
-  vec2 norm_p = local_p.xy / obj_shape.xy;
+  vec3 position = objects_buf.objects[object_index.x].subs[object_index.y].position;
+  vec3 shape    = objects_buf.objects[object_index.z].shape;
+  vec3 local_p = p - position;
+  vec2 norm_p = local_p.xy / shape.xy;
   return ((norm_p + 1.0) / 2.0) * vec2(1.0,-1.0) + vec2(0,1);
 }
 

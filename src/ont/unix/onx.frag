@@ -375,6 +375,8 @@ void main() {
     ray_cast(ro, rd);
 
     bool do_ao = false;
+    bool do_sh = false;
+
     float ss = 0.2;
 
     if (object_index != NO_OBJECT) {
@@ -387,7 +389,7 @@ void main() {
       if(object_index == GROUND_PLANE){
 
         float shadows = (1.0-ss) + ss * (do_ao? ambient_occlusion(p, vec3(0,1,0)):
-                                                soft_shadows(p, light_dir, 16.0));
+                                        (do_sh? soft_shadows(p, light_dir, 16.0): 1.0));
         color = vec4(grid_pattern(p) * shadows, 1.0);
 
       } else {
@@ -396,7 +398,7 @@ void main() {
         vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
         vec3 normal = calc_normal(p);
         float shadows = (1.0-ss) + ss * (do_ao? ambient_occlusion(p, normal):
-                                                soft_shadows(p, light_dir, 16.0));
+                                        (do_sh? soft_shadows(p, light_dir, 16.0): 1.0));
         float diffuse = max(dot(normal, light_dir), 0.0);
         vec2 texuv = uv_from_p_on_obj(p);
 

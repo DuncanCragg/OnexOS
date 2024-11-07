@@ -141,11 +141,11 @@ void get_nearest_object(vec3 ro, ivec3 current_object_index) {
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
 
-  float s0 = sdf_cuboid_near(ro, objects_buf.objects[0].bb_position,
-                                 objects_buf.objects[0].bb_shape);
-  float s3 = sdf_cuboid_near(ro, objects_buf.objects[3].bb_position,
-                                 objects_buf.objects[3].bb_shape);
-  int parent = s0 < s3? 0: 3;
+  float s1 = sdf_cuboid_near(ro, objects_buf.objects[1].bb_position,
+                                 objects_buf.objects[1].bb_shape);
+  float s4 = sdf_cuboid_near(ro, objects_buf.objects[4].bb_position,
+                                 objects_buf.objects[4].bb_shape);
+  int parent = s1 < s4? 1: 4;
 
   for(int n = 0; true; n++){
 
@@ -172,7 +172,7 @@ void get_first_object_hit(vec3 ro, vec3 rd) {
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
 
-  int parent = 0;
+  int parent = 1;
   while(true){
 
     float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[parent].bb_position,
@@ -194,7 +194,7 @@ void get_first_object_hit(vec3 ro, vec3 rd) {
         object_dist = s;
       }
     }
-    if(parent == 0) parent = 3;
+    if(parent == 1) parent = 4;
     else break;
   }
 }

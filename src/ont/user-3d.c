@@ -308,68 +308,68 @@ static void draw_3d(object* user, char* path){
   static float dibble = 0.0f;
   dibble += 0.01f;
 
-  objects[0].bb_position[0] = 0.0f;
-  objects[0].bb_position[1] = 0.0f;
-  objects[0].bb_position[2] = 0.0f;
-  objects[0].bb_shape[0] = 0.0f;
-  objects[0].bb_shape[1] = 0.0f;
-  objects[0].bb_shape[2] = 0.0f;
+  objects[1].bb_position[0] = 0.0f;
+  objects[1].bb_position[1] = 0.0f;
+  objects[1].bb_position[2] = 0.0f;
+  objects[1].bb_shape[0] = 0.0f;
+  objects[1].bb_shape[1] = 0.0f;
+  objects[1].bb_shape[2] = 0.0f;
 
-  objects[0].subs[0].position[0] = px1val;
-  objects[0].subs[0].position[1] = py1val;
-  objects[0].subs[0].position[2] = pz1val + dibble;
+  objects[1].subs[0].position[0] = px1val;
+  objects[1].subs[0].position[1] = py1val;
+  objects[1].subs[0].position[2] = pz1val + dibble;
 
-  objects[0].subs[0].obj_index = 1;
+  objects[1].subs[0].obj_index = 2;
 
-  objects[1].shape[0] = sx1val;
-  objects[1].shape[1] = sy1val;
-  objects[1].shape[2] = sz1val;
+  objects[2].shape[0] = sx1val;
+  objects[2].shape[1] = sy1val;
+  objects[2].shape[2] = sz1val;
 
-  update_bb(objects, 0, objects[0].subs[0].position,
-                        objects[1].shape);
-
-  objects[0].subs[1].position[0] = px2val;
-  objects[0].subs[1].position[1] = py2val;
-  objects[0].subs[1].position[2] = pz2val + dibble;
-
-  objects[0].subs[1].obj_index = 2;
-
-  objects[2].shape[0] = sx2val;
-  objects[2].shape[1] = sy2val;
-  objects[2].shape[2] = sz2val;
-
-  update_bb(objects, 0, objects[0].subs[1].position,
+  update_bb(objects, 1, objects[1].subs[0].position,
                         objects[2].shape);
 
-  objects[0].subs[2].obj_index = 0;
+  objects[1].subs[1].position[0] = px2val;
+  objects[1].subs[1].position[1] = py2val;
+  objects[1].subs[1].position[2] = pz2val + dibble;
+
+  objects[1].subs[1].obj_index = 3;
+
+  objects[3].shape[0] = sx2val;
+  objects[3].shape[1] = sy2val;
+  objects[3].shape[2] = sz2val;
+
+  update_bb(objects, 1, objects[1].subs[1].position,
+                        objects[3].shape);
+
+  objects[1].subs[2].obj_index = 0;
 
   // ------
 
-  objects[3].bb_position[0] = 0.0f;
-  objects[3].bb_position[1] = 0.0f;
-  objects[3].bb_position[2] = 0.0f;
-  objects[3].bb_shape[0] = 0.0f;
-  objects[3].bb_shape[1] = 0.0f;
-  objects[3].bb_shape[2] = 0.0f;
+  objects[4].bb_position[0] = 0.0f;
+  objects[4].bb_position[1] = 0.0f;
+  objects[4].bb_position[2] = 0.0f;
+  objects[4].bb_shape[0] = 0.0f;
+  objects[4].bb_shape[1] = 0.0f;
+  objects[4].bb_shape[2] = 0.0f;
 
   int n=0;
   for(; n<8; n++){
 
-    objects[3].subs[n].position[0] = (n%2? px1val: px2val) + (n-n%2+1) * 3;
-    objects[3].subs[n].position[1] = (n%2? py1val: py2val);
-    objects[3].subs[n].position[2] = (n%2? pz1val: pz2val) + (n-n%2+1) * 3;
+    objects[4].subs[n].position[0] = (n%2? px1val: px2val) + (n-n%2+1) * 3;
+    objects[4].subs[n].position[1] = (n%2? py1val: py2val);
+    objects[4].subs[n].position[2] = (n%2? pz1val: pz2val) + (n-n%2+1) * 3;
 
-    objects[3].subs[n].obj_index = n+4;
+    objects[4].subs[n].obj_index = n+5;
 
-    objects[n+4].shape[0] = (n%2? sx1val: sx2val);
-    objects[n+4].shape[1] = (n%2? sy1val: sy2val);
-    objects[n+4].shape[2] = (n%2? sz1val: sz2val);
+    objects[n+5].shape[0] = (n%2? sx1val: sx2val);
+    objects[n+5].shape[1] = (n%2? sy1val: sy2val);
+    objects[n+5].shape[2] = (n%2? sz1val: sz2val);
 
-    update_bb(objects, 3, objects[3].subs[n].position,
-                          objects[n+4].shape);
+    update_bb(objects, 4, objects[4].subs[n].position,
+                          objects[n+5].shape);
 
   }
-  objects[3].subs[n].obj_index = 0;
+  objects[4].subs[n].obj_index = 0;
 }
 
 // ---------------------------------

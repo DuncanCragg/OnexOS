@@ -349,6 +349,13 @@ static void draw_3d(object* user, char* path){
     }
     objects[parind].subs[n].obj_index = 0;
 
+    objects[0].subs[p].position[0] = objects[parind].bb_position[0];
+    objects[0].subs[p].position[1] = objects[parind].bb_position[1];
+    objects[0].subs[p].position[2] = objects[parind].bb_position[2];
+    objects[parind].shape[0]       = objects[parind].bb_shape[0];
+    objects[parind].shape[1]       = objects[parind].bb_shape[1];
+    objects[parind].shape[2]       = objects[parind].bb_shape[2];
+
     top_object++;
   }
   objects[0].subs[p].obj_index = 0;

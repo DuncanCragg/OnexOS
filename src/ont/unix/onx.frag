@@ -196,7 +196,16 @@ void get_first_object_hit(vec3 ro, vec3 rd) {
 
     float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[parent].bb_position,
                                       objects_buf.objects[parent].bb_shape);
-    if(s!=FAR_FAR_AWAY)
+  ; if(s==FAR_FAR_AWAY) continue;
+
+    bool show_bbs=false;
+    if(show_bbs){
+      if(s<object_dist){
+        object_index = ivec3(0,p,parent);
+        object_dist = s;
+      }
+    }
+
     for(int n = 0; true; n++){
 
       vec3 position = objects_buf.objects[parent].subs[n].position;
@@ -405,6 +414,7 @@ void main() {
 
           vec3 light_col = vec3(1.0);
           vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
+          if(object_index.x==0) ambient_col = vec4(0.1,0.1,0.8,1.0);
           vec3 normal = calc_normal(p);
           float shadows = (1.0-ss) + ss * (do_ao? ambient_occlusion(p, normal):
                                           (do_sh? soft_shadows(p, light_dir, 16.0): 1.0));

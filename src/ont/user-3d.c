@@ -312,6 +312,8 @@ static void draw_3d(object* user, char* path){
   objects[0].subs[1].obj_index = 4;
   objects[0].subs[2].obj_index = 0;
 
+  // ------
+
   objects[1].bb_position[0] = 0.0f;
   objects[1].bb_position[1] = 0.0f;
   objects[1].bb_position[2] = 0.0f;
@@ -319,33 +321,24 @@ static void draw_3d(object* user, char* path){
   objects[1].bb_shape[1] = 0.0f;
   objects[1].bb_shape[2] = 0.0f;
 
-  objects[1].subs[0].position[0] = px1val;
-  objects[1].subs[0].position[1] = py1val;
-  objects[1].subs[0].position[2] = pz1val + dibble;
+  int n;
 
-  objects[1].subs[0].obj_index = 2;
+  for(n=0; n<2; n++){
 
-  objects[2].shape[0] = sx1val;
-  objects[2].shape[1] = sy1val;
-  objects[2].shape[2] = sz1val;
+    objects[1].subs[n].position[0] = (n%2? px1val: px2val);
+    objects[1].subs[n].position[1] = (n%2? py1val: py2val);
+    objects[1].subs[n].position[2] = (n%2? pz1val: pz2val) + dibble;
 
-  update_bb(objects, 1, objects[1].subs[0].position,
-                        objects[2].shape);
+    objects[1].subs[n].obj_index = n+2;
 
-  objects[1].subs[1].position[0] = px2val;
-  objects[1].subs[1].position[1] = py2val;
-  objects[1].subs[1].position[2] = pz2val + dibble;
+    objects[n+2].shape[0] = (n%2? sx1val: sx2val);
+    objects[n+2].shape[1] = (n%2? sy1val: sy2val);
+    objects[n+2].shape[2] = (n%2? sz1val: sz2val);
 
-  objects[1].subs[1].obj_index = 3;
-
-  objects[3].shape[0] = sx2val;
-  objects[3].shape[1] = sy2val;
-  objects[3].shape[2] = sz2val;
-
-  update_bb(objects, 1, objects[1].subs[1].position,
-                        objects[3].shape);
-
-  objects[1].subs[2].obj_index = 0;
+    update_bb(objects, 1, objects[1].subs[n].position,
+                          objects[n+2].shape);
+  }
+  objects[1].subs[n].obj_index = 0;
 
   // ------
 
@@ -356,8 +349,7 @@ static void draw_3d(object* user, char* path){
   objects[4].bb_shape[1] = 0.0f;
   objects[4].bb_shape[2] = 0.0f;
 
-  int n=0;
-  for(; n<8; n++){
+  for(n=0; n<8; n++){
 
     objects[4].subs[n].position[0] = (n%2? px1val: px2val) + (n-n%2+1) * 3;
     objects[4].subs[n].position[1] = (n%2? py1val: py2val);

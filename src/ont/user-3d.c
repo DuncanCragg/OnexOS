@@ -308,17 +308,15 @@ static void draw_3d(object* user, char* path){
   static float dibble = 0.0f;
   dibble += 0.01f;
 
-  objects[0].subs[0].obj_index = 1;
-  objects[0].subs[1].obj_index = 4;
-  objects[0].subs[2].obj_index = 0;
-
   // ------
 
   uint32_t top_object = 1;
 
-  for(int p=0; p<1; p++){
+  int p;
+  for(p=0; p<2; p++){
 
     uint32_t parind = top_object;
+    objects[0].subs[p].obj_index = parind;
 
     objects[parind].bb_position[0] = 0.0f;
     objects[parind].bb_position[1] = 0.0f;
@@ -329,42 +327,17 @@ static void draw_3d(object* user, char* path){
 
     int n;
 
-    for(n=0; n<2; n++){
-
-      objects[parind].subs[n].position[0] = (n%2? px1val: px2val);
-      objects[parind].subs[n].position[1] = (n%2? py1val: py2val);
-      objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val) + dibble;
-
-      top_object++;
-      objects[parind].subs[n].obj_index = top_object;
-
-      objects[top_object].shape[0] = (n%2? sx1val: sx2val);
-      objects[top_object].shape[1] = (n%2? sy1val: sy2val);
-      objects[top_object].shape[2] = (n%2? sz1val: sz2val);
-
-      update_bb(objects, parind, objects[parind].subs[n].position,
-                                 objects[top_object].shape);
-    }
-    objects[parind].subs[n].obj_index = 0;
-
-    // ------
-
-    top_object++;
-
-    parind = top_object;
-
-    objects[parind].bb_position[0] = 0.0f;
-    objects[parind].bb_position[1] = 0.0f;
-    objects[parind].bb_position[2] = 0.0f;
-    objects[parind].bb_shape[0] = 0.0f;
-    objects[parind].bb_shape[1] = 0.0f;
-    objects[parind].bb_shape[2] = 0.0f;
-
     for(n=0; n<8; n++){
 
+      if(p==0){
+      objects[parind].subs[n].position[0] = (n%2? px1val: px2val);
+      objects[parind].subs[n].position[1] = (n%2? py1val: py2val) + (n-n%2) + dibble;
+      objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val);
+      }else{
       objects[parind].subs[n].position[0] = (n%2? px1val: px2val) + (n-n%2+1) * 3;
       objects[parind].subs[n].position[1] = (n%2? py1val: py2val);
       objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val) + (n-n%2+1) * 3;
+      }
 
       top_object++;
       objects[parind].subs[n].obj_index = top_object;
@@ -377,7 +350,10 @@ static void draw_3d(object* user, char* path){
                                  objects[top_object].shape);
     }
     objects[parind].subs[n].obj_index = 0;
+
+    top_object++;
   }
+  objects[0].subs[p].obj_index = 0;
 }
 
 // ---------------------------------

@@ -71,7 +71,11 @@ float sdf_cuboid_near(vec3 p, vec3 pos, vec3 cube_shape) {
   return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
 
+int number_of_cuboids_cast;
+
 float sdf_cuboid_cast(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape) {
+
+    number_of_cuboids_cast++;
 
     vec3 local_p = p - pos;
 
@@ -178,6 +182,8 @@ void get_nearest_object(vec3 ro, ivec3 current_object_index) {
 }
 
 void get_first_object_hit(vec3 ro, vec3 rd) {
+
+  number_of_cuboids_cast=0;
 
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
@@ -394,15 +400,23 @@ void main() {
 
       } else {
 
-        vec3 light_col = vec3(1.0);
-        vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
-        vec3 normal = calc_normal(p);
-        float shadows = (1.0-ss) + ss * (do_ao? ambient_occlusion(p, normal):
-                                        (do_sh? soft_shadows(p, light_dir, 16.0): 1.0));
-        float diffuse = max(dot(normal, light_dir), 0.0);
-        vec2 texuv = uv_from_p_on_obj(p);
+        bool show_number_of_cuboids_cast = false;
+        if(!show_number_of_cuboids_cast){
 
-        color = (ambient_col+0.5*diffuse*texture(tex, texuv))*vec4(vec3(shadows),1.0);
+          vec3 light_col = vec3(1.0);
+          vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
+          vec3 normal = calc_normal(p);
+          float shadows = (1.0-ss) + ss * (do_ao? ambient_occlusion(p, normal):
+                                          (do_sh? soft_shadows(p, light_dir, 16.0): 1.0));
+          float diffuse = max(dot(normal, light_dir), 0.0);
+          vec2 texuv = uv_from_p_on_obj(p);
+
+          color = (ambient_col+0.5*diffuse*texture(tex, texuv))*vec4(vec3(shadows),1.0);
+
+        } else {
+
+          color = vec4(float(number_of_cuboids_cast)/72, 0.0, 0.0, 1.0);
+        }
       }
 
       if(in_left_touch_area) color -= vec4(0.1);

@@ -341,6 +341,10 @@ static void draw_3d(object* user, char* path){
   update_bb(objects, 0, objects[0].subs[1].position,
                         objects[2].shape);
 
+  objects[0].subs[2].obj_index = 0;
+
+  // ------
+
   objects[3].bb_position[0] = 0.0f;
   objects[3].bb_position[1] = 0.0f;
   objects[3].bb_position[2] = 0.0f;
@@ -348,7 +352,8 @@ static void draw_3d(object* user, char* path){
   objects[3].bb_shape[1] = 0.0f;
   objects[3].bb_shape[2] = 0.0f;
 
-  for(int n=0; n<2; n++){
+  int n=0;
+  for(; n<8; n++){
 
     objects[3].subs[n].position[0] = px2val + (n+2) * 3;
     objects[3].subs[n].position[1] = py2val;
@@ -364,6 +369,7 @@ static void draw_3d(object* user, char* path){
                           objects[n+4].shape);
 
   }
+  objects[3].subs[n].obj_index = 0;
 }
 
 // ---------------------------------

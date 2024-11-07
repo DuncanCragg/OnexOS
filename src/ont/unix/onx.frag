@@ -147,19 +147,21 @@ void get_nearest_object(vec3 ro, ivec3 current_object_index) {
                                  objects_buf.objects[3].bb_shape);
   int parent = s0 < s3? 0: 3;
 
-  for(int i = 0; i < 2; i++){
+  for(int n = 0; true; n++){
 
-    vec3 position = objects_buf.objects[parent].subs[i].position;
-    int  o        = objects_buf.objects[parent].subs[i].obj_index.x;
+    vec3 position = objects_buf.objects[parent].subs[n].position;
+    int  o        = objects_buf.objects[parent].subs[n].obj_index.x;
     vec3 shape    = objects_buf.objects[o].shape;
 
-    if(ivec3(parent,i,o)==current_object_index) continue;
+  ; if(o==0) break;
+
+    if(ivec3(parent,n,o)==current_object_index) continue;
 
     float s = sdf_cuboid_near(ro, position, shape);
 
     if(s<object_dist){
 
-      object_index = ivec3(parent,i,o);
+      object_index = ivec3(parent,n,o);
       object_dist = s;
     }
   }
@@ -176,17 +178,19 @@ void get_first_object_hit(vec3 ro, vec3 rd) {
     float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[parent].bb_position,
                                       objects_buf.objects[parent].bb_shape);
     if(s!=FAR_FAR_AWAY)
-    for(int i = 0; i < 2; i++){
+    for(int n = 0; true; n++){
 
-      vec3 position = objects_buf.objects[parent].subs[i].position;
-      int  o        = objects_buf.objects[parent].subs[i].obj_index.x;
+      vec3 position = objects_buf.objects[parent].subs[n].position;
+      int  o        = objects_buf.objects[parent].subs[n].obj_index.x;
       vec3 shape    = objects_buf.objects[o].shape;
+
+    ; if(o==0) break;
 
       float s = sdf_cuboid_cast(ro, rd, position, shape);
 
       if(s<object_dist){
 
-        object_index = ivec3(parent,i,o);
+        object_index = ivec3(parent,n,o);
         object_dist = s;
       }
     }

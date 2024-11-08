@@ -59,12 +59,6 @@ void init_onex() {
   object* home;
   object* inventory;
 
-  object* floorpanel;
-  object* backpanel;
-
-  char* floorpaneluid;
-  char* backpaneluid;
-
   object* note;
   char* noteuid;
 
@@ -83,19 +77,32 @@ void init_onex() {
 
     // -----------
 
+    object* floorpanel;
+    object* backpanel;
+    object* roofpanel;
+
+    char* floorpaneluid;
+    char* backpaneluid;
+    char* roofpaneluid;
+
     floorpanel=object_new(0, "editable", "3d cuboid", 4);
     floorpaneluid=object_property(floorpanel, "UID");
-
-    object_property_set_list(floorpanel, "position", "0.0", "0.1", "-14.0", 0);
-    object_property_set_list(floorpanel, "shape",    "1.5", "0.1", "1.5", 0);
 
     backpanel=object_new(0, "editable", "3d cuboid", 4);
     backpaneluid=object_property(backpanel, "UID");
 
-    object_property_set_list(backpanel, "position", "0.0", "1.5", "-15.5", 0);
-    object_property_set_list(backpanel, "shape",    "1.5", "1.5", "0.1", 0);
+    roofpanel=object_new(0, "editable", "3d cuboid", 4);
+    roofpaneluid=object_property(roofpanel, "UID");
 
-    object_property_add(floorpanel, "contains", backpaneluid);
+    object_property_set_list(floorpanel, "shape", "1.5", "0.1", "1.5", 0);
+    object_property_set_list(floorpanel, "position-1", "0.0", "1.5", "-1.5", 0);
+    object_property_add(     floorpanel, "contains-1", backpaneluid);
+
+    object_property_set_list(backpanel, "shape", "1.5", "1.5", "0.1", 0);
+    object_property_set_list(backpanel, "position-1", "0.0", "1.5", "0.0", 0);
+    object_property_add(     backpanel, "contains-1", roofpaneluid);
+
+    object_property_set_list(roofpanel,  "shape", "1.5", "0.1", "1.5", 0);
 
     // -----------
 

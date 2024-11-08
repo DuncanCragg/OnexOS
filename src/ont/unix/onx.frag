@@ -181,6 +181,71 @@ void get_nearest_object(vec3 ro, ivec3 current_object_index) {
   }
 }
 
+//  float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[parent].bb_position,
+//                                    objects_buf.objects[parent].bb_shape);
+//; if(s==FAR_FAR_AWAY) continue;
+
+//  bool show_bbs=false;
+//  if(show_bbs){
+//    if(s<object_dist){
+//      object_index = ivec3(0,p,parent);
+//      object_dist = s;
+//    }
+//  }
+
+
+// Who sez I can't have recursion in a shader? Only four deep though
+
+void recurse_through_dag_body(int parent_idx, int c, int child_idx, vec3 ro, vec3 rd){
+
+  vec3 position = objects_buf.objects[parent_idx].subs[c].position;
+  vec3 shape    = objects_buf.objects[child_idx].shape;
+
+  float s = sdf_cuboid_cast(ro, rd, position, shape);
+
+  if(s<object_dist){
+
+    object_index = ivec3(parent_idx, c, child_idx);
+    object_dist = s;
+  }
+}
+
+void recurse_through_dag_4(int parent_idx, vec3 ro, vec3 rd){
+  for(int c=0; true; c++){
+    int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
+  ; if(child_idx == 0) break;
+    recurse_through_dag_body(parent_idx, c, child_idx, ro, rd);
+//  recurse_through_dag_5(child_idx, ro, rd);
+  }
+}
+
+void recurse_through_dag_3(int parent_idx, vec3 ro, vec3 rd){
+  for(int c=0; true; c++){
+    int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
+  ; if(child_idx == 0) break;
+    recurse_through_dag_body(parent_idx, c, child_idx, ro, rd);
+    recurse_through_dag_4(child_idx, ro, rd);
+  }
+}
+
+void recurse_through_dag_2(int parent_idx, vec3 ro, vec3 rd){
+  for(int c=0; true; c++){
+    int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
+  ; if(child_idx == 0) break;
+    recurse_through_dag_body(parent_idx, c, child_idx, ro, rd);
+    recurse_through_dag_3(child_idx, ro, rd);
+  }
+}
+
+void recurse_through_dag_1(int parent_idx, vec3 ro, vec3 rd){
+  for(int c=0; true; c++){
+    int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
+  ; if(child_idx == 0) break;
+    recurse_through_dag_body(parent_idx, c, child_idx, ro, rd);
+    recurse_through_dag_2(child_idx, ro, rd);
+  }
+}
+
 void get_first_object_hit(vec3 ro, vec3 rd) {
 
   number_of_cuboids_cast=0;
@@ -188,41 +253,7 @@ void get_first_object_hit(vec3 ro, vec3 rd) {
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
 
-  for(int p=0; true; p++){
-
-    int parent = objects_buf.objects[0].subs[p].obj_index.x;
-
-  ; if(parent == 0) break;
-
-    float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[parent].bb_position,
-                                      objects_buf.objects[parent].bb_shape);
-  ; if(s==FAR_FAR_AWAY) continue;
-
-    bool show_bbs=false;
-    if(show_bbs){
-      if(s<object_dist){
-        object_index = ivec3(0,p,parent);
-        object_dist = s;
-      }
-    }
-
-    for(int n = 0; true; n++){
-
-      vec3 position = objects_buf.objects[parent].subs[n].position;
-      int  o        = objects_buf.objects[parent].subs[n].obj_index.x;
-      vec3 shape    = objects_buf.objects[o].shape;
-
-    ; if(o==0) break;
-
-      float s = sdf_cuboid_cast(ro, rd, position, shape);
-
-      if(s<object_dist){
-
-        object_index = ivec3(parent,n,o);
-        object_dist = s;
-      }
-    }
-  }
+  recurse_through_dag_1(0, ro, rd);
 }
 
 // ---------------------------------------------------
@@ -355,8 +386,8 @@ void main() {
 
     ray_cast(ro, rd);
 
-    bool do_ao_ground  = true;
-    bool do_ao_objects = true;
+    bool do_ao_ground  = false;
+    bool do_ao_objects = false;
     bool do_shadows    = false;
 
     float ss = 0.2;
@@ -381,7 +412,7 @@ void main() {
 
           vec3 light_col = vec3(1.0);
           vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
-          if(object_index.x==0) ambient_col = vec4(0.1,0.1,0.8,1.0);
+   //     if(object_index.x==0) ambient_col = vec4(0.1,0.1,0.8,1.0);
           vec3 normal = calc_normal(p);
           float shadows = (1.0-ss)+ss*(do_ao_objects? ambient_occlusion(p):
                                       (do_shadows? soft_shadows(p, light_dir, 16.0): 1.0));

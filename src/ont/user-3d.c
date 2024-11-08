@@ -13,6 +13,22 @@
 #include <onn.h>
 #include <onr.h>
 
+// ---------------------------------
+
+static void vec3_show(char* name, vec3 v){
+  log_write("%s={ %0.4f, %0.4f, %0.4f }\n", name, v[0], v[1], v[2]);
+}
+
+static void mat4x4_show(mat4x4 m){
+  log_write("/---------------------\\\n");
+  for(uint32_t i=0; i<4; i++){
+    log_write("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
+  }
+  log_write("\\---------------------/\n");
+}
+
+// ---------------------------------
+
 mat4x4 proj_matrix;
 mat4x4 view_l_matrix;
 mat4x4 view_r_matrix;
@@ -274,50 +290,67 @@ void update_bb(struct scene_object* objects,
     }
 }
 
-static void draw_3d(object* user, char* path){
+void obj_pp_vec3(object* o, char* p1, char* p2, vec3 dest){
 
-  char* px=object_pathpair(user, path, "position:1");
-  char* py=object_pathpair(user, path, "position:2");
-  char* pz=object_pathpair(user, path, "position:3");
-
-  char* sx=object_pathpair(user, path, "shape:1");
-  char* sy=object_pathpair(user, path, "shape:2");
-  char* sz=object_pathpair(user, path, "shape:3");
+  char* x=object_pathpair_get_n(o, p1, p2, 1);
+  char* y=object_pathpair_get_n(o, p1, p2, 2);
+  char* z=object_pathpair_get_n(o, p1, p2, 3);
 
   char* e;
 
-  float px1val=px? strtof(px,&e): 0.0;
-  float py1val=py? strtof(py,&e): 0.0;
-  float pz1val=pz? strtof(pz,&e): 0.0;
+  dest[0] = x? strtof(x,&e): 0.0;
+  dest[1] = y? strtof(y,&e): 0.0;
+  dest[2] = z? strtof(z,&e): 0.0;
+}
 
-  float sx1val=sx? strtof(sx,&e): 0.0;
-  float sy1val=sy? strtof(sy,&e): 0.0;
-  float sz1val=sz? strtof(sz,&e): 0.0;
+static void draw_3d(object* user, char* path){
 
-        px=object_pathpair(user, path, "contains:position:1");
-        py=object_pathpair(user, path, "contains:position:2");
-        pz=object_pathpair(user, path, "contains:position:3");
+  vec3 shapef;
+  vec3 posb  ;
+  vec3 shapeb;
+  vec3 posr  ;
+  vec3 shaper;
 
-        sx=object_pathpair(user, path, "contains:shape:1");
-        sy=object_pathpair(user, path, "contains:shape:2");
-        sz=object_pathpair(user, path, "contains:shape:3");
-
-  float px2val=px? strtof(px,&e): 0.0;
-  float py2val=py? strtof(py,&e): 0.0;
-  float pz2val=pz? strtof(pz,&e): 0.0;
-
-  float sx2val=sx? strtof(sx,&e): 0.0;
-  float sy2val=sy? strtof(sy,&e): 0.0;
-  float sz2val=sz? strtof(sz,&e): 0.0;
-
-  // -----------
+  obj_pp_vec3(user, path, "shape", shapef);
+  obj_pp_vec3(user, path, "position-1", posb);
+  obj_pp_vec3(user, path, "contains-1:shape", shapeb);
+  obj_pp_vec3(user, path, "contains-1:position-1", posr);
+  obj_pp_vec3(user, path, "contains-1:contains-1:shape", shaper);
 
   struct scene_object* objects = (struct scene_object*)objects_data;
 
+  #define BASE_I  0
+  #define FLOOR_I 1
+  #define BACK_I  2
+  #define ROOF_I  3
+
+  vec3 origin = { 0.0, 0.0, 0.0 };
+  vec3_dup(objects[BASE_I].subs[0].position, origin)
+  ;        objects[BASE_I].subs[0].obj_index = FLOOR_I;
+  ;        objects[BASE_I].subs[1].obj_index = 0;
+
+  vec3_dup(objects[FLOOR_I].shape, shapef);
+
+
+
+  vec3_dup(objects[FLOOR_I].subs[0].position, posb);
+  ;        objects[FLOOR_I].subs[0].obj_index = BACK_I;
+  ;        objects[FLOOR_I].subs[1].obj_index = 0;
+
+  vec3_dup(objects[BACK_I].shape, shapeb);
+
+  vec3_dup(objects[BACK_I].subs[0].position, posr);
+  ;        objects[BACK_I].subs[0].obj_index = ROOF_I;
+  ;        objects[BACK_I].subs[1].obj_index = 0;
+
+  vec3_dup(objects[ROOF_I].shape, shaper);
+
+  objects[ROOF_I].subs[0].obj_index = 0;
+
+#ifdef TEST_GRID
+
   static float dibble = 0.0f;
   dibble += 0.01f;
-
-  // ------
 
   uint32_t top_object = 1;
 
@@ -361,14 +394,9 @@ static void draw_3d(object* user, char* path){
     top_object++;
   }
   objects[0].subs[p].obj_index = 0;
-}
 
-// ---------------------------------
+#endif // TEST_GRID
 
-static void show_matrix(mat4x4 m){
-  log_write("/---------------------\\\n");
-  for(uint32_t i=0; i<4; i++) log_write("%0.4f, %0.4f, %0.4f, %0.4f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
-  log_write("\\---------------------/\n");
 }
 
 // --------------------------------------------------------------------------------------

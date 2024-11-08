@@ -298,45 +298,11 @@ void ray_cast(vec3 ro, vec3 rd) {
 
 const float AO_RADIUS = 0.1;
 
-float ambient_occlusion(vec3 ro, vec3 normal) {
+float ambient_occlusion(vec3 ro) {
 
-  vec3 tangent;
+  get_nearest_object(ro, object_index);
 
-  for(int xyz = 0; xyz < 3; xyz++){
-    vec3 t;
-    if(xyz==0) t = cross(normal, vec3(1.0, 0.0, 0.0));
-    if(xyz==1) t = cross(normal, vec3(0.0, 1.0, 0.0));
-    if(xyz==2) t = cross(normal, vec3(0.0, 0.0, 1.0));
-    if(length(t) > 0.01){
-      tangent = normalize(t);
-      break;
-    }
-  }
-
-  vec3 bitangent = cross(normal, tangent);
-
-  const int rdnum = 8;
-  vec3 rds[rdnum];
-  rds[0] = normalize(normal + tangent);
-  rds[1] = normalize(normal - tangent);
-  rds[2] = normalize(normal + bitangent);
-  rds[3] = normalize(normal - bitangent);
-  rds[4] = normalize(normal + tangent + bitangent);
-  rds[5] = normalize(normal - tangent + bitangent);
-  rds[6] = normalize(normal + tangent - bitangent);
-  rds[7] = normalize(normal - tangent - bitangent);
-
-  ivec3 current_object_index = object_index;
-
-  float ao = 0.0;
-  for (int i = 0; i < rdnum; i++) {
-
-//  get_first_object_hit(ro, rds[i]);
-    get_nearest_object(ro + rds[i] * AO_RADIUS, current_object_index);
-
-    ao += smoothstep(0.0, AO_RADIUS, object_dist);
-  }
-  return (ao / rdnum);
+  return smoothstep(0.0, AO_RADIUS, object_dist);
 }
 
 float soft_shadows(vec3 ro, vec3 rd, float hardness) {
@@ -389,8 +355,9 @@ void main() {
 
     ray_cast(ro, rd);
 
-    bool do_ao = false;
-    bool do_sh = false;
+    bool do_ao_ground  = true;
+    bool do_ao_objects = false;
+    bool do_shadows    = false;
 
     float ss = 0.2;
 
@@ -403,8 +370,8 @@ void main() {
 
       if(object_index == GROUND_PLANE){
 
-        float shadows = (1.0-ss) + ss * (do_ao? ambient_occlusion(p, vec3(0,1,0)):
-                                        (do_sh? soft_shadows(p, light_dir, 16.0): 1.0));
+        float shadows = (1.0-ss)+ss*(do_ao_ground? ambient_occlusion(p):
+                                    (do_shadows? soft_shadows(p, light_dir, 16.0): 1.0));
         color = vec4(grid_pattern(p) * shadows, 1.0);
 
       } else {
@@ -416,8 +383,8 @@ void main() {
           vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
           if(object_index.x==0) ambient_col = vec4(0.1,0.1,0.8,1.0);
           vec3 normal = calc_normal(p);
-          float shadows = (1.0-ss) + ss * (do_ao? ambient_occlusion(p, normal):
-                                          (do_sh? soft_shadows(p, light_dir, 16.0): 1.0));
+          float shadows = (1.0-ss)+ss*(do_ao_objects? ambient_occlusion(p):
+                                      (do_shadows? soft_shadows(p, light_dir, 16.0): 1.0));
           float diffuse = max(dot(normal, light_dir), 0.0);
           vec2 texuv = uv_from_p_on_obj(p);
 

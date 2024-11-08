@@ -322,7 +322,7 @@ static void draw_3d(object* user, char* path){
   uint32_t top_object = 1;
 
   int p;
-  for(p=0; p<11; p++){
+  for(p=0; p<8; p++){
 
     uint32_t parind = top_object;
     objects[0].subs[p].obj_index = parind;
@@ -331,11 +331,13 @@ static void draw_3d(object* user, char* path){
 
     int n;
 
-    for(n=0; n<11; n++){
+    for(n=0; n<8; n++){
 
-      objects[parind].subs[n].position[0] = (n%2? px1val: px2val) + p * 5;
+      int m = n-n%2;
+
+      objects[parind].subs[n].position[0] = (n%2? px1val: px2val) + p * 4;
       objects[parind].subs[n].position[1] = (n%2? py1val: py2val);
-      objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val) + n * 5;
+      objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val) + m * 2;
 
       top_object++;
       objects[parind].subs[n].obj_index = top_object;

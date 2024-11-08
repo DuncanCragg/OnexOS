@@ -356,7 +356,7 @@ void main() {
     ray_cast(ro, rd);
 
     bool do_ao_ground  = true;
-    bool do_ao_objects = false;
+    bool do_ao_objects = true;
     bool do_shadows    = false;
 
     float ss = 0.2;

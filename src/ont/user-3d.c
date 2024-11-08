@@ -290,7 +290,7 @@ void update_bb(struct scene_object* objects,
     }
 }
 
-void obj_pp_vec3(object* o, char* p1, char* p2, vec3 dest){
+void object_pathpair_vec3(vec3 dest, object* o, char* p1, char* p2){
 
   char* x=object_pathpair_get_n(o, p1, p2, 1);
   char* y=object_pathpair_get_n(o, p1, p2, 2);
@@ -311,11 +311,11 @@ static void draw_3d(object* user, char* path){
   vec3 posr  ;
   vec3 shaper;
 
-  obj_pp_vec3(user, path, "shape", shapef);
-  obj_pp_vec3(user, path, "position-1", posb);
-  obj_pp_vec3(user, path, "contains-1:shape", shapeb);
-  obj_pp_vec3(user, path, "contains-1:position-1", posr);
-  obj_pp_vec3(user, path, "contains-1:contains-1:shape", shaper);
+  object_pathpair_vec3(shapef, user, path, "shape");
+  object_pathpair_vec3(posb,   user, path, "position-1");
+  object_pathpair_vec3(shapeb, user, path, "contains-1:shape");
+  object_pathpair_vec3(posr,   user, path, "contains-1:position-1");
+  object_pathpair_vec3(shaper, user, path, "contains-1:contains-1:shape");
 
   struct scene_object* objects = (struct scene_object*)objects_data;
 
@@ -331,8 +331,6 @@ static void draw_3d(object* user, char* path){
 
   vec3_dup(objects[FLOOR_I].shape, shapef);
 
-
-
   vec3_dup(objects[FLOOR_I].subs[0].position, posb);
   ;        objects[FLOOR_I].subs[0].obj_index = BACK_I;
   ;        objects[FLOOR_I].subs[1].obj_index = 0;
@@ -346,57 +344,6 @@ static void draw_3d(object* user, char* path){
   vec3_dup(objects[ROOF_I].shape, shaper);
 
   objects[ROOF_I].subs[0].obj_index = 0;
-
-#ifdef TEST_GRID
-
-  static float dibble = 0.0f;
-  dibble += 0.01f;
-
-  uint32_t top_object = 1;
-
-  int p;
-  for(p=0; p<8; p++){
-
-    uint32_t parind = top_object;
-    objects[0].subs[p].obj_index = parind;
-
-    objects[parind].bb_shape[0] = -1.0f;
-
-    int n;
-
-    for(n=0; n<8; n++){
-
-      int m = n-n%2;
-
-      objects[parind].subs[n].position[0] = (n%2? px1val: px2val) + p * 4;
-      objects[parind].subs[n].position[1] = (n%2? py1val: py2val);
-      objects[parind].subs[n].position[2] = (n%2? pz1val: pz2val) + m * 2;
-
-      top_object++;
-      objects[parind].subs[n].obj_index = top_object;
-
-      objects[top_object].shape[0] = (n%2? sx1val: sx2val);
-      objects[top_object].shape[1] = (n%2? sy1val: sy2val);
-      objects[top_object].shape[2] = (n%2? sz1val: sz2val);
-
-      update_bb(objects, parind, objects[parind].subs[n].position,
-                                 objects[top_object].shape);
-    }
-    objects[parind].subs[n].obj_index = 0;
-
-    objects[0].subs[p].position[0] = objects[parind].bb_position[0];
-    objects[0].subs[p].position[1] = objects[parind].bb_position[1];
-    objects[0].subs[p].position[2] = objects[parind].bb_position[2];
-    objects[parind].shape[0]       = objects[parind].bb_shape[0];
-    objects[parind].shape[1]       = objects[parind].bb_shape[1];
-    objects[parind].shape[2]       = objects[parind].bb_shape[2];
-
-    top_object++;
-  }
-  objects[0].subs[p].obj_index = 0;
-
-#endif // TEST_GRID
-
 }
 
 // --------------------------------------------------------------------------------------

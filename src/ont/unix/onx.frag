@@ -53,7 +53,7 @@ vec3 grid_pattern(vec3 position) {
 
 // ---------------------------------------------------
 
-float sdf_sphere_near(vec3 p, vec3 pos, float r) {
+float sdf_sphere_dist(vec3 p, vec3 pos, float r) {
   return length(p - pos) - r;
 }
 
@@ -66,7 +66,7 @@ float sdf_sphere_cast(vec3 p, vec3 rd, vec3 pos, float r) {
 
 // ---------------------------------------------------
 
-float sdf_cuboid_near(vec3 p, vec3 pos, vec3 cube_shape) {
+float sdf_cuboid_dist(vec3 p, vec3 pos, vec3 cube_shape) {
   vec3 d = abs(p - pos) - cube_shape;
   return min(max(d.x, max(d.y, d.z)), 0.0) + length(max(d, 0.0));
 }
@@ -100,7 +100,7 @@ float sdf_cuboid_cast(vec3 p, vec3 rd, vec3 pos, vec3 cube_shape) {
 
 // ---------------------------------------------------
 
-float sdf_glyph_near(vec3 p, vec3 pos, vec2 shape){
+float sdf_glyph_dist(vec3 p, vec3 pos, vec2 shape){
   vec3 local_p = p - pos;
   vec2 glyph_pos_2d = local_p.xy;
   vec2 d = abs(glyph_pos_2d) - shape * 0.5;
@@ -133,51 +133,86 @@ float object_dist;
 
 float scene_sdf(vec3 p) {
   vec3 shape = objects_buf.objects[object_index].shape;
-  return sdf_cuboid_near(p, object_position, shape);
+  return sdf_cuboid_dist(p, object_position, shape);
 }
 
 // ---------------------------------------------------
+
+//float ss=1e6;
+//int parent;
+//for(int p=0; true; p++){
+//  int par = objects_buf.objects[0].subs[p].obj_index.x;
+//; if(par == 0) break;
+//  float s = sdf_cuboid_dist(ro, objects_buf.objects[par].bb_position,
+//                                objects_buf.objects[par].bb_shape);
+//  if(s < ss){
+//    parent = par;
+//    ss = s;
+//  }
+//}
+
+vec3 dist_to_object(int parent_idx, int c, int child_idx, vec3 ro, vec3 aggpos){
+
+  vec3 position = objects_buf.objects[parent_idx].subs[c].position + aggpos;
+  vec3 shape    = objects_buf.objects[child_idx].shape;
+
+  float s = sdf_cuboid_dist(ro, position, shape);
+
+  if(s<object_dist){
+
+    object_position = position;
+    object_index = child_idx;
+    object_dist = s;
+  }
+  return position;
+}
+
+void recurse_near_object_4(int parent_idx, vec3 ro, vec3 aggpos, int current_object_index){
+  for(int c=0; true; c++){
+    int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
+  ; if(child_idx == 0) break;
+    if(child_idx == current_object_index) continue;
+    aggpos = dist_to_object(parent_idx, c, child_idx, ro, aggpos);
+//  recurse_near_object_5(child_idx, ro, aggpos, current_object_index);
+  }
+}
+
+void recurse_near_object_3(int parent_idx, vec3 ro, vec3 aggpos, int current_object_index){
+  for(int c=0; true; c++){
+    int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
+  ; if(child_idx == 0) break;
+    if(child_idx == current_object_index) continue;
+    aggpos = dist_to_object(parent_idx, c, child_idx, ro, aggpos);
+    recurse_near_object_4(child_idx, ro, aggpos, current_object_index);
+  }
+}
+
+void recurse_near_object_2(int parent_idx, vec3 ro, vec3 aggpos, int current_object_index){
+  for(int c=0; true; c++){
+    int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
+  ; if(child_idx == 0) break;
+    if(child_idx == current_object_index) continue;
+    aggpos = dist_to_object(parent_idx, c, child_idx, ro, aggpos);
+    recurse_near_object_3(child_idx, ro, aggpos, current_object_index);
+  }
+}
+
+void recurse_near_object_1(int parent_idx, vec3 ro, vec3 aggpos, int current_object_index){
+  for(int c=0; true; c++){
+    int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
+  ; if(child_idx == 0) break;
+    if(child_idx == current_object_index) continue;
+    aggpos = dist_to_object(parent_idx, c, child_idx, ro, aggpos);
+    recurse_near_object_2(child_idx, ro, aggpos, current_object_index);
+  }
+}
 
 void get_nearest_object(vec3 ro, int current_object_index) {
 
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
 
-  float ss=1e6;
-  int parent;
-  for(int p=0; true; p++){
-
-    int par = objects_buf.objects[0].subs[p].obj_index.x;
-
-  ; if(par == 0) break;
-
-    float s = sdf_cuboid_near(ro, objects_buf.objects[par].bb_position,
-                                  objects_buf.objects[par].bb_shape);
-    if(s < ss){
-      parent = par;
-      ss = s;
-    }
-  }
-
-  for(int n = 0; true; n++){
-
-    vec3 position = objects_buf.objects[parent].subs[n].position;
-    int  o        = objects_buf.objects[parent].subs[n].obj_index.x;
-    vec3 shape    = objects_buf.objects[o].shape;
-
-  ; if(o==0) break;
-
-    if(o==current_object_index) continue;
-
-    float s = sdf_cuboid_near(ro, position, shape);
-
-    if(s<object_dist){
-
-      object_position = position; //??
-      object_index = o;
-      object_dist = s;
-    }
-  }
+  recurse_near_object_1(0, ro, vec3(0), current_object_index);
 }
 
 //  float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[parent].bb_position,
@@ -191,7 +226,6 @@ void get_nearest_object(vec3 ro, int current_object_index) {
 //      object_dist = s;
 //    }
 //  }
-
 
 vec3 cast_at_object(int parent_idx, int c, int child_idx, vec3 ro, vec3 rd, vec3 aggpos){
 

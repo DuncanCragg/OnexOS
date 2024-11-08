@@ -95,11 +95,11 @@ void init_onex() {
     roofpaneluid=object_property(roofpanel, "UID");
 
     object_property_set_list(floorpanel, "shape", "1.5", "0.1", "1.5", 0);
-    object_property_set_list(floorpanel, "position-1", "0.0", "1.5", "-1.5", 0);
+    object_property_set_list(floorpanel, "position-1", "0.0", "1.4", "-1.4", 0);
     object_property_add(     floorpanel, "contains-1", backpaneluid);
 
     object_property_set_list(backpanel, "shape", "1.5", "1.5", "0.1", 0);
-    object_property_set_list(backpanel, "position-1", "0.0", "1.5", "1.5", 0);
+    object_property_set_list(backpanel, "position-1", "0.0", "1.4", "1.4", 0);
     object_property_add(     backpanel, "contains-1", roofpaneluid);
 
     object_property_set_list(roofpanel,  "shape", "1.5", "0.1", "1.5", 0);

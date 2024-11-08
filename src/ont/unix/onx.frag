@@ -29,8 +29,8 @@ layout(location = 0) out vec4  color;
 
 // ---------------------------------------------------
 
-const ivec3 GROUND_PLANE = ivec3(-1);
-const ivec3 NO_OBJECT    = ivec3(-2);
+const int   GROUND_PLANE = -1;
+const int   NO_OBJECT    = -2;
 const float FAR_FAR_AWAY = 1e6;
 
 // ---------------------------------------------------
@@ -127,20 +127,18 @@ float sdf_glyph_cast(vec3 p, vec3 rd, vec3 pos, vec2 shape) {
 
 // ---------------------------------------------------
 
-ivec3 object_index;
+vec3  object_position;
+int   object_index;
 float object_dist;
 
 float scene_sdf(vec3 p) {
-
-    vec3 position = objects_buf.objects[object_index.x].subs[object_index.y].position;
-    vec3 shape    = objects_buf.objects[object_index.z].shape;
-
-    return sdf_cuboid_near(p, position, shape);
+  vec3 shape = objects_buf.objects[object_index].shape;
+  return sdf_cuboid_near(p, object_position, shape);
 }
 
 // ---------------------------------------------------
 
-void get_nearest_object(vec3 ro, ivec3 current_object_index) {
+void get_nearest_object(vec3 ro, int current_object_index) {
 
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
@@ -169,13 +167,14 @@ void get_nearest_object(vec3 ro, ivec3 current_object_index) {
 
   ; if(o==0) break;
 
-    if(ivec3(parent,n,o)==current_object_index) continue;
+    if(o==current_object_index) continue;
 
     float s = sdf_cuboid_near(ro, position, shape);
 
     if(s<object_dist){
 
-      object_index = ivec3(parent,n,o);
+      object_position = position; //??
+      object_index = o;
       object_dist = s;
     }
   }
@@ -188,61 +187,63 @@ void get_nearest_object(vec3 ro, ivec3 current_object_index) {
 //  bool show_bbs=false;
 //  if(show_bbs){
 //    if(s<object_dist){
-//      object_index = ivec3(0,p,parent);
+//      object_index = ;
 //      object_dist = s;
 //    }
 //  }
 
 
-// Who sez I can't have recursion in a shader? Only four deep though
+vec3 cast_at_object(int parent_idx, int c, int child_idx, vec3 ro, vec3 rd, vec3 aggpos){
 
-void recurse_through_dag_body(int parent_idx, int c, int child_idx, vec3 ro, vec3 rd){
-
-  vec3 position = objects_buf.objects[parent_idx].subs[c].position;
+  vec3 position = objects_buf.objects[parent_idx].subs[c].position + aggpos;
   vec3 shape    = objects_buf.objects[child_idx].shape;
 
   float s = sdf_cuboid_cast(ro, rd, position, shape);
 
   if(s<object_dist){
 
-    object_index = ivec3(parent_idx, c, child_idx);
+    object_position = position;
+    object_index = child_idx;
     object_dist = s;
   }
+  return position;
 }
 
-void recurse_through_dag_4(int parent_idx, vec3 ro, vec3 rd){
+// Who sez I can't have recursion in a shader? Only four deep though
+
+void recurse_cast_object_4(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
-    recurse_through_dag_body(parent_idx, c, child_idx, ro, rd);
-//  recurse_through_dag_5(child_idx, ro, rd);
+    aggpos = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
+//  recurse_cast_object_5(child_idx, ro, rd, aggpos);
   }
 }
 
-void recurse_through_dag_3(int parent_idx, vec3 ro, vec3 rd){
+void recurse_cast_object_3(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
-    recurse_through_dag_body(parent_idx, c, child_idx, ro, rd);
-    recurse_through_dag_4(child_idx, ro, rd);
+    aggpos = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
+    recurse_cast_object_4(child_idx, ro, rd, aggpos);
   }
 }
 
-void recurse_through_dag_2(int parent_idx, vec3 ro, vec3 rd){
+void recurse_cast_object_2(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
-    recurse_through_dag_body(parent_idx, c, child_idx, ro, rd);
-    recurse_through_dag_3(child_idx, ro, rd);
+    aggpos = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
+    recurse_cast_object_3(child_idx, ro, rd, aggpos);
   }
 }
 
-void recurse_through_dag_1(int parent_idx, vec3 ro, vec3 rd){
+void recurse_cast_object_1(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
-    recurse_through_dag_body(parent_idx, c, child_idx, ro, rd);
-    recurse_through_dag_2(child_idx, ro, rd);
+    aggpos = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
+    recurse_cast_object_2(child_idx, ro, rd, aggpos);
   }
 }
 
@@ -253,7 +254,7 @@ void get_first_object_hit(vec3 ro, vec3 rd) {
   object_index = NO_OBJECT;
   object_dist = FAR_FAR_AWAY;
 
-  recurse_through_dag_1(0, ro, rd);
+  recurse_cast_object_1(0, ro, rd, vec3(0));
 }
 
 // ---------------------------------------------------
@@ -358,9 +359,8 @@ float soft_shadows(vec3 ro, vec3 rd, float hardness) {
 // ---------------------------------------------------
 
 vec2 uv_from_p_on_obj(vec3 p){
-  vec3 position = objects_buf.objects[object_index.x].subs[object_index.y].position;
-  vec3 shape    = objects_buf.objects[object_index.z].shape;
-  vec3 local_p = p - position;
+  vec3 local_p = p - object_position;
+  vec3 shape = objects_buf.objects[object_index].shape;
   vec2 norm_p = local_p.xy / shape.xy;
   return ((norm_p + 1.0) / 2.0) * vec2(1.0,-1.0) + vec2(0,1);
 }
@@ -386,8 +386,8 @@ void main() {
 
     ray_cast(ro, rd);
 
-    bool do_ao_ground  = false;
-    bool do_ao_objects = false;
+    bool do_ao_ground  = true;
+    bool do_ao_objects = true;
     bool do_shadows    = false;
 
     float ss = 0.2;
@@ -412,7 +412,6 @@ void main() {
 
           vec3 light_col = vec3(1.0);
           vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
-   //     if(object_index.x==0) ambient_col = vec4(0.1,0.1,0.8,1.0);
           vec3 normal = calc_normal(p);
           float shadows = (1.0-ss)+ss*(do_ao_objects? ambient_occlusion(p):
                                       (do_shadows? soft_shadows(p, light_dir, 16.0): 1.0));

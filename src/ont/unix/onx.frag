@@ -216,17 +216,42 @@ void get_nearest_object(vec3 ro, int current_idx) {
   recurse_near_object_1(0, ro, vec3(0), current_idx);
 }
 
-//  float s = sdf_cuboid_cast(ro, rd, objects_buf.objects[parent].bb_position,
-//                                    objects_buf.objects[parent].bb_shape);
-//; if(s==FAR_FAR_AWAY) continue;
+bool show_bb_wireframe=false;
+bool is_bb_wireframe;
 
-//  bool show_bbs=false;
-//  if(show_bbs){
-//    if(s<object_dist){
-//      object_index = ;
-//      object_dist = s;
-//    }
-//  }
+bool misses_bb(int parent_idx, vec3 ro, vec3 rd){
+
+  if(parent_idx==0) return false;
+
+  vec3 position = objects_buf.objects[parent_idx].bb_position;
+  vec3 shape    = objects_buf.objects[parent_idx].bb_shape;
+
+  float s = sdf_cuboid_cast(ro, rd, position, shape);
+
+  bool miss = (s == FAR_FAR_AWAY);
+
+  if(show_bb_wireframe && !miss){
+
+    vec3 p=ro+rd*s;
+
+    vec3 bb_min = position - shape;
+    vec3 bb_max = position + shape;
+
+    int n=0;
+    for (int i = 0; i < 3; i++) {
+      if(abs(p[i] - bb_min[i]) < 0.01 ||
+         abs(p[i] - bb_max[i]) < 0.01   ) n++;
+    }
+    is_bb_wireframe=(n>=2);
+
+    if(is_bb_wireframe){
+      object_position = position;
+      object_index = parent_idx;
+      object_dist = s;
+    }
+  }
+  return miss;
+}
 
 vec3 cast_at_object(int parent_idx, int c, int child_idx, vec3 ro, vec3 rd, vec3 aggpos){
 
@@ -247,6 +272,7 @@ vec3 cast_at_object(int parent_idx, int c, int child_idx, vec3 ro, vec3 rd, vec3
 // Who sez I can't have recursion in a shader? Only four deep though
 
 void recurse_cast_object_4(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
+  if(misses_bb(parent_idx, ro, rd)) return;
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
@@ -256,6 +282,7 @@ void recurse_cast_object_4(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
 }
 
 void recurse_cast_object_3(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
+  if(misses_bb(parent_idx, ro, rd)) return;
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
@@ -265,6 +292,7 @@ void recurse_cast_object_3(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
 }
 
 void recurse_cast_object_2(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
+  if(misses_bb(parent_idx, ro, rd)) return;
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
@@ -274,6 +302,7 @@ void recurse_cast_object_2(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
 }
 
 void recurse_cast_object_1(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
+  if(misses_bb(parent_idx, ro, rd)) return;
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
@@ -443,7 +472,11 @@ void main() {
       } else {
 
         bool show_number_of_cuboids_cast = false;
+        bool show_object_index=false;
+
         if(!show_number_of_cuboids_cast){
+        if(!(show_bb_wireframe && is_bb_wireframe)){
+        if(!show_object_index){
 
           vec3 light_col = vec3(1.0);
           vec4 ambient_col = vec4(0.6, 0.6, 0.6, 1.0);
@@ -455,6 +488,19 @@ void main() {
 
           color = (ambient_col+0.5*diffuse*texture(tex, texuv))*vec4(vec3(shadows),1.0);
 
+        } else {
+
+          color = object_index == NO_OBJECT? vec4(1,1,0,1): (    // yellow
+                  object_index == 0?         vec4(1,0,1,1): (    // magenta
+                  object_index == 1?         vec4(1,0,0,1): (    // red
+                  object_index == 2?         vec4(0,1,0,1): (    // green
+                  object_index == 3?         vec4(0,0,1,1): (    // blue
+                                             vec4(0,1,1,1)))))); // cyan
+        }
+        } else {
+
+          color = vec4(1,0,0,1);
+        }
         } else {
 
           color = vec4(float(number_of_cuboids_cast)/72, 0.0, 0.0, 1.0);

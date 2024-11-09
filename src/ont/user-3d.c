@@ -300,25 +300,15 @@ void object_pathpair_vec3(vec3 dest, object* o, char* p1, char* p2){
   if(!v) return;
 
   if(*v!='[') return;
-
   v++;
-
   char* e;
-
   float x=strtof(v,&e);
-
   if(*e!='/') return;
-
   v=e+1;
-
   float y=strtof(v,&e);
-
   if(*e!='/') return;
-
   v=e+1;
-
   float z=strtof(v,&e);
-
   if(*e!=']') return;
 
   dest[0] = x;

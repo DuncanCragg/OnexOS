@@ -276,7 +276,7 @@ void update_bb(struct scene_object* objects,
                          position[2] - shape[2] };
 
     float obj_max[3] = { position[0] + shape[0],
-                         position[1] + shape[0],
+                         position[1] + shape[1],
                          position[2] + shape[2] };
 
     for (int i = 0; i < 3; i++) {
@@ -331,17 +331,35 @@ static void draw_3d(object* user, char* path){
 
   vec3_dup(objects[FLOOR_I].shape, shapef);
 
+  objects[FLOOR_I].bb_shape[0] = -1.0f;
+  vec3 aggpos = { 0.0, 0.0, 0.0 };
+
+  update_bb(objects, FLOOR_I, aggpos, objects[FLOOR_I].shape);
+
   vec3_dup(objects[FLOOR_I].subs[0].position, posb);
   ;        objects[FLOOR_I].subs[0].obj_index = BACK_I;
   ;        objects[FLOOR_I].subs[1].obj_index = 0;
 
   vec3_dup(objects[BACK_I].shape, shapeb);
 
+  objects[BACK_I].bb_shape[0] = -1.0f;
+  vec3_add_(aggpos, objects[FLOOR_I].subs[0].position);
+
+  update_bb(objects, FLOOR_I, aggpos, objects[BACK_I].shape);
+  update_bb(objects, BACK_I,  aggpos, objects[BACK_I].shape);
+
   vec3_dup(objects[BACK_I].subs[0].position, posr);
   ;        objects[BACK_I].subs[0].obj_index = ROOF_I;
   ;        objects[BACK_I].subs[1].obj_index = 0;
 
   vec3_dup(objects[ROOF_I].shape, shaper);
+
+  objects[ROOF_I].bb_shape[0] = -1.0f;
+  vec3_add_(aggpos, objects[BACK_I].subs[0].position);
+
+  update_bb(objects, FLOOR_I, aggpos, objects[ROOF_I].shape);
+  update_bb(objects, BACK_I,  aggpos, objects[ROOF_I].shape);
+  update_bb(objects, ROOF_I,  aggpos, objects[ROOF_I].shape);
 
   objects[ROOF_I].subs[0].obj_index = 0;
 }

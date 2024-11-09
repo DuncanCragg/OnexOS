@@ -94,15 +94,15 @@ void init_onex() {
     roofpanel=object_new(0, "editable", "3d cuboid", 4);
     roofpaneluid=object_property(roofpanel, "UID");
 
-    object_property_set_list(floorpanel, "shape", "1.5", "0.1", "1.5", 0);
-    object_property_set_list(floorpanel, "position-1", "0.0", "1.4", "-1.4", 0);
-    object_property_add(     floorpanel, "contains-1", backpaneluid);
+    object_property_add(floorpanel, "shape",    "[1.5/0.1/1.5]");
+    object_property_add(floorpanel, "position", "[0.0/1.4/-1.4]");
+    object_property_add(floorpanel, "contains", backpaneluid);
 
-    object_property_set_list(backpanel, "shape", "1.5", "1.5", "0.1", 0);
-    object_property_set_list(backpanel, "position-1", "0.0", "1.4", "-1.4", 0);
-    object_property_add(     backpanel, "contains-1", roofpaneluid);
+    object_property_add(backpanel, "shape",    "[1.5/1.5/0.1]");
+    object_property_add(backpanel, "position", "[0.0/1.4/-1.4]");
+    object_property_add(backpanel, "contains", roofpaneluid);
 
-    object_property_set_list(roofpanel,  "shape", "1.5", "0.1", "1.5", 0);
+    object_property_add(roofpanel, "shape", "[1.5/0.1/1.5]");
 
     // -----------
 

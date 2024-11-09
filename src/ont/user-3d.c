@@ -292,15 +292,38 @@ void update_bb(struct scene_object* objects,
 
 void object_pathpair_vec3(vec3 dest, object* o, char* p1, char* p2){
 
-  char* x=object_pathpair_get_n(o, p1, p2, 1);
-  char* y=object_pathpair_get_n(o, p1, p2, 2);
-  char* z=object_pathpair_get_n(o, p1, p2, 3);
+  dest[0] = 0.0;
+  dest[1] = 0.0;
+  dest[2] = 0.0;
+
+  char* v=object_pathpair(o, p1, p2);
+  if(!v) return;
+
+  if(*v!='[') return;
+
+  v++;
 
   char* e;
 
-  dest[0] = x? strtof(x,&e): 0.0;
-  dest[1] = y? strtof(y,&e): 0.0;
-  dest[2] = z? strtof(z,&e): 0.0;
+  float x=strtof(v,&e);
+
+  if(*e!='/') return;
+
+  v=e+1;
+
+  float y=strtof(v,&e);
+
+  if(*e!='/') return;
+
+  v=e+1;
+
+  float z=strtof(v,&e);
+
+  if(*e!=']') return;
+
+  dest[0] = x;
+  dest[1] = y;
+  dest[2] = z;
 }
 
 static void draw_3d(object* user, char* path){
@@ -312,10 +335,10 @@ static void draw_3d(object* user, char* path){
   vec3 shaper;
 
   object_pathpair_vec3(shapef, user, path, "shape");
-  object_pathpair_vec3(posb,   user, path, "position-1");
-  object_pathpair_vec3(shapeb, user, path, "contains-1:shape");
-  object_pathpair_vec3(posr,   user, path, "contains-1:position-1");
-  object_pathpair_vec3(shaper, user, path, "contains-1:contains-1:shape");
+  object_pathpair_vec3(posb,   user, path, "position");
+  object_pathpair_vec3(shapeb, user, path, "contains:shape");
+  object_pathpair_vec3(posr,   user, path, "contains:position");
+  object_pathpair_vec3(shaper, user, path, "contains:contains:shape");
 
   struct scene_object* objects = (struct scene_object*)objects_data;
 

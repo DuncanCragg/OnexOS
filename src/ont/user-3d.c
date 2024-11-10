@@ -321,21 +321,28 @@ static void draw_3d(object* user, char* path){
   vec3 shapef;
   vec3 posb  ;
   vec3 shapeb;
+  vec3 poss  ;
+  vec3 shapes;
   vec3 posr  ;
   vec3 shaper;
 
   object_pathpair_vec3(shapef, user, path, "shape");
-  object_pathpair_vec3(posb,   user, path, "position");
-  object_pathpair_vec3(shapeb, user, path, "contains:shape");
-  object_pathpair_vec3(posr,   user, path, "contains:position");
-  object_pathpair_vec3(shaper, user, path, "contains:contains:shape");
+  object_pathpair_vec3(posb,   user, path, "position:1");
+  object_pathpair_vec3(poss,   user, path, "position:2");
+  object_pathpair_vec3(shapeb, user, path, "contains:1:shape");
+  object_pathpair_vec3(shapes, user, path, "contains:2:shape");
+  object_pathpair_vec3(posr,   user, path, "contains:1:position");
+  object_pathpair_vec3(shaper, user, path, "contains:1:contains:shape");
 
   struct scene_object* objects = (struct scene_object*)objects_data;
 
   #define BASE_I  0
   #define FLOOR_I 1
   #define BACK_I  2
-  #define ROOF_I  3
+  #define SIDE_I  3
+  #define ROOF_I  4
+
+  // ----
 
   vec3 origin = { 0.0, 0.0, 0.0 };
   vec3_dup(objects[BASE_I].subs[0].position, origin)
@@ -349,9 +356,15 @@ static void draw_3d(object* user, char* path){
 
   update_bb(objects, FLOOR_I, aggpos, objects[FLOOR_I].shape);
 
+  // ----
+
   vec3_dup(objects[FLOOR_I].subs[0].position, posb);
   ;        objects[FLOOR_I].subs[0].obj_index = BACK_I;
-  ;        objects[FLOOR_I].subs[1].obj_index = 0;
+  vec3_dup(objects[FLOOR_I].subs[1].position, poss);
+  ;        objects[FLOOR_I].subs[1].obj_index = SIDE_I;
+  ;        objects[FLOOR_I].subs[2].obj_index = 0;
+
+  // ----
 
   vec3_dup(objects[BACK_I].shape, shapeb);
 
@@ -360,6 +373,12 @@ static void draw_3d(object* user, char* path){
 
   update_bb(objects, FLOOR_I, aggpos, objects[BACK_I].shape);
   update_bb(objects, BACK_I,  aggpos, objects[BACK_I].shape);
+
+  // ----
+
+  vec3_dup(objects[SIDE_I].shape, shapes);
+
+  // ----
 
   vec3_dup(objects[BACK_I].subs[0].position, posr);
   ;        objects[BACK_I].subs[0].obj_index = ROOF_I;
@@ -373,6 +392,8 @@ static void draw_3d(object* user, char* path){
   update_bb(objects, FLOOR_I, aggpos, objects[ROOF_I].shape);
   update_bb(objects, BACK_I,  aggpos, objects[ROOF_I].shape);
   update_bb(objects, ROOF_I,  aggpos, objects[ROOF_I].shape);
+
+  // ----
 
   objects[ROOF_I].subs[0].obj_index = 0;
 }

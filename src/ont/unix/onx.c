@@ -80,10 +80,12 @@ void init_onex() {
     object* floorpanel;
     object* backpanel;
     object* roofpanel;
+    object* sidepanel;
 
     char* floorpaneluid;
     char* backpaneluid;
     char* roofpaneluid;
+    char* sidepaneluid;
 
     floorpanel=object_new(0, "editable", "3d cuboid", 4);
     floorpaneluid=object_property(floorpanel, "UID");
@@ -94,15 +96,20 @@ void init_onex() {
     roofpanel=object_new(0, "editable", "3d cuboid", 4);
     roofpaneluid=object_property(roofpanel, "UID");
 
-    object_property_add(floorpanel, "shape",    "[1.5/0.1/1.5]");
-    object_property_add(floorpanel, "position", "[0.0/1.4/-1.4]");
-    object_property_add(floorpanel, "contains", backpaneluid);
+    sidepanel=object_new(0, "editable", "3d cuboid", 4);
+    sidepaneluid=object_property(sidepanel, "UID");
+
+    object_property_add(     floorpanel, "shape",    "[1.5/0.1/1.5]");
+    object_property_set_list(floorpanel, "position", "[0.0/1.4/-1.4]", "[1.4/1.4/0.0]", 0);
+    object_property_set_list(floorpanel, "contains",  backpaneluid,     sidepaneluid,   0);
 
     object_property_add(backpanel, "shape",    "[1.5/1.5/0.1]");
     object_property_add(backpanel, "position", "[0.0/1.4/-1.4]");
     object_property_add(backpanel, "contains", roofpaneluid);
 
     object_property_add(roofpanel, "shape", "[1.5/0.1/1.5]");
+
+    object_property_add(sidepanel, "shape", "[0.1/1.5/1.5]");
 
     // -----------
 

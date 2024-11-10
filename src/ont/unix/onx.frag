@@ -276,8 +276,8 @@ void recurse_cast_object_4(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
-    aggpos = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
-//  recurse_cast_object_5(child_idx, ro, rd, aggpos);
+    vec3 aggpos2 = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
+//  recurse_cast_object_5(child_idx, ro, rd, aggpos2);
   }
 }
 
@@ -286,8 +286,8 @@ void recurse_cast_object_3(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
-    aggpos = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
-    recurse_cast_object_4(child_idx, ro, rd, aggpos);
+    vec3 aggpos2 = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
+    recurse_cast_object_4(child_idx, ro, rd, aggpos2);
   }
 }
 
@@ -296,8 +296,8 @@ void recurse_cast_object_2(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
-    aggpos = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
-    recurse_cast_object_3(child_idx, ro, rd, aggpos);
+    vec3 aggpos2 = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
+    recurse_cast_object_3(child_idx, ro, rd, aggpos2);
   }
 }
 
@@ -306,8 +306,8 @@ void recurse_cast_object_1(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
-    aggpos = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
-    recurse_cast_object_2(child_idx, ro, rd, aggpos);
+    vec3 aggpos2 = cast_at_object(parent_idx, c, child_idx, ro, rd, aggpos);
+    recurse_cast_object_2(child_idx, ro, rd, aggpos2);
   }
 }
 

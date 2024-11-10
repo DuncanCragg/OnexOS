@@ -353,6 +353,8 @@ static void draw_3d(object* user, char* path){
 
   objects[FLOOR_I].bb_shape[0] = -1.0f;
   vec3 aggpos = { 0.0, 0.0, 0.0 };
+  vec3 aggpos2;
+  vec3 aggpos3;
 
   update_bb(objects, FLOOR_I, aggpos, objects[FLOOR_I].shape);
 
@@ -369,14 +371,22 @@ static void draw_3d(object* user, char* path){
   vec3_dup(objects[BACK_I].shape, shapeb);
 
   objects[BACK_I].bb_shape[0] = -1.0f;
-  vec3_add_(aggpos, objects[FLOOR_I].subs[0].position);
+  vec3_dup(aggpos2, aggpos);
+  vec3_add_(aggpos2, objects[FLOOR_I].subs[0].position);
 
-  update_bb(objects, FLOOR_I, aggpos, objects[BACK_I].shape);
-  update_bb(objects, BACK_I,  aggpos, objects[BACK_I].shape);
+  update_bb(objects, FLOOR_I, aggpos2, objects[BACK_I].shape);
+  update_bb(objects, BACK_I,  aggpos2, objects[BACK_I].shape);
 
   // ----
 
   vec3_dup(objects[SIDE_I].shape, shapes);
+
+  objects[SIDE_I].bb_shape[0] = -1.0f;
+  vec3_dup(aggpos3, aggpos);
+  vec3_add_(aggpos3, objects[FLOOR_I].subs[1].position);
+
+  update_bb(objects, FLOOR_I, aggpos3, objects[SIDE_I].shape);
+  update_bb(objects, SIDE_I,  aggpos3, objects[SIDE_I].shape);
 
   // ----
 
@@ -387,11 +397,11 @@ static void draw_3d(object* user, char* path){
   vec3_dup(objects[ROOF_I].shape, shaper);
 
   objects[ROOF_I].bb_shape[0] = -1.0f;
-  vec3_add_(aggpos, objects[BACK_I].subs[0].position);
+  vec3_add_(aggpos2, objects[BACK_I].subs[0].position);
 
-  update_bb(objects, FLOOR_I, aggpos, objects[ROOF_I].shape);
-  update_bb(objects, BACK_I,  aggpos, objects[ROOF_I].shape);
-  update_bb(objects, ROOF_I,  aggpos, objects[ROOF_I].shape);
+  update_bb(objects, FLOOR_I, aggpos2, objects[ROOF_I].shape);
+  update_bb(objects, BACK_I,  aggpos2, objects[ROOF_I].shape);
+  update_bb(objects, ROOF_I,  aggpos2, objects[ROOF_I].shape);
 
   // ----
 

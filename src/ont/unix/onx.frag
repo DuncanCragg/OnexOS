@@ -219,18 +219,18 @@ void get_nearest_object(vec3 ro, int current_idx) {
 bool show_bb_wireframe=false;
 bool is_bb_wireframe;
 
-bool misses_bb(int parent_idx, vec3 ro, vec3 rd){
+bool hits_bb(int parent_idx, vec3 ro, vec3 rd){
 
-  if(parent_idx==0) return false;
+  if(parent_idx==0) return true;
 
   vec3 position = objects_buf.objects[parent_idx].bb_position;
   vec3 shape    = objects_buf.objects[parent_idx].bb_shape;
 
   float s = sdf_cuboid_cast(ro, rd, position, shape);
 
-  bool miss = (s == FAR_FAR_AWAY);
+  bool hit = (s != FAR_FAR_AWAY);
 
-  if(show_bb_wireframe && !miss){
+  if(show_bb_wireframe && hit){
 
     vec3 p=ro+rd*s;
 
@@ -250,7 +250,7 @@ bool misses_bb(int parent_idx, vec3 ro, vec3 rd){
       object_dist = s;
     }
   }
-  return miss;
+  return hit;
 }
 
 vec3 cast_at_object(int parent_idx, int c, int child_idx, vec3 ro, vec3 rd, vec3 aggpos){
@@ -272,7 +272,7 @@ vec3 cast_at_object(int parent_idx, int c, int child_idx, vec3 ro, vec3 rd, vec3
 // Who sez I can't have recursion in a shader? Only four deep though
 
 void recurse_cast_object_4(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
-  if(misses_bb(parent_idx, ro, rd)) return;
+  if(!hits_bb(parent_idx, ro, rd)) return;
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
@@ -282,7 +282,7 @@ void recurse_cast_object_4(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
 }
 
 void recurse_cast_object_3(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
-  if(misses_bb(parent_idx, ro, rd)) return;
+  if(!hits_bb(parent_idx, ro, rd)) return;
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
@@ -292,7 +292,7 @@ void recurse_cast_object_3(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
 }
 
 void recurse_cast_object_2(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
-  if(misses_bb(parent_idx, ro, rd)) return;
+  if(!hits_bb(parent_idx, ro, rd)) return;
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;
@@ -302,7 +302,7 @@ void recurse_cast_object_2(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
 }
 
 void recurse_cast_object_1(int parent_idx, vec3 ro, vec3 rd, vec3 aggpos){
-  if(misses_bb(parent_idx, ro, rd)) return;
+  if(!hits_bb(parent_idx, ro, rd)) return;
   for(int c=0; true; c++){
     int child_idx = objects_buf.objects[parent_idx].subs[c].obj_index.x;
   ; if(child_idx == 0) break;

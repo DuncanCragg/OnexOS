@@ -316,96 +316,57 @@ void object_pathpair_vec3(vec3 dest, object* o, char* p1, char* p2){
   dest[2] = z;
 }
 
+struct scene_object* objects;
+
+static uint32_t top_object=0;
+
+static void draw_path_3d(object* user, char* path, uint32_t parent_idx, vec3 aggpos){
+
+  vec3 shape; object_pathpair_vec3(shape, user, path, "shape");
+  vec3_dup(objects[parent_idx].shape, shape);
+
+  objects[parent_idx].bb_shape[0] = -1.0f;
+  update_bb(objects, parent_idx, aggpos, shape);
+
+  uint32_t c;
+  uint32_t num_subs = object_pathpair_length(user, path, "position");
+  for(c=0; c<num_subs; c++){
+
+    uint32_t child_idx = ++top_object;
+
+    char pos_i[64]; snprintf(pos_i, 64, "position:%d", c+1);
+    vec3 pos; object_pathpair_vec3(pos, user, path, pos_i);
+
+    vec3_dup(objects[parent_idx].subs[c].position, pos);
+    ;        objects[parent_idx].subs[c].obj_index = child_idx;
+
+    vec3 aggpos2; vec3_dup(aggpos2, aggpos);
+    vec3_add_(aggpos2, pos);
+
+    char path2[64]; snprintf(path2, 64, "%s:contains:%d", path, c+1);
+    draw_path_3d(user, path2, child_idx, aggpos2);
+
+    update_bb(objects, parent_idx, objects[child_idx].bb_position,
+                                   objects[child_idx].bb_shape);
+  }
+  objects[parent_idx].subs[c].obj_index = 0;
+}
+
 static void draw_3d(object* user, char* path){
 
-  vec3 shapef;
-  vec3 posb  ;
-  vec3 shapeb;
-  vec3 poss  ;
-  vec3 shapes;
-  vec3 posr  ;
-  vec3 shaper;
+  objects = (struct scene_object*)objects_data;
+  top_object = 0;
 
-  object_pathpair_vec3(shapef, user, path, "shape");
-  object_pathpair_vec3(posb,   user, path, "position:1");
-  object_pathpair_vec3(poss,   user, path, "position:2");
-  object_pathpair_vec3(shapeb, user, path, "contains:1:shape");
-  object_pathpair_vec3(shapes, user, path, "contains:2:shape");
-  object_pathpair_vec3(posr,   user, path, "contains:1:position");
-  object_pathpair_vec3(shaper, user, path, "contains:1:contains:shape");
-
-  struct scene_object* objects = (struct scene_object*)objects_data;
-
-  #define BASE_I  0
-  #define FLOOR_I 1
-  #define BACK_I  2
-  #define SIDE_I  3
-  #define ROOF_I  4
-
-  // ----
+  uint32_t parent_idx = 0;
+  uint32_t child_idx = ++top_object;
 
   vec3 origin = { 0.0, 0.0, 0.0 };
-  vec3_dup(objects[BASE_I].subs[0].position, origin)
-  ;        objects[BASE_I].subs[0].obj_index = FLOOR_I;
-  ;        objects[BASE_I].subs[1].obj_index = 0;
 
-  vec3_dup(objects[FLOOR_I].shape, shapef);
+  vec3_dup(objects[parent_idx].subs[0].position, origin);
+  ;        objects[parent_idx].subs[0].obj_index = child_idx;
+  ;        objects[parent_idx].subs[1].obj_index = 0;
 
-  objects[FLOOR_I].bb_shape[0] = -1.0f;
-  vec3 aggpos = { 0.0, 0.0, 0.0 };
-  vec3 aggpos2;
-  vec3 aggpos3;
-
-  update_bb(objects, FLOOR_I, aggpos, objects[FLOOR_I].shape);
-
-  // ----
-
-  vec3_dup(objects[FLOOR_I].subs[0].position, posb);
-  ;        objects[FLOOR_I].subs[0].obj_index = BACK_I;
-  vec3_dup(objects[FLOOR_I].subs[1].position, poss);
-  ;        objects[FLOOR_I].subs[1].obj_index = SIDE_I;
-  ;        objects[FLOOR_I].subs[2].obj_index = 0;
-
-  // ----
-
-  vec3_dup(objects[BACK_I].shape, shapeb);
-
-  objects[BACK_I].bb_shape[0] = -1.0f;
-  vec3_dup(aggpos2, aggpos);
-  vec3_add_(aggpos2, objects[FLOOR_I].subs[0].position);
-
-  update_bb(objects, FLOOR_I, aggpos2, objects[BACK_I].shape);
-  update_bb(objects, BACK_I,  aggpos2, objects[BACK_I].shape);
-
-  // ----
-
-  vec3_dup(objects[SIDE_I].shape, shapes);
-
-  objects[SIDE_I].bb_shape[0] = -1.0f;
-  vec3_dup(aggpos3, aggpos);
-  vec3_add_(aggpos3, objects[FLOOR_I].subs[1].position);
-
-  update_bb(objects, FLOOR_I, aggpos3, objects[SIDE_I].shape);
-  update_bb(objects, SIDE_I,  aggpos3, objects[SIDE_I].shape);
-
-  // ----
-
-  vec3_dup(objects[BACK_I].subs[0].position, posr);
-  ;        objects[BACK_I].subs[0].obj_index = ROOF_I;
-  ;        objects[BACK_I].subs[1].obj_index = 0;
-
-  vec3_dup(objects[ROOF_I].shape, shaper);
-
-  objects[ROOF_I].bb_shape[0] = -1.0f;
-  vec3_add_(aggpos2, objects[BACK_I].subs[0].position);
-
-  update_bb(objects, FLOOR_I, aggpos2, objects[ROOF_I].shape);
-  update_bb(objects, BACK_I,  aggpos2, objects[ROOF_I].shape);
-  update_bb(objects, ROOF_I,  aggpos2, objects[ROOF_I].shape);
-
-  // ----
-
-  objects[ROOF_I].subs[0].obj_index = 0;
+  draw_path_3d(user, path, child_idx, origin);
 }
 
 // --------------------------------------------------------------------------------------

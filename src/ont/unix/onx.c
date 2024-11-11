@@ -79,13 +79,17 @@ void init_onex() {
 
     object* floorpanel;
     object* backpanel;
-    object* roofpanel;
-    object* sidepanel;
+    object* roof1panel;
+    object* roof2panel;
+    object* sidelpanel;
+    object* siderpanel;
 
     char* floorpaneluid;
     char* backpaneluid;
-    char* roofpaneluid;
-    char* sidepaneluid;
+    char* roof1paneluid;
+    char* roof2paneluid;
+    char* sidelpaneluid;
+    char* siderpaneluid;
 
     floorpanel=object_new(0, "editable", "3d cuboid", 4);
     floorpaneluid=object_property(floorpanel, "UID");
@@ -93,23 +97,31 @@ void init_onex() {
     backpanel=object_new(0, "editable", "3d cuboid", 4);
     backpaneluid=object_property(backpanel, "UID");
 
-    roofpanel=object_new(0, "editable", "3d cuboid", 4);
-    roofpaneluid=object_property(roofpanel, "UID");
+    roof1panel=object_new(0, "editable", "3d cuboid", 4);
+    roof1paneluid=object_property(roof1panel, "UID");
 
-    sidepanel=object_new(0, "editable", "3d cuboid", 4);
-    sidepaneluid=object_property(sidepanel, "UID");
+    roof2panel=object_new(0, "editable", "3d cuboid", 4);
+    roof2paneluid=object_property(roof2panel, "UID");
+
+    sidelpanel=object_new(0, "editable", "3d cuboid", 4);
+    sidelpaneluid=object_property(sidelpanel, "UID");
+
+    siderpanel=object_new(0, "editable", "3d cuboid", 4);
+    siderpaneluid=object_property(siderpanel, "UID");
 
     object_property_add(     floorpanel, "shape",    "[1.5/0.1/1.5]");
-    object_property_set_list(floorpanel, "position", "[0.0/1.4/-1.4]", "[1.4/1.4/0.0]", 0);
-    object_property_set_list(floorpanel, "contains",  backpaneluid,     sidepaneluid,   0);
+    object_property_set_list(floorpanel, "position", "[0.0/1.4/-1.4]", "[1.4/1.4/0.0]", "[-1.4/1.4/0.0]", 0);
+    object_property_set_list(floorpanel, "contains",  backpaneluid,     sidelpaneluid,   siderpaneluid,   0);
 
-    object_property_add(backpanel, "shape",    "[1.5/1.5/0.1]");
-    object_property_add(backpanel, "position", "[0.0/1.4/-1.4]");
-    object_property_add(backpanel, "contains", roofpaneluid);
+    object_property_add(     backpanel, "shape",    "[1.5/1.5/0.1]");
+    object_property_set_list(backpanel, "position", "[0.0/1.4/1.4]", "[0.0/1.4/-1.4]", 0);
+    object_property_set_list(backpanel, "contains",  roof1paneluid,   roof2paneluid,   0);
 
-    object_property_add(roofpanel, "shape", "[1.5/0.1/1.5]");
+    object_property_add(roof1panel, "shape", "[1.5/0.1/1.5]");
+    object_property_add(roof2panel, "shape", "[1.5/0.1/1.5]");
 
-    object_property_add(sidepanel, "shape", "[0.1/1.5/1.5]");
+    object_property_add(sidelpanel, "shape", "[0.1/1.5/1.5]");
+    object_property_add(siderpanel, "shape", "[0.1/1.5/1.5]");
 
     // -----------
 

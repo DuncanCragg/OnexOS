@@ -78,50 +78,46 @@ void init_onex() {
     // -----------
 
     object* floorpanel;
-    object* backpanel;
-    object* roof1panel;
-    object* roof2panel;
-    object* sidelpanel;
-    object* siderpanel;
-
     char* floorpaneluid;
-    char* backpaneluid;
-    char* roof1paneluid;
-    char* roof2paneluid;
-    char* sidelpaneluid;
-    char* siderpaneluid;
 
     floorpanel=object_new(0, "editable", "3d cuboid", 4);
     floorpaneluid=object_property(floorpanel, "UID");
 
-    backpanel=object_new(0, "editable", "3d cuboid", 4);
-    backpaneluid=object_property(backpanel, "UID");
+    object_property_add(floorpanel, "shape", "[1.5/0.1/1.5]");
 
-    roof1panel=object_new(0, "editable", "3d cuboid", 4);
-    roof1paneluid=object_property(roof1panel, "UID");
+    for(int x=0; x<2; x++){
+      for(int y=0; y<2; y++){
+        for(int z=0; z<2; z++){
 
-    roof2panel=object_new(0, "editable", "3d cuboid", 4);
-    roof2paneluid=object_property(roof2panel, "UID");
+          object* p=object_new(0, "editable", "3d cuboid", 4);
+          char*   puid=object_property(p, "UID");
 
-    sidelpanel=object_new(0, "editable", "3d cuboid", 4);
-    sidelpaneluid=object_property(sidelpanel, "UID");
+          object_property_add(p, "shape", "[0.5/0.02/0.5]");
 
-    siderpanel=object_new(0, "editable", "3d cuboid", 4);
-    siderpaneluid=object_property(siderpanel, "UID");
+          char v[64]; snprintf(v, 64, "[%.2f/%.2f/%.2f]", x*1.4f-0.7f, y*0.7f+0.7f, z*1.4f-0.7f);
 
-    object_property_add(     floorpanel, "shape",    "[1.5/0.1/1.5]");
-    object_property_set_list(floorpanel, "position", "[0.0/1.4/-1.4]", "[1.4/1.4/0.0]", "[-1.4/1.4/0.0]", 0);
-    object_property_set_list(floorpanel, "contains",  backpaneluid,     sidelpaneluid,   siderpaneluid,   0);
+          object_property_add(floorpanel, "position", v);
+          object_property_add(floorpanel, "contains", puid);
 
-    object_property_add(     backpanel, "shape",    "[1.5/1.5/0.1]");
-    object_property_set_list(backpanel, "position", "[0.0/1.4/1.4]", "[0.0/1.4/-1.4]", 0);
-    object_property_set_list(backpanel, "contains",  roof1paneluid,   roof2paneluid,   0);
+          for(int xx=0; xx<2; xx++){
+            for(int yy=0; yy<2; yy++){
+              for(int zz=0; zz<2; zz++){
 
-    object_property_add(roof1panel, "shape", "[1.5/0.1/1.5]");
-    object_property_add(roof2panel, "shape", "[1.5/0.1/1.5]");
+                object* pp=object_new(0, "editable", "3d cuboid", 4);
+                char*   ppuid=object_property(pp, "UID");
 
-    object_property_add(sidelpanel, "shape", "[0.1/1.5/1.5]");
-    object_property_add(siderpanel, "shape", "[0.1/1.5/1.5]");
+                object_property_add(pp, "shape", "[0.05/0.05/0.05]");
+
+                char vv[64]; snprintf(vv, 64, "[%.2f/%.2f/%.2f]", xx*.14f, yy*.14f+.14f, zz*.14f);
+
+                object_property_add(p, "position", vv);
+                object_property_add(p, "contains", ppuid);
+              }
+            }
+          }
+        }
+      }
+    }
 
     // -----------
 

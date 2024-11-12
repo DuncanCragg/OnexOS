@@ -334,7 +334,7 @@ static void draw_path_3d(object* user, char* path, uint32_t parent_idx, vec3 agg
 
     uint32_t child_idx = ++top_object;
 
-    char pos_i[64]; snprintf(pos_i, 64, "position:%d", c+1);
+    char pos_i[256]; snprintf(pos_i, 256, "position:%d", c+1);
     vec3 pos; object_pathpair_vec3(pos, user, path, pos_i);
 
     vec3_dup(objects[parent_idx].subs[c].position, pos);
@@ -343,7 +343,7 @@ static void draw_path_3d(object* user, char* path, uint32_t parent_idx, vec3 agg
     vec3 aggpos2; vec3_dup(aggpos2, aggpos);
     vec3_add_(aggpos2, pos);
 
-    char path2[64]; snprintf(path2, 64, "%s:contains:%d", path, c+1);
+    char path2[256]; snprintf(path2, 256, "%s:contains:%d", path, c+1);
     draw_path_3d(user, path2, child_idx, aggpos2);
 
     update_bb(objects, parent_idx, objects[child_idx].bb_position,

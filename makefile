@@ -47,6 +47,14 @@ $(COMMON_DEFINES) \
 -DHAS_SERIAL \
 
 
+COMPILER_DEFINES_FEATHER_SENSE = \
+$(COMMON_DEFINES) \
+-DBOARD_FEATHER_SENSE \
+-DNRF52840_XXAA \
+-DLOG_TO_SERIAL \
+-DHAS_SERIAL \
+
+
 COMPILER_DEFINES_DONGLE = \
 $(COMMON_DEFINES) \
 -DBOARD_PCA10059 \
@@ -76,6 +84,14 @@ INCLUDES_ITSYBITSY = \
 $(OL_INCLUDES) \
 $(OK_INCLUDES_ITSYBITSY) \
 $(SDK_INCLUDES_ITSYBITSY) \
+
+
+INCLUDES_FEATHER_SENSE = \
+-I./include \
+-I./src/ \
+$(OL_INCLUDES) \
+$(OK_INCLUDES_FEATHER_SENSE) \
+$(SDK_INCLUDES_FEATHER_SENSE) \
 
 
 INCLUDES_DONGLE = \
@@ -120,6 +136,11 @@ OK_INCLUDES_ITSYBITSY = \
 -I../OnexKernel/src/onl/nRF5/itsybitsy \
 
 
+OK_INCLUDES_FEATHER_SENSE = \
+-I../OnexKernel/include \
+-I../OnexKernel/src/onl/nRF5/feather-sense \
+
+
 OK_INCLUDES_DONGLE = \
 -I../OnexKernel/include \
 -I../OnexKernel/src/onl/nRF5/dongle \
@@ -134,6 +155,12 @@ $(SDK_INCLUDES) \
 
 
 SDK_INCLUDES_ITSYBITSY = \
+-I./sdk/components/drivers_nrf/nrf_soc_nosd/ \
+-I./sdk/components/softdevice/mbr/headers/ \
+$(SDK_INCLUDES) \
+
+
+SDK_INCLUDES_FEATHER_SENSE = \
 -I./sdk/components/drivers_nrf/nrf_soc_nosd/ \
 -I./sdk/components/softdevice/mbr/headers/ \
 $(SDK_INCLUDES) \
@@ -187,6 +214,18 @@ onx-its: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-its.out ./onx-its.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-its.out ./onx-its.hex
 
+onx-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
+onx-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE)
+onx-fth: $(IOT_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-feather-sense.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a             --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-fth.map -o ./onx-fth.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-fth.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-fth.out ./onx-fth.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-fth.out ./onx-fth.hex
+
 onx-iot: INCLUDES=$(INCLUDES_DONGLE)
 onx-iot: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
 onx-iot: $(IOT_SOURCES:.c=.o)
@@ -207,6 +246,9 @@ magic3-sw-flash: onx-sw-magic3
 itsybitsy-flash: onx-its
 	uf2conv.py onx-its.hex --family 0xada52840 --output onx-its.uf2
 
+feather-flash: onx-fth
+	uf2conv.py onx-fth.hex --family 0xada52840 --output onx-fth.uf2
+
 dongle-flash: onx-iot
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
@@ -218,9 +260,10 @@ LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMESTAMP=$$(date +'%s')
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMEZONE_OFFSET=$$(date +'%z' | awk '{ print ($$0<0?-1:1)*((substr($$0,2,2)*3600)+(substr($$0,4,2)*60)) }')
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIME=$$(date +'%y%m%d%H%M')
 
-LD_FILES_MAGIC3    = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/magic3/onex.ld
-LD_FILES_ITSYBITSY = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/itsybitsy/onex.ld
-LD_FILES_DONGLE    = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/dongle/onex.ld
+LD_FILES_MAGIC3        = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/magic3/onex.ld
+LD_FILES_ITSYBITSY     = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/itsybitsy/onex.ld
+LD_FILES_FEATHER_SENSE = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/feather-sense/onex.ld
+LD_FILES_DONGLE        = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/dongle/onex.ld
 
 COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Werror -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin -fshort-enums
 
@@ -230,7 +273,7 @@ COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Wer
 clean:
 	find src external -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf *.hex onx-sw.??? onx-its.??? onx-iot.??? dfu.zip core okolo
+	rm -rf *.hex onx-sw.??? onx-its.??? onx-fth.??? onx-iot.??? dfu.zip core okolo
 	rm -f ,*
 	@echo "------------------------------"
 	@echo "files not cleaned:"

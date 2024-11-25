@@ -83,6 +83,7 @@ int main()
   object_property_set(light, "light", "off");
 #if defined(BOARD_FEATHER_SENSE)
   object_property_set(ledmx, "light", "off");
+  object_property_set(ledmx, "colour", "#010");
 #endif
 
   object_set_evaluator(onex_device_object, (char*)"evaluate_device");
@@ -104,7 +105,7 @@ int main()
   gpio_set(LED_1, LEDS_ACTIVE_STATE);
 #elif defined(BOARD_FEATHER_SENSE)
   gpio_set(LED_1, LEDS_ACTIVE_STATE);
-  led_matrix_fill(0, 16, 0);
+  led_matrix_fill_rgb((led_matrix_rgb){0, 16, 0});
   led_matrix_show();
 #endif
 
@@ -152,10 +153,10 @@ bool evaluate_light_io(object* light, void* d) {
 #if defined(BOARD_FEATHER_SENSE)
 bool evaluate_ledmx_io(object* ledmx, void* d) {
   if(object_property_is(ledmx, "light", "on")){
-    led_matrix_fill(0, 0, 16);
+    led_matrix_fill_col(object_property(ledmx, "colour"));
     led_matrix_show();
   } else {
-    led_matrix_fill(0, 0, 0);
+    led_matrix_fill_rgb((led_matrix_rgb){0, 0, 0});
     led_matrix_show();
   }
   return true;

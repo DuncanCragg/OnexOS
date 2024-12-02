@@ -246,7 +246,7 @@ magic3-sw-flash: onx-sw-magic3
 itsybitsy-flash: onx-its
 	uf2conv.py onx-its.hex --family 0xada52840 --output onx-its.uf2
 
-feather-flash: onx-fth
+feather-sense-flash: onx-fth
 	uf2conv.py onx-fth.hex --family 0xada52840 --output onx-fth.uf2
 
 dongle-flash: onx-iot

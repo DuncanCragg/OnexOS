@@ -18,6 +18,7 @@ object* light;
 object* ledmx;
 #endif
 
+char* deviceuid;
 char* buttonuid;
 char* lightuid;
 #if defined(BOARD_FEATHER_SENSE)
@@ -68,10 +69,12 @@ int main()
 
   button=object_new(0, "evaluate_button", "editable button", 4);
   light =object_new(0, "evaluate_light",  "editable light", 4);
+
 #if defined(BOARD_FEATHER_SENSE)
   ledmx =object_new(0, "evaluate_ledmx",  "editable light", 4);
 #endif
 
+  deviceuid=object_property(onex_device_object, "UID");
   buttonuid=object_property(button,"UID");
   lightuid =object_property(light, "UID");
 #if defined(BOARD_FEATHER_SENSE)
@@ -81,6 +84,7 @@ int main()
   object_property_set(button, "name", "mango");
 
   object_property_set(light, "light", "off");
+  object_property_set(light, "device", deviceuid);
 #if defined(BOARD_FEATHER_SENSE)
   object_property_set(ledmx, "light", "off");
   object_property_set(ledmx, "colour", "#010");

@@ -37,8 +37,8 @@ bool evaluate_ledmx_io(object* ledmx, void* d);
 void* x;
 #define WHERESTHEHEAP(s) x = malloc(1); log_write("heap after %s: %x\n", s, x);
 
-int main()
-{
+int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
+
   log_init();
   time_init();
   gpio_init();

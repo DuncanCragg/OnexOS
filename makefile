@@ -267,17 +267,17 @@ onx-fth: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-fth.out ./onx-fth.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-fth.out ./onx-fth.hex
 
-onx-iot: INCLUDES=$(INCLUDES_DONGLE)
-onx-iot: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
-onx-iot: $(IOT_SOURCES:.c=.o)
+onx-nor: INCLUDES=$(INCLUDES_DONGLE)
+onx-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-nor: $(IOT_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-iot.map -o ./onx-iot.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-iot.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot.out ./onx-iot.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot.out ./onx-iot.hex
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-nor.map -o ./onx-nor.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-nor.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-nor.out ./onx-nor.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-nor.out ./onx-nor.hex
 
 onx-test: INCLUDES=$(INCLUDES_DONGLE)
 onx-test: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
@@ -302,8 +302,8 @@ itsybitsy-flash: onx-its
 feather-sense-flash: onx-fth
 	uf2conv.py onx-fth.hex --family 0xada52840 --output onx-fth.uf2
 
-dongle-flash: onx-iot
-	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
+dongle-flash: onx-nor
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
 
 dongle-test-flash: onx-test
@@ -330,7 +330,7 @@ COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Wer
 clean:
 	find src external -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf *.hex onx-sw.??? onx-its.??? onx-fth.??? onx-iot.??? onx-test.* dfu.zip core okolo
+	rm -rf *.hex onx-sw.??? onx-its.??? onx-fth.??? onx-nor.??? onx-test.* dfu.zip core okolo
 	rm -f ,*
 	@echo "------------------------------"
 	@echo "files not cleaned:"

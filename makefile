@@ -13,6 +13,28 @@ GCC_ARM_PREFIX = arm-none-eabi
 
 PRIVATE_PEM = ../OnexKernel/doc/local/private.pem
 
+TESTS = '1'
+BUTTON ='0'
+LIGHT = '0'
+
+EXE_SOURCES =
+EXE_DEFINES =
+
+ifeq ($(TESTS), '1')
+ EXE_SOURCES += $(TESTS_SOURCES)
+ EXE_DEFINES += -DHAS_SERIAL
+endif
+
+ifeq ($(BUTTON), '1')
+ EXE_SOURCES += $(BUTTON_SOURCES)
+ EXE_DEFINES += -DHAS_SERIAL
+endif
+
+ifeq ($(LIGHT), '1')
+ EXE_SOURCES += $(LIGHT_SOURCES)
+ EXE_DEFINES += -DHAS_SERIAL
+endif
+
 #-------------------------------------------------------------------------------
 
 COMMON_DEFINES = \
@@ -110,15 +132,34 @@ SW_SOURCES = \
 ./src/ont/nRF5/g2d-lcd.c \
 ./src/ont/nRF5/evaluators.c \
 ./src/ont/nRF5/onx-sw.c \
+./src/ont/behaviours.c \
 
 
 IOT_SOURCES = \
+./src/ont/behaviours.c \
 ./src/ont/nRF5/onx-iot.c \
+
+
+BUTTON_SOURCES = \
+./src/ont/behaviours.c \
+./src/ont/button-light/button.c \
+
+
+LIGHT_SOURCES = \
+./src/ont/behaviours.c \
+./src/ont/button-light/light.c \
+
+
+TESTS_SOURCES = \
+./src/ont/behaviours.c \
+./tests/test-behaviours.c \
+./tests/main.c \
 
 
 EXTERNAL_SOURCES = \
 ./external/fonts/fonts_noto_sans_numeric_60.c \
 ./external/fonts/fonts_noto_sans_numeric_80.c \
+
 
 #-------------------------------------------------------------------------------
 
@@ -238,6 +279,18 @@ onx-iot: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot.out ./onx-iot.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot.out ./onx-iot.hex
 
+onx-test: INCLUDES=$(INCLUDES_DONGLE)
+onx-test: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-test: $(EXE_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-test.map -o ./onx-test.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-test.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-test.out ./onx-test.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-test.out ./onx-test.hex
+
 #-------------------------------:
 
 magic3-sw-flash: onx-sw-magic3
@@ -251,6 +304,10 @@ feather-sense-flash: onx-fth
 
 dongle-flash: onx-iot
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-iot.hex --key-file $(PRIVATE_PEM) dfu.zip
+	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
+
+dongle-test-flash: onx-test
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-test.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
 
 #-------------------------------------------------------------------------------
@@ -273,7 +330,7 @@ COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Wer
 clean:
 	find src external -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf *.hex onx-sw.??? onx-its.??? onx-fth.??? onx-iot.??? dfu.zip core okolo
+	rm -rf *.hex onx-sw.??? onx-its.??? onx-fth.??? onx-iot.??? onx-test.* dfu.zip core okolo
 	rm -f ,*
 	@echo "------------------------------"
 	@echo "files not cleaned:"

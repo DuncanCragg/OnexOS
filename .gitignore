@@ -13,6 +13,9 @@ onx.????.c
 ,*
 .gitattributes
 .vimfiles
+light.*
+button.*
+tests.*
 dfu.zip
 onx-xcb
 onx-drm

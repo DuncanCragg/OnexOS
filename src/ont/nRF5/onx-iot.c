@@ -11,6 +11,7 @@
 #endif
 #include <onn.h>
 #include <onr.h>
+#include <ont.h>
 
 object* button;
 object* light;

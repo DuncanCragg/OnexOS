@@ -2,8 +2,6 @@
 
 #include "user-onl-vk.h"
 
-VkPipelineLayout onl_vk_pipeline_layout;
-
 struct uniforms_size_template {
     float proj[4][4];
     float view_l[4][4];

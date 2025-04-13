@@ -4,7 +4,7 @@
 #if defined(NRF5)
 #include <boards.h>
 #include <onex-kernel/gpio.h>
-#if defined(HAS_SERIAL)
+#if defined(LOG_TO_SERIAL) || defined(ONP_CHANNEL_SERIAL)
 #include <onex-kernel/serial.h>
 #endif
 #endif
@@ -34,7 +34,7 @@ int main()
   time_init();
 #if defined(NRF5)
   gpio_init();
-#if defined(HAS_SERIAL)
+#if defined(LOG_TO_SERIAL) || defined(ONP_CHANNEL_SERIAL)
   serial_init(0,0);
 #endif
 #endif

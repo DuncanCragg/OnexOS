@@ -8,6 +8,7 @@
 
 #include <onn.h>
 #include <onr.h>
+#include <ont.h>
 
 extern bool evaluate_user(object* o, void* d);
 

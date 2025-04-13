@@ -22,17 +22,14 @@ EXE_DEFINES =
 
 ifeq ($(TESTS), '1')
  EXE_SOURCES += $(TESTS_SOURCES)
- EXE_DEFINES += -DHAS_SERIAL
 endif
 
 ifeq ($(BUTTON), '1')
  EXE_SOURCES += $(BUTTON_SOURCES)
- EXE_DEFINES += -DHAS_SERIAL
 endif
 
 ifeq ($(LIGHT), '1')
  EXE_SOURCES += $(LIGHT_SOURCES)
- EXE_DEFINES += -DHAS_SERIAL
 endif
 
 #-------------------------------------------------------------------------------
@@ -66,7 +63,6 @@ $(COMMON_DEFINES) \
 -DBOARD_ITSYBITSY \
 -DNRF52840_XXAA \
 -DLOG_TO_SERIAL \
--DHAS_SERIAL \
 
 
 COMPILER_DEFINES_FEATHER_SENSE = \
@@ -74,7 +70,6 @@ $(COMMON_DEFINES) \
 -DBOARD_FEATHER_SENSE \
 -DNRF52840_XXAA \
 -DLOG_TO_SERIAL \
--DHAS_SERIAL \
 
 
 COMPILER_DEFINES_DONGLE = \
@@ -82,7 +77,6 @@ $(COMMON_DEFINES) \
 -DBOARD_PCA10059 \
 -DNRF52840_XXAA \
 -DLOG_TO_SERIAL \
--DHAS_SERIAL \
 
 #-------------------------------------------------------------------------------
 
@@ -328,7 +322,7 @@ COMPILER_FLAGS = -std=c99 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Wer
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(COMPILER_FLAGS) $(COMPILER_DEFINES) $(INCLUDES) -o $@ -c $<
 
 clean:
-	find src external -name '*.o' -o -name '*.d' | xargs rm -f
+	find src external tests -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
 	rm -rf *.hex onx-sw.??? onx-its.??? onx-fth.??? onx-nor.??? onx-test.* dfu.zip core okolo
 	rm -f ,*

@@ -110,8 +110,8 @@ onx-xcb: ${SOURCES_ONX:.c=.o} ${HEADERS_ONX} ${SHADERS:.spv=.o}
 
 onx-drm: CONFIGFLAGS=-DVK_USE_PLATFORM_DISPLAY_KHR
 onx-drm: INC_DIR=${INC_DIRS}
-onx-xcb: CC=gcc
-onx-xcb: LD=gcc
+onx-drm: CC=gcc
+onx-drm: LD=gcc
 onx-drm: ${SOURCES_ONX:.c=.o} ${HEADERS_ONX} ${SHADERS:.spv=.o}
 	@echo ================
 	@echo $@ '<=' ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o}

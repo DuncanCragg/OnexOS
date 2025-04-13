@@ -4,7 +4,7 @@
 #if defined(NRF5)
 #include <boards.h>
 #include <onex-kernel/gpio.h>
-#if defined(LOG_TO_SERIAL) || defined(ONP_CHANNEL_SERIAL)
+#if defined(LOG_TO_SERIAL)
 #include <onex-kernel/serial.h>
 #endif
 #endif
@@ -43,11 +43,15 @@ int main()
   time_init();
 #if defined(NRF5)
   gpio_init();
-#if defined(LOG_TO_SERIAL) || defined(ONP_CHANNEL_SERIAL)
+#if defined(LOG_TO_SERIAL)
   serial_init(0,0);
 #endif
 #endif
-  onex_init("button.db");
+#if defined(NRF5)
+  onex_init(0,list_new_from("radio",1),0);
+#else
+  onex_init("button.db",list_new_from("ipv6",1),list_new_from("ff12::1234",1));
+#endif
 
 #if defined(BOARD_PCA10059)
   gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);

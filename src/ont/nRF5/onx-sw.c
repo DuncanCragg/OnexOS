@@ -192,7 +192,7 @@ bool evaluate_user(object* usr, void* d) {
 
 static void init_onex(){
 
-  onex_init(0);
+  onex_init(0,list_new_from("radio", 1),0);
 
   //                               editor    inputs    logic                 outputs
   onex_set_evaluators("default",   evaluate_edit_rule, evaluate_default, 0);

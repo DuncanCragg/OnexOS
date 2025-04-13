@@ -3,7 +3,7 @@
 #include <onex-kernel/log.h>
 #include <onex-kernel/time.h>
 #include <onex-kernel/gpio.h>
-#if defined(LOG_TO_SERIAL) || defined(ONP_CHANNEL_SERIAL)
+#if defined(LOG_TO_SERIAL)
 #include <onex-kernel/serial.h>
 #endif
 #if defined(BOARD_FEATHER_SENSE)
@@ -42,11 +42,15 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   log_init();
   time_init();
   gpio_init();
-#if defined(LOG_TO_SERIAL) || defined(ONP_CHANNEL_SERIAL)
+#if defined(LOG_TO_SERIAL)
   serial_init(0,0);
 #endif
 
-  onex_init("");
+#if defined(ONP_ON_SERIAL)
+  onex_init(0,list_new_from("radio serial", 2),0);
+#else
+  onex_init(0,list_new_from("radio", 1),0);
+#endif
 
 #if defined(BOARD_PCA10059)
   gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);

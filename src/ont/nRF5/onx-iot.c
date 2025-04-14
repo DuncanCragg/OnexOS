@@ -46,11 +46,13 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   serial_init(0,0);
 #endif
 
+  properties* config = properties_new(32);
 #if defined(ONP_ON_SERIAL)
-  onex_init(0,list_new_from("radio serial", 2),0);
+  properties_set(config, "channels", list_new_from("radio serial", 2));
 #else
-  onex_init(0,list_new_from("radio", 1),0);
+  properties_set(config, "channels", list_new_from("radio",1));
 #endif
+  onex_init(config);
 
 #if defined(BOARD_PCA10059)
   gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);

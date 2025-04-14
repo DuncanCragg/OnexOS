@@ -47,11 +47,16 @@ int main()
   serial_init(0,0);
 #endif
 #endif
+
+  properties* config = properties_new(32);
 #if defined(NRF5)
-  onex_init(0,list_new_from("radio",1),0);
+  properties_set(config, "channels", list_new_from("radio",1));
 #else
-  onex_init("button.db",list_new_from("ipv6",1),list_new_from("ff12::1234",1));
+  properties_set(config, "dbpath", value_new("button.db"));
+  properties_set(config, "channels", list_new_from("ipv6", 1));
+  properties_set(config, "ipv6_groups", list_new_from("ff12::1234",1));
 #endif
+  onex_init(config);
 
 #if defined(BOARD_PCA10059)
   gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);

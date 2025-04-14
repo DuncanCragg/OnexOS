@@ -55,7 +55,11 @@ void init_onex() {
   onex_set_evaluators("user",    evaluate_user, 0);
   onex_set_evaluators("notes",   evaluate_edit_rule, 0);
 
-  onex_init("./onex.ondb", list_new_from("ipv6",1), list_new_from("ff12::1234",1));
+  properties* config = properties_new(32);
+  properties_set(config, "dbpath", value_new("./onex.ondb"));
+  properties_set(config, "channels", list_new_from("ipv6", 1));
+  properties_set(config, "ipv6_groups", list_new_from("ff12::1234",1));
+  onex_init(config);
 
   object* home;
   object* inventory;

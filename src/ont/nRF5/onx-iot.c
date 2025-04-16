@@ -3,9 +3,7 @@
 #include <onex-kernel/log.h>
 #include <onex-kernel/time.h>
 #include <onex-kernel/gpio.h>
-#if defined(LOG_TO_SERIAL)
 #include <onex-kernel/serial.h>
-#endif
 #if defined(BOARD_FEATHER_SENSE)
 #include <onex-kernel/led-matrix.h>
 #endif
@@ -39,19 +37,23 @@ void* x;
 
 int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
-  log_init();
-  time_init();
-  gpio_init();
-#if defined(LOG_TO_SERIAL)
-  serial_init(0,0);
-#endif
-
   properties* config = properties_new(32);
-#if defined(ONP_ON_SERIAL)
+#if defined(BOARD_PCA10059)
   properties_set(config, "channels", list_new_from("radio serial", 2));
+  properties_set(config, "flags", list_new_from("log-to-serial", 1));
+#elif defined(BOARD_FEATHER_SENSE)
+  properties_set(config, "channels", list_new_from("radio",1));
+  properties_set(config, "flags", list_new_from("log-to-serial", 1));
 #else
   properties_set(config, "channels", list_new_from("radio",1));
+  properties_set(config, "flags", list_new_from("log-to-serial", 1));
 #endif
+
+  log_init(config);
+  time_init();
+  gpio_init();
+  serial_init(0,0);
+
   onex_init(config);
 
 #if defined(BOARD_PCA10059)

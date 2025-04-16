@@ -142,10 +142,6 @@ static void set_up_gpio(void)
 
 extern bool user_active;
 
-#if defined(LOG_TO_GFX)
-extern volatile char* event_log_buffer;
-#endif
-
 extern char __BUILD_TIMESTAMP;
 
 uint32_t loop_time=0;
@@ -190,10 +186,8 @@ bool evaluate_user(object* usr, void* d) {
   return evaluate_user_2d(usr, d);
 }
 
-static void init_onex(){
+static void init_onex(properties* config){
 
-  properties* config = properties_new(32);
-  properties_set(config, "channels", list_new_from("radio",1));
   onex_init(config);
 
   //                               editor    inputs    logic                 outputs
@@ -381,8 +375,12 @@ static void init_onex(){
 
 int main() {
 
+  properties* config = properties_new(32);
+  properties_set(config, "channels", list_new_from("radio",1));
+  properties_set(config, "flags", list_new_from("log-to-gfx", 1));
+
   boot_init();
-  log_init();
+  log_init(config);
   time_init_set(4+(unsigned long)&__BUILD_TIMESTAMP);
   gpio_init();
 
@@ -395,7 +393,7 @@ int main() {
 
   g2d_init();
 
-  init_onex();
+  init_onex(config);
 
   time_ticker(every_second,  1000);
   time_ticker(every_10s,    10000);

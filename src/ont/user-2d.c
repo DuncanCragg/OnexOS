@@ -155,7 +155,7 @@ static void best_propname_for_link_drop(char* propname, uint16_t len, uint16_t i
   *(propname+s-1)=0;
 }
 
-#if defined(LOG_TO_GFX)
+#if defined(BOARD_MAGIC3)
 static void show_gfx_log(uint8_t root_g2d_node){
 
   uint64_t pre_render_time=time_ms();
@@ -472,7 +472,7 @@ bool evaluate_user_2d(object* usr, void* d) {
 
   draw_by_type("viewing", root_g2d_node);
 
-#if defined(LOG_TO_GFX)
+#if defined(BOARD_MAGIC3)
   show_gfx_log(root_g2d_node);
 #endif
 

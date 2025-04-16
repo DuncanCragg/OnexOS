@@ -2,9 +2,7 @@
 #if defined(NRF5)
 #include <boards.h>
 #include <onex-kernel/gpio.h>
-#if defined(LOG_TO_SERIAL)
 #include <onex-kernel/serial.h>
-#endif
 #endif
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
@@ -64,11 +62,16 @@ void run_tests_maybe()
 
 int main(void)
 {
-  log_init();
+  properties* config = properties_new(32);
+#if defined(NRF5)
+  properties_set(config, "flags", list_new_from("log-to-serial", 1));
+#endif
+
+  log_init(config);
   time_init();
 #if defined(NRF5)
   gpio_init();
-#if defined(LOG_TO_SERIAL)
+#if !defined(BOARD_MAGIC3)
   serial_init((serial_recv_cb)on_recv,0);
   set_up_gpio();
   time_ticker((void (*)())serial_loop, 1);

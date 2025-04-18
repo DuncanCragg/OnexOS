@@ -40,11 +40,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   properties* config = properties_new(32);
 #if defined(BOARD_PCA10059)
   properties_set(config, "channels", list_new_from("radio serial", 2));
-  properties_set(config, "flags", list_new_from("log-to-serial", 1));
 #elif defined(BOARD_FEATHER_SENSE)
-  properties_set(config, "channels", list_new_from("radio",1));
-  properties_set(config, "flags", list_new_from("log-to-serial", 1));
-#else
   properties_set(config, "channels", list_new_from("radio",1));
   properties_set(config, "flags", list_new_from("log-to-serial", 1));
 #endif

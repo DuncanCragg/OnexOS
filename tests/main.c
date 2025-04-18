@@ -66,6 +66,7 @@ int main(void)
 #if defined(NRF5)
   properties_set(config, "flags", list_new_from("log-to-serial", 1));
 #endif
+  properties_set(config, "test-uid-prefix", value_new("tests"));
 
   log_init(config);
   time_init();
@@ -74,7 +75,7 @@ int main(void)
 #if !defined(BOARD_MAGIC3)
   serial_init((serial_recv_cb)on_recv,0);
   set_up_gpio();
-  time_ticker((void (*)())serial_loop, 1);
+  time_ticker((void (*)())serial_loop, 0, 1);
   while(1) run_tests_maybe();
 #else
   set_up_gpio();

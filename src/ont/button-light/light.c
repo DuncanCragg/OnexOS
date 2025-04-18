@@ -21,7 +21,7 @@ char* clockuid;
 
 bool evaluate_light_io(object* light, void* d);
 
-static void every_second()
+static void every_second(void*)
 {
   onex_run_evaluators(clockuid, 0);
 }
@@ -33,10 +33,11 @@ int main() {
   properties_set(config, "channels", list_new_from("radio",1));
   properties_set(config, "flags", list_new_from("log-to-serial", 1));
 #else
-  properties_set(config, "dbpath", value_new("light.db"));
+  properties_set(config, "dbpath", value_new("light.ondb"));
   properties_set(config, "channels", list_new_from("ipv6", 1));
   properties_set(config, "ipv6_groups", list_new_from("ff12::1234",1));
 #endif
+  properties_set(config, "test-uid-prefix", value_new("light"));
 
   log_init(config);
   time_init();
@@ -65,12 +66,12 @@ int main() {
   object_set_evaluator(onex_device_object, (char*)"evaluate_device");
   char* deviceuid=object_property(onex_device_object, "UID");
 
-  object* light=object_new(0, "evaluate_light", "editable light", 4);
+  object* light=object_new("uid-light", "evaluate_light", "editable light", 4);
   object_property_set(light, "light", "off");
   object_property_set(light, "device", deviceuid);
   lightuid=object_property(light, "UID");
 
-  object* oclock=object_new(0, "evaluate_clock", "clock event", 12);
+  object* oclock=object_new("uid-light-clock", "evaluate_clock", "clock event", 12);
   object_set_persist(oclock, "none");
   object_property_set(oclock, "title", "OnexOS Light Clock");
   object_property_set(oclock, "ts", "%%unknown");
@@ -83,7 +84,7 @@ int main() {
   object_property_add(onex_device_object, (char*)"io", clockuid);
 
   onex_run_evaluators(lightuid, 0);
-  time_ticker(every_second, 1000);
+  time_ticker(every_second, 0, 1000);
 
 #if defined(BOARD_PCA10059)
   gpio_set(LED1_G,  LEDS_ACTIVE_STATE);

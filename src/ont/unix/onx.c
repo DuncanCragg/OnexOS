@@ -34,7 +34,7 @@ static object* oclock;
 
 static char* clockuid=0;
 
-static void every_second(){
+static void every_second(void*){
   onex_run_evaluators(clockuid, 0);
   onex_run_evaluators(useruid, 0);
 }
@@ -176,7 +176,7 @@ void init_onex() {
     oclock   =onex_get_from_cache(clockuid);
   }
 
-  time_ticker(every_second, 1000);
+  time_ticker(every_second, 0, 1000);
 
   onex_run_evaluators(useruid, 0);
 }

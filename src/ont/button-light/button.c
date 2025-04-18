@@ -21,7 +21,7 @@ char* clockuid;
 
 static volatile bool button_pressed=false;
 
-static void every_second()
+static void every_second(void*)
 {
   onex_run_evaluators(clockuid, 0);
 }
@@ -42,10 +42,11 @@ int main() {
   properties_set(config, "channels", list_new_from("radio",1));
   properties_set(config, "flags", list_new_from("log-to-serial", 1));
 #else
-  properties_set(config, "dbpath", value_new("button.db"));
+  properties_set(config, "dbpath", value_new("button.ondb"));
   properties_set(config, "channels", list_new_from("ipv6", 1));
   properties_set(config, "ipv6_groups", list_new_from("ff12::1234",1));
 #endif
+  properties_set(config, "test-uid-prefix", value_new("button"));
 
   log_init(config);
   time_init();
@@ -75,11 +76,11 @@ int main() {
   char* deviceuid=object_property(onex_device_object, "UID");
 #endif
 
-  object* button=object_new(0, "evaluate_button", "editable button", 4);
+  object* button=object_new("uid-button", "evaluate_button", "editable button", 4);
   object_property_set(button, "name", "£€§");
   buttonuid=object_property(button, "UID");
 
-  object* oclock=object_new(0, "evaluate_clock", "clock event", 12);
+  object* oclock=object_new("uid-button-clock", "evaluate_clock", "clock event", 12);
   object_set_persist(oclock, "none");
   object_property_set(oclock, "title", "OnexOS Button Clock");
   object_property_set(oclock, "ts", "%%unknown");
@@ -91,7 +92,7 @@ int main() {
   object_property_add(onex_device_object, (char*)"io", buttonuid);
   object_property_add(onex_device_object, (char*)"io", clockuid);
 
-  time_ticker(every_second, 1000);
+  time_ticker(every_second, 0, 1000);
 
 #if !defined(NRF5)
   uint32_t lasttime=0;

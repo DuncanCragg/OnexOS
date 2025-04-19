@@ -43,7 +43,6 @@ int main() {
   time_init();
 #if defined(NRF5)
   gpio_init();
-  serial_init(0,0);
 #endif
 
   onex_init(config);

@@ -48,7 +48,6 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   log_init(config);
   time_init();
   gpio_init();
-  serial_init(0,0);
 
   onex_init(config);
 

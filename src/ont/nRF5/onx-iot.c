@@ -2,6 +2,7 @@
 #include <boards.h>
 #include <onex-kernel/log.h>
 #include <onex-kernel/time.h>
+#include <onex-kernel/random.h>
 #include <onex-kernel/gpio.h>
 #include <onex-kernel/serial.h>
 #if defined(BOARD_FEATHER_SENSE)
@@ -47,6 +48,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   time_init();
   log_init(config);
+  random_init();
   gpio_init();
 
   onex_init(config);

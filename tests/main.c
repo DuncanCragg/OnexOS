@@ -6,6 +6,7 @@
 #endif
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
+#include <onex-kernel/random.h>
 #include <tests.h>
 #include <onn.h>
 
@@ -74,6 +75,7 @@ int main(void)
 
   time_init();
   log_init(config);
+  random_init();
 #if defined(NRF5)
   gpio_init();
 #if !defined(BOARD_MAGIC3)

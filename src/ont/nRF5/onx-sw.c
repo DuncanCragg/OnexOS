@@ -44,7 +44,7 @@ volatile bool          touch_down=false;
 volatile motion_info_t motion_info;
 #endif
 
-static void every_second(){
+static void every_second(void*){
   onex_run_evaluators(clockuid, 0);
   onex_run_evaluators(aboutuid, 0);
 
@@ -56,7 +56,7 @@ static void every_second(){
 #endif
 }
 
-static void every_10s(){
+static void every_10s(void*){
   onex_run_evaluators(batteryuid, 0);
 }
 
@@ -376,8 +376,8 @@ static void init_onex(properties* config){
 int main() {
 
   properties* config = properties_new(32);
-  properties_set(config, "channels", list_new_from("radio",1));
-  properties_set(config, "flags", list_new_from("log-to-gfx", 1));
+  properties_set(config, "channels", list_new_from("radio",2));
+  properties_set(config, "flags", list_new_from("log-to-gfx",2));
 
   boot_init();
   log_init(config);
@@ -395,8 +395,8 @@ int main() {
 
   init_onex(config);
 
-  time_ticker(every_second,  1000);
-  time_ticker(every_10s,    10000);
+  time_ticker(every_second, 0,  1000);
+  time_ticker(every_10s,    0, 10000);
 
   static uint8_t run_user_eval=1;
 

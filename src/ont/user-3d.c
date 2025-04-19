@@ -208,7 +208,7 @@ void ont_vk_iostate_changed() {
       float my=(float)((int16_t)io.touch_y-(int16_t)y_on_touch);
       float dx=mx/onl_vk_width *3.1415926;
       float dy=my/onl_vk_height*3.1415926;
-      printf("mx=%f my=%f dx=%f dy=%f\n", mx, my, dx, dy);
+      log_write("mx=%f my=%f dx=%f dy=%f\n", mx, my, dx, dy);
       head_hor_dir=hhd_on_touch+dx;
       head_ver_dir=hvd_on_touch+dy;
     }

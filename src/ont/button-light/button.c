@@ -21,8 +21,7 @@ char* clockuid;
 
 static volatile bool button_pressed=false;
 
-static void every_second(void*)
-{
+static void every_second(void*){
   onex_run_evaluators(clockuid, 0);
 }
 
@@ -39,12 +38,12 @@ int main() {
 
   properties* config = properties_new(32);
 #if defined(NRF5)
-  properties_set(config, "channels", list_new_from("radio",1));
-  properties_set(config, "flags", list_new_from("log-to-serial", 1));
+  properties_set(config, "channels", list_new_from("serial",2));
+//properties_set(config, "flags", list_new_from("log-to-serial",2));
 #else
   properties_set(config, "dbpath", value_new("button.ondb"));
-  properties_set(config, "channels", list_new_from("ipv6", 1));
-  properties_set(config, "ipv6_groups", list_new_from("ff12::1234",1));
+  properties_set(config, "channels", list_new_from("ipv6 serial",2));
+  properties_set(config, "ipv6_groups", list_new_from("ff12::1234",2));
 #endif
   properties_set(config, "test-uid-prefix", value_new("button"));
 

@@ -39,10 +39,10 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   properties* config = properties_new(32);
 #if defined(BOARD_PCA10059)
-  properties_set(config, "channels", list_new_from("radio serial", 2));
+  properties_set(config, "channels", list_new_from("radio serial",2));
 #elif defined(BOARD_FEATHER_SENSE)
-  properties_set(config, "channels", list_new_from("radio",1));
-  properties_set(config, "flags", list_new_from("log-to-serial", 1));
+  properties_set(config, "channels", list_new_from("radio",2));
+  properties_set(config, "flags", list_new_from("log-to-serial",2));
 #endif
 
   log_init(config);
@@ -97,9 +97,6 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_set_evaluator(onex_device_object, (char*)"evaluate_device");
   object_property_add(onex_device_object, (char*)"io", buttonuid);
   object_property_add(onex_device_object, (char*)"io", lightuid);
-#if defined(BOARD_FEATHER_SENSE)
-  object_property_add(onex_device_object, (char*)"io", ledmxuid);
-#endif
 
   onex_run_evaluators(lightuid, 0);
 #if defined(BOARD_FEATHER_SENSE)

@@ -57,8 +57,8 @@ void init_onex() {
 
   properties* config = properties_new(32);
   properties_set(config, "dbpath", value_new("./onex.ondb"));
-  properties_set(config, "channels", list_new_from("ipv6", 1));
-  properties_set(config, "ipv6_groups", list_new_from("ff12::1234",1));
+  properties_set(config, "channels", list_new_from("ipv6",2));
+  properties_set(config, "ipv6_groups", list_new_from("ff12::1234",2));
   onex_init(config);
 
   object* home;
@@ -181,7 +181,7 @@ void init_onex() {
   onex_run_evaluators(useruid, 0);
 }
 
-static void* do_onex_loop(void* d) {
+static void* do_onex_loop(void*) {
   while(true){
     if(!onex_loop()){
       time_delay_ms(5);

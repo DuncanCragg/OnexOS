@@ -43,8 +43,8 @@ int main() {
 #endif
   properties_set(config, "test-uid-prefix", value_new("light"));
 
-  log_init(config);
   time_init();
+  log_init(config);
 #if defined(NRF5)
   gpio_init();
 #endif

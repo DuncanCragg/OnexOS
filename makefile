@@ -221,6 +221,18 @@ SDK_INCLUDES = \
 #-------------------------------------------------------------------------------
 # Targets
 
+onx-test: INCLUDES=$(INCLUDES_DONGLE)
+onx-test: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-test: $(EXE_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-test.map -o ./onx-test.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-test.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-test.out ./onx-test.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-test.out ./onx-test.hex
+
 onx-sw-magic3: INCLUDES=$(INCLUDES_MAGIC3)
 onx-sw-magic3: COMPILER_DEFINES=$(COMPILER_DEFINES_MAGIC3)
 onx-sw-magic3: $(SW_SOURCES:.c=.o)
@@ -269,19 +281,11 @@ onx-nor: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-nor.out ./onx-nor.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-nor.out ./onx-nor.hex
 
-onx-test: INCLUDES=$(INCLUDES_DONGLE)
-onx-test: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
-onx-test: $(EXE_SOURCES:.c=.o)
-	rm -rf okolo
-	mkdir okolo
-	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
-	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-test.map -o ./onx-test.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-test.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-test.out ./onx-test.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-test.out ./onx-test.hex
-
 #-------------------------------:
+
+dongle-test-button-light-flash: onx-test
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-test.hex --key-file $(PRIVATE_PEM) dfu.zip
+	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
 
 magic3-sw-flash: onx-sw-magic3
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-sw.hex" -c "reset run" -c exit
@@ -294,10 +298,6 @@ feather-sense-flash: onx-fth
 
 dongle-flash: onx-nor
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
-	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
-
-dongle-test-button-light-flash: onx-test
-	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-test.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
 
 #-------------------------------------------------------------------------------

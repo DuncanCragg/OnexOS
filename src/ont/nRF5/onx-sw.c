@@ -380,8 +380,8 @@ int main() {
   properties_set(config, "flags", list_new_from("log-to-gfx",2));
 
   boot_init();
-  log_init(config);
   time_init_set(4+(unsigned long)&__BUILD_TIMESTAMP);
+  log_init(config);
   gpio_init();
 
   set_up_gpio();

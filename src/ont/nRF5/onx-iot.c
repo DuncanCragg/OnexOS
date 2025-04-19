@@ -45,8 +45,8 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   properties_set(config, "flags", list_new_from("log-to-serial",2));
 #endif
 
-  log_init(config);
   time_init();
+  log_init(config);
   gpio_init();
 
   onex_init(config);

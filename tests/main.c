@@ -72,8 +72,8 @@ int main(void)
 #endif
   properties_set(config, "test-uid-prefix", value_new("tests"));
 
-  log_init(config);
   time_init();
+  log_init(config);
 #if defined(NRF5)
   gpio_init();
 #if !defined(BOARD_MAGIC3)

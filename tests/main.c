@@ -60,7 +60,9 @@ void run_tests_maybe()
 #endif
 }
 
+#if defined(NRF5)
 static void loop_serial(void*){ serial_loop(); }
+#endif
 
 int main(void)
 {

@@ -13,8 +13,8 @@ onx.????.c
 ,*
 .gitattributes
 .vimfiles
-light.*
-button.*
+light*.*
+button*.*
 tests.*
 dfu.zip
 onx-xcb

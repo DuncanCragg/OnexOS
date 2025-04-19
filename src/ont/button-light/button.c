@@ -42,7 +42,11 @@ int main() {
 //properties_set(config, "flags", list_new_from("log-to-serial",2));
 #else
   properties_set(config, "dbpath", value_new("button.ondb"));
-  properties_set(config, "channels", list_new_from("ipv6 serial",2));
+#if defined(ONP_OVER_IPV6)
+  properties_set(config, "channels", list_new_from("ipv6",2));
+#elif defined(ONP_OVER_SERIAL)
+  properties_set(config, "channels", list_new_from("serial",2));
+#endif
   properties_set(config, "ipv6_groups", list_new_from("ff12::1234",2));
 #endif
   properties_set(config, "test-uid-prefix", value_new("button"));

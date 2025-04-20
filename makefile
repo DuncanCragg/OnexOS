@@ -285,7 +285,7 @@ onx-nor: $(IOT_SOURCES:.c=.o)
 
 dongle-test-button-light-flash: onx-test
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-test.hex --key-file $(PRIVATE_PEM) dfu.zip
-	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
+	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
 
 magic3-sw-flash: onx-sw-magic3
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-sw.hex" -c "reset run" -c exit
@@ -298,7 +298,7 @@ feather-sense-flash: onx-fth
 
 dongle-flash: onx-nor
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
-	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/ttyACM0 -b 115200
+	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
 
 #-------------------------------------------------------------------------------
 

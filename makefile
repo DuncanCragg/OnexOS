@@ -130,6 +130,11 @@ IOT_SOURCES = \
 ./src/ont/nRF5/onx-iot.c \
 
 
+PCR_SOURCES = \
+./src/ont/behaviours.c \
+./src/ont/nRF5/onx-pcr.c \
+
+
 BUTTON_SOURCES = \
 ./src/ont/behaviours.c \
 ./src/ont/button-light/button.c \
@@ -281,6 +286,18 @@ onx-iot-nor: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-nor.out ./onx-iot-nor.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-nor.out ./onx-iot-nor.hex
 
+onx-pcr-nor: INCLUDES=$(INCLUDES_DONGLE)
+onx-pcr-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-pcr-nor: $(PCR_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-pcr-nor.map -o ./onx-pcr-nor.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-pcr-nor.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-pcr-nor.out ./onx-pcr-nor.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-pcr-nor.out ./onx-pcr-nor.hex
+
 #-------------------------------:
 
 dongle-test-button-light-flash: onx-test
@@ -298,6 +315,10 @@ feather-sense-iot-flash: onx-iot-fth
 
 dongle-iot-flash: onx-iot-nor
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-iot-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
+	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
+
+dongle-pcr-flash: onx-pcr-nor
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-pcr-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
 
 #-------------------------------------------------------------------------------

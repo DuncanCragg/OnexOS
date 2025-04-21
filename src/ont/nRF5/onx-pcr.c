@@ -4,6 +4,8 @@
 #include <onex-kernel/time.h>
 #include <onex-kernel/random.h>
 #include <onn.h>
+#include <onr.h>
+#include <ont.h>
 
 int main(int argc, char *argv[]) {
 
@@ -21,6 +23,9 @@ int main(int argc, char *argv[]) {
   onex_init(config);
 
   log_write("\n------Starting PCR-----\n");
+
+  onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
+  object_set_evaluator(onex_device_object, (char*)"evaluate_device");
 
   while(true){
     if(!onex_loop()){

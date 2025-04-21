@@ -245,41 +245,41 @@ onx-sw-magic3: $(SW_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-sw.out ./onx-sw.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-sw.out ./onx-sw.hex
 
-onx-its: INCLUDES=$(INCLUDES_ITSYBITSY)
-onx-its: COMPILER_DEFINES=$(COMPILER_DEFINES_ITSYBITSY)
-onx-its: $(IOT_SOURCES:.c=.o)
+onx-iot-its: INCLUDES=$(INCLUDES_ITSYBITSY)
+onx-iot-its: COMPILER_DEFINES=$(COMPILER_DEFINES_ITSYBITSY)
+onx-iot-its: $(IOT_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-itsybitsy.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_ITSYBITSY) -Wl,-Map=./onx-its.map -o ./onx-its.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-its.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-its.out ./onx-its.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-its.out ./onx-its.hex
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_ITSYBITSY) -Wl,-Map=./onx-iot-its.map -o ./onx-iot-its.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-iot-its.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-its.out ./onx-iot-its.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-its.out ./onx-iot-its.hex
 
-onx-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
-onx-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE)
-onx-fth: $(IOT_SOURCES:.c=.o)
+onx-iot-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
+onx-iot-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE)
+onx-iot-fth: $(IOT_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-feather-sense.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a             --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-fth.map -o ./onx-fth.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-fth.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-fth.out ./onx-fth.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-fth.out ./onx-fth.hex
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-iot-fth.map -o ./onx-iot-fth.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-iot-fth.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-fth.out ./onx-iot-fth.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-fth.out ./onx-iot-fth.hex
 
-onx-nor: INCLUDES=$(INCLUDES_DONGLE)
-onx-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
-onx-nor: $(IOT_SOURCES:.c=.o)
+onx-iot-nor: INCLUDES=$(INCLUDES_DONGLE)
+onx-iot-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-iot-nor: $(IOT_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-nor.map -o ./onx-nor.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-nor.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-nor.out ./onx-nor.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-nor.out ./onx-nor.hex
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-iot-nor.map -o ./onx-iot-nor.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-iot-nor.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-nor.out ./onx-iot-nor.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-nor.out ./onx-iot-nor.hex
 
 #-------------------------------:
 
@@ -290,14 +290,14 @@ dongle-test-button-light-flash: onx-test
 magic3-sw-flash: onx-sw-magic3
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-sw.hex" -c "reset run" -c exit
 
-itsybitsy-flash: onx-its
-	uf2conv.py onx-its.hex --family 0xada52840 --output onx-its.uf2
+itsybitsy-iot-flash: onx-iot-its
+	uf2conv.py onx-iot-its.hex --family 0xada52840 --output onx-iot-its.uf2
 
-feather-sense-flash: onx-fth
-	uf2conv.py onx-fth.hex --family 0xada52840 --output onx-fth.uf2
+feather-sense-iot-flash: onx-iot-fth
+	uf2conv.py onx-iot-fth.hex --family 0xada52840 --output onx-iot-fth.uf2
 
-dongle-flash: onx-nor
-	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
+dongle-iot-flash: onx-iot-nor
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-iot-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
 
 #-------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ COMPILER_FLAGS = -std=gnu17 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -W
 clean:
 	find src external tests -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf *.hex onx-sw.??? onx-its.??? onx-fth.??? onx-nor.??? onx-test.* dfu.zip core okolo
+	rm -rf *.hex onx-sw.??? onx-iot*.??? onx-test.* dfu.zip core okolo
 	rm -f ,*
 	@echo "------------------------------"
 	@echo "files not cleaned:"

@@ -141,41 +141,19 @@ tests.x86: ${TESTS_SOURCES:.c=.o}
 	@echo -----
 	$(LD) -o $@ ${TESTS_SOURCES:.c=.o} $(LIB_DIRS) $(LIBS_ONEX)
 
-button-ipv6.x86: CONFIGFLAGS=-DONP_OVER_IPV6
-button-ipv6.x86: INC_DIR=${INC_DIRS}
-button-ipv6.x86: CC=gcc
-button-ipv6.x86: LD=gcc
-button-ipv6.x86: ${BUTTON_SOURCES:.c=.o}
+button.x86: INC_DIR=${INC_DIRS}
+button.x86: CC=gcc
+button.x86: LD=gcc
+button.x86: ${BUTTON_SOURCES:.c=.o}
 	@echo ================
 	@echo $@ '<=' ${BUTTON_SOURCES:.c=.o}
 	@echo -----
 	$(LD) -o $@ ${BUTTON_SOURCES:.c=.o} $(LIB_DIRS) $(LIBS_ONEX)
 
-light-ipv6.x86: CONFIGFLAGS=-DONP_OVER_IPV6
-light-ipv6.x86: INC_DIR=${INC_DIRS}
-light-ipv6.x86: CC=gcc
-light-ipv6.x86: LD=gcc
-light-ipv6.x86: ${LIGHT_SOURCES:.c=.o}
-	@echo ================
-	@echo $@ '<=' ${LIGHT_SOURCES:.c=.o}
-	@echo -----
-	$(LD) -o $@ ${LIGHT_SOURCES:.c=.o} $(LIB_DIRS) $(LIBS_ONEX)
-
-button-serial.x86: CONFIGFLAGS=-DONP_OVER_SERIAL
-button-serial.x86: INC_DIR=${INC_DIRS}
-button-serial.x86: CC=gcc
-button-serial.x86: LD=gcc
-button-serial.x86: ${BUTTON_SOURCES:.c=.o}
-	@echo ================
-	@echo $@ '<=' ${BUTTON_SOURCES:.c=.o}
-	@echo -----
-	$(LD) -o $@ ${BUTTON_SOURCES:.c=.o} $(LIB_DIRS) $(LIBS_ONEX)
-
-light-serial.x86: CONFIGFLAGS=-DONP_OVER_SERIAL
-light-serial.x86: INC_DIR=${INC_DIRS}
-light-serial.x86: CC=gcc
-light-serial.x86: LD=gcc
-light-serial.x86: ${LIGHT_SOURCES:.c=.o}
+light.x86: INC_DIR=${INC_DIRS}
+light.x86: CC=gcc
+light.x86: LD=gcc
+light.x86: ${LIGHT_SOURCES:.c=.o}
 	@echo ================
 	@echo $@ '<=' ${LIGHT_SOURCES:.c=.o}
 	@echo -----
@@ -184,11 +162,17 @@ light-serial.x86: ${LIGHT_SOURCES:.c=.o}
 x86.tests: tests.x86
 	./tests.x86
 
-x86.button-serial: button-serial.x86
-	./button-serial.x86
+x86.button-ipv6: button.x86
+	./button.x86 ff12::1234
 
-x86.light-serial: light-serial.x86
-	./light-serial.x86
+x86.light-ipv6: light.x86
+	./light.x86 ff12::1234
+
+x86.button-serial: button.x86
+	./button.x86 /dev/ttyACM0
+
+x86.light-serial: light.x86
+	./light.x86 /dev/ttyACM0
 
 #-------------------------------------------------------------------------------
 

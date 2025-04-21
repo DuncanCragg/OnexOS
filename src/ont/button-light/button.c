@@ -5,6 +5,8 @@
 #include <boards.h>
 #include <onex-kernel/gpio.h>
 #include <onex-kernel/serial.h>
+#else
+#include <onex-kernel/config.h>
 #endif
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
@@ -34,22 +36,17 @@ static void button_changed(uint8_t pin, uint8_t type){
 
 bool evaluate_button_io(object* button, void* pressed);
 
-int main() {
+int main(int argc, char *argv[]) {
 
-  properties* config = properties_new(32);
 #if defined(NRF5)
+  properties* config = properties_new(32);
   properties_set(config, "channels", list_new_from("serial",2));
 //properties_set(config, "flags", list_new_from("log-to-serial",2));
-#else
-  properties_set(config, "dbpath", value_new("button.ondb"));
-#if defined(ONP_OVER_IPV6)
-  properties_set(config, "channels", list_new_from("ipv6",2));
-#elif defined(ONP_OVER_SERIAL)
-  properties_set(config, "channels", list_new_from("serial",2));
-#endif
-  properties_set(config, "ipv6_groups", list_new_from("ff12::1234",2));
-#endif
   properties_set(config, "test-uid-prefix", value_new("button"));
+#else
+  properties* config = get_config(argc, argv, "button");
+  if(!config) return -1;
+#endif
 
   time_init();
   log_init(config);

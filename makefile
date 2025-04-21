@@ -13,25 +13,6 @@ GCC_ARM_PREFIX = arm-none-eabi
 
 PRIVATE_PEM = ../OnexKernel/doc/local/private.pem
 
-TESTS = '1'
-BUTTON ='0'
-LIGHT = '0'
-
-EXE_SOURCES =
-EXE_DEFINES =
-
-ifeq ($(TESTS), '1')
- EXE_SOURCES += $(TESTS_SOURCES)
-endif
-
-ifeq ($(BUTTON), '1')
- EXE_SOURCES += $(BUTTON_SOURCES)
-endif
-
-ifeq ($(LIGHT), '1')
- EXE_SOURCES += $(LIGHT_SOURCES)
-endif
-
 #-------------------------------------------------------------------------------
 
 COMMON_DEFINES = \
@@ -228,7 +209,7 @@ SDK_INCLUDES = \
 
 onx-test: INCLUDES=$(INCLUDES_DONGLE)
 onx-test: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
-onx-test: $(EXE_SOURCES:.c=.o)
+onx-test: $(TESTS_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
@@ -237,6 +218,32 @@ onx-test: $(EXE_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-test.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-test.out ./onx-test.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-test.out ./onx-test.hex
+
+onx-button: INCLUDES=$(INCLUDES_DONGLE)
+onx-button: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-button: $(BUTTON_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-button.map -o ./onx-button.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-button.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-button.out ./onx-button.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-button.out ./onx-button.hex
+
+onx-light: INCLUDES=$(INCLUDES_DONGLE)
+onx-light: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-light: $(LIGHT_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-light.map -o ./onx-light.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-light.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-light.out ./onx-light.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-light.out ./onx-light.hex
+
+#-------------------------------:
 
 onx-sw-magic3: INCLUDES=$(INCLUDES_MAGIC3)
 onx-sw-magic3: COMPILER_DEFINES=$(COMPILER_DEFINES_MAGIC3)
@@ -300,9 +307,19 @@ onx-pcr-nor: $(PCR_SOURCES:.c=.o)
 
 #-------------------------------:
 
-dongle-test-button-light-flash: onx-test
+dongle-test-flash: onx-test
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-test.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
+
+dongle-button-flash: onx-button
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-button.hex --key-file $(PRIVATE_PEM) dfu.zip
+	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
+
+dongle-light-flash: onx-light
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-light.hex --key-file $(PRIVATE_PEM) dfu.zip
+	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
+
+#-------------------------------:
 
 magic3-sw-flash: onx-sw-magic3
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-sw.hex" -c "reset run" -c exit

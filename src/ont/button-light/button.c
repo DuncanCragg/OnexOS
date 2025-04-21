@@ -21,15 +21,20 @@
 char* buttonuid;
 char* clockuid;
 
-static volatile bool button_pressed=false;
-
 static void every_second(void*){
   onex_run_evaluators(clockuid, 0);
 }
 
+static volatile bool button_pressed=false;
+
 #if defined(NRF5)
 static void button_changed(uint8_t pin, uint8_t type){
   button_pressed=(gpio_get(pin)==BUTTONS_ACTIVE_STATE);
+  onex_run_evaluators(buttonuid, (void*)button_pressed);
+}
+#else
+static void every_tick(void*){
+  button_pressed=!button_pressed;
   onex_run_evaluators(buttonuid, (void*)button_pressed);
 }
 #endif
@@ -77,6 +82,7 @@ int main(int argc, char *argv[]) {
 
   object* button=object_new("uid-button", "evaluate_button", "editable button", 4);
   object_property_set(button, "name", "£€§");
+  object_property_set(button, "state", "up");
   buttonuid=object_property(button, "UID");
 
   object* oclock=object_new("uid-button-clock", "evaluate_clock", "clock event", 12);
@@ -92,27 +98,18 @@ int main(int argc, char *argv[]) {
   object_property_add(onex_device_object, (char*)"io", clockuid);
 
   time_ticker(every_second, 0, 1000);
-
 #if !defined(NRF5)
-  uint32_t lasttime=0;
+  time_ticker(every_tick, 0, 2000);
 #endif
 
   while(1){
-
-    onex_loop();
-
-#if !defined(NRF5)
-    if(time_ms() > lasttime+1200u){
-      lasttime=time_ms();
-      button_pressed=!button_pressed;
-      onex_run_evaluators(buttonuid, (void*)button_pressed);
+    if(!onex_loop()){
+      time_delay_ms(5);
     }
-#endif
   }
 }
 
-bool evaluate_button_io(object* button, void* pressed)
-{
+bool evaluate_button_io(object* button, void* pressed) {
   char* s=(char*)(pressed? "down": "up");
   object_property_set(button, "state", s);
 #if !defined(NRF5)

@@ -90,7 +90,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_set(button, "name", "mango");
 
   object_property_set(light, "light", "off");
-  object_property_set(light, "device", deviceuid);
+
 #if defined(BOARD_FEATHER_SENSE)
   object_property_set(ledmx, "light", "off");
   object_property_set(ledmx, "colour", "#010");

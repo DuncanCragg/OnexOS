@@ -51,6 +51,8 @@ int main(int argc, char *argv[]) {
 #if defined(BOARD_PCA10059)
   gpio_mode(LED1_G, OUTPUT);
   gpio_mode(LED2_B, OUTPUT);
+#elif defined(BOARD_FEATHER_SENSE)
+  gpio_mode(LED_1, OUTPUT);
 #else
   log_write("\n------Starting Light Test-----\n");
 #endif
@@ -68,7 +70,11 @@ int main(int argc, char *argv[]) {
 
   object* light=object_new("uid-light", "evaluate_light", "editable light", 4);
   object_property_set(light, "light", "off");
+#ifdef FIXED_BUTTON_NOT_DISCOVERED
+  object_property_set(light, "button", "uid-button");
+#else
   object_property_set(light, "device", deviceuid);
+#endif
   lightuid=object_property(light, "UID");
 
   object* oclock=object_new("uid-light-clock", "evaluate_clock", "clock event", 12);
@@ -89,6 +95,8 @@ int main(int argc, char *argv[]) {
 #if defined(BOARD_PCA10059)
   gpio_set(LED1_G,  LEDS_ACTIVE_STATE);
   gpio_set(LED2_B, !LEDS_ACTIVE_STATE);
+#elif defined(BOARD_FEATHER_SENSE)
+  gpio_set(LED_1,  !LEDS_ACTIVE_STATE);
 #endif
   while(1) onex_loop();
 }
@@ -99,10 +107,14 @@ bool evaluate_light_io(object* light, void* d)
   if(object_property_is(light, "light", "on")){
 #if defined(BOARD_PCA10059)
     gpio_set(LED2_B, LEDS_ACTIVE_STATE);
+#elif defined(BOARD_FEATHER_SENSE)
+    gpio_set(LED_1, LEDS_ACTIVE_STATE);
 #endif
   } else {
 #if defined(BOARD_PCA10059)
     gpio_set(LED2_B, !LEDS_ACTIVE_STATE);
+#elif defined(BOARD_FEATHER_SENSE)
+    gpio_set(LED_1, !LEDS_ACTIVE_STATE);
 #endif
   }
 #else

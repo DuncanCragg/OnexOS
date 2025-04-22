@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
   onex_set_evaluators("evaluate_clock",  evaluate_clock, 0);
 #endif
 
-  object_set_evaluator(onex_device_object, (char*)"evaluate_device");
+  object_set_evaluator(onex_device_object, "evaluate_device");
   char* deviceuid=object_property(onex_device_object, "UID");
 
   object* light=object_new("uid-light", "evaluate_light", "editable light", 4);
@@ -80,8 +80,8 @@ int main(int argc, char *argv[]) {
 #endif
   clockuid =object_property(oclock, "UID");
 
-  object_property_add(onex_device_object, (char*)"io", lightuid);
-  object_property_add(onex_device_object, (char*)"io", clockuid);
+  object_property_add(onex_device_object, "io", lightuid);
+  object_property_add(onex_device_object, "io", clockuid);
 
   onex_run_evaluators(lightuid, 0);
   time_ticker(every_second, 0, 1000);

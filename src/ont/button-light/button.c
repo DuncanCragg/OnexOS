@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
   onex_set_evaluators("evaluate_clock",  evaluate_clock, 0);
 #endif
 
-  object_set_evaluator(onex_device_object, (char*)"evaluate_device");
+  object_set_evaluator(onex_device_object, "evaluate_device");
 #if defined(SYNC_TO_PEER_CLOCK)
   char* deviceuid=object_property(onex_device_object, "UID");
 #endif
@@ -94,8 +94,8 @@ int main(int argc, char *argv[]) {
 #endif
   clockuid =object_property(oclock, "UID");
 
-  object_property_add(onex_device_object, (char*)"io", buttonuid);
-  object_property_add(onex_device_object, (char*)"io", clockuid);
+  object_property_add(onex_device_object, "io", buttonuid);
+  object_property_add(onex_device_object, "io", clockuid);
 
   time_ticker(every_second, 0, 1000);
 #if !defined(NRF5)
@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
 }
 
 bool evaluate_button_io(object* button, void* pressed) {
-  char* s=(char*)(pressed? "down": "up");
+  char* s=(pressed? "down": "up");
   object_property_set(button, "state", s);
 #if !defined(NRF5)
   log_write("evaluate_button_io: "); object_log(button);

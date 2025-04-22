@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   log_write("\n------Starting PCR-----\n");
 
   onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
-  object_set_evaluator(onex_device_object, (char*)"evaluate_device");
+  object_set_evaluator(onex_device_object, "evaluate_device");
 
   while(true){
     if(!onex_loop()){

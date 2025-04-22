@@ -96,9 +96,9 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_set(ledmx, "colour", "#010");
 #endif
 
-  object_set_evaluator(onex_device_object, (char*)"evaluate_device");
-  object_property_add(onex_device_object, (char*)"io", buttonuid);
-  object_property_add(onex_device_object, (char*)"io", lightuid);
+  object_set_evaluator(onex_device_object, "evaluate_device");
+  object_property_add(onex_device_object, "io", buttonuid);
+  object_property_add(onex_device_object, "io", lightuid);
 
   onex_run_evaluators(lightuid, 0);
 #if defined(BOARD_FEATHER_SENSE)
@@ -130,7 +130,7 @@ static void button_changed(uint8_t pin, uint8_t type){
 
 bool evaluate_button_io(object* button, void* pressed)
 {
-  char* s=(char*)(pressed? "down": "up");
+  char* s=(pressed? "down": "up");
   object_property_set(button, "state", s);
   return true;
 }

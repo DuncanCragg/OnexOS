@@ -16,7 +16,7 @@ bool evaluate_button_io(object* button, void* pressed)
   if(evaluate_button_io_called==1) onex_assert( !pressed, "evaluate_button_io arg is false the 1st time");
   if(evaluate_button_io_called==2) onex_assert(!!pressed, "evaluate_button_io arg is true  the 2nd time");
   if(evaluate_button_io_called==3) onex_assert( !pressed, "evaluate_button_io arg is false the 3rd time");
-  char* s=(char*)(pressed? "down": "up");
+  char* s=(pressed? "down": "up");
   object_property_set(button, "state", s);
   return true;
 }
@@ -79,7 +79,7 @@ void run_device_tests()
   log_write("------device behaviour tests-----\n");
 
   onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
-  object_set_evaluator(onex_device_object, (char*)"evaluate_device");
+  object_set_evaluator(onex_device_object, "evaluate_device");
 
   object_property_set(onex_device_object, "incoming", "uid-incomingdevice");
   object_property(onex_device_object, "incoming:UID");

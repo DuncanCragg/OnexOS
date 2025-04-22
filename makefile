@@ -207,41 +207,41 @@ SDK_INCLUDES = \
 #-------------------------------------------------------------------------------
 # Targets
 
-onx-test: INCLUDES=$(INCLUDES_DONGLE)
-onx-test: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
-onx-test: $(TESTS_SOURCES:.c=.o)
+onx-test-nor: INCLUDES=$(INCLUDES_DONGLE)
+onx-test-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-test-nor: $(TESTS_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-test.map -o ./onx-test.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-test.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-test.out ./onx-test.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-test.out ./onx-test.hex
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-test-nor.map -o ./onx-test-nor.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-test-nor.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-test-nor.out ./onx-test-nor.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-test-nor.out ./onx-test-nor.hex
 
-onx-button: INCLUDES=$(INCLUDES_DONGLE)
-onx-button: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
-onx-button: $(BUTTON_SOURCES:.c=.o)
+onx-button-nor: INCLUDES=$(INCLUDES_DONGLE)
+onx-button-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-button-nor: $(BUTTON_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-button.map -o ./onx-button.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-button.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-button.out ./onx-button.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-button.out ./onx-button.hex
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-button-nor.map -o ./onx-button-nor.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-button-nor.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-button-nor.out ./onx-button-nor.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-button-nor.out ./onx-button-nor.hex
 
-onx-light: INCLUDES=$(INCLUDES_DONGLE)
-onx-light: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
-onx-light: $(LIGHT_SOURCES:.c=.o)
+onx-light-nor: INCLUDES=$(INCLUDES_DONGLE)
+onx-light-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-light-nor: $(LIGHT_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-light.map -o ./onx-light.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-light.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-light.out ./onx-light.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-light.out ./onx-light.hex
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-light-nor.map -o ./onx-light-nor.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-light-nor.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-light-nor.out ./onx-light-nor.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-light-nor.out ./onx-light-nor.hex
 
 #-------------------------------:
 
@@ -307,16 +307,16 @@ onx-pcr-nor: $(PCR_SOURCES:.c=.o)
 
 #-------------------------------:
 
-dongle-test-flash: onx-test
-	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-test.hex --key-file $(PRIVATE_PEM) dfu.zip
+dongle-test-flash: onx-test-nor
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-test-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
 
-dongle-button-flash: onx-button
-	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-button.hex --key-file $(PRIVATE_PEM) dfu.zip
+dongle-button-flash: onx-button-nor
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-button-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
 
-dongle-light-flash: onx-light
-	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-light.hex --key-file $(PRIVATE_PEM) dfu.zip
+dongle-light-flash: onx-light-nor
+	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-light-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
 
 #-------------------------------:

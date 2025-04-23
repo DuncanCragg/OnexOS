@@ -37,8 +37,6 @@ bool evaluate_light_logic(object* o, void* d)
     return true;
   }
 
-  bool changed=false;
-
   if(!light_on && (
        object_property_is(o, "button:state",   "down") ||
        object_property_is(o, "touch:action",   "down") ||
@@ -46,7 +44,6 @@ bool evaluate_light_logic(object* o, void* d)
 
     light_on=true;
     object_property_set(o, "light", "on");
-    changed=true;
   }
 
   if(light_on /* && !object_property(o, "Timer") */ )  {
@@ -54,22 +51,20 @@ bool evaluate_light_logic(object* o, void* d)
     char* timeout=object_property(o, "timeout");
     if(timeout){
       object_property_set(o, "Timer", timeout);
-      changed=true;
     }
   }
 
   ;  object_property(o, "button:is"); // observe the button
   if(object_property(o, "touch:is") ||
-     object_property(o, "motion:is")   ) return changed;
+     object_property(o, "motion:is")   ) return true;
 
-  if(!discover_io_peer(o, "button", "button")) return changed;
+  if(!discover_io_peer(o, "button", "button")) return true;
 
   if(light_on && object_property_is(o, "button:state", "up")){
 
     object_property_set(o, "light", "off");
-    changed=true;
   }
-  return changed;
+  return true;
 }
 
 bool evaluate_device_logic(object* o, void* d)

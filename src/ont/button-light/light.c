@@ -16,7 +16,7 @@
 #include <ont.h>
 
 #if defined(NRF5)
-#define SYNC_TO_PEER_CLOCK
+#define xxSYNC_TO_PEER_CLOCK
 #endif
 
 char* lightuid;
@@ -72,6 +72,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   object_set_evaluator(onex_device_object, "evaluate_device");
+  object_property_set(onex_device_object, "name", "Light");
   char* deviceuid=object_property(onex_device_object, "UID");
 
   object* light=object_new("uid-light", "evaluate_light", "editable light", 4);

@@ -43,7 +43,11 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   properties_set(config, "channels", list_new_from("radio serial",2));
 #elif defined(BOARD_FEATHER_SENSE)
   properties_set(config, "channels", list_new_from("radio",2));
+#define TEST_MODE
+#ifdef  TEST_MODE
   properties_set(config, "flags", list_new_from("log-to-serial",2));
+  properties_set(config, "test-uid-prefix", value_new("iot"));
+#endif
 #endif
 
   time_init();
@@ -95,6 +99,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 #endif
 
   object_set_evaluator(onex_device_object, "evaluate_device");
+  object_property_set(onex_device_object, "name", "IoT");
   object_property_add(onex_device_object, "io", buttonuid);
   object_property_add(onex_device_object, "io", lightuid);
 #if defined(BOARD_FEATHER_SENSE)

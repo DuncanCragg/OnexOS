@@ -11,8 +11,9 @@ int main(int argc, char *argv[]) {
 
   properties* config = properties_new(32);
   properties_set(config, "channels", list_new_from("radio serial",2));
-#define TEST_PREFIX
-#ifdef  TEST_PREFIX
+#define TEST_MODE
+#ifdef  TEST_MODE
+  properties_set(config, "flags", list_new_from("log-to-serial",2));
   properties_set(config, "test-uid-prefix", value_new("pcr"));
 #endif
 
@@ -26,6 +27,7 @@ int main(int argc, char *argv[]) {
 
   onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
   object_set_evaluator(onex_device_object, "evaluate_device");
+  object_property_set(onex_device_object, "name", "PCR/dongle");
 
   while(true){
     if(!onex_loop()){

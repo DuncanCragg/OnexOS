@@ -243,6 +243,18 @@ onx-light-nor: $(LIGHT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-light-nor.out ./onx-light-nor.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-light-nor.out ./onx-light-nor.hex
 
+onx-light-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
+onx-light-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE)
+onx-light-fth: $(LIGHT_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-feather-sense.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a             --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-light-fth.map -o ./onx-light-fth.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-light-fth.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-light-fth.out ./onx-light-fth.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-light-fth.out ./onx-light-fth.hex
+
 onx-light-fixed-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
 onx-light-fixed-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE) -DFIXED_BUTTON
 onx-light-fixed-fth: $(LIGHT_SOURCES:.c=.o)
@@ -330,6 +342,9 @@ dongle-button-flash: onx-button-nor
 dongle-light-flash: onx-light-nor
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-light-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
+
+feather-sense-light-flash: onx-light-fth
+	uf2conv.py onx-light-fth.hex --family 0xada52840 --output onx-light-fth.uf2
 
 feather-sense-light-fixed-flash: onx-light-fixed-fth
 	uf2conv.py onx-light-fth.hex --family 0xada52840 --output onx-light-fth.uf2

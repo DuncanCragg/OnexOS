@@ -75,7 +75,6 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   button=object_new(0, "evaluate_button", "editable button", 4);
   light =object_new(0, "evaluate_light",  "editable light", 4);
-
 #if defined(BOARD_FEATHER_SENSE)
   ledmx =object_new(0, "evaluate_ledmx",  "editable light", 4);
 #endif
@@ -90,10 +89,9 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_set(button, "name", "mango");
 
   object_property_set(light, "light", "off");
-
 #if defined(BOARD_FEATHER_SENSE)
-  object_property_set(ledmx, "light", "off");
-  object_property_set(ledmx, "colour", "#010");
+  object_property_set(ledmx, "light", "on");
+  object_property_set(ledmx, "colour", "#100");
 #endif
 
   object_set_evaluator(onex_device_object, "evaluate_device");
@@ -114,8 +112,8 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 #elif defined(BOARD_ITSYBITSY)
   gpio_set(LED_1, LEDS_ACTIVE_STATE);
 #elif defined(BOARD_FEATHER_SENSE)
-  gpio_set(LED_1, LEDS_ACTIVE_STATE);
-  led_matrix_fill_rgb((led_matrix_rgb){0, 16, 0});
+  gpio_set(LED_1, !LEDS_ACTIVE_STATE);
+  led_matrix_fill_rgb((led_matrix_rgb){16, 0, 0});
   led_matrix_show();
 #endif
 

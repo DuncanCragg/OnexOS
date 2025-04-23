@@ -8,6 +8,7 @@
 #else
 #include <onex-kernel/config.h>
 #endif
+#include <onex-kernel/random.h>
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
 #include <onn.h>
@@ -32,8 +33,12 @@ int main(int argc, char *argv[]) {
 
 #if defined(NRF5)
   properties* config = properties_new(32);
+#if defined(BOARD_PCA10059)
   properties_set(config, "channels", list_new_from("serial",2));
-//properties_set(config, "flags", list_new_from("log-to-serial",2));
+#elif defined(BOARD_FEATHER_SENSE)
+  properties_set(config, "channels", list_new_from("radio",2));
+  properties_set(config, "flags", list_new_from("log-to-serial",2));
+#endif
   properties_set(config, "test-uid-prefix", value_new("light"));
 #else
   properties* config = get_config(argc, argv, "light");
@@ -45,6 +50,7 @@ int main(int argc, char *argv[]) {
 #if defined(NRF5)
   gpio_init();
 #endif
+  random_init();
 
   onex_init(config);
 
@@ -70,9 +76,10 @@ int main(int argc, char *argv[]) {
 
   object* light=object_new("uid-light", "evaluate_light", "editable light", 4);
   object_property_set(light, "light", "off");
-#ifdef FIXED_BUTTON_NOT_DISCOVERED
+#ifdef FIXED_BUTTON
   object_property_set(light, "button", "uid-button");
-#else
+#endif
+#ifdef DISCOVERED_BUTTON
   object_property_set(light, "device", deviceuid);
 #endif
   lightuid=object_property(light, "UID");

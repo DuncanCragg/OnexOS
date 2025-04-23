@@ -49,13 +49,6 @@ $(COMMON_DEFINES) \
 -DNRF52840_XXAA \
 
 
-COMPILER_DEFINES_FEATHER_SENSE_FIXED = \
-$(COMMON_DEFINES) \
--DFIXED_BUTTON_NOT_DISCOVERED \
--DBOARD_FEATHER_SENSE \
--DNRF52840_XXAA \
-
-
 COMPILER_DEFINES_DONGLE = \
 $(COMMON_DEFINES) \
 -DBOARD_PCA10059 \
@@ -239,7 +232,7 @@ onx-button-nor: $(BUTTON_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-button-nor.out ./onx-button-nor.hex
 
 onx-light-nor: INCLUDES=$(INCLUDES_DONGLE)
-onx-light-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-light-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE) -DDISCOVERED_BUTTON
 onx-light-nor: $(LIGHT_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
@@ -251,7 +244,7 @@ onx-light-nor: $(LIGHT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-light-nor.out ./onx-light-nor.hex
 
 onx-light-fixed-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
-onx-light-fixed-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE_FIXED)
+onx-light-fixed-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE) -DFIXED_BUTTON
 onx-light-fixed-fth: $(LIGHT_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo

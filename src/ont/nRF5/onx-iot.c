@@ -99,6 +99,9 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_set_evaluator(onex_device_object, "evaluate_device");
   object_property_add(onex_device_object, "io", buttonuid);
   object_property_add(onex_device_object, "io", lightuid);
+#if defined(BOARD_FEATHER_SENSE)
+  object_property_add(onex_device_object, "io", ledmxuid);
+#endif
 
   onex_run_evaluators(lightuid, 0);
 #if defined(BOARD_FEATHER_SENSE)

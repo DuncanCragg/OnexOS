@@ -69,7 +69,7 @@ int main(void)
 {
   properties* config = properties_new(32);
 #if defined(NRF5)
-  properties_set(config, "flags", list_new_from("log-to-serial", 2));
+  properties_set(config, "flags", list_new_from("log-to-serial log-to-leds", 2));
 #endif
   properties_set(config, "test-uid-prefix", value_new("tests"));
 

@@ -305,6 +305,18 @@ onx-iot-fth: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-fth.out ./onx-iot-fth.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-fth.out ./onx-iot-fth.hex
 
+onx-pcr-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
+onx-pcr-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE)
+onx-pcr-fth: $(PCR_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-feather-sense.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a             --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-pcr-fth.map -o ./onx-pcr-fth.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-pcr-fth.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-pcr-fth.out ./onx-pcr-fth.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-pcr-fth.out ./onx-pcr-fth.hex
+
 onx-iot-nor: INCLUDES=$(INCLUDES_DONGLE)
 onx-iot-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
 onx-iot-nor: $(IOT_SOURCES:.c=.o)
@@ -359,6 +371,9 @@ itsybitsy-iot-flash: onx-iot-its
 
 feather-sense-iot-flash: onx-iot-fth
 	uf2conv.py onx-iot-fth.hex --family 0xada52840 --output onx-iot-fth.uf2
+
+feather-sense-pcr-flash: onx-pcr-fth
+	uf2conv.py onx-pcr-fth.hex --family 0xada52840 --output onx-pcr-fth.uf2
 
 dongle-iot-flash: onx-iot-nor
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-iot-nor.hex --key-file $(PRIVATE_PEM) dfu.zip

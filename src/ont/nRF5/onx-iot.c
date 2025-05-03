@@ -1,6 +1,7 @@
 
 #include <boards.h>
 #include <onex-kernel/log.h>
+#include <onex-kernel/boot.h>
 #include <onex-kernel/time.h>
 #include <onex-kernel/random.h>
 #include <onex-kernel/gpio.h>
@@ -95,7 +96,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_set(light, "light", "off");
 #if defined(BOARD_FEATHER_SENSE)
   object_property_set(ledmx, "light", "on");
-  object_property_set(ledmx, "colour", "#100");
+  object_property_set(ledmx, "colour", "#030303");
 #endif
 
   object_set_evaluator(onex_device_object, "evaluate_device");
@@ -138,6 +139,16 @@ bool evaluate_button_io(object* button, void* pressed) {
 
   char* s=(pressed? "down": "up");
   object_property_set(button, "state", s);
+
+  // secret trick to save hitting reset
+  if(object_property_is(button, "name", "reset")){
+    object_property_set(button, "name", "mango");
+    boot_reset(false);
+  }
+  if(object_property_is(button, "name", "boot")){
+    object_property_set(button, "name", "mango");
+    boot_reset(true);
+  }
   return true;
 }
 

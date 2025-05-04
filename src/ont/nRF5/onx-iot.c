@@ -46,7 +46,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   properties_set(config, "channels", list_new_from("radio",2));
 #define TEST_MODE
 #ifdef  TEST_MODE
-  properties_set(config, "flags", list_new_from("log-to-serial log-to-leds",2));
+  properties_set(config, "flags", list_new_from("debug-on-serial log-to-led",2));
   properties_set(config, "test-uid-prefix", value_new("iot"));
 #endif
 #endif
@@ -136,19 +136,8 @@ static void button_changed(uint8_t pin, uint8_t type){
 }
 
 bool evaluate_button_io(object* button, void* pressed) {
-
   char* s=(pressed? "down": "up");
   object_property_set(button, "state", s);
-
-  // secret trick to save hitting reset
-  if(object_property_is(button, "name", "reset")){
-    object_property_set(button, "name", "mango");
-    boot_reset(false);
-  }
-  if(object_property_is(button, "name", "boot")){
-    object_property_set(button, "name", "mango");
-    boot_reset(true);
-  }
   return true;
 }
 

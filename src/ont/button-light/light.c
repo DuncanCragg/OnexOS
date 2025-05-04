@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
   properties_set(config, "channels", list_new_from("serial",2));
 #elif defined(BOARD_FEATHER_SENSE)
   properties_set(config, "channels", list_new_from("radio",2));
-  properties_set(config, "flags", list_new_from("log-to-serial",2));
+  properties_set(config, "flags", list_new_from("debug-on-serial",2));
 #endif
   properties_set(config, "test-uid-prefix", value_new("light"));
 #else

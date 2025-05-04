@@ -31,9 +31,15 @@ static void set_up_gpio(void)
 static volatile char char_recvd=0;
 static volatile bool run_tests =false;
 
-void on_recv(unsigned char* chars, size_t size) {
-  if(!size) return;
+void serial_cb(bool connect, char* tty){
+  if(connect) return;
+#if defined(NRF5)
+  char chars[1024];
+  serial_read(chars, 1024);
   char_recvd=chars[0];
+#else
+  char_recvd='t';
+#endif
   if(char_recvd=='t') run_tests=true;
 }
 
@@ -69,7 +75,7 @@ int main(void)
 {
   properties* config = properties_new(32);
 #if defined(NRF5)
-  properties_set(config, "flags", list_new_from("log-to-serial log-to-leds", 2));
+  properties_set(config, "flags", list_new_from("debug-on-serial log-to-led",2));
 #endif
   properties_set(config, "test-uid-prefix", value_new("tests"));
 
@@ -79,7 +85,7 @@ int main(void)
 #if defined(NRF5)
   gpio_init();
 #if !defined(BOARD_MAGIC3)
-  serial_init(0,0,(serial_recv_cb)on_recv);
+  serial_init(0,0,serial_cb);
   set_up_gpio();
   time_ticker(loop_serial, 0, 1);
   while(1){
@@ -101,7 +107,7 @@ int main(void)
   }
 #endif
 #else
-  on_recv((unsigned char*)"t", 1);
+  serial_cb(false, "tty");
   run_tests_maybe();
   time_end();
 #endif

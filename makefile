@@ -418,7 +418,7 @@ COMPILER_FLAGS = -std=gnu17 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -W
 clean:
 	find src external tests -name '*.o' -o -name '*.d' | xargs rm -f
 	find . -name onex.ondb | xargs rm -f
-	rm -rf *.hex onx-sw.??? onx-iot*.??? onx-test.* dfu.zip core okolo
+	rm -rf *.hex *.map *.bin *.out *.uf2 onx-sw.??? onx-iot*.??? onx-test.* dfu.zip core okolo
 	rm -f ,*
 	@echo "------------------------------"
 	@echo "files not cleaned:"

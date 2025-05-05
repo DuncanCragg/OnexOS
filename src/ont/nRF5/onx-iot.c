@@ -8,6 +8,7 @@
 #include <onex-kernel/serial.h>
 #if defined(BOARD_FEATHER_SENSE)
 #include <onex-kernel/led-matrix.h>
+#include <evaluators.h>
 #endif
 #include <onn.h>
 #include <onr.h>
@@ -17,13 +18,19 @@ object* button;
 object* light;
 #if defined(BOARD_FEATHER_SENSE)
 object* ledmx;
+object* battery;
 #endif
 
-char* deviceuid;
-char* buttonuid;
-char* lightuid;
+static char* deviceuid;
+static char* buttonuid;
+static char* lightuid;
 #if defined(BOARD_FEATHER_SENSE)
-char* ledmxuid;
+static char* ledmxuid;
+static char* batteryuid;
+
+static void every_10s(void*){
+  onex_run_evaluators(batteryuid, 0);
+}
 #endif
 
 static void button_changed(uint8_t pin, uint8_t type);
@@ -32,6 +39,7 @@ bool evaluate_button_io(object* button, void* pressed);
 bool evaluate_light_io(object* light, void* d);
 #if defined(BOARD_FEATHER_SENSE)
 bool evaluate_ledmx_io(object* ledmx, void* d);
+// REVISIT: evaluators and behaviours sept
 #endif
 
 void* x;
@@ -69,26 +77,31 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);
   gpio_mode(LED_1, OUTPUT);
   led_matrix_init();
+#define ADC_CHANNEL 0
+  gpio_adc_init(BATTERY_V, ADC_CHANNEL);
 #endif
 
   onex_set_evaluators("evaluate_button", evaluate_edit_rule, evaluate_button_io, 0);
   onex_set_evaluators("evaluate_light",  evaluate_edit_rule, evaluate_light_logic, evaluate_light_io, 0);
 #if defined(BOARD_FEATHER_SENSE)
-  onex_set_evaluators("evaluate_ledmx",  evaluate_edit_rule, evaluate_light_logic, evaluate_ledmx_io, 0);
+  onex_set_evaluators("evaluate_ledmx",   evaluate_edit_rule, evaluate_light_logic, evaluate_ledmx_io, 0);
+  onex_set_evaluators("evaluate_battery", evaluate_battery_in, 0);
 #endif
   onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
 
   button=object_new(0, "evaluate_button", "editable button", 4);
   light =object_new(0, "evaluate_light",  "editable light", 4);
 #if defined(BOARD_FEATHER_SENSE)
-  ledmx =object_new(0, "evaluate_ledmx",  "editable light", 4);
+  ledmx  =object_new(0, "evaluate_ledmx",   "editable light", 4);
+  battery=object_new(0, "evaluate_battery", "battery", 4);
 #endif
 
   deviceuid=object_property(onex_device_object, "UID");
   buttonuid=object_property(button,"UID");
   lightuid =object_property(light, "UID");
 #if defined(BOARD_FEATHER_SENSE)
-  ledmxuid =object_property(ledmx, "UID");
+  ledmxuid   =object_property(ledmx, "UID");
+  batteryuid =object_property(battery, "UID");
 #endif
 
   object_property_set(button, "name", "mango");
@@ -105,11 +118,14 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_add(onex_device_object, "io", lightuid);
 #if defined(BOARD_FEATHER_SENSE)
   object_property_add(onex_device_object, "io", ledmxuid);
+  object_property_add(onex_device_object, "io", batteryuid);
 #endif
 
   onex_run_evaluators(lightuid, 0);
 #if defined(BOARD_FEATHER_SENSE)
   onex_run_evaluators(ledmxuid, 0);
+  onex_run_evaluators(batteryuid, 0);
+  time_ticker(every_10s, 0, 10000);
 #endif
 
 #if defined(BOARD_PCA10059)

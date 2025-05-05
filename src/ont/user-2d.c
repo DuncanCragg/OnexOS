@@ -42,8 +42,6 @@ extern uint16_t del_this_word;
 
 extern void show_keyboard(uint8_t g2d_node);
 
-extern char* event_log_buffer;
-
 extern bool button_pending;
 extern bool button_pressed;
 

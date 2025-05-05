@@ -13,7 +13,9 @@
 #include <onn.h>
 #include <onr.h>
 
+#if defined(BOARD_MAGIC3)
 #include <g2d.h>
+#endif
 
 extern char __BUILD_TIME;
 
@@ -48,12 +50,15 @@ bool evaluate_battery_in(object* bat, void* d) {
 
   object_property_set_fmt(bat, "percent", "%d%% %ldmv", pc, mv);
 
+#if defined(BOARD_MAGIC3)
   uint8_t batt=gpio_get(CHARGE_SENSE);
   object_property_set(bat, "status", batt? "powering": "charging");
+#endif
 
   return true;
 }
 
+#if defined(BOARD_MAGIC3)
 bool evaluate_touch_in(object* tch, void* d) {
 
   object_property_set_fmt(tch, "coords", "%3d %3d", touch_info.x, touch_info.y);
@@ -113,6 +118,7 @@ bool evaluate_backlight_out(object* blt, void* d) {
   }
   return true;
 }
+#endif
 
 #if defined(HAS_MOTION)
 bool evaluate_motion_in(object* mtn, void* d) {

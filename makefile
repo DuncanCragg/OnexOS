@@ -82,6 +82,7 @@ $(SDK_INCLUDES_ITSYBITSY) \
 INCLUDES_FEATHER_SENSE = \
 -I./include \
 -I./src/ \
+-I./src/ont/nRF5 \
 $(OL_INCLUDES) \
 $(OK_INCLUDES_FEATHER_SENSE) \
 $(SDK_INCLUDES_FEATHER_SENSE) \
@@ -107,6 +108,7 @@ SW_SOURCES = \
 
 
 IOT_SOURCES = \
+./src/ont/nRF5/evaluators.c \
 ./src/ont/behaviours.c \
 ./src/ont/nRF5/onx-iot.c \
 

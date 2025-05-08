@@ -87,6 +87,19 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   gpio_adc_init(BATTERY_V, ADC_CHANNEL);
 #endif
 
+  if(debug_on_serial){
+    if(serial_ready_state() == SERIAL_POWERED_NOT_READY){
+#if defined(BOARD_FEATHER_SENSE)
+      led_matrix_fill_col("#100");
+      led_matrix_show();
+#endif
+      log_flash(1,0,0); time_delay_ms(400);
+      log_flash(1,0,0); time_delay_ms(400);
+
+      boot_reset(false);
+    }
+  }
+
   // ------------------------------
 
   log_write("Starting Onex.....\n");

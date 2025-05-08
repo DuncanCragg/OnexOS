@@ -373,7 +373,10 @@ static void init_onex(properties* config){
   onex_run_evaluators(aboutuid, 0);
 }
 
-int main() {
+void* x;
+#define WHERESTHEHEAP(s) x = malloc(1); log_write("heap after %s: %x\n", s, x);
+
+int main() { // REVISIT: needs to be in OK and call up here like ont-vk
 
   properties* config = properties_new(32);
   properties_set(config, "channels", list_new_from("radio",2));

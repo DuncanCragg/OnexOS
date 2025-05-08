@@ -42,9 +42,6 @@ bool evaluate_ledmx_io(object* ledmx, void* d);
 // REVISIT: evaluators and behaviours sept
 #endif
 
-void* x;
-#define WHERESTHEHEAP(s) x = malloc(1); log_write("heap after %s: %x\n", s, x);
-
 int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   properties* config = properties_new(32);
@@ -60,26 +57,41 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 #endif
 
   time_init();
-  log_init(config);
+
+  log_init(config); // does serial_init if(debug_on_serial)
+  if(debug_on_serial){
+    while(!serial_ready_state()){ time_delay_ms(100); serial_loop(); }
+  }
+
   random_init();
+
   gpio_init();
-
-  onex_init(config);
-
 #if defined(BOARD_PCA10059)
   gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);
   gpio_mode(LED1_G, OUTPUT);
   gpio_mode(LED2_B, OUTPUT);
+  gpio_set(LED1_G, LEDS_ACTIVE_STATE);
+  gpio_set(LED2_B, !LEDS_ACTIVE_STATE);
 #elif defined(BOARD_ITSYBITSY)
   gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);
   gpio_mode(LED_1, OUTPUT);
+  gpio_set(LED_1, LEDS_ACTIVE_STATE);
 #elif defined(BOARD_FEATHER_SENSE)
   gpio_mode_cb(BUTTON_1, INPUT_PULLUP, RISING_AND_FALLING, button_changed);
   gpio_mode(LED_1, OUTPUT);
+  gpio_set(LED_1, !LEDS_ACTIVE_STATE);
   led_matrix_init();
+  led_matrix_fill_rgb((led_matrix_rgb){0, 16, 0});
+  led_matrix_show();
 #define ADC_CHANNEL 0
   gpio_adc_init(BATTERY_V, ADC_CHANNEL);
 #endif
+
+  // ------------------------------
+
+  log_write("Starting Onex.....\n");
+
+  onex_init(config);
 
   onex_set_evaluators("evaluate_button", evaluate_edit_rule, evaluate_button_io, 0);
   onex_set_evaluators("evaluate_light",  evaluate_edit_rule, evaluate_light_logic, evaluate_light_io, 0);
@@ -126,17 +138,6 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   onex_run_evaluators(ledmxuid, 0);
   onex_run_evaluators(batteryuid, 0);
   time_ticker(every_10s, 0, 10000);
-#endif
-
-#if defined(BOARD_PCA10059)
-  gpio_set(LED1_G, LEDS_ACTIVE_STATE);
-  gpio_set(LED2_B, !LEDS_ACTIVE_STATE);
-#elif defined(BOARD_ITSYBITSY)
-  gpio_set(LED_1, LEDS_ACTIVE_STATE);
-#elif defined(BOARD_FEATHER_SENSE)
-  gpio_set(LED_1, !LEDS_ACTIVE_STATE);
-  led_matrix_fill_rgb((led_matrix_rgb){16, 0, 0});
-  led_matrix_show();
 #endif
 
   while(1){

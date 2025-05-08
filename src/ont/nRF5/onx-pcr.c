@@ -7,7 +7,7 @@
 #include <onr.h>
 #include <ont.h>
 
-int main(int argc, char *argv[]) {
+int main() {
 
   properties* config = properties_new(32);
   properties_set(config, "channels", list_new_from("radio serial",2));
@@ -18,12 +18,17 @@ int main(int argc, char *argv[]) {
 #endif
 
   time_init();
+
   log_init(config);
+  if(debug_on_serial){
+    while(!serial_ready_state()){ time_delay_ms(100); serial_loop(); }
+  }
+
   random_init();
 
-  onex_init(config);
-
   log_write("\n------Starting PCR-----\n");
+
+  onex_init(config);
 
   onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
   object_set_evaluator(onex_device_object, "evaluate_device");
@@ -34,7 +39,6 @@ int main(int argc, char *argv[]) {
       time_delay_ms(5);
     }
   }
-  time_end();
 }
 
 // --------------------------------------------------------------------

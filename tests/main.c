@@ -1,6 +1,7 @@
 
 #if defined(NRF5)
 #include <boards.h>
+#include <onex-kernel/boot.h>
 #include <onex-kernel/gpio.h>
 #include <onex-kernel/serial.h>
 #endif
@@ -43,18 +44,21 @@ void serial_cb(bool connect, char* tty){
   if(char_recvd=='t') run_tests=true;
 }
 
-void run_tests_maybe()
-{
+void run_tests_maybe(properties* config) {
+
   if(!run_tests) return;
   run_tests=false;
 
   log_write("ONR tests\n");
 
-  onex_init(0);
+  onex_init(config);
 
   run_light_tests();
   run_device_tests();
   run_clock_tests();
+
+  onex_loop(); time_delay_ms(150);
+  onex_loop(); time_delay_ms(150);
 
 #if defined(NRF5)
   int failures=onex_assert_summary();
@@ -71,44 +75,55 @@ void run_tests_maybe()
 static void loop_serial(void*){ serial_loop(); }
 #endif
 
-int main(void)
-{
+int main() {
+
   properties* config = properties_new(32);
 #if defined(NRF5)
+#if !defined(BOARD_MAGIC3)
   properties_set(config, "flags", list_new_from("debug-on-serial log-to-led",2));
+#else
+  properties_set(config, "flags", list_new_from("log-to-gfx", 2));
+#endif
+#else
+  properties_set(config, "dbpath", value_new("tests.ondb"));
 #endif
   properties_set(config, "test-uid-prefix", value_new("tests"));
 
   time_init();
+
   log_init(config);
+
+#if defined(NRF5) && !defined(BOARD_MAGIC3)
+  serial_init(0,0,serial_cb); // overrides log's one
+  serial_ready_state(); // blocks until stable at start
+  time_ticker(loop_serial, 0, 1);
+#endif
+
   random_init();
 #if defined(NRF5)
   gpio_init();
-#if !defined(BOARD_MAGIC3)
-  serial_init(0,0,serial_cb);
   set_up_gpio();
-  time_ticker(loop_serial, 0, 1);
-  while(1){
-    if(char_recvd){
-      log_write(">%c<----------\n", char_recvd);
-      char_recvd=0;
-    }
-    run_tests_maybe();
-  }
-#else
-  set_up_gpio();
-  while(1){
-    if(char_recvd){
-      log_write(">%c<----------\n", char_recvd);
-      char_recvd=0;
-    }
-    run_tests_maybe();
-    log_loop();
+
+#if defined(BOARD_FEATHER_SENSE)
+  uint8_t usb_status = serial_ready_state();
+  if(usb_status == SERIAL_POWERED_NOT_READY){
+    log_flash(1,0,0);
+    time_delay_ms(400);
+    boot_reset(false);
   }
 #endif
+
+  while(1){
+    if(char_recvd){
+      log_write(">%c<----------\n", char_recvd);
+      char_recvd=0;
+    }
+    run_tests_maybe(config);
+    log_loop();
+  }
 #else
   serial_cb(false, "tty");
-  run_tests_maybe();
+  run_tests_maybe(config);
   time_end();
 #endif
 }

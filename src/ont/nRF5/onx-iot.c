@@ -58,10 +58,8 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   time_init();
 
-  log_init(config); // does serial_init if(debug_on_serial)
-  if(debug_on_serial){
-    while(!serial_ready_state()){ time_delay_ms(100); serial_loop(); }
-  }
+  log_init(config); // has: "if(debug_on_serial) serial_init(...);"
+  if(debug_on_serial) serial_ready_state(); // blocks until serial stable
 
   random_init();
 
@@ -93,8 +91,9 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
       led_matrix_fill_col("#100");
       led_matrix_show();
 #endif
-      log_flash(1,0,0); time_delay_ms(400);
-      log_flash(1,0,0); time_delay_ms(400);
+      log_flash(1,0,0);
+      time_delay_ms(400);
+      log_flash(1,0,0);
 
       boot_reset(false);
     }

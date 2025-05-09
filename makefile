@@ -227,7 +227,7 @@ onx-test-fth: $(TESTS_SOURCES:.c=.o)
 	rm -rf okolo
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-feather-sense.a --output okolo
-	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a             --output okolo
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-test-fth.map -o ./onx-test-fth.out $^ okolo/*
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-test-fth.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-test-fth.out ./onx-test-fth.bin

@@ -153,7 +153,9 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 #endif
 
   while(1){
-    onex_loop();
+    if(!onex_loop()){
+      time_delay_ms(5);
+    }
   }
 }
 

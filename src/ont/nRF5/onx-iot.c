@@ -8,6 +8,7 @@
 #include <onex-kernel/serial.h>
 #if defined(BOARD_FEATHER_SENSE)
 #include <onex-kernel/led-matrix.h>
+#include <onex-kernel/led-strip.h>
 #include <evaluators.h>
 #endif
 #include <onn.h>
@@ -79,8 +80,11 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   gpio_mode(LED_1, OUTPUT);
   gpio_set(LED_1, !LEDS_ACTIVE_STATE);
   led_matrix_init();
-  led_matrix_fill_rgb((led_matrix_rgb){0, 16, 0});
+  led_strip_init();
+  led_matrix_fill_rgb((colours_rgb){0, 16, 0});
+  led_strip_fill_rgb((colours_rgb){0, 16, 0});
   led_matrix_show();
+  led_strip_show();
 #define ADC_CHANNEL 0
   gpio_adc_init(BATTERY_V, ADC_CHANNEL);
 #endif
@@ -89,7 +93,9 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
     if(serial_ready_state() == SERIAL_POWERED_NOT_READY){
 #if defined(BOARD_FEATHER_SENSE)
       led_matrix_fill_col("#100");
+      led_strip_fill_col("#100");
       led_matrix_show();
+      led_strip_show();
 #endif
       log_flash(1,0,0);
       time_delay_ms(400);
@@ -198,10 +204,14 @@ bool evaluate_light_io(object* light, void* d) {
 bool evaluate_ledmx_io(object* ledmx, void* d) {
   if(object_property_is(ledmx, "light", "on")){
     led_matrix_fill_col(object_property(ledmx, "colour"));
+    led_strip_fill_col(object_property(ledmx, "colour"));
     led_matrix_show();
+    led_strip_show();
   } else {
-    led_matrix_fill_rgb((led_matrix_rgb){0, 0, 0});
+    led_matrix_fill_rgb((colours_rgb){0, 0, 0});
+    led_strip_fill_rgb((colours_rgb){0, 0, 0});
     led_matrix_show();
+    led_strip_show();
   }
   return true;
 }

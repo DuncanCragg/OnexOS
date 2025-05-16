@@ -104,7 +104,7 @@ static void touched(touch_info_t ti) {
 
   if(is_down_event) touch_pending=true;
 
-  onex_run_evaluators(touchuid, 0);
+  onex_run_evaluators(touchuid, (void*)&touch_info);
 }
 
 

@@ -24,7 +24,6 @@ extern char __BUILD_TIME;
 bool user_active=true;
 
 extern char* useruid;
-extern touch_info_t touch_info;
 
 // ------------------- evaluators ----------------
 
@@ -67,8 +66,9 @@ bool evaluate_button_in(object* btn, void* d) {
 #if defined(BOARD_MAGIC3)
 bool evaluate_touch_in(object* tch, void* d) {
 
-  object_property_set_fmt(tch, "coords", "%3d %3d", touch_info.x, touch_info.y);
-  object_property_set(    tch, "action",            touch_actions[touch_info.action]);
+  touch_info_t* touch_info=(touch_info_t*)d;
+  object_property_set_fmt(tch, "coords", "%3d %3d", touch_info->x, touch_info->y);
+  object_property_set(    tch, "action",            touch_actions[touch_info->action]);
 
   return true;
 }

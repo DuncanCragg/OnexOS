@@ -223,7 +223,7 @@ void ont_vk_iostate_changed() {
 static bool draw_by_type(object* user, char* path);
 static void draw_3d(object* user, char* path);
 
-extern bool evaluate_user_2d(object* usr, void* d);
+extern bool evaluate_user_2d(object* usr, void* d); // need user-2d.h
 
 bool evaluate_user(object* user, void* d) {
 

@@ -58,19 +58,18 @@ bool evaluate_battery_in(object* bat, void* d) {
   return true;
 }
 
+bool evaluate_button_in(object* btn, void* d) {
+  bool button_pressed = !!d;
+  object_property_set(btn, "state", button_pressed? "down": "up");
+  return true;
+}
+
 #if defined(BOARD_MAGIC3)
 bool evaluate_touch_in(object* tch, void* d) {
 
   object_property_set_fmt(tch, "coords", "%3d %3d", touch_info.x, touch_info.y);
   object_property_set(    tch, "action",            touch_actions[touch_info.action]);
 
-  return true;
-}
-
-extern bool button_pressed;
-
-bool evaluate_button_in(object* btn, void* d) {
-  object_property_set(btn, "state", button_pressed? "down": "up");
   return true;
 }
 

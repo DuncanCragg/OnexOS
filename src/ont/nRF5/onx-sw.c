@@ -10,6 +10,7 @@
 #include <onex-kernel/spi.h>
 #include <onex-kernel/i2c.h>
 #include <onex-kernel/touch.h>
+#include <evaluators.h>
 
 #include <onn.h>
 #include <onr.h>
@@ -118,7 +119,7 @@ static void moved(motion_info_t mi)
 static void button_changed(uint8_t pin, uint8_t type){
   button_pressed = (gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
   button_pending=true;
-  onex_run_evaluators(buttonuid, 0);
+  onex_run_evaluators(buttonuid, (void*)button_pressed);
 }
 
 static void charging_changed(uint8_t pin, uint8_t type){
@@ -146,16 +147,7 @@ extern char __BUILD_TIMESTAMP;
 
 uint32_t loop_time=0;
 
-extern bool evaluate_default(object* o, void* d);
-extern bool evaluate_user_2d(object* o, void* d);
-extern bool evaluate_battery_in(object* o, void* d);
-extern bool evaluate_touch_in(object* o, void* d);
-#if defined(HAS_MOTION)
-extern bool evaluate_motion_in(object* o, void* d);
-#endif
-extern bool evaluate_button_in(object* o, void* d);
-extern bool evaluate_about_in(object* o, void* d);
-extern bool evaluate_backlight_out(object* o, void* d);
+extern bool evaluate_user_2d(object* o, void* d); // need user-2d.h
 
 static char note_text[] = "the fat cat sat on me";
 
@@ -285,7 +277,7 @@ static void init_onex(properties* config){
 
   object_property_set(backlight, "light", "on");
   object_property_set(backlight, "level", "high");
-  object_property_set(backlight, "timeout", "10000");
+  object_property_set(backlight, "timeout", "60000");
   object_property_set(backlight, "touch", touchuid);
 #if defined(HAS_MOTION)
   object_property_set(backlight, "motion", motionuid);

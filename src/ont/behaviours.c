@@ -56,6 +56,12 @@ bool evaluate_light_logic(object* o, void* d){
 
   object_property(o, "button:is"); // REVISIT: "observe the button"?
 
+  if(object_property(o, "compass:is")){
+    int32_t direction = object_property_int32(o, "compass:direction");
+    uint8_t colour = (uint8_t)((direction + 180)*256/360);
+    object_property_set_fmt(o, "colour", "%%%02xffff", colour);
+  }
+
   if(object_property(o, "touch:is") ||
      object_property(o, "motion:is")   ) return true;
 

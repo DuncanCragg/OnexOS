@@ -40,7 +40,7 @@ static char* ledmxuid;
 #endif
 
 #if defined(BOARD_FEATHER_SENSE)
-static void every_2s(void*){
+static void poll_input_evaluators(void*){
   onex_run_evaluators(batteryuid, 0);
   onex_run_evaluators(ccbuid, 0);
   onex_run_evaluators(compassuid, 0);
@@ -182,7 +182,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   onex_run_evaluators(lightuid, 0);
 #if defined(BOARD_FEATHER_SENSE)
-  time_ticker(every_2s, 0, 2000);
+  time_ticker(poll_input_evaluators, 0, 200);
   onex_run_evaluators(ledmxuid, 0);
 #endif
 

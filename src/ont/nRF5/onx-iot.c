@@ -142,9 +142,9 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   ccb    =object_new(0, "evaluate_ccb",     "CCB panel 3dof", 4);
   compass=object_new(0, "evaluate_compass", "compass", 4);
 #endif
-  light  =object_new(0, "evaluate_light",  "editable light", 4);
+  light  =object_new(0, "evaluate_light",  "editable light", 8);
 #if defined(BOARD_FEATHER_SENSE)
-  ledmx  =object_new(0, "evaluate_ledmx",   "editable light", 4);
+  ledmx  =object_new(0, "evaluate_ledmx",   "editable light", 8);
 #endif
 
   deviceuid=object_property(onex_device_object, "UID");
@@ -225,8 +225,9 @@ bool evaluate_light_out(object* light, void* d) {
 #if defined(BOARD_FEATHER_SENSE)
 bool evaluate_ledmx_out(object* ledmx, void* d) {
   if(object_property_is(ledmx, "light", "on")){
-    led_matrix_fill_col(object_property(ledmx, "colour"));
-    led_strip_fill_col(object_property(ledmx, "colour"));
+    char* col = object_property(ledmx, "colour");
+    led_matrix_fill_col(col);
+    led_strip_fill_col(col);
     led_matrix_show();
     led_strip_show();
   } else {

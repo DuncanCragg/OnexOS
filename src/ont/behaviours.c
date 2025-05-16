@@ -25,8 +25,8 @@ static bool discover_io_peer(object* o, char* property, char* is)
   return false;
 }
 
-bool evaluate_light_logic(object* o, void* d)
-{
+bool evaluate_light_logic(object* o, void* d){
+
   bool light_on=object_property_is(o, "light", "on");
 
   if(light_on && object_property_is(o, "Timer", "0")){
@@ -54,7 +54,8 @@ bool evaluate_light_logic(object* o, void* d)
     }
   }
 
-  ;  object_property(o, "button:is"); // observe the button
+  object_property(o, "button:is"); // REVISIT: "observe the button"?
+
   if(object_property(o, "touch:is") ||
      object_property(o, "motion:is")   ) return true;
 
@@ -79,18 +80,22 @@ bool evaluate_device_logic(object* o, void* d)
   return true;
 }
 
-bool evaluate_clock_sync(object* o, void* d)
-{
+bool evaluate_clock_sync(object* o, void* d) {
+
   if(!discover_io_peer(o, "sync-clock", "clock")) return true;
+
   char* sync_ts=object_property(o, "sync-clock:ts");
-  if(sync_ts && !object_property_is(o, "sync-ts", sync_ts)){
-    object_property_set(o, "sync-ts",  sync_ts);
-    object_property_set(o, "ts",  sync_ts);
-    object_property_set(o, "tz",  object_property(o, "sync-clock:tz:1"));
-    object_property_add(o, "tz",  object_property(o, "sync-clock:tz:2"));
-    char* e; uint64_t sync_clock_ts=strtoull(sync_ts,&e,10);
-    if(!*e && sync_clock_ts) time_es_set(sync_clock_ts);
-  }
+
+  if(!sync_ts || object_property_is(o, "sync-ts", sync_ts)) return true;
+
+  object_property_set(o, "sync-ts",  sync_ts);
+  object_property_set(o, "ts",  sync_ts);
+  object_property_set(o, "tz",  object_property(o, "sync-clock:tz:1"));
+  object_property_add(o, "tz",  object_property(o, "sync-clock:tz:2"));
+
+  char* e; uint64_t sync_clock_ts=strtoull(sync_ts,&e,10);
+  if(!*e && sync_clock_ts) time_es_set(sync_clock_ts);
+
   return true;
 }
 

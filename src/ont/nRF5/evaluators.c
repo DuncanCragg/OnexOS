@@ -8,6 +8,7 @@
 #include <onex-kernel/log.h>
 #include <onex-kernel/gpio.h>
 #include <onex-kernel/compass.h>
+#include <onex-kernel/seesaw.h>
 #include <onex-kernel/display.h>
 #include <onex-kernel/touch.h>
 
@@ -28,12 +29,33 @@ extern char* useruid;
 
 // ------------------- evaluators ----------------
 
+#define ROTARY_ENC_ADDRESS 0x36
+#define ROTARY_ENC_BUTTON  24
+
 #define BATT_ADC_CHANNEL 0
+#define POT1_ADC_CHANNEL 1
+#define POT2_ADC_CHANNEL 2
+
+static bool do_rotary_encoder=true;
+
 void evaluators_init(){
 
   gpio_adc_init(BATTERY_V, BATT_ADC_CHANNEL);
 
+#if !defined(BOARD_MAGIC3)
   compass_init();
+
+  time_delay_ms(50); // seesaw needs a minute to get its head straight
+  uint16_t version_hi = seesaw_status_version_hi(ROTARY_ENC_ADDRESS);
+  if(version_hi != 4991){
+    do_rotary_encoder = false;
+  }
+  else{
+    gpio_adc_init(GPIO_A0, POT1_ADC_CHANNEL);
+    gpio_adc_init(GPIO_A1, POT2_ADC_CHANNEL);
+    seesaw_gpio_input_pullup(ROTARY_ENC_ADDRESS, ROTARY_ENC_BUTTON);
+  }
+#endif
 }
 
 bool evaluate_default(object* obj, void* d) {
@@ -66,11 +88,37 @@ bool evaluate_battery_in(object* bat, void* d) {
   return true;
 }
 
+#if !defined(BOARD_MAGIC3)
 bool evaluate_compass_in(object* compass, void* d){
   compass_info_t ci = compass_direction();
   object_property_set_fmt(compass, "direction", "%d°", ci.o);
   return true;
 }
+
+bool evaluate_ccb_in(object* ccb, void* d){
+
+  if(!do_rotary_encoder) return true; // REVISIT: or put some status on object
+
+  int32_t rot_pos      = seesaw_encoder_position(ROTARY_ENC_ADDRESS);
+  bool    rot_pressed = !seesaw_gpio_read(ROTARY_ENC_ADDRESS, ROTARY_ENC_BUTTON);
+
+  int16_t pot1 = gpio_read(POT1_ADC_CHANNEL);
+  int16_t pot2 = gpio_read(POT2_ADC_CHANNEL);
+
+  if(pot1<0) pot1=0;
+  if(pot2<0) pot2=0;
+
+  uint8_t colour     = (uint8_t)(rot_pos * 4); // lo byte, 4 lsb per click
+  uint8_t contrast   = pot2/4;                 // 0..1023
+  uint8_t brightness = pot1/4;                 // 0..1023
+
+  object_property_set_fmt(ccb, "colour",     "%d", colour);
+  object_property_set_fmt(ccb, "contrast",   "%d", contrast);
+  object_property_set_fmt(ccb, "brightness", "%d", brightness);
+
+  return true;
+}
+#endif
 
 bool evaluate_button_in(object* btn, void* d) {
   bool button_pressed = !!d;

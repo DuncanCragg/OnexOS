@@ -341,6 +341,7 @@ static void init_onex(properties* config){
 
   object_property_set(user, "viewing", watchuid);
 
+  object_property_set(onex_device_object, "name", "Magic3");
   object_property_add(onex_device_object, "user", useruid);
   object_property_add(onex_device_object, "io",   batteryuid);
   object_property_add(onex_device_object, "io",   touchuid);

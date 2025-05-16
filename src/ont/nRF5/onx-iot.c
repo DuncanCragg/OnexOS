@@ -7,6 +7,7 @@
 #include <onex-kernel/gpio.h>
 #include <onex-kernel/serial.h>
 #if defined(BOARD_FEATHER_SENSE)
+#include <onex-kernel/colours.h>
 #include <onex-kernel/led-matrix.h>
 #include <onex-kernel/led-strip.h>
 #include <evaluators.h>
@@ -15,7 +16,6 @@
 #include <onr.h>
 #include <ont.h>
 
-#define BATT_ADC_CHANNEL 0
 object* button;
 #if defined(BOARD_FEATHER_SENSE)
 object* battery;
@@ -75,8 +75,6 @@ void set_up_gpio(){
   led_strip_fill_rgb((colours_rgb){0, 16, 0});
   led_matrix_show();
   led_strip_show();
-
-  gpio_adc_init(BATTERY_V, BATT_ADC_CHANNEL);
 #endif
 }
 

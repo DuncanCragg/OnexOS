@@ -28,7 +28,11 @@ extern char* useruid;
 
 // ------------------- evaluators ----------------
 
+#define BATT_ADC_CHANNEL 0
 void evaluators_init(){
+
+  gpio_adc_init(BATTERY_V, BATT_ADC_CHANNEL);
+
   compass_init();
 }
 

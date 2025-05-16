@@ -97,7 +97,12 @@ bool evaluate_compass_in(object* compass, void* d){
 
 bool evaluate_ccb_in(object* ccb, void* d){
 
-  if(!do_rotary_encoder) return true; // REVISIT: or put some status on object
+  if(!do_rotary_encoder){
+    object_property_set(ccb, "colour",      "85"); // green
+    object_property_set(ccb, "contrast",   "255");
+    object_property_set(ccb, "brightness", "255");
+    return true;
+  }
 
   int32_t rot_pos      = seesaw_encoder_position(ROTARY_ENC_ADDRESS);
   bool    rot_pressed = !seesaw_gpio_read(ROTARY_ENC_ADDRESS, ROTARY_ENC_BUTTON);

@@ -56,10 +56,25 @@ bool evaluate_light_logic(object* o, void* d){
 
   object_property(o, "button:is"); // REVISIT: "observe the button"?
 
-  if(object_property(o, "compass:is")){
-    int32_t direction = object_property_int32(o, "compass:direction");
-    uint8_t colour = (uint8_t)((direction + 180)*256/360);
-    object_property_set_fmt(o, "colour", "%%%02xffff", colour);
+  bool has_ccb_link     = object_property(o, "ccb:is");
+  bool has_compass_link = object_property(o, "compass:is");
+
+  if(has_ccb_link || has_compass_link){
+
+    uint8_t colour     = 0xff;
+    uint8_t contrast   = 0xff;
+    uint8_t brightness = 0xff;
+
+    if(has_ccb_link){
+      colour     = (uint8_t)object_property_int32(o, "ccb:colour");
+      contrast   = (uint8_t)object_property_int32(o, "ccb:contrast");
+      brightness = (uint8_t)object_property_int32(o, "ccb:brightness");
+    }
+    if(has_compass_link){
+      int32_t direction = object_property_int32(o, "compass:direction");
+      colour = (uint8_t)((direction + 180)*256/360);
+    }
+    object_property_set_fmt(o, "colour", "%%%02x%02x%02x", colour, contrast, brightness);
   }
 
   if(object_property(o, "touch:is") ||

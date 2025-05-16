@@ -139,7 +139,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   button =object_new(0, "evaluate_button", "editable button", 4);
 #if defined(BOARD_FEATHER_SENSE)
   battery=object_new(0, "evaluate_battery", "battery", 4);
-  ccb    =object_new(0, "evaluate_ccb",     "CCB panel 3dof", 4);
+  ccb    =object_new(0, "evaluate_ccb",     "ccb", 4);
   compass=object_new(0, "evaluate_compass", "compass", 4);
 #endif
   light  =object_new(0, "evaluate_light",  "editable light", 8);
@@ -182,7 +182,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   onex_run_evaluators(lightuid, 0);
 #if defined(BOARD_FEATHER_SENSE)
-  time_ticker(poll_input_evaluators, 0, 200);
+  time_ticker(poll_input_evaluators, 0, 100);
   onex_run_evaluators(ledmxuid, 0);
 #endif
 

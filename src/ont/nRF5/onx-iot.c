@@ -19,6 +19,7 @@
 object* button;
 #if defined(BOARD_FEATHER_SENSE)
 object* battery;
+object* compass;
 #endif
 object* light;
 #if defined(BOARD_FEATHER_SENSE)
@@ -29,6 +30,7 @@ static char* deviceuid;
 static char* buttonuid;
 #if defined(BOARD_FEATHER_SENSE)
 static char* batteryuid;
+static char* compassuid;
 #endif
 static char* lightuid;
 #if defined(BOARD_FEATHER_SENSE)
@@ -38,6 +40,7 @@ static char* ledmxuid;
 #if defined(BOARD_FEATHER_SENSE)
 static void every_2s(void*){
   onex_run_evaluators(batteryuid, 0);
+  onex_run_evaluators(compassuid, 0);
 }
 #endif
 
@@ -116,11 +119,14 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   log_write("Starting Onex.....\n");
 
+  evaluators_init();
+
   onex_init(config);
 
   onex_set_evaluators("evaluate_button", evaluate_edit_rule, evaluate_button_in, 0);
 #if defined(BOARD_FEATHER_SENSE)
   onex_set_evaluators("evaluate_battery", evaluate_battery_in, 0);
+  onex_set_evaluators("evaluate_compass", evaluate_compass_in, 0);
 #endif
   onex_set_evaluators("evaluate_light",  evaluate_edit_rule, evaluate_light_logic, evaluate_light_out, 0);
 #if defined(BOARD_FEATHER_SENSE)
@@ -131,6 +137,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   button =object_new(0, "evaluate_button", "editable button", 4);
 #if defined(BOARD_FEATHER_SENSE)
   battery=object_new(0, "evaluate_battery", "battery", 4);
+  compass=object_new(0, "evaluate_compass", "compass", 4);
 #endif
   light  =object_new(0, "evaluate_light",  "editable light", 4);
 #if defined(BOARD_FEATHER_SENSE)
@@ -141,6 +148,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   buttonuid=object_property(button,"UID");
 #if defined(BOARD_FEATHER_SENSE)
   batteryuid =object_property(battery, "UID");
+  compassuid =object_property(compass, "UID");
 #endif
   lightuid =object_property(light, "UID");
 #if defined(BOARD_FEATHER_SENSE)
@@ -160,6 +168,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_add(onex_device_object, "io", buttonuid);
 #if defined(BOARD_FEATHER_SENSE)
   object_property_add(onex_device_object, "io", batteryuid);
+  object_property_add(onex_device_object, "io", compassuid);
 #endif
   object_property_add(onex_device_object, "io", lightuid);
 #if defined(BOARD_FEATHER_SENSE)

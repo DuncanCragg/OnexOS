@@ -3,6 +3,8 @@
 
 #include <onn.h>
 
+void evaluators_init();
+
 bool evaluate_default(object* obj, void* d);
 bool evaluate_battery_in(object* bat, void* d);
 bool evaluate_compass_in(object* com, void* d);

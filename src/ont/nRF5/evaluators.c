@@ -7,6 +7,7 @@
 #include <onex-kernel/boot.h>
 #include <onex-kernel/log.h>
 #include <onex-kernel/gpio.h>
+#include <onex-kernel/compass.h>
 #include <onex-kernel/display.h>
 #include <onex-kernel/touch.h>
 
@@ -26,6 +27,10 @@ bool user_active=true;
 extern char* useruid;
 
 // ------------------- evaluators ----------------
+
+void evaluators_init(){
+  compass_init();
+}
 
 bool evaluate_default(object* obj, void* d) {
   log_write("evaluate_default d=%p\n", d);
@@ -54,6 +59,12 @@ bool evaluate_battery_in(object* bat, void* d) {
   object_property_set(bat, "status", batt? "powering": "charging");
 #endif
 
+  return true;
+}
+
+bool evaluate_compass_in(object* compass, void* d){
+  compass_info_t ci = compass_direction();
+  object_property_set_fmt(compass, "direction", "%d°", ci.o);
   return true;
 }
 

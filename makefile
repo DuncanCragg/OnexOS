@@ -314,7 +314,7 @@ onx-iot-fth: $(IOT_SOURCES:.c=.o)
 	mkdir okolo
 	ar x ../OnexKernel/libonex-kernel-feather-sense.a --output okolo
 	ar x   ../OnexLang/libonex-lang-nrf.a             --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-iot-fth.map -o ./onx-iot-fth.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-iot-fth.map -o ./onx-iot-fth.out $^ okolo/* -lm
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-iot-fth.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-fth.out ./onx-iot-fth.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-fth.out ./onx-iot-fth.hex

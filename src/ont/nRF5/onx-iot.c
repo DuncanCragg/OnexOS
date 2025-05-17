@@ -107,7 +107,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
     if(serial_ready_state() == SERIAL_POWERED_NOT_READY){
 #if defined(BOARD_FEATHER_SENSE)
       led_strip_fill_col("#700");
-      led_matrix_fill_col("#200");
+      led_matrix_fill_col("#700");
       led_matrix_show(); led_strip_show();
 #endif
       log_flash(1,0,0);

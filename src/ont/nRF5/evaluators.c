@@ -21,8 +21,6 @@
 
 extern char __BUILD_TIME;
 
-#define ADC_CHANNEL 0
-
 bool user_active=true;
 
 extern char* useruid;
@@ -69,7 +67,7 @@ bool evaluate_default(object* obj, void* d) {
 #define BATTERY_PERCENT_STEPS 2
 bool evaluate_battery_in(object* bat, void* d) {
 
-  int32_t bv = gpio_read(ADC_CHANNEL);
+  int32_t bv = gpio_read(BATT_ADC_CHANNEL);
   int32_t mv = bv*2000/(1024/(33/10));
   int16_t pc = ((mv-BATTERY_ZERO_PERCENT)
                  *100

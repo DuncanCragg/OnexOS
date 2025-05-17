@@ -5,11 +5,13 @@
 
 #include <onex-kernel/boot.h>
 #include <onex-kernel/time.h>
+#include <onex-kernel/random.h>
 #include <onex-kernel/log.h>
 #include <onex-kernel/gpio.h>
 #include <onex-kernel/spi.h>
 #include <onex-kernel/i2c.h>
 #include <onex-kernel/touch.h>
+#include <onex-kernel/radio.h>
 #include <evaluators.h>
 
 #include <onn.h>
@@ -128,12 +130,9 @@ static void charging_changed(uint8_t pin, uint8_t type){
 
 // --------------------------------------------------------
 
-#define ADC_CHANNEL 0
-
-static void set_up_gpio(void)
-{
+static void set_up_gpio(void) {
+  gpio_init();
   gpio_mode_cb(CHARGE_SENSE, INPUT, RISING_AND_FALLING, charging_changed);
-  gpio_adc_init(BATTERY_V, ADC_CHANNEL);
   gpio_mode_cb(BUTTON_1, INPUT_PULLDOWN, RISING_AND_FALLING, button_changed);
   gpio_mode(I2C_ENABLE, OUTPUT);
   gpio_set( I2C_ENABLE, 1);
@@ -179,6 +178,10 @@ bool evaluate_user(object* usr, void* d) {
 }
 
 static void init_onex(properties* config){
+
+  log_write("Starting Onex.....\n");
+
+  evaluators_init();
 
   onex_init(config);
 
@@ -376,9 +379,11 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
   properties_set(config, "flags", list_new_from("log-to-gfx",2));
 
   boot_init();
+
   time_init_set(4+(unsigned long)&__BUILD_TIMESTAMP);
+  random_init();
+
   log_init(config);
-  gpio_init();
 
   set_up_gpio();
 
@@ -414,7 +419,8 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
       gpio_sleep(); // will gpio_wake() when ADC read
       spi_sleep();  // will spi_wake() as soon as spi_tx called
       i2c_sleep();  // will i2c_wake() in irq to read values
-      boot_sleep();
+      radio_sleep();// will radio_wake() as soon as radio_write called
+      boot_sleep(); // actually sleep
     }
 
     // --------------------

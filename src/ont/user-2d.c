@@ -158,46 +158,41 @@ static void show_gfx_log(uint8_t root_g2d_node){
 
   uint64_t pre_render_time=time_ms();
 
-  #define LOG_DECAY_TIME 5
   #define LOG_LINES_MAX 5
   #define LOG_LEN 35
   static char*    log_lines[LOG_LINES_MAX];
   static uint8_t  log_lines_index=0;
-  static uint64_t log_last=0;
-  if(event_log_buffer){
 
-    char*   nextline=(char*)event_log_buffer;
+  if(gfx_log_buffer){
+   for(uint8_t i=1; i<=list_size(gfx_log_buffer); i++){
+    char* msg = list_get_n(gfx_log_buffer, i);
+    char* nextline = msg;
     uint8_t remaininglen=strlen(nextline);
     do{
       uint8_t nextlinelen=min(remaininglen, LOG_LEN);
-
-      if(log_lines[log_lines_index]) free(log_lines[log_lines_index]);
-      log_lines[log_lines_index]=strndup(nextline, nextlinelen);
-      log_lines_index=(log_lines_index+1)%LOG_LINES_MAX;
-
-      nextline+=nextlinelen;
+      log_lines[log_lines_index++]=strndup(nextline, nextlinelen);
+      if(log_lines_index==LOG_LINES_MAX){
+        free(log_lines[0]);
+        for(uint8_t i=0; i<LOG_LINES_MAX-1; i++){
+          log_lines[i]=log_lines[i+1];
+        }
+        log_lines[LOG_LINES_MAX-1]=0;
+        log_lines_index--;
+      }
+      nextline    +=nextlinelen;
       remaininglen-=nextlinelen;
 
     } while(remaininglen);
-
-    event_log_buffer=0;
-    log_last=pre_render_time;
-  }
-  else
-  if(log_last && pre_render_time > log_last+LOG_DECAY_TIME*1000){
-    for(uint8_t i=0; i<LOG_LINES_MAX-1; i++){
-      log_lines[i]=log_lines[i+1];
-    }
-    log_lines[LOG_LINES_MAX-1]=0;
-    log_lines_index=max(log_lines_index-1, 0);
-    log_last=pre_render_time-1;
+    mem_free(msg);
+   }
+   list_clear(gfx_log_buffer, false);
   }
   for(uint8_t i=0; i<LOG_LINES_MAX; i++){
     if(log_lines[i]){
 #if !defined(BIG_LOG)
-      g2d_node_text(root_g2d_node, 20,240+i*8, G2D_RED, G2D_BLACK, 1, "%s", log_lines[i]);
+      g2d_node_text(root_g2d_node, 20,240+i* 8, G2D_RED, G2D_BLACK, 1, "%s", log_lines[i]);
 #else
-      g2d_node_text(root_g2d_node, 40,i*15, G2D_RED, G2D_BLACK, 2, "%s", log_lines[i]);
+      g2d_node_text(root_g2d_node, 10, 10+i*15, G2D_RED, G2D_BLACK, 2, "%s", log_lines[i]);
 #endif
     }
   }

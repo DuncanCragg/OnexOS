@@ -34,10 +34,10 @@ int main(int argc, char *argv[]) {
 #if defined(NRF5)
   properties* config = properties_new(32);
 #if defined(BOARD_PCA10059)
-  properties_set(config, "channels", list_new_from("serial",2));
+  properties_set(config, "channels", list_new_from_fixed("serial"));
 #elif defined(BOARD_FEATHER_SENSE)
-  properties_set(config, "channels", list_new_from("radio",2));
-  properties_set(config, "flags", list_new_from("debug-on-serial",2));
+  properties_set(config, "channels", list_new_from_fixed("radio"));
+  properties_set(config, "flags", list_new_from_fixed("debug-on-serial"));
 #endif
   properties_set(config, "test-uid-prefix", value_new("light"));
 #else

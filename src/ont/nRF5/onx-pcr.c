@@ -10,10 +10,10 @@
 int main() {
 
   properties* config = properties_new(32);
-  properties_set(config, "channels", list_new_from("radio serial",2));
+  properties_set(config, "channels", list_new_from_fixed("radio serial"));
 #define TEST_MODE
 #ifdef  TEST_MODE
-  properties_set(config, "flags", list_new_from("debug-on-serial log-to-led",2));
+  properties_set(config, "flags", list_new_from_fixed("debug-on-serial log-to-led log-onp"));
   properties_set(config, "test-uid-prefix", value_new("pcr"));
 #endif
 

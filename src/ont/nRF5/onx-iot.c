@@ -85,12 +85,12 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   properties* config = properties_new(32);
 #if defined(BOARD_PCA10059)
-  properties_set(config, "channels", list_new_from("radio serial",2));
+  properties_set(config, "channels", list_new_from_fixed("radio serial"));
 #elif defined(BOARD_FEATHER_SENSE)
-  properties_set(config, "channels", list_new_from("radio",2));
+  properties_set(config, "channels", list_new_from_fixed("radio"));
 #define TEST_MODE
 #ifdef  TEST_MODE
-  properties_set(config, "flags", list_new_from("debug-on-serial log-to-led",2));
+  properties_set(config, "flags", list_new_from_fixed("debug-on-serial log-to-led log-onp"));
   properties_set(config, "test-uid-prefix", value_new("iot"));
 #endif
 #endif
@@ -100,6 +100,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   log_init(config); // has: "if(debug_on_serial) serial_init(...);"
   if(debug_on_serial) serial_ready_state(); // blocks until serial stable
+  // REVISIT: serial_loop() in early stages
 
   set_up_gpio();
 
@@ -172,8 +173,8 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_add(onex_device_object, "io", buttonuid);
 #if defined(BOARD_FEATHER_SENSE)
   object_property_add(onex_device_object, "io", batteryuid);
-  object_property_add(onex_device_object, "io", ccbuid);
   object_property_add(onex_device_object, "io", compassuid);
+  object_property_add(onex_device_object, "io", ccbuid);
 #endif
   object_property_add(onex_device_object, "io", lightuid);
 #if defined(BOARD_FEATHER_SENSE)

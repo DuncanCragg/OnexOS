@@ -380,21 +380,23 @@ feather-sense-light-fixed-flash: onx-light-fixed-fth
 
 #-------------------------------:
 
-magic3-sw-flash: onx-sw-magic3
-	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-sw.hex" -c "reset run" -c exit
-
-itsybitsy-iot-flash: onx-iot-its
-	uf2conv.py onx-iot-its.hex --family 0xada52840 --output onx-iot-its.uf2
-
-feather-sense-iot-flash: onx-iot-fth
-	uf2conv.py onx-iot-fth.hex --family 0xada52840 --output onx-iot-fth.uf2
-
 feather-sense-pcr-flash: onx-pcr-fth
 	uf2conv.py onx-pcr-fth.hex --family 0xada52840 --output onx-pcr-fth.uf2
 
 dongle-iot-flash: onx-iot-nor
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-iot-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
+
+itsybitsy-iot-flash: onx-iot-its
+	uf2conv.py onx-iot-its.hex --family 0xada52840 --output onx-iot-its.uf2
+
+#-------------------------------:
+
+magic3-sw-flash: onx-sw-magic3
+	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "program onx-sw.hex" -c "reset run" -c exit
+
+feather-sense-iot-flash: onx-iot-fth
+	uf2conv.py onx-iot-fth.hex --family 0xada52840 --output onx-iot-fth.uf2
 
 dongle-pcr-flash: onx-pcr-nor
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-pcr-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
@@ -424,6 +426,8 @@ COMPILER_FLAGS += -Wno-discarded-qualifiers
 
 .c.o:
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(COMPILER_FLAGS) $(COMPILER_DEFINES) $(INCLUDES) -o $@ -c $<
+
+#-------------------------------:
 
 clean:
 	find src external tests -name '*.o' -o -name '*.d' | xargs rm -f

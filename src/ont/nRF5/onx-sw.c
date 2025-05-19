@@ -317,6 +317,7 @@ static void init_onex(properties* config){
   object_property_add(home, "list", allobjectsuid);
 
   object_property_set(allobjects, "title", "All objects");
+  object_property_add(allobjects, "list", deviceuid);
   object_property_add(allobjects, "list", homeuid);
   object_property_add(allobjects, "list", inventoryuid);
   object_property_add(allobjects, "list", notesuid);
@@ -332,7 +333,6 @@ static void init_onex(properties* config){
   object_property_add(allobjects, "list", note1uid);
   object_property_add(allobjects, "list", note2uid);
   object_property_add(allobjects, "list", responsesuid);
-  object_property_add(allobjects, "list", deviceuid);
 #if defined(HAS_MOTION)
   object_property_add(allobjects, "list", motionuid);
 #endif
@@ -375,8 +375,8 @@ void* x;
 int main() { // REVISIT: needs to be in OK and call up here like ont-vk
 
   properties* config = properties_new(32);
-  properties_set(config, "channels", list_new_from("radio",2));
-  properties_set(config, "flags", list_new_from("log-to-gfx",2));
+  properties_set(config, "channels", list_new_from_fixed("radio"));
+  properties_set(config, "flags", list_new_from_fixed("log-to-gfx"));
 
   boot_init();
 

@@ -46,9 +46,11 @@ void evaluators_init(){
   time_delay_ms(50); // seesaw needs a minute to get its head straight
   uint16_t version_hi = seesaw_status_version_hi(ROTARY_ENC_ADDRESS);
   if(version_hi != 4991){
+    log_write("rotary encoder id 4991 not found: %d\n", version_hi);
     do_rotary_encoder = false;
   }
   else{
+    log_write("rotary encoder found, doing rotaries\n");
     gpio_adc_init(GPIO_A0, POT1_ADC_CHANNEL);
     gpio_adc_init(GPIO_A1, POT2_ADC_CHANNEL);
     seesaw_gpio_input_pullup(ROTARY_ENC_ADDRESS, ROTARY_ENC_BUTTON);

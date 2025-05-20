@@ -13,6 +13,7 @@
 #include <onex-kernel/touch.h>
 #include <onex-kernel/radio.h>
 #include <evaluators.h>
+#include "../user-2d.h"
 
 #include <onn.h>
 #include <onr.h>
@@ -35,7 +36,7 @@ object* user;
 object* responses;
 
 #define LONG_PRESS_MS 250
-bool                   button_pending =false;
+volatile bool          button_pending =false;
 volatile bool          button_pressed=false;
 
 static volatile bool   touch_pending=false;
@@ -399,16 +400,9 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
   time_ticker(every_second, 0,  1000);
   time_ticker(every_10s,    0, 10000);
 
-  static uint8_t run_user_eval=1;
+  onex_run_evaluators(useruid, USER_EVENT_INITIAL);
 
   while(1){
-
-    if(run_user_eval){
-      run_user_eval--;
-      onex_run_evaluators(useruid, 0);
-    }
-
-    // --------------------
 
     uint64_t ct=time_ms();
     static uint64_t lt=0;
@@ -433,18 +427,19 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
 
     // --------------------
 
-    if(user_active && button_pending){
-      run_user_eval++;
-    }
+    if(gfx_log_buffer && list_size(gfx_log_buffer)){
+      onex_run_evaluators(useruid, USER_EVENT_LOG);
+    }//
 
-    // --------------------
+    if(user_active && button_pending){
+      onex_run_evaluators(useruid, USER_EVENT_BUTTON);
+    }
 
     if(user_active && touch_pending){
 
       g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
 
-      onex_run_evaluators(useruid, (void*)1);
-      if(!touch_down) run_user_eval++;
+      onex_run_evaluators(useruid, USER_EVENT_TOUCH);
 
       touch_events_seen++;
       touch_pending=false;

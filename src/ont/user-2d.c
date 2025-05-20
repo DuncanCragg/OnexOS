@@ -20,6 +20,8 @@
 #include <mathlib.h>
 #include <g2d.h>
 
+#include "user-2d.h"
+
 #define nBIG_LOG
 
 // -------------------- User --------------------------
@@ -42,18 +44,14 @@ extern uint16_t del_this_word;
 
 extern void show_keyboard(uint8_t g2d_node);
 
-extern bool button_pending;
-extern bool button_pressed;
-
-extern touch_info_t touch_info;
-extern bool         touch_down;
-
 extern char* homeuid;
 extern char* inventoryuid;
 
 extern object* user;
 extern object* responses;
 extern char*   useruid;
+
+extern uint32_t loop_time;
 
 static object* get_or_create_edit(char* uid) {
 
@@ -307,8 +305,6 @@ static void reset_viewing_state_variables(){
   text_scroll_offset=0;
 }
 
-extern bool user_active;
-
 static uint8_t fps = 111;
 
 static void draw_by_type(char* path, uint8_t g2d_node);
@@ -334,9 +330,7 @@ bool evaluate_user_2d(object* usr, void* d) {
     first_time=false;
   }
 
-  bool is_a_touch_triggered_eval=!!d;
-
-  if(touch_down && !is_a_touch_triggered_eval) return true;
+  if(touch_down && (d!=USER_EVENT_TOUCH)) return true;
 
   if(button_pending){
     if(button_pressed){
@@ -1127,11 +1121,6 @@ static void draw_notes(char* path, uint8_t g2d_node) {
 
   if(offx < 0) draw_raw_offset(path, g2d_node, offx);
 }
-
-extern uint32_t loop_time;
-extern uint32_t touch_events;
-extern uint32_t touch_events_seen;
-extern uint32_t touch_events_spurious;
 
 static void draw_about(char* path, uint8_t g2d_node) {
 

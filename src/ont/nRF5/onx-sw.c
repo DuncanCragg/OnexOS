@@ -100,13 +100,30 @@ static void touched(touch_info_t ti) {
   touch_info=ti;
 
   bool is_down_event = touch_info.action==TOUCH_ACTION_CONTACT;
-
-  if(!touch_down && is_down_event){ if(touch_pending) return; touch_down=true; }
+/*
+  is_down_event  touch_down  touch_pending | touch_down  touch_pending
+  -----------------------------------------+---------------------------------------------------------------------
+  false    !=    true        false         | false#      true#   tell loop about up event
+  true     !=    false       false         | true#       true#   tell loop about down event
+  true     ==    true        false         | true        true#   down and drag event ongoing
+  false    !=    true        true          | false#      true    up   but still have down event pending: override
+  true     !=    false       true          | false       true    down but still have up   event pending: ignore
+  false    ==    false       false         | false       false   no equivalent to "ongoing" for up state
+  false    ==    false       true          | false       true    nothing new to report
+  true     ==    true        true          | true        true    nothing new to report
+*/
+  if(touch_down != is_down_event && !touch_pending){ // tell loop about up/down
+    touch_down = is_down_event;
+    touch_pending = true;
+  }
   else
-  if(touch_down && !is_down_event){ touch_down=false; touch_pending=true; }
-
-  if(is_down_event) touch_pending=true;
-
+  if(is_down_event && touch_down && !touch_pending){ // drag, ongoing down event
+    touch_pending = true;
+  }
+  else
+  if(!is_down_event && touch_down && touch_pending){ // push up in over unhandled down
+    touch_down=false;
+  }
   onex_run_evaluators(touchuid, (void*)&touch_info);
 }
 

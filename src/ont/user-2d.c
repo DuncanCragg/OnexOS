@@ -331,17 +331,28 @@ static void draw_raw(char* path, uint8_t g2d_node);
 #define LIST_ADD_NEW_BOT 2
 #define LIST_BACKGROUND  3
 
+static bool do_evaluate_user_2d(object* usr, void* user_event);
+
 bool evaluate_user_2d(object* usr, void* user_event) {
 
-  if(!user_active) return true;
+  // don't even bother if the display is off
+  if(!display_on) return true;
+
+  // don't handle non-touch events while touch is down
+  if(touch_down && (user_event!=USER_EVENT_TOUCH)) return true;
+
+  bool go_on = do_evaluate_user_2d(usr, user_event);
+
+  return go_on;
+}
+
+static bool do_evaluate_user_2d(object* usr, void* user_event) {
 
   static bool first_time=true;
   if(first_time){
     reset_viewing_state_variables();
     first_time=false;
   }
-
-  if(touch_down && (user_event!=USER_EVENT_TOUCH)) return true;
 
   if(button_pending){
     if(button_pressed){

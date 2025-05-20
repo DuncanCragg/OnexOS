@@ -35,7 +35,6 @@ char* inventoryuid;
 object* user;
 object* responses;
 
-#define LONG_PRESS_MS 250
 volatile bool          button_pending =false;
 volatile bool          button_pressed=false;
 
@@ -137,8 +136,11 @@ static void moved(motion_info_t mi)
 #endif
 
 static void button_changed(uint8_t pin, uint8_t type){
-  button_pressed = (gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
-  button_pending=true;
+  bool is_pressed_event = (gpio_get(BUTTON_1)==BUTTONS_ACTIVE_STATE);
+  if(button_pressed != is_pressed_event && !button_pending){ // tell loop about up/down
+    button_pressed = is_pressed_event;
+    button_pending = true;
+  }
   onex_run_evaluators(buttonuid, (void*)button_pressed);
 }
 
@@ -158,7 +160,7 @@ static void set_up_gpio(void) {
   gpio_set(LCD_BACKLIGHT, LEDS_ACTIVE_STATE);
 }
 
-extern bool user_active;
+extern bool display_on;
 
 extern char __BUILD_TIMESTAMP;
 
@@ -440,22 +442,25 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
     // --------------------
 
     static uint64_t feeding_time=0;
-    if(ct>feeding_time && !button_pressed){
-      boot_feed_watchdog();
-      feeding_time=ct+1000;
+    if(ct>feeding_time){
+      bool is_released_now = (gpio_get(BUTTON_1)!=BUTTONS_ACTIVE_STATE);
+      if(is_released_now){
+        boot_feed_watchdog();
+        feeding_time=ct+1000;
+      }
     }
 
     // --------------------
 
     if(gfx_log_buffer && list_size(gfx_log_buffer)){
       onex_run_evaluators(useruid, USER_EVENT_LOG);
-    }//
+    }
 
-    if(user_active && button_pending){
+    if(display_on && button_pending){
       onex_run_evaluators(useruid, USER_EVENT_BUTTON);
     }
 
-    if(user_active && touch_pending){
+    if(display_on && touch_pending){
 
       g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
 

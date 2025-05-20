@@ -25,7 +25,7 @@ volatile touch_info_t touch_info={ 120, 140 };
 bool          button_pending=false;
 volatile bool button_pressed=false;
 
-bool user_active=true;
+bool display_on=true;
 
 uint32_t loop_time=0;
 

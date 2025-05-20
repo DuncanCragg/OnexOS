@@ -21,7 +21,7 @@
 
 extern char __BUILD_TIME;
 
-bool user_active=true;
+bool display_on=true;
 
 extern char* useruid;
 
@@ -155,7 +155,7 @@ bool evaluate_backlight_out(object* blt, void* d) {
 
   bool light_on=object_property_is(blt, "light", "on");
 
-  if(light_on && !user_active){
+  if(light_on && !display_on){
 
     display_fast_wake(DISPLAY_SLEEP_HARD);
 
@@ -165,14 +165,14 @@ bool evaluate_backlight_out(object* blt, void* d) {
 
     touch_wake();
 
-    user_active=true;
+    display_on=true;
 
     onex_run_evaluators(useruid, 0);
   }
   else
-  if(!light_on && user_active){
+  if(!light_on && display_on){
 
-    user_active=false;
+    display_on=false;
 
     touch_sleep();
 

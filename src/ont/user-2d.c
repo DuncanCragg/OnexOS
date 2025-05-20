@@ -341,7 +341,25 @@ bool evaluate_user_2d(object* usr, void* user_event) {
   // don't handle non-touch events while touch is down
   if(touch_down && (user_event!=USER_EVENT_TOUCH)) return true;
 
+  // Alerts happen often: just viewing any object sets them up to run all the time
+  // plus logs can be shown async on next view, so rate-limit here
+  static uint32_t lt=0;
+  uint32_t ct=(uint32_t)time_ms();
+  if(user_event==USER_EVENT_NONE_AL){
+    if(ct-lt < 300) return true;
+  }
+  else
+  if(user_event==USER_EVENT_LOG){
+    if(ct-lt < 900) return true;
+  }
+  lt=ct;
+
   bool go_on = do_evaluate_user_2d(usr, user_event);
+
+#ifdef LOG_USER_WORK
+  uint32_t dt=(uint32_t)time_ms();
+  log_write("%ld %ld ue=%ld al=%s\n", ct, dt-ct, user_event, object_property_values(usr, "Alerted:is"));
+#endif
 
   return go_on;
 }

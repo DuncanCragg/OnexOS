@@ -331,7 +331,7 @@ static void draw_raw(char* path, uint8_t g2d_node);
 #define LIST_ADD_NEW_BOT 2
 #define LIST_BACKGROUND  3
 
-bool evaluate_user_2d(object* usr, void* d) {
+bool evaluate_user_2d(object* usr, void* user_event) {
 
   if(!user_active) return true;
 
@@ -341,7 +341,7 @@ bool evaluate_user_2d(object* usr, void* d) {
     first_time=false;
   }
 
-  if(touch_down && (d!=USER_EVENT_TOUCH)) return true;
+  if(touch_down && (user_event!=USER_EVENT_TOUCH)) return true;
 
   if(button_pending){
     if(button_pressed){

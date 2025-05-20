@@ -187,7 +187,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   onex_run_evaluators(ledmxuid, 0);
 #endif
 
-  while(1){
+  while(true){
     if(!onex_loop()){
       time_delay_ms(5);
     }

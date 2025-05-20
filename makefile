@@ -402,6 +402,14 @@ dongle-pcr-flash: onx-pcr-nor
 	nrfutil pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ./onx-pcr-nor.hex --key-file $(PRIVATE_PEM) dfu.zip
 	nrfutil dfu usb-serial -pkg dfu.zip -p /dev/`ls -l /dev/nordic_dongle_flash | sed 's/.*-> //'` -b 115200
 
+#-------------------------------:
+
+device-halt:
+	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c exit
+
+device-reset:
+	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "reset run" -c exit
+
 #-------------------------------------------------------------------------------
 
 LINKER_FLAGS = -O3 -g3 -mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Wl,--gc-sections --specs=nano.specs

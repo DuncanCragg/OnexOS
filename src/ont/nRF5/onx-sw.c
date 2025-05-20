@@ -434,6 +434,9 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
       boot_sleep(); // actually sleep
     }
 
+    uint16_t ot=time_ms()-ct;
+    if(ot>200) log_write("onex_loop=%d\n", ot);
+
     // --------------------
 
     static uint64_t feeding_time=0;

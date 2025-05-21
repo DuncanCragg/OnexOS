@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 #endif
   properties_set(config, "test-uid-prefix", value_new("light"));
 #else
-  properties* config = get_config(argc, argv, "light");
+  properties* config = get_config(argc, argv, "light", "log-onp");
   if(!config) return -1;
 #endif
 

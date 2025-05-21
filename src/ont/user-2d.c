@@ -335,14 +335,23 @@ static bool do_evaluate_user_2d(object* usr, void* user_event);
 
 bool evaluate_user_2d(object* usr, void* user_event) {
 
-  // don't even bother if the display is off
   if(!display_on) return true;
+
+/*
+  USER_EVENT_NONE_AL  rate limit 300ms
+  USER_EVENT_INITIAL  happens once, allowed in
+  USER_EVENT_BUTTON   happens occasionally, allowed in
+  USER_EVENT_TOUCH    top priority, exclusive to others
+  USER_EVENT_LOG      rate limit 900ms
+*/
 
   // don't handle non-touch events while touch is down
   if(touch_down && (user_event!=USER_EVENT_TOUCH)) return true;
 
   // Alerts happen often: just viewing any object sets them up to run all the time
-  // plus logs can be shown async on next view, so rate-limit here
+  // plus logs can be shown async on next view, so rate-limit them
+  // REVISIT: what if the last event for a while was important and it got kicked?!
+  // REVISIT: use same algo as for rate limiting notifs: set a timer or have finalise-unhandled list
   static uint32_t lt=0;
   uint32_t ct=(uint32_t)time_ms();
   if(user_event==USER_EVENT_NONE_AL){

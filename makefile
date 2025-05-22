@@ -412,7 +412,13 @@ device-reset:
 
 #-------------------------------------------------------------------------------
 
-LINKER_FLAGS = -O3 -g3 -mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Wl,--gc-sections --specs=nano.specs
+DEBUG_FLAGS = -g -O0
+OPTIM_FLAGS = -g3 -O3
+
+#-------------------------------------------------------------------------------
+
+LINKER_FLAGS = -mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Wl,--gc-sections --specs=nano.specs
+LINKER_FLAGS += $(OPTIM_FLAGS)
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMESTAMP=$$(date +'%s')
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIMEZONE_OFFSET=$$(date +'%z' | awk '{ print ($$0<0?-1:1)*((substr($$0,2,2)*3600)+(substr($$0,4,2)*60)) }')
 LINKER_FLAGS += -Xlinker --defsym -Xlinker __BUILD_TIME=$$(date +'%y%m%d%H%M')
@@ -422,9 +428,11 @@ LD_FILES_ITSYBITSY     = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/i
 LD_FILES_FEATHER_SENSE = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/feather-sense/onex.ld
 LD_FILES_DONGLE        = -L./sdk/modules/nrfx/mdk -T../OnexKernel/src/onl/nRF5/dongle/onex.ld
 
-COMPILER_FLAGS = -std=gnu17 -O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=hard -mfpu=fpv4-sp-d16
+COMPILER_FLAGS = -std=gnu17 -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=hard -mfpu=fpv4-sp-d16
+COMPILER_FLAGS += $(OPTIM_FLAGS)
 COMPILER_FLAGS += -ffunction-sections -fdata-sections
 COMPILER_FLAGS += -fno-strict-aliasing -fno-builtin -fshort-enums
+COMPILER_FLAGS += -fno-omit-frame-pointer
 COMPILER_FLAGS += -Wall -Werror
 COMPILER_FLAGS += -Wno-unused-function
 COMPILER_FLAGS += -Wno-unused-variable

@@ -3,6 +3,7 @@
 
 #include <boards.h>
 
+#include <onex-kernel/mem.h>
 #include <onex-kernel/boot.h>
 #include <onex-kernel/time.h>
 #include <onex-kernel/random.h>
@@ -438,7 +439,7 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
     }
 
     uint16_t ot=time_ms()-ct;
-    if(ot>200) log_write("onex_loop=%d\n", ot);
+    if(ot>300) log_write("onex_loop=%d\n", ot);
 
     // --------------------
 

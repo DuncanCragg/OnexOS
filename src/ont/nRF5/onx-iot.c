@@ -1,5 +1,6 @@
 
 #include <boards.h>
+#include <onex-kernel/mem.h>
 #include <onex-kernel/log.h>
 #include <onex-kernel/boot.h>
 #include <onex-kernel/time.h>
@@ -95,6 +96,8 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 #endif
 #endif
 
+  boot_init();
+
   time_init();
   random_init();
 
@@ -188,8 +191,17 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 #endif
 
   while(true){
+
+    uint64_t ct=time_ms();
+
     if(!onex_loop()){
       time_delay_ms(5);
+    }
+
+    static uint64_t feeding_time=0;
+    if(ct>feeding_time){
+      boot_feed_watchdog();
+      feeding_time=ct+1000;
     }
   }
 }

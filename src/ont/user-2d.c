@@ -1301,7 +1301,13 @@ static void draw_raw(char* path, uint8_t g2d_node) {
   int16_t ol = object_property_size(user, viewpath);
   if(ol<0) return;
 
-  uint16_t scroll_height=max(10+ol*PROP_HEIGHT+10, SCREEN_HEIGHT*4/3);
+  uint16_t num_rows=0;
+  for(uint16_t p=1; p<=ol; p++){
+    char  propnameesc[64]; object_property_key_esc(user, viewpath, p, propnameesc, 64);
+    uint16_t ll=object_pathpair_length(user, path, propnameesc);
+    num_rows+=ll;
+  }
+  uint16_t scroll_height=max(10+num_rows*PROP_HEIGHT+10, SCREEN_HEIGHT*4/3);
 
   uint8_t scroll_g2d_node = g2d_node_create(list_container_g2d_node,
                                             0,scroll_offset,
@@ -1311,35 +1317,34 @@ static void draw_raw(char* path, uint8_t g2d_node) {
   if(!scroll_g2d_node) return;
 
   uint16_t vy=PROP_MARGIN;
+
   for(uint16_t p=1; p<=ol; p++){
+
+    char  propnameesc[64]; object_property_key_esc(user, viewpath, p, propnameesc, 64);
+    uint16_t ll=object_pathpair_length(user, path, propnameesc);
 
     uint8_t propname_g2d_node = g2d_node_create(scroll_g2d_node,
                                                 PROP_MARGIN,vy,
-                                                100,PROP_HEIGHT-PROP_MARGIN, 0,0,0);
+                                                100,PROP_HEIGHT*ll-PROP_MARGIN, 0,0,0);
 
-    char* propname =       object_property_key(    user, viewpath, p);
-    char  propnameesc[64]; object_property_key_esc(user, viewpath, p, propnameesc, 64);
+    char* propname = object_property_key(user, viewpath, p);
 
     g2d_node_rectangle(propname_g2d_node, 0,0,
                        g2d_node_width(propname_g2d_node),g2d_node_height(propname_g2d_node),
                        G2D_CYAN/6);
     g2d_node_text(propname_g2d_node, 7,7, G2D_WHITE, G2D_CYAN/6, 2, "%s", propname);
 
-
-    uint16_t ll=object_pathpair_length(user, path, propnameesc);
     uint16_t vx=PROP_MARGIN+100+PROP_MARGIN;
     for(uint8_t i=1; i<=ll; i++){
 
       char* propvalue=object_pathpair_get_n(user, path, propnameesc, i);
       bool isuid=is_uid(propvalue);
 
-      uint16_t valwid=(i==ll? 140: isuid? 50: g2d_text_width(propvalue, 2)+WORD_SPACING+5);
+      uint16_t valwid=140;
       uint8_t propvalue_g2d_node = g2d_node_create(scroll_g2d_node,
                                                    vx,vy,
                                                    valwid, PROP_HEIGHT-PROP_MARGIN,
                                                    raw_cb,p,i);
-      if(!propvalue_g2d_node) break;
-
       if(isuid){
         static char pathbufrec[128];
         snprintf(pathbufrec, 128, "%s:%s:%d", path, propnameesc, i);
@@ -1353,9 +1358,8 @@ static void draw_raw(char* path, uint8_t g2d_node) {
         g2d_node_text(propvalue_g2d_node,
                       7,7, G2D_WHITE, G2D_GREY_1D/13, 2, "%s", propvalue);
       }
-      vx+=valwid+5;
+      vy+=PROP_HEIGHT;
     }
-    vy+=PROP_HEIGHT;
   }
 }
 

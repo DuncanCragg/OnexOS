@@ -2,14 +2,15 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mathlib.h>
 #include <onex-kernel/log.h>
 #include <onex-kernel/time.h>
 #include <items.h>
 #include <onn.h>
 #include <ont.h>
 
-static bool discover_io_peer(object* o, char* property, char* is)
-{
+static bool discover_io_peer(object* o, char* property, char* is) {
+
   char ispath[32]; snprintf(ispath, 32, "%s:is", property);
 
   if(object_property_contains(o, ispath, is)) return true;
@@ -58,8 +59,9 @@ bool evaluate_light_logic(object* o, void* d){
 
   bool has_ccb_link     = object_property(o, "ccb:is");
   bool has_compass_link = object_property(o, "compass:is");
+  bool has_touch_link   = object_property(o, "touch:is");
 
-  if(has_ccb_link || has_compass_link){
+  if(has_ccb_link || has_compass_link || has_touch_link){
 
     uint8_t colour     = 0xff;
     uint8_t contrast   = 0xff;
@@ -74,13 +76,21 @@ bool evaluate_light_logic(object* o, void* d){
       int32_t direction = object_property_int32(o, "compass:direction");
       colour = (uint8_t)((direction + 180)*256/360);
     }
+    if(has_touch_link){
+      int32_t touch_x = object_property_int32(o, "touch:coords:1");
+      int32_t touch_y = object_property_int32(o, "touch:coords:2");
+      bool    touch_d = object_property_is(   o, "touch:action", "down");
+      colour   = (255-touch_x) & 0xff;
+      contrast = (255-touch_y) & 0xff;
+    }
     object_property_set_fmt(o, "colour", "%%%02x%02x%02x", colour, contrast, brightness);
   }
 
   if(object_property(o, "touch:is") ||
      object_property(o, "motion:is")   ) return true;
 
-  if(!discover_io_peer(o, "button", "button")) return true;
+  discover_io_peer(o, "button", "button");
+  discover_io_peer(o, "touch", "touch");
 
   if(light_on && object_property_is(o, "button:state", "up")){
 

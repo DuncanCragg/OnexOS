@@ -325,6 +325,7 @@ static void draw_raw(char* path, uint8_t g2d_node);
 #define LIST_ADD_NEW_TOP 1
 #define LIST_ADD_NEW_BOT 2
 #define LIST_BACKGROUND  3
+#define RAW_HEAD         4
 
 static bool do_evaluate_user_2d(object* usr, void* user_event);
 
@@ -474,8 +475,20 @@ static bool do_evaluate_user_2d(object* usr, void* user_event) {
     char* drop_uid = object_property_get_n(user, "inventory:list", 1);
     if(drop_uid){
       char* viewing_uid=object_property(user, "viewing");
-      char* upd_fmt=(inv_drop_control==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
-      set_edit_object(viewing_uid, "list", 0, upd_fmt, drop_uid);
+      if(inv_drop_control==LIST_ADD_NEW_TOP ||
+         inv_drop_control==LIST_ADD_NEW_BOT   ){
+        char* upd_fmt=(inv_drop_control==LIST_ADD_NEW_TOP? "=> %s @.": "=> @. %s");
+        set_edit_object(viewing_uid, "list", 0, upd_fmt, drop_uid);
+      }
+      else
+      if(inv_drop_control==RAW_HEAD){
+        char propname[128];
+        if(object_property_contains(user, "viewing:is", "list")){
+          snprintf(propname, 128, "list");
+        }
+        else sprintf_propname_from_inv_is(propname, 128);
+        set_edit_object(viewing_uid, propname, 0, "=> %s @.", drop_uid);
+      }
       set_edit_object(inventoryuid, "list", 1, "=>");
     }
     inv_drop_control=0;
@@ -1265,8 +1278,24 @@ static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t
 static void head_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
   if(down){
     if(dx){
+      swipe_control=control;
       swipe_offset+=dx;
     }
+    return;
+  }
+  if(swipe_control){
+    if(swipe_offset < GRAB_SWIPE_DISTANCE){
+      inv_grab_control=swipe_control;
+    }
+    else
+    if(swipe_offset > DROP_SWIPE_DISTANCE){
+      inv_drop_control=swipe_control;
+    }
+    else {
+      swipe_control=0;
+      swipe_offset=0;
+    }
+    return;
   }
 }
 
@@ -1303,7 +1332,7 @@ static void draw_raw(char* path, uint8_t g2d_node) {
                                            swipe_offset,0,
                                            g2d_node_width(g2d_node),
                                            TITLE_HEIGHT,
-                                           head_cb,0,0);
+                                           head_cb,RAW_HEAD,0);
   if(!title_g2d_node) return;
 
   g2d_node_rectangle(title_g2d_node, 0,0,

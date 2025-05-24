@@ -840,7 +840,7 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
 }
 
 #define BOTTOM_MARGIN 20
-#define TITLE_HEIGHT 45
+#define TITLE_HEIGHT 50
 
 static void draw_list(char* path, uint8_t g2d_node) {
 
@@ -1257,6 +1257,14 @@ static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t
   list_selected_index=l_index;
 }
 
+static void head_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+  if(down){
+    if(dx){
+      swipe_offset+=dx;
+    }
+  }
+}
+
 #define PROP_HEIGHT 38
 #define PROP_MARGIN 5
 static void draw_raw(char* path, uint8_t g2d_node) {
@@ -1279,11 +1287,18 @@ static void draw_raw(char* path, uint8_t g2d_node) {
     return;
   }
 
+  uint16_t droppables=object_property_length(user, "inventory:list");
+  uint16_t drop_col  = droppables? G2D_BLUE: G2D_GREY_7;
+  char*    drop_text = droppables? "O->": "---";
+  draw_swipe_feedback(g2d_node, 0,0, 240,TITLE_HEIGHT,
+                                G2D_GREEN_18, G2D_GREEN_18, drop_col,
+                                "<-O",        "<-O",        drop_text);
+
   uint8_t title_g2d_node = g2d_node_create(g2d_node,
-                                           0,0,
+                                           swipe_offset,0,
                                            g2d_node_width(g2d_node),
                                            TITLE_HEIGHT,
-                                           0,0,0);
+                                           head_cb,0,0);
   if(!title_g2d_node) return;
 
   g2d_node_rectangle(title_g2d_node, 0,0,

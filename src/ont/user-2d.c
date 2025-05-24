@@ -134,12 +134,7 @@ static object* create_new_object_like_others() {
   return r;
 }
 
-static void best_propname_for_link_drop(char* propname, uint16_t len, uint16_t index){
-  char targetis[64]; snprintf(targetis, 64, "viewing:list:%d:is", index);
-  if(object_property_contains(user, targetis, "list")){
-    snprintf(propname, len, "list");
-    return;
-  }
+static void sprintf_propname_from_inv_is(char* propname, uint16_t len){
   uint16_t ln=object_property_length(user, "inventory:list:1:is");
   uint16_t s=0;
   for(uint16_t j=1; j <= ln; j++){
@@ -239,7 +234,7 @@ static char* testlinktypes[] = {
                "watch",
                "text",
                "about",
-               "list",
+               "list", // REVISIT: ??
                "" // REVISIT: :-O
 };
 static char*    linktypes[NUM_LINK_TYPES];
@@ -490,11 +485,21 @@ static bool do_evaluate_user_2d(object* usr, void* user_event) {
   if(inv_drop_index){
     char* drop_uid = object_property_get_n(user, "inventory:list", 1);
     if(drop_uid){
+      char targetis[64];
+      char* into_uid = 0;
+      if(numlinktypes){
+        snprintf(targetis, 64,           "viewing:%s:is", linktypes[inv_drop_index-1]);
+        into_uid = object_pathpair(user, "viewing",       linktypes[inv_drop_index-1]);
+      }else{
+        snprintf(targetis, 64,                 "viewing:list:%d:is", inv_drop_index);
+        into_uid = object_property_get_n(user, "viewing:list",       inv_drop_index);
+      }
       char propname[128];
-      best_propname_for_link_drop(propname, 128, inv_drop_index);
-      char* into_uid = numlinktypes?
-                       object_pathpair(      user, "viewing", linktypes[inv_drop_index-1]):
-                       object_property_get_n(user, "viewing:list", inv_drop_index);
+      if(object_property_contains(user, targetis, "list")){
+        snprintf(propname, 128, "list");
+      }
+      else sprintf_propname_from_inv_is(propname, 128);
+
       set_edit_object(into_uid, propname, 0, "=> %s @.", drop_uid);
       set_edit_object(inventoryuid, "list", 1, "=>");
     }

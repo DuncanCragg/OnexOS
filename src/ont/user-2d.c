@@ -227,7 +227,7 @@ static uint16_t prop_selected_index=0;
 
 static bool     showing_title_editor=false;
 
-#define NUM_LINK_TYPES 11
+#define NUM_LINK_TYPES 11 // REVISIT: :-O
 static char* testlinktypes[] = {
                "user",
                "battery",
@@ -240,7 +240,7 @@ static char* testlinktypes[] = {
                "text",
                "about",
                "list",
-               ""
+               "" // REVISIT: :-O
 };
 static char*    linktypes[NUM_LINK_TYPES];
 static uint8_t  numlinktypes=0;
@@ -706,7 +706,7 @@ static void view_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
 
 #define CHILD_HEIGHT 70
 
-static void draw_swipe_feedback(uint8_t scroll_g2d_node, uint16_t y,
+static void draw_swipe_feedback(uint8_t scroll_g2d_node, uint16_t x, uint16_t y, uint16_t w, uint16_t h,
                                 uint16_t del_col,  uint16_t grab_col,  uint16_t drop_col,
                                 char*    del_text, char*    grab_text, char*    drop_text){
 
@@ -718,12 +718,12 @@ static void draw_swipe_feedback(uint8_t scroll_g2d_node, uint16_t y,
           (swipe_offset < GRAB_SWIPE_DISTANCE)?   grab_text:
           (swipe_offset > DROP_SWIPE_DISTANCE)?   drop_text: "";
 
-  uint16_t x=(swipe_offset < DELETE_SWIPE_DISTANCE)? 130:
+  uint16_t tx=(swipe_offset < DELETE_SWIPE_DISTANCE)? 130:
              (swipe_offset < GRAB_SWIPE_DISTANCE)?   130:
              (swipe_offset > DROP_SWIPE_DISTANCE)?    30: 0;
 
-  g2d_node_rectangle(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10, c);
-  g2d_node_text(scroll_g2d_node, x,y+15, G2D_WHITE, c, 4, "%s", s);
+  g2d_node_rectangle(scroll_g2d_node, x,y, w,h, c);
+  g2d_node_text(scroll_g2d_node, tx,y+15, G2D_WHITE, c, 4, "%s", s);
 }
 
 static void draw_links(char* path, uint8_t container_g2d_node){
@@ -736,8 +736,9 @@ static void draw_links(char* path, uint8_t container_g2d_node){
       uint16_t droppables=object_property_length(user, "inventory:list");
       uint16_t drop_col  = droppables? G2D_BLUE: G2D_GREY_7;
       char*    drop_text = droppables? "O->": "---";
-      draw_swipe_feedback(container_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_col,
-                                                 "<-X",   "<-O",        drop_text);
+      draw_swipe_feedback(container_g2d_node, 20,y, 200,CHILD_HEIGHT-10,
+                                              G2D_RED, G2D_GREEN_18, drop_col,
+                                              "<-X",   "<-O",        drop_text);
     }
     uint8_t child_g2d_node = g2d_node_create(container_g2d_node,
                                              (i==swipe_index? swipe_offset: 0)+20,y,
@@ -766,7 +767,7 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
     if(!scrolling && dx && !vertical && control!=LIST_BACKGROUND){
       swipe_control=control;
       swipe_index=index;
-      swipe_offset+= dx;
+      swipe_offset+=dx;
     }
     return;
   }
@@ -822,8 +823,9 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
     uint16_t droppables=object_property_length(user, "inventory:list");
     uint16_t drop_col  = droppables? G2D_BLUE: G2D_GREY_7;
     char*    drop_text = droppables? "O->": "---";
-    draw_swipe_feedback(scroll_g2d_node, y, G2D_GREEN_18, G2D_GREEN_18, drop_col,
-                                            "<-O",        "<-O",        drop_text);
+    draw_swipe_feedback(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10,
+                                         G2D_GREEN_18, G2D_GREEN_18, drop_col,
+                                         "<-O",        "<-O",        drop_text);
   }
 
   uint8_t n=g2d_node_create(scroll_g2d_node,
@@ -925,8 +927,9 @@ static void draw_list(char* path, uint8_t g2d_node) {
       uint16_t droppables=object_property_length(user, "inventory:list");
       uint16_t drop_col  = droppables? G2D_BLUE: G2D_GREY_7;
       char*    drop_text = droppables? "O->": "---";
-      draw_swipe_feedback(scroll_g2d_node, y, G2D_RED, G2D_GREEN_18, drop_col,
-                                              "<-X",   "<-O",        drop_text);
+      draw_swipe_feedback(scroll_g2d_node, 20,y, 200,CHILD_HEIGHT-10,
+                                           G2D_RED, G2D_GREEN_18, drop_col,
+                                           "<-X",   "<-O",        drop_text);
     }
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
                                              (i==swipe_index? swipe_offset: 0)+20,y,

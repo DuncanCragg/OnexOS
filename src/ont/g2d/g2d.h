@@ -75,7 +75,14 @@ uint16_t g2d_node_height(uint8_t node_id);
 /*
  Fire callback for touch events in deepest/newest bounding box.
  Set "down" true while touched plus one more set to false for up
+ Do this in the interrupt context and handle the events quickly.
 */
 void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty);
+
+/*
+ Flag that the above g2d_node_touch_event() handler has been called and there's work to do.
+ Resets once it returns true.
+*/
+bool g2d_pending();
 
 #endif

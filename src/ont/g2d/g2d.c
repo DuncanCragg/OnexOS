@@ -153,6 +153,8 @@ static bool is_inside(uint8_t n, int16_t x, int16_t y){
   return true;
 }
 
+static volatile bool event_pending=false;
+
 void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
 
   static uint16_t last_tx=0;
@@ -194,6 +196,7 @@ void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
       drag_cb_data=scenegraph[cb_node].cb_data;
     }
     drag_cb(down, dx, dy, drag_cb_control, drag_cb_data);
+    event_pending=true;
   }
 
   if(!down){
@@ -202,6 +205,12 @@ void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
     drag_cb_control=0;
     drag_cb_data=0;
   }
+}
+
+bool g2d_pending(){
+  if(!event_pending) return false;
+  event_pending=false;
+  return true;
 }
 
 // ------------

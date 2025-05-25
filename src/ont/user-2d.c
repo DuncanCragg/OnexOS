@@ -90,7 +90,8 @@ static void set_edit_object(char* uid, char* key, uint16_t i, char* fmt, ...){
   if(i) snprintf(keypath, 32, "%s\\:%d", key, i);
   else  snprintf(keypath, 32, "%s",      key);
 
-  // XXX using 4 to index, and what about multiple props?
+  // REVISIT: using 4 to index, and what about multiple props?
+  // REVISIT: not supposed to run changes on "edit" as "user"
   char prevkey[64]; object_property_key_esc(edit, ":", 4, prevkey, 64);
   if(*prevkey) object_property_set(edit, prevkey, 0);
 

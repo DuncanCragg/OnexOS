@@ -63,7 +63,6 @@ static void every_10s(void*){
 }
 
 volatile uint32_t touch_events=0;
-volatile uint32_t touch_events_seen=0;
 volatile uint32_t touch_events_spurious=0;
 
 static void touched(touch_info_t ti) {
@@ -247,9 +246,9 @@ static void init_onex(properties* config){
   motion    =object_new(0, "motion",    "motion", 8);
 #endif
   button    =object_new(0, "button",    "button", 4);
-  backlight =object_new(0, "backlight", "light editable", 9);
+  backlight =object_new(0, "backlight", "light editable", 12);
   oclock    =object_new(0, "clock",     "clock event", 12);
-  watchface =object_new(0, "editable",  "watchface editable", 6);
+  watchface =object_new(0, "editable",  "watchface editable", 9);
   home      =object_new(0, "editable",  "list editable", 4);
   allobjects=object_new(0, "editable",  "list editable", 4);
   inventory =object_new(0, "editable",  "list editable", 4);
@@ -438,19 +437,14 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
 
     // --------------------
 
-    if(gfx_log_buffer && list_size(gfx_log_buffer)){
-      onex_run_evaluators(useruid, USER_EVENT_LOG);
+    if(display_on && g2d_pending()){
+      onex_run_evaluators(useruid, USER_EVENT_TOUCH);
     }
-
     if(display_on && button_pending){
       onex_run_evaluators(useruid, USER_EVENT_BUTTON);
     }
-
-    if(display_on && g2d_pending()){
-
-      onex_run_evaluators(useruid, USER_EVENT_TOUCH);
-
-      touch_events_seen++;
+    if(gfx_log_buffer && list_size(gfx_log_buffer)){
+      onex_run_evaluators(useruid, USER_EVENT_LOG);
     }
   }
 }

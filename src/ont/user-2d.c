@@ -335,38 +335,40 @@ bool evaluate_user_2d(object* usr, void* user_event) {
   if(!display_on) return true;
 
 /*
-  USER_EVENT_NONE_AL  rate limit 300ms
+  USER_EVENT_NONE_AL  rate limit 250ms
   USER_EVENT_INITIAL  happens once, allowed in
   USER_EVENT_BUTTON   happens occasionally, allowed in
   USER_EVENT_TOUCH    top priority, exclusive to others
-  USER_EVENT_LOG      rate limit 900ms
+  USER_EVENT_LOG      rate limit 500ms
 */
 
-  // don't handle non-touch events while touch is down
-  if(touch_down && (user_event!=USER_EVENT_TOUCH)) return true;
+  uint32_t current_time=(uint32_t)time_ms();
 
-  // Alerts happen often: just viewing any object sets them up to run all the time
-  // plus logs can be shown async on next view, so rate-limit them
-  // REVISIT: what if the last event for a while was important and it got kicked?!
-  // REVISIT: use same algo as for rate limiting notifs: set a timer or have finalise-unhandled list
-  static uint32_t lt=0;
-  uint32_t ct=(uint32_t)time_ms();
-  if(user_event==USER_EVENT_NONE_AL){
-    if(ct-lt < 300) return true;
+#ifdef LOG_USER_WORK
+  if(user_event!=USER_EVENT_LOG) log_write("%ld ue=%ld al=%s\n", current_time, user_event,
+                                                                 object_property_values(usr, "Alerted:is"));
+#endif
+
+  static uint32_t time_of_last_user_eval=0;
+  uint32_t time_since_last_user_eval=current_time-time_of_last_user_eval;
+
+  bool non_touch_event_while_touch_down = (user_event!=USER_EVENT_TOUCH   && touch_down);
+  bool alerts_too_fast                  = (user_event==USER_EVENT_NONE_AL && time_since_last_user_eval < 250);
+  bool logs_too_fast                    = (user_event==USER_EVENT_LOG     && time_since_last_user_eval < 500);
+  bool put_event_back_for_later         = non_touch_event_while_touch_down || alerts_too_fast || logs_too_fast;
+
+  if(put_event_back_for_later){
+    onex_run_evaluators(useruid, user_event);
+    return true;
   }
-  else
-  if(user_event==USER_EVENT_LOG){
-    if(ct-lt < 900) return true;
-  }
-  lt=ct;
+  time_of_last_user_eval=current_time;
 
   touch_disable();
   bool go_on = do_evaluate_user_2d(usr, user_event);
   touch_enable();
 
 #ifdef LOG_USER_WORK
-  uint32_t dt=(uint32_t)time_ms();
-  log_write("%ld %ld ue=%ld al=%s\n", ct, dt-ct, user_event, object_property_values(usr, "Alerted:is"));
+  log_write("%ld %ld\n", current_time, (uint32_t)time_ms()-current_time);
 #endif
 
   return go_on;

@@ -317,8 +317,8 @@ static void init_onex(properties* config){
   object_property_add(notes, "list", note2uid);
 
   object_property_set(home, "title", "Home");
-  object_property_add(home, "list", notesuid);
   object_property_add(home, "list", allobjectsuid);
+  object_property_add(home, "list", notesuid);
 
   object_property_set(allobjects, "title", "All objects");
   object_property_add(allobjects, "list", deviceuid);

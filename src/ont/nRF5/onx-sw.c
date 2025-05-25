@@ -42,6 +42,9 @@ volatile bool          button_pressed=false;
 volatile touch_info_t  touch_info={ 120, 140 };
 volatile bool          touch_down=false;
 
+volatile uint8_t       pending_user_event;
+volatile uint32_t      pending_user_event_time;
+
 #if defined(HAS_MOTION)
 volatile motion_info_t motion_info;
 #endif
@@ -441,6 +444,14 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
     }
     if(gfx_log_buffer && list_size(gfx_log_buffer)){
       onex_run_evaluators(useruid, (void*)USER_EVENT_LOG);
+    }
+    if(pending_user_event_time && ct > pending_user_event_time){
+      if(pending_user_event & USER_EVENT_NONE)   onex_run_evaluators(useruid, (void*)USER_EVENT_NONE_AL);
+      if(pending_user_event & USER_EVENT_BUTTON) onex_run_evaluators(useruid, (void*)USER_EVENT_BUTTON);
+      if(pending_user_event & USER_EVENT_TOUCH)  onex_run_evaluators(useruid, (void*)USER_EVENT_TOUCH);
+      if(pending_user_event & USER_EVENT_LOG)    onex_run_evaluators(useruid, (void*)USER_EVENT_LOG);
+      pending_user_event=0;
+      pending_user_event_time=0;
     }
   }
 }

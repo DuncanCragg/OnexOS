@@ -359,7 +359,8 @@ bool evaluate_user_2d(object* usr, void* user_event_) {
   bool rate_limiting_this_one           = non_touch_event_while_touch_down || alerts_too_fast || logs_too_fast;
 
   if(rate_limiting_this_one){
-    onex_run_evaluators(useruid, user_event_);
+    if(!pending_user_event_time) pending_user_event_time = current_time+130;
+    pending_user_event |= (user_event==USER_EVENT_NONE_AL)? USER_EVENT_NONE: user_event;
     return true;
   }
   time_of_last_user_eval=current_time;

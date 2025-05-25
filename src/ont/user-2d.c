@@ -384,8 +384,7 @@ static bool do_evaluate_user_2d(object* usr, uint8_t user_event){
     first_time=false;
   }
 
-  if(button_pending){
-    // REVISIT: should be able to rely on USER_EVENT_BUTTON
+  if(user_event==USER_EVENT_BUTTON){
     if(button_pressed){
       uint16_t histlen=object_property_length(user, "history");
       if(histlen){
@@ -400,7 +399,6 @@ static bool do_evaluate_user_2d(object* usr, uint8_t user_event){
       }
       reset_viewing_state_variables();
     }
-    button_pending=false;
   }
 
   if(list_selected_control){

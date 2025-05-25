@@ -36,7 +36,7 @@ char* inventoryuid;
 object* user;
 object* responses;
 
-volatile bool          button_pending =false;
+static volatile bool   button_pending =false;
 volatile bool          button_pressed=false;
 
 volatile touch_info_t  touch_info={ 120, 140 };
@@ -440,7 +440,7 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
     }
     if(display_on && button_pending){
       onex_run_evaluators(useruid, (void*)USER_EVENT_BUTTON);
-      // REVISIT: button_pending=false;
+      button_pending=false;
     }
     if(gfx_log_buffer && list_size(gfx_log_buffer)){
       onex_run_evaluators(useruid, (void*)USER_EVENT_LOG);

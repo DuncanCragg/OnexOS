@@ -101,12 +101,12 @@ static void touched(touch_info_t ti) {
 
   if(is_down_event){
     touch_down = true;
-    g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
+    g2d_touch_event(touch_down, touch_info.x, touch_info.y);
   }
   else
   if(!is_down_event && touch_down){
     touch_down=false;
-    g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
+    g2d_touch_event(touch_down, touch_info.x, touch_info.y);
   }
   onex_run_evaluators(touchuid, (void*)&touch_info);
 }

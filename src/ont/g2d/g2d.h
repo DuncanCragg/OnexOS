@@ -41,7 +41,7 @@ bool g2d_clear_screen(uint8_t colour); // 8 bits * 2
 
 void g2d_render();
 
-typedef void (*g2d_node_cb)(bool down,
+typedef void (*g2d_node_ev)(bool down,
                             int16_t dx, int16_t dy,
                             uint16_t cb_control, uint16_t cb_data);
 
@@ -58,7 +58,7 @@ typedef void (*g2d_node_cb)(bool down,
 uint8_t g2d_node_create(uint8_t  parent_id,
                         int16_t x, int16_t y,
                         uint16_t w, uint16_t h,
-                        g2d_node_cb cb,
+                        g2d_node_ev cb,
                         uint16_t cb_control, uint16_t cb_data);
 
 void g2d_node_rectangle(uint8_t node_id, int16_t x, int16_t y,
@@ -77,10 +77,10 @@ uint16_t g2d_node_height(uint8_t node_id);
  Set "down" true while touched plus one more set to false for up
  Do this in the interrupt context and handle the events quickly.
 */
-void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty);
+void g2d_touch_event(bool down, uint16_t tx, uint16_t ty);
 
 /*
- Flag that the above g2d_node_touch_event() handler has been called and there's work to do.
+ Flag that the above g2d_touch_event() handler has been called and there's work to do.
  Resets once it returns true.
 */
 bool g2d_pending();

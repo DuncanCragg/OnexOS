@@ -25,7 +25,7 @@ typedef struct g2d_node {
   uint16_t clip_xbr;
   uint16_t clip_ybr;
 
-  g2d_node_cb cb;
+  g2d_node_ev cb;
   uint16_t    cb_control;
   uint16_t    cb_data;
 
@@ -40,7 +40,7 @@ static volatile uint8_t next_node=1; // index is same as node id, 0th not used
 uint8_t g2d_node_create(uint8_t parent_id,
                         int16_t x, int16_t y,
                         uint16_t w, uint16_t h,
-                        g2d_node_cb cb,
+                        g2d_node_ev cb,
                         uint16_t cb_control, uint16_t cb_data){
 
   if(!parent_id) next_node=1;
@@ -155,7 +155,7 @@ static bool is_inside(uint8_t n, int16_t x, int16_t y){
 
 static volatile bool event_pending=false;
 
-void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
+void g2d_touch_event(bool down, uint16_t tx, uint16_t ty){
 
   static uint16_t last_tx=0;
   static uint16_t last_ty=0;
@@ -177,7 +177,7 @@ void g2d_node_touch_event(bool down, uint16_t tx, uint16_t ty){
   }
 
   static uint8_t     cb_node=0;
-  static g2d_node_cb drag_cb=0;
+  static g2d_node_ev drag_cb=0;
   static uint16_t    drag_cb_control=0;
   static uint16_t    drag_cb_data=0;
 

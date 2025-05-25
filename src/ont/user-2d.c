@@ -582,7 +582,7 @@ static void draw_by_type(char* path, uint8_t g2d_node) {
 
 #define SLIDE_DWELL 20
 
-static void view_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+static void view_ev(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
 
@@ -763,7 +763,7 @@ static void draw_links(char* path, uint8_t container_g2d_node){
     uint8_t child_g2d_node = g2d_node_create(container_g2d_node,
                                              (i==swipe_index? swipe_offset: 0)+20,y,
                                              200,CHILD_HEIGHT-10,
-                                             view_cb,0,i);
+                                             view_ev,0,i);
     if(child_g2d_node){
       static char pathbufrec[64];
       snprintf(pathbufrec, 64, "%s:%s", path, linktypes[i-1]);
@@ -773,7 +773,7 @@ static void draw_links(char* path, uint8_t container_g2d_node){
   }
 }
 
-static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+static void list_ev(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
 
   if(down){
     bool vertical = abs(dy) > abs(dx);
@@ -832,7 +832,7 @@ static void list_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_
   }
 }
 
-static void title_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+static void title_ev(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
   if(down) showing_title_editor=true;
 }
 
@@ -851,7 +851,7 @@ static uint8_t make_in_scroll_button(uint8_t scroll_g2d_node,
   uint8_t n=g2d_node_create(scroll_g2d_node,
                             (control==swipe_control? swipe_offset: 0)+20,y,
                             200,CHILD_HEIGHT-10,
-                            list_cb,control,0);
+                            list_ev,control,0);
 
   g2d_node_rectangle(n, 0,0, g2d_node_width(n),g2d_node_height(n), G2D_GREY_F);
   g2d_node_text(n, 10,15, G2D_WHITE, G2D_GREY_F, 4, "%s", text);
@@ -886,7 +886,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
                                            0,0,
                                            g2d_node_width(g2d_node),
                                            TITLE_HEIGHT,
-                                           title_cb,0,0);
+                                           title_ev,0,0);
   if(!title_g2d_node) return;
 
   if(showing_title_editor && cursor==0){
@@ -922,7 +922,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
                                             0, scroll_offset,
                                             g2d_node_width(list_container_g2d_node),
                                             scroll_height,
-                                            list_cb,LIST_BACKGROUND,0);
+                                            list_ev,LIST_BACKGROUND,0);
   if(!scroll_g2d_node) return;
 
   scroll_bot_lim = -scroll_height + SCREEN_HEIGHT - BOTTOM_MARGIN;
@@ -954,7 +954,7 @@ static void draw_list(char* path, uint8_t g2d_node) {
     uint8_t child_g2d_node = g2d_node_create(scroll_g2d_node,
                                              (i==swipe_index? swipe_offset: 0)+20,y,
                                              200,CHILD_HEIGHT-10,
-                                             list_cb,0,i);
+                                             list_ev,0,i);
     if(child_g2d_node){
       static char pathbufrec[64];
       snprintf(pathbufrec, 64, "%s:list:%d", path, i);
@@ -1023,7 +1023,7 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
                                                g2d_node_width(g2d_node),
                                                container_height,
-                                               view_cb,0,0);
+                                               view_ev,0,0);
   if(container_g2d_node){
 
   strftime(g2dbuf, 64, h24? "%H:%M": "%l:%M", &tms);
@@ -1059,7 +1059,7 @@ static void draw_watch(char* path, uint8_t g2d_node) {
   if(offx < 0) draw_raw_offset(path, g2d_node, offx);
 }
 
-static void word_cb(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t wi){
+static void word_ev(bool down, int16_t dx, int16_t dy, uint16_t c, uint16_t wi){
   static bool scrolled=false;
   if(!down){
     if(!scrolled && wi) word_index=wi;
@@ -1111,7 +1111,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
   uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
                                                g2d_node_width(g2d_node),
                                                container_height,
-                                               view_cb,0,0);
+                                               view_ev,0,0);
   if(container_g2d_node){
 
   g2d_node_text(container_g2d_node, 10,5, G2D_BLUE, G2D_BLACK, 2,
@@ -1123,7 +1123,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
 
   uint8_t text_container_g2d_node = g2d_node_create(container_g2d_node,
                                                     SIDE_MARGIN,TOP_MARGIN, wd,ht,
-                                                    word_cb,0,0);
+                                                    word_ev,0,0);
   if(text_container_g2d_node){
 
   uint16_t words=object_pathpair_length(user, path, "text");
@@ -1138,7 +1138,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
   uint8_t text_scroll_g2d_node = g2d_node_create(text_container_g2d_node,
                                                  0, text_scroll_offset,
                                                  wd, scroll_height,
-                                                 word_cb,0,0);
+                                                 word_ev,0,0);
   if(text_scroll_g2d_node){
 
   uint16_t k=0;
@@ -1158,7 +1158,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
       g2d_node_create(text_scroll_g2d_node,
                       k, j*LINE_HEIGHT,
                       available_width, LINE_HEIGHT,
-                      word_cb,0,(w-1));
+                      word_ev,0,(w-1));
       k=0;
       j++;
     }
@@ -1172,7 +1172,7 @@ static void draw_notes(char* path, uint8_t g2d_node) {
     uint8_t word_g2d_node = g2d_node_create(text_scroll_g2d_node,
                                             k, j*LINE_HEIGHT,
                                             word_width, LINE_HEIGHT,
-                                            word_cb,0,w);
+                                            word_ev,0,w);
 
     char* word_to_show = word? word: (in_word? edit_word: "");
     g2d_node_text(word_g2d_node, 6,2, G2D_WHITE, G2D_BLACK, 2, "%s", word_to_show);
@@ -1223,7 +1223,7 @@ static void draw_about(char* path, uint8_t g2d_node) {
   uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
                                                g2d_node_width(g2d_node),
                                                container_height,
-                                               view_cb,0,0);
+                                               view_ev,0,0);
   if(container_g2d_node){
 
   g2d_node_text(container_g2d_node, 20, 40, G2D_BLUE, G2D_BLACK, 2,
@@ -1258,7 +1258,7 @@ static void draw_button(char* path, uint8_t g2d_node) {
   draw_raw(path, g2d_node);
 }
 
-static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t l_index){
+static void raw_ev(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t l_index){
 
   if(down){
     if(dy){
@@ -1277,7 +1277,7 @@ static void raw_cb(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t
   list_selected_index=l_index;
 }
 
-static void head_cb(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
+static void head_ev(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
   if(down){
     if(dx){
       swipe_control=control;
@@ -1334,7 +1334,7 @@ static void draw_raw(char* path, uint8_t g2d_node) {
                                            swipe_offset,0,
                                            g2d_node_width(g2d_node),
                                            TITLE_HEIGHT,
-                                           head_cb,RAW_HEAD,0);
+                                           head_ev,RAW_HEAD,0);
   if(!title_g2d_node) return;
 
   g2d_node_rectangle(title_g2d_node, 0,0,
@@ -1367,7 +1367,7 @@ static void draw_raw(char* path, uint8_t g2d_node) {
                                             0,scroll_offset,
                                             g2d_node_width(list_container_g2d_node),
                                             scroll_height,
-                                            raw_cb,0,0);
+                                            raw_ev,0,0);
   if(!scroll_g2d_node) return;
 
   uint16_t vy=PROP_MARGIN;
@@ -1398,7 +1398,7 @@ static void draw_raw(char* path, uint8_t g2d_node) {
       uint8_t propvalue_g2d_node = g2d_node_create(scroll_g2d_node,
                                                    vx,vy,
                                                    valwid, PROP_HEIGHT-PROP_MARGIN,
-                                                   raw_cb,p,i);
+                                                   raw_ev,p,i);
       if(isuid){
         static char pathbufrec[128];
         snprintf(pathbufrec, 128, "%s:%s:%d", path, propnameesc, i);
@@ -1423,13 +1423,13 @@ static void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx){
                                                    240+offx,0,
                                                    -offx,
                                                    g2d_node_height(g2d_node),
-                                                   view_cb,0,0);
+                                                   view_ev,0,0);
   if(!raw_container_g2d_node) return;
 
   uint8_t raw_g2d_node = g2d_node_create(raw_container_g2d_node,
                                          -(240+offx),0,
                                          240, g2d_node_height(g2d_node),
-                                         view_cb,0,0);
+                                         view_ev,0,0);
   if(!raw_g2d_node) return;
 
   draw_raw(path, raw_g2d_node);

@@ -39,8 +39,6 @@ object* responses;
 volatile bool          button_pending =false;
 volatile bool          button_pressed=false;
 
-static volatile bool   touch_pending=false;
-
 volatile touch_info_t  touch_info={ 120, 140 };
 volatile bool          touch_down=false;
 
@@ -100,29 +98,15 @@ static void touched(touch_info_t ti) {
   touch_info=ti;
 
   bool is_down_event = touch_info.action==TOUCH_ACTION_CONTACT;
-/*
-  is_down_event  touch_down  touch_pending | touch_down  touch_pending
-  -----------------------------------------+---------------------------------------------------------------------
-  false    !=    true        false         | false#      true#   tell loop about up event
-  true     !=    false       false         | true#       true#   tell loop about down event
-  true     ==    true        false         | true        true#   down and drag event ongoing
-  false    !=    true        true          | false#      true    up   but still have down event pending: override
-  true     !=    false       true          | false       true    down but still have up   event pending: ignore
-  false    ==    false       false         | false       false   no equivalent to "ongoing" for up state
-  false    ==    false       true          | false       true    nothing new to report
-  true     ==    true        true          | true        true    nothing new to report
-*/
-  if(touch_down != is_down_event && !touch_pending){ // tell loop about up/down
-    touch_down = is_down_event;
-    touch_pending = true;
+
+  if(is_down_event){
+    touch_down = true;
+    g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
   }
   else
-  if(is_down_event && touch_down && !touch_pending){ // drag, ongoing down event
-    touch_pending = true;
-  }
-  else
-  if(!is_down_event && touch_down && touch_pending){ // push up in over unhandled down
+  if(!is_down_event && touch_down){
     touch_down=false;
+    g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
   }
   onex_run_evaluators(touchuid, (void*)&touch_info);
 }
@@ -462,14 +446,11 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
       onex_run_evaluators(useruid, USER_EVENT_BUTTON);
     }
 
-    if(display_on && touch_pending){
-
-      g2d_node_touch_event(touch_down, touch_info.x, touch_info.y);
+    if(display_on && g2d_pending()){
 
       onex_run_evaluators(useruid, USER_EVENT_TOUCH);
 
       touch_events_seen++;
-      touch_pending=false;
     }
   }
 }

@@ -359,7 +359,9 @@ bool evaluate_user_2d(object* usr, void* user_event) {
   }
   lt=ct;
 
+  touch_disable();
   bool go_on = do_evaluate_user_2d(usr, user_event);
+  touch_enable();
 
 #ifdef LOG_USER_WORK
   uint32_t dt=(uint32_t)time_ms();

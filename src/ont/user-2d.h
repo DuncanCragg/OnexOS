@@ -14,9 +14,6 @@ extern volatile bool         button_pending;
 extern volatile bool         button_pressed;
 extern volatile touch_info_t touch_info;
 extern volatile bool         touch_down;
-extern volatile uint32_t     touch_events;
-extern volatile uint32_t     touch_events_seen;
-extern volatile uint32_t     touch_events_spurious;
 
 extern bool display_on;
 

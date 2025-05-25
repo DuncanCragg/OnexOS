@@ -62,15 +62,12 @@ static void every_10s(void*){
   onex_run_evaluators(batteryuid, 0);
 }
 
-volatile uint32_t touch_events=0;
-volatile uint32_t touch_events_spurious=0;
-
 static void touched(touch_info_t ti) {
 
   // ---------------------------------------
   // XXX this cb is spuriously called by button presses;
   // luckily x+y are set to zero
-  if(!(ti.x+ti.y)){ touch_events_spurious++; return; }
+  if(!(ti.x+ti.y)) return;
   // ---------------------------------------
 
   // ---------------------------------------
@@ -91,8 +88,6 @@ static void touched(touch_info_t ti) {
 
   // ---------------------------------------
   // XXX move this "down state" logic to the touch API?
-
-  touch_events++;
 
   touch_info=ti;
 
@@ -442,6 +437,7 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
     }
     if(display_on && button_pending){
       onex_run_evaluators(useruid, USER_EVENT_BUTTON);
+      // REVISIT: button_pending=false;
     }
     if(gfx_log_buffer && list_size(gfx_log_buffer)){
       onex_run_evaluators(useruid, USER_EVENT_LOG);

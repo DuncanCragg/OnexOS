@@ -345,19 +345,18 @@ bool evaluate_user_2d(object* usr, void* user_event) {
   uint32_t current_time=(uint32_t)time_ms();
 
 #ifdef LOG_USER_WORK
-  if(user_event!=USER_EVENT_LOG) log_write("%ld ue=%ld al=%s\n", current_time, user_event,
-                                                                 object_property_values(usr, "Alerted:is"));
+  log_write("%ld ue=%ld al=%s\n", current_time, user_event, object_property_values(usr, "Alerted:is"));
 #endif
 
   static uint32_t time_of_last_user_eval=0;
-  uint32_t time_since_last_user_eval=current_time-time_of_last_user_eval;
+  uint32_t time_since_last_user_eval = current_time - time_of_last_user_eval;
 
   bool non_touch_event_while_touch_down = (user_event!=USER_EVENT_TOUCH   && touch_down);
   bool alerts_too_fast                  = (user_event==USER_EVENT_NONE_AL && time_since_last_user_eval < 250);
   bool logs_too_fast                    = (user_event==USER_EVENT_LOG     && time_since_last_user_eval < 500);
-  bool put_event_back_for_later         = non_touch_event_while_touch_down || alerts_too_fast || logs_too_fast;
+  bool rate_limiting_this_one           = non_touch_event_while_touch_down || alerts_too_fast || logs_too_fast;
 
-  if(put_event_back_for_later){
+  if(rate_limiting_this_one){
     onex_run_evaluators(useruid, user_event);
     return true;
   }
@@ -383,6 +382,7 @@ static bool do_evaluate_user_2d(object* usr, void* user_event) {
   }
 
   if(button_pending){
+    // REVISIT: should be able to rely on USER_EVENT_BUTTON
     if(button_pressed){
       uint16_t histlen=object_property_length(user, "history");
       if(histlen){
@@ -1204,12 +1204,10 @@ static void draw_about(char* path, uint8_t g2d_node) {
                        0,0,
                        g2d_node_width(g2d_node),g2d_node_height(g2d_node),
                        G2D_CYAN/6);
-//  uint32_t touch_events_percent = (100*touch_events_seen)/(1+touch_events);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
     uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
     g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_CYAN/6, s,
                   "%dfps %ldms", fps, loop_time);
-//              "%ld%% %ld %ldms", touch_events_percent, touch_events_spurious, loop_time);
     return;
   }
 

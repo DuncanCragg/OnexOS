@@ -328,9 +328,11 @@ static void draw_raw(char* path, uint8_t g2d_node);
 #define LIST_BACKGROUND  3
 #define RAW_HEAD         4
 
-static bool do_evaluate_user_2d(object* usr, void* user_event);
+static bool do_evaluate_user_2d(object* usr, uint8_t user_event);
 
-bool evaluate_user_2d(object* usr, void* user_event) {
+bool evaluate_user_2d(object* usr, void* user_event_) {
+
+  uint8_t user_event = (uint8_t)(uint32_t)user_event_;
 
   if(!display_on) return true;
 
@@ -357,7 +359,7 @@ bool evaluate_user_2d(object* usr, void* user_event) {
   bool rate_limiting_this_one           = non_touch_event_while_touch_down || alerts_too_fast || logs_too_fast;
 
   if(rate_limiting_this_one){
-    onex_run_evaluators(useruid, user_event);
+    onex_run_evaluators(useruid, user_event_);
     return true;
   }
   time_of_last_user_eval=current_time;
@@ -373,7 +375,7 @@ bool evaluate_user_2d(object* usr, void* user_event) {
   return go_on;
 }
 
-static bool do_evaluate_user_2d(object* usr, void* user_event) {
+static bool do_evaluate_user_2d(object* usr, uint8_t user_event){
 
   static bool first_time=true;
   if(first_time){

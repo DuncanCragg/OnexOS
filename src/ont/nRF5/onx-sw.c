@@ -399,7 +399,7 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
   time_ticker(every_second, 0,  1000);
   time_ticker(every_10s,    0, 10000);
 
-  onex_run_evaluators(useruid, USER_EVENT_INITIAL);
+  onex_run_evaluators(useruid, (void*)USER_EVENT_INITIAL);
 
   while(1){
 
@@ -433,14 +433,14 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
     // --------------------
 
     if(display_on && g2d_pending()){
-      onex_run_evaluators(useruid, USER_EVENT_TOUCH);
+      onex_run_evaluators(useruid, (void*)USER_EVENT_TOUCH);
     }
     if(display_on && button_pending){
-      onex_run_evaluators(useruid, USER_EVENT_BUTTON);
+      onex_run_evaluators(useruid, (void*)USER_EVENT_BUTTON);
       // REVISIT: button_pending=false;
     }
     if(gfx_log_buffer && list_size(gfx_log_buffer)){
-      onex_run_evaluators(useruid, USER_EVENT_LOG);
+      onex_run_evaluators(useruid, (void*)USER_EVENT_LOG);
     }
   }
 }

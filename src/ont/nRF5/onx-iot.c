@@ -168,7 +168,8 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_set(light, "light", "off");
 #if defined(BOARD_FEATHER_SENSE)
   object_property_set(ledmx, "light", "on");
-  object_property_set(ledmx, "colour", "%0300ff");
+  object_property_set(ledmx, "colour", "%0300ff"); // REVISIT: same name as BCS
+//object_property_set(ledmx, "device", deviceuid);
 #endif
 
   object_set_evaluator(onex_device_object, "evaluate_device");
@@ -186,7 +187,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   onex_run_evaluators(lightuid, 0);
 #if defined(BOARD_FEATHER_SENSE)
-  time_ticker(poll_input_evaluators, 0, 100);
+  time_ticker(poll_input_evaluators, 0, 300);
   onex_run_evaluators(ledmxuid, 0);
 #endif
 
@@ -238,7 +239,7 @@ bool evaluate_light_out(object* light, void* d) {
 #if defined(BOARD_FEATHER_SENSE)
 bool evaluate_ledmx_out(object* ledmx, void* d) {
   if(object_property_is(ledmx, "light", "on")){
-    char* col = object_property(ledmx, "colour");
+    char* col = object_property(ledmx, "colour"); // REVISIT: same name as BCS
     led_matrix_fill_col(col);
     led_strip_fill_col(col);
     led_matrix_show();

@@ -293,7 +293,7 @@ static void init_onex(properties* config){
   object_property_set(oclock, "title", "OnexOS Clock");
   object_property_set(oclock, "ts", "%unknown");
   object_property_set(oclock, "tz", "%unknown");
-  object_property_set(oclock, "device", deviceuid);
+//object_property_set(oclock, "device", deviceuid); // REVISIT: peer discovery isn't great
 
   object_property_set(watchface, "clock", clockuid);
   object_property_set(watchface, "ampm-24hr", "ampm");

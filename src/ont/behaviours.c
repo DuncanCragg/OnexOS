@@ -83,7 +83,7 @@ bool evaluate_light_logic(object* o, void* d){
       colour   = (255-touch_x) & 0xff;
       softness = (    touch_y) & 0xff;
     }
-    object_property_set_fmt(o, "colour", "%%%02x%02x%02x", brightness, colour, softness);
+    object_property_set_fmt(o, "colour", "%%%02x%02x%02x", brightness, colour, softness); // REVISIT: same name as BCS
   }
 
   if(object_property(o, "touch:is") ||

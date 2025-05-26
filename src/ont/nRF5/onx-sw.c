@@ -13,7 +13,7 @@
 #include <onex-kernel/i2c.h>
 #include <onex-kernel/touch.h>
 #include <onex-kernel/radio.h>
-#include <evaluators.h>
+#include <io-evaluators.h>
 #include "../user-2d.h"
 
 #include <onn.h>
@@ -177,6 +177,12 @@ static char note_text_big[] =
 bool evaluate_user(object* usr, void* d) {
 
   return evaluate_user_2d(usr, d);
+}
+
+bool evaluate_default(object* obj, void* d) {
+  log_write("evaluate_default d=%p\n", d);
+//object_log(obj);
+  return true;
 }
 
 static void init_onex(properties* config){

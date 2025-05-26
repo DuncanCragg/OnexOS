@@ -12,6 +12,8 @@
 #include <onex-kernel/display.h>
 #include <onex-kernel/touch.h>
 
+#include <io-evaluators.h>
+
 #include <onn.h>
 #include <onr.h>
 
@@ -56,12 +58,6 @@ void evaluators_init(){
     seesaw_gpio_input_pullup(ROTARY_ENC_ADDRESS, ROTARY_ENC_BUTTON);
   }
 #endif
-}
-
-bool evaluate_default(object* obj, void* d) {
-  log_write("evaluate_default d=%p\n", d);
-//object_log(obj);
-  return true;
 }
 
 #define BATTERY_ZERO_PERCENT 3400
@@ -115,7 +111,7 @@ bool evaluate_bcs_in(object* bcs, void* d){
 
   uint8_t brightness = pot1/4;                 // 0..1023
   uint8_t colour     = (uint8_t)(rot_pos * 4); // lo byte, 4 lsb per click
-  uint8_t softness   = 255-pot2/4;             // 0..1023
+  uint8_t softness   = pot2/4;                 // 0..1023
 
   object_property_set_fmt(bcs, "brightness", "%d", brightness);
   object_property_set_fmt(bcs, "colour",     "%d", colour);

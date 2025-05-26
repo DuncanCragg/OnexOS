@@ -102,13 +102,13 @@ SW_SOURCES = \
 ./src/ont/keyboard.c \
 ./src/ont/user-2d.c \
 ./src/ont/nRF5/g2d-lcd.c \
-./src/ont/nRF5/evaluators.c \
+./src/ont/nRF5/io-evaluators.c \
 ./src/ont/nRF5/onx-sw.c \
 ./src/ont/behaviours.c \
 
 
 IOT_SOURCES = \
-./src/ont/nRF5/evaluators.c \
+./src/ont/nRF5/io-evaluators.c \
 ./src/ont/behaviours.c \
 ./src/ont/nRF5/onx-iot.c \
 

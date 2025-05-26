@@ -1290,24 +1290,53 @@ static void draw_light(char* path, uint8_t g2d_node) {
 
 static void draw_bcs(char* path, uint8_t g2d_node) {
 
+  uint8_t brightness = (uint8_t)object_pathpair_int32(user, path, "brightness");
+  uint8_t colour     = (uint8_t)object_pathpair_int32(user, path, "colour");
+  uint8_t softness   = (uint8_t)object_pathpair_int32(user, path, "softness");
+
+  colours_rgb rgb = colours_bcs_to_rgb((colours_bcs){ brightness, colour, softness });
+  if(rgb.r + rgb.g + rgb.b < 20) rgb = (colours_rgb){128,128,128};
+  uint16_t c = G2D_RGB256(rgb.r,rgb.g,rgb.b);
+
   if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
 
-    uint8_t brightness = (uint8_t)object_pathpair_int32(user, path, "brightness");
-    uint8_t colour     = (uint8_t)object_pathpair_int32(user, path, "colour");
-    uint8_t softness   = (uint8_t)object_pathpair_int32(user, path, "softness");
-    colours_rgb rgb = colours_bcs_to_rgb((colours_bcs){ brightness, colour, softness });
-    if(rgb.r + rgb.g + rgb.b < 20) rgb = (colours_rgb){128,128,128};
-
-    g2d_node_rectangle(g2d_node,
-                       0,0,
-                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
-                       G2D_RGB256(rgb.r,rgb.g,rgb.b));
+    g2d_node_rectangle(g2d_node, 0,0, g2d_node_width(g2d_node),g2d_node_height(g2d_node), c);
     uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
     uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
-    g2d_node_text(g2d_node, m,m, G2D_BLACK, G2D_RGB256(rgb.r,rgb.g,rgb.b), s, "|||");
+    g2d_node_text(g2d_node, m,m, G2D_BLACK, c, s, "|||");
     return;
   }
-  draw_raw(path, g2d_node);
+#define BCS_LEFT_MARGIN   25
+#define BCS_TOP_MARGIN    50
+#define BCS_LEFT_PAD       7
+#define BCS_TOP_PAD       15
+#define BCS_SLIDER_HEIGHT 38
+#define BCS_SPACER        10
+  uint8_t y;
+  y=BCS_TOP_MARGIN;
+  g2d_node_rectangle(g2d_node, BCS_LEFT_MARGIN, y,
+                               g2d_node_width(g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT, c);
+
+  y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
+  g2d_node_rectangle(g2d_node, BCS_LEFT_MARGIN, y,
+                               g2d_node_width(g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
+                               G2D_GREY_3);
+  g2d_node_text(g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
+                               G2D_WHITE, G2D_GREY_3, 2, "Brightness: %d", brightness);
+
+  y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
+  g2d_node_rectangle(g2d_node, BCS_LEFT_MARGIN, y,
+                               g2d_node_width(g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
+                               G2D_GREY_3);
+  g2d_node_text(g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
+                               G2D_WHITE, G2D_GREY_3, 2, "Colour: %d", colour);
+
+  y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
+  g2d_node_rectangle(g2d_node, BCS_LEFT_MARGIN, y,
+                               g2d_node_width(g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
+                               G2D_GREY_3);
+  g2d_node_text(g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
+                               G2D_WHITE, G2D_GREY_3, 2, "Softness: %d", softness);
 }
 
 static void raw_ev(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t l_index){

@@ -1288,15 +1288,42 @@ static void draw_light(char* path, uint8_t g2d_node) {
   draw_raw(path, g2d_node);
 }
 
+static void clamp(int16_t* n, int16_t lo, int16_t hi, bool wrap){
+  if(!wrap){
+    if(*n < lo) *n = lo;
+    if(*n > hi) *n = hi;
+  } else {
+    if(*n < lo) *n += hi;
+    if(*n > hi) *n -= hi;
+  }
+}
+
+static int16_t b_swipe_offset=0;
+static int16_t c_swipe_offset=0;
+static int16_t s_swipe_offset=0;
+
+#define BCS_B 1
+#define BCS_C 2
+#define BCS_S 3
+
 static void bcs_ev(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
   if(down){
     if(dx){
       swipe_control=control;
-      swipe_offset+=dx;
+      if(swipe_control == BCS_B) b_swipe_offset+=dx;
+      if(swipe_control == BCS_C) c_swipe_offset+=dx;
+      if(swipe_control == BCS_S) s_swipe_offset+=dx;
     }
     return;
   }
 }
+
+#define BCS_LEFT_MARGIN   25
+#define BCS_TOP_MARGIN    50
+#define BCS_LEFT_PAD       7
+#define BCS_TOP_PAD       15
+#define BCS_SLIDER_HEIGHT 38
+#define BCS_SPACER        10
 
 static void draw_bcs(char* path, uint8_t g2d_node) {
 
@@ -1316,13 +1343,7 @@ static void draw_bcs(char* path, uint8_t g2d_node) {
     g2d_node_text(g2d_node, m,m, G2D_BLACK, c, s, "|||");
     return;
   }
-#define BCS_LEFT_MARGIN   25
-#define BCS_TOP_MARGIN    50
-#define BCS_LEFT_PAD       7
-#define BCS_TOP_PAD       15
-#define BCS_SLIDER_HEIGHT 38
-#define BCS_SPACER        10
-#define BCS_B             1
+
   int16_t offx = abs(view_offset_x) < SLIDE_DWELL? 0: view_offset_x;
   int16_t offy = abs(view_offset_y) < SLIDE_DWELL? 0: view_offset_y;
 
@@ -1332,40 +1353,60 @@ static void draw_bcs(char* path, uint8_t g2d_node) {
                                                view_ev,0,0);
   if(container_g2d_node){
 
+  uint16_t w=g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN;
+
+  clamp(&b_swipe_offset, 0, w, false);
+  clamp(&c_swipe_offset, 0, w, true);
+  clamp(&s_swipe_offset, 0, w, false);
+
   uint8_t y=BCS_TOP_MARGIN;
-  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN, y,
-                               g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT, c);
 
-  if(swipe_offset < 0) swipe_offset = 0;
-  if(swipe_offset > g2d_node_width(b_g2d_node)) swipe_offset = g2d_node_width(b_g2d_node);
+  // Band showing the colour
+  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN,y, w,BCS_SLIDER_HEIGHT, c);
 
+  // Brightness
   y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
   uint8_t b_g2d_node = g2d_node_create(container_g2d_node,
                                        BCS_LEFT_MARGIN, y,
-                                       g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN,
-                                       BCS_SLIDER_HEIGHT,
+                                       w, BCS_SLIDER_HEIGHT,
                                        bcs_ev,BCS_B,0);
   g2d_node_rectangle(b_g2d_node, 0,0,
                                g2d_node_width(b_g2d_node), BCS_SLIDER_HEIGHT,
                                G2D_GREY_3);
   g2d_node_rectangle(b_g2d_node, 0,0,
-                               swipe_offset, BCS_SLIDER_HEIGHT,
+                               b_swipe_offset, BCS_SLIDER_HEIGHT,
                                G2D_BLUE);
   g2d_node_text(b_g2d_node, BCS_LEFT_PAD, BCS_TOP_PAD,
                                G2D_WHITE, G2D_GREY_3, 2, "Brightness: %d", brightness);
 
+  // Colour
   y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
-  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN, y,
-                               g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
+  uint8_t c_g2d_node = g2d_node_create(container_g2d_node,
+                                       BCS_LEFT_MARGIN, y,
+                                       w, BCS_SLIDER_HEIGHT,
+                                       bcs_ev,BCS_C,0);
+  g2d_node_rectangle(c_g2d_node, 0,0,
+                               g2d_node_width(c_g2d_node), BCS_SLIDER_HEIGHT,
                                G2D_GREY_3);
-  g2d_node_text(container_g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
+  g2d_node_rectangle(c_g2d_node, 0,0,
+                               c_swipe_offset, BCS_SLIDER_HEIGHT,
+                               G2D_BLUE);
+  g2d_node_text(c_g2d_node, BCS_LEFT_PAD, BCS_TOP_PAD,
                                G2D_WHITE, G2D_GREY_3, 2, "Colour: %d", colour);
 
+  // Softness
   y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
-  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN, y,
-                               g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
+  uint8_t s_g2d_node = g2d_node_create(container_g2d_node,
+                                       BCS_LEFT_MARGIN, y,
+                                       w, BCS_SLIDER_HEIGHT,
+                                       bcs_ev,BCS_S,0);
+  g2d_node_rectangle(s_g2d_node, 0,0,
+                               g2d_node_width(s_g2d_node), BCS_SLIDER_HEIGHT,
                                G2D_GREY_3);
-  g2d_node_text(container_g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
+  g2d_node_rectangle(s_g2d_node, 0,0,
+                               s_swipe_offset, BCS_SLIDER_HEIGHT,
+                               G2D_BLUE);
+  g2d_node_text(s_g2d_node, BCS_LEFT_PAD, BCS_TOP_PAD,
                                G2D_WHITE, G2D_GREY_3, 2, "Softness: %d", softness);
 
   } // if(container_g2d_node)

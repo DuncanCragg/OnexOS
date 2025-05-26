@@ -13,6 +13,7 @@
 #include <onex-kernel/time.h>
 #include <onex-kernel/log.h>
 
+#include <onex-kernel/colours.h>
 #include <onex-kernel/touch.h>
 
 #include <onn.h>
@@ -320,6 +321,8 @@ static void draw_watch(char* path, uint8_t g2d_node);
 static void draw_notes(char* path, uint8_t g2d_node);
 static void draw_about(char* path, uint8_t g2d_node);
 static void draw_button(char* path, uint8_t g2d_node);
+static void draw_light(char* path, uint8_t g2d_node);
+static void draw_bcs(char* path, uint8_t g2d_node);
 static void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx);
 static void draw_raw(char* path, uint8_t g2d_node);
 
@@ -576,6 +579,10 @@ static void draw_by_type(char* path, uint8_t g2d_node) {
   if(object_pathpair_contains(user, path, "is", "about"))  draw_about(path, g2d_node);
   else
   if(object_pathpair_contains(user, path, "is", "button")) draw_button(path, g2d_node);
+  else
+  if(object_pathpair_contains(user, path, "is", "light"))  draw_light(path, g2d_node);
+  else
+  if(object_pathpair_contains(user, path, "is", "bcs"))    draw_bcs(path, g2d_node);
   else
                                                            draw_raw(path, g2d_node);
 }
@@ -1255,6 +1262,49 @@ static void draw_button(char* path, uint8_t g2d_node) {
     uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
     g2d_node_text(g2d_node, m,m, G2D_WHITE, G2D_CYAN/6, s,
                       "%s", object_pathpair_is(user, path, "state", "down")? "down": "up");
+    return;
+  }
+  draw_raw(path, g2d_node);
+}
+
+static void draw_light(char* path, uint8_t g2d_node) {
+
+  if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
+
+    char* colour = object_pathpair(user, path, "colour"); // REVISIT: same name as BCS
+    colours_rgb rgb = colours_parse_string(colour);
+    if(rgb.r + rgb.g + rgb.b < 20) rgb = (colours_rgb){128,128,128};
+
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_RGB256(rgb.r,rgb.g,rgb.b));
+    uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    g2d_node_text(g2d_node, m,m, G2D_BLACK, G2D_RGB256(rgb.r,rgb.g,rgb.b), s,
+                      "%s", object_pathpair_is(user, path, "light", "on")? "on": "off");
+    return;
+  }
+  draw_raw(path, g2d_node);
+}
+
+static void draw_bcs(char* path, uint8_t g2d_node) {
+
+  if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
+
+    uint8_t brightness = (uint8_t)object_pathpair_int32(user, path, "brightness");
+    uint8_t colour     = (uint8_t)object_pathpair_int32(user, path, "colour");
+    uint8_t softness   = (uint8_t)object_pathpair_int32(user, path, "softness");
+    colours_rgb rgb = colours_bcs_to_rgb((colours_bcs){ brightness, colour, softness });
+    if(rgb.r + rgb.g + rgb.b < 20) rgb = (colours_rgb){128,128,128};
+
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_RGB256(rgb.r,rgb.g,rgb.b));
+    uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    g2d_node_text(g2d_node, m,m, G2D_BLACK, G2D_RGB256(rgb.r,rgb.g,rgb.b), s, "|||");
     return;
   }
   draw_raw(path, g2d_node);

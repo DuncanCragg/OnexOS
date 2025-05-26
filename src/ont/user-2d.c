@@ -1359,6 +1359,12 @@ static void draw_bcs(char* path, uint8_t g2d_node) {
   clamp(&c_swipe_offset, 0, w, true);
   clamp(&s_swipe_offset, 0, w, false);
 
+  if(true){
+    b_swipe_offset = brightness * w / 256;
+    c_swipe_offset = colour     * w / 256;
+    s_swipe_offset = softness   * w / 256;
+  }
+
   uint8_t y=BCS_TOP_MARGIN;
 
   // Band showing the colour

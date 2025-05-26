@@ -95,12 +95,12 @@ bool evaluate_compass_in(object* compass, void* d){
   return true;
 }
 
-bool evaluate_ccb_in(object* ccb, void* d){
+bool evaluate_bcs_in(object* bcs, void* d){
 
   if(!do_rotary_encoder){
-    object_property_set(ccb, "colour",      "85"); // green
-    object_property_set(ccb, "contrast",   "255");
-    object_property_set(ccb, "brightness", "255");
+    object_property_set(bcs, "brightness", "255");
+    object_property_set(bcs, "colour",      "85"); // green
+    object_property_set(bcs, "softness",     "0");
     return true;
   }
 
@@ -113,13 +113,13 @@ bool evaluate_ccb_in(object* ccb, void* d){
   if(pot1<0) pot1=0;
   if(pot2<0) pot2=0;
 
-  uint8_t colour     = (uint8_t)(rot_pos * 4); // lo byte, 4 lsb per click
-  uint8_t contrast   = pot2/4;                 // 0..1023
   uint8_t brightness = pot1/4;                 // 0..1023
+  uint8_t colour     = (uint8_t)(rot_pos * 4); // lo byte, 4 lsb per click
+  uint8_t softness   = 255-pot2/4;             // 0..1023
 
-  object_property_set_fmt(ccb, "colour",     "%d", colour);
-  object_property_set_fmt(ccb, "contrast",   "%d", contrast);
-  object_property_set_fmt(ccb, "brightness", "%d", brightness);
+  object_property_set_fmt(bcs, "brightness", "%d", brightness);
+  object_property_set_fmt(bcs, "colour",     "%d", colour);
+  object_property_set_fmt(bcs, "softness",   "%d", softness);
 
   return true;
 }

@@ -57,20 +57,20 @@ bool evaluate_light_logic(object* o, void* d){
 
   object_property(o, "button:is"); // REVISIT: "observe the button"?
 
-  bool has_ccb_link     = object_property(o, "ccb:is");
+  bool has_bcs_link     = object_property(o, "bcs:is");
   bool has_compass_link = object_property(o, "compass:is");
   bool has_touch_link   = object_property(o, "touch:is");
 
-  if(has_ccb_link || has_compass_link || has_touch_link){
+  if(has_bcs_link || has_compass_link || has_touch_link){
 
-    uint8_t colour     = 0xff;
-    uint8_t contrast   = 0xff;
     uint8_t brightness = 0xff;
+    uint8_t colour     = 0xff;
+    uint8_t softness   = 0x00;
 
-    if(has_ccb_link){
-      colour     = (uint8_t)object_property_int32(o, "ccb:colour");
-      contrast   = (uint8_t)object_property_int32(o, "ccb:contrast");
-      brightness = (uint8_t)object_property_int32(o, "ccb:brightness");
+    if(has_bcs_link){
+      brightness = (uint8_t)object_property_int32(o, "bcs:brightness");
+      colour     = (uint8_t)object_property_int32(o, "bcs:colour");
+      softness   = (uint8_t)object_property_int32(o, "bcs:softness");
     }
     if(has_compass_link){
       int32_t direction = object_property_int32(o, "compass:direction");
@@ -81,9 +81,9 @@ bool evaluate_light_logic(object* o, void* d){
       int32_t touch_y = object_property_int32(o, "touch:coords:2");
       bool    touch_d = object_property_is(   o, "touch:action", "down");
       colour   = (255-touch_x) & 0xff;
-      contrast = (255-touch_y) & 0xff;
+      softness = (    touch_y) & 0xff;
     }
-    object_property_set_fmt(o, "colour", "%%%02x%02x%02x", colour, contrast, brightness);
+    object_property_set_fmt(o, "colour", "%%%02x%02x%02x", brightness, colour, softness);
   }
 
   if(object_property(o, "touch:is") ||

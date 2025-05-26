@@ -1312,31 +1312,45 @@ static void draw_bcs(char* path, uint8_t g2d_node) {
 #define BCS_TOP_PAD       15
 #define BCS_SLIDER_HEIGHT 38
 #define BCS_SPACER        10
+  int16_t offx = abs(view_offset_x) < SLIDE_DWELL? 0: view_offset_x;
+  int16_t offy = abs(view_offset_y) < SLIDE_DWELL? 0: view_offset_y;
+
+  uint8_t container_g2d_node = g2d_node_create(g2d_node, offx, offy,
+                                               g2d_node_width(g2d_node),
+                                               g2d_node_height(g2d_node),
+                                               view_ev,0,0);
+
+  if(container_g2d_node){
+
   uint8_t y;
   y=BCS_TOP_MARGIN;
-  g2d_node_rectangle(g2d_node, BCS_LEFT_MARGIN, y,
-                               g2d_node_width(g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT, c);
+  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN, y,
+                               g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT, c);
 
   y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
-  g2d_node_rectangle(g2d_node, BCS_LEFT_MARGIN, y,
-                               g2d_node_width(g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
+  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN, y,
+                               g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
                                G2D_GREY_3);
-  g2d_node_text(g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
+  g2d_node_text(container_g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
                                G2D_WHITE, G2D_GREY_3, 2, "Brightness: %d", brightness);
 
   y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
-  g2d_node_rectangle(g2d_node, BCS_LEFT_MARGIN, y,
-                               g2d_node_width(g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
+  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN, y,
+                               g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
                                G2D_GREY_3);
-  g2d_node_text(g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
+  g2d_node_text(container_g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
                                G2D_WHITE, G2D_GREY_3, 2, "Colour: %d", colour);
 
   y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
-  g2d_node_rectangle(g2d_node, BCS_LEFT_MARGIN, y,
-                               g2d_node_width(g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
+  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN, y,
+                               g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN, BCS_SLIDER_HEIGHT,
                                G2D_GREY_3);
-  g2d_node_text(g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
+  g2d_node_text(container_g2d_node, BCS_LEFT_MARGIN+BCS_LEFT_PAD, y+BCS_TOP_PAD,
                                G2D_WHITE, G2D_GREY_3, 2, "Softness: %d", softness);
+
+  } // if(container_g2d_node)
+
+  if(offx < 0) draw_raw_offset(path, g2d_node, offx);
 }
 
 static void raw_ev(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t l_index){

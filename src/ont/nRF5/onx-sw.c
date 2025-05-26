@@ -148,8 +148,6 @@ extern char __BUILD_TIMESTAMP;
 
 uint32_t loop_time=0;
 
-extern bool evaluate_user_2d(object* o, void* d); // need user-2d.h
-
 static char note_text[] = "the fat cat sat on me";
 
 static char note_text_big[] =
@@ -175,13 +173,11 @@ static char note_text_big[] =
   "----- ----- ----- ----- -----";
 
 bool evaluate_user(object* usr, void* d) {
-
   return evaluate_user_2d(usr, d);
 }
 
 bool evaluate_default(object* obj, void* d) {
   log_write("evaluate_default d=%p\n", d);
-//object_log(obj);
   return true;
 }
 
@@ -288,7 +284,7 @@ static void init_onex(properties* config){
 
   object_property_set(backlight, "light", "on");
   object_property_set(backlight, "level", "high");
-  object_property_set(backlight, "timeout", "60000");
+  object_property_set(backlight, "timeout", "45000");
   object_property_set(backlight, "touch", touchuid);
 #if defined(HAS_MOTION)
   object_property_set(backlight, "motion", motionuid);

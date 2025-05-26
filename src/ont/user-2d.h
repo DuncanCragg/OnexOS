@@ -19,5 +19,7 @@ extern volatile uint32_t     pending_user_event_time;
 
 extern bool display_on;
 
+extern bool evaluate_user_2d(object* o, void* d);
+
 
 #endif

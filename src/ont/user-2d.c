@@ -281,6 +281,15 @@ static int16_t view_offset_x=0;
 static int16_t view_offset_y=0;
 static uint8_t view_sliding_direction=VIEW_SLID_NOWHERE;
 
+#define BCS_B 1
+#define BCS_C 2
+#define BCS_S 3
+
+static int16_t  b_swipe_offset= -1;
+static int16_t  c_swipe_offset= -1;
+static int16_t  s_swipe_offset= -1;
+static uint16_t bcs_set_control=0;
+static uint16_t bcs_slider_width=0;
 static void reset_viewing_state_variables(){
 
   numlinktypes=0;
@@ -311,6 +320,7 @@ static void reset_viewing_state_variables(){
   kbd_y=KBDSTART_Y;
 
   text_scroll_offset=0;
+  bcs_slider_width = 0;
 }
 
 static uint8_t fps = 111;
@@ -437,7 +447,7 @@ static bool do_evaluate_user_2d(object* usr, uint8_t user_event){
     list_selected_index=0;
   }
 
-  bool reset_swipe=false;
+  bool reset_swipe=false; // REVISIT: this cuts into the if/else chain...?
 
   if(add_this_word && showing_title_editor){
     char* viewing_uid=object_property(user, "viewing");
@@ -1298,18 +1308,10 @@ static void clamp(int16_t* n, int16_t lo, int16_t hi, bool wrap){
   }
 }
 
-static int16_t b_swipe_offset=0;
-static int16_t c_swipe_offset=0;
-static int16_t s_swipe_offset=0;
-
-#define BCS_B 1
-#define BCS_C 2
-#define BCS_S 3
-
 static void bcs_ev(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
   if(down){
     if(dx){
-      swipe_control=control;
+      bcs_set_control=control;
       if(swipe_control == BCS_B) b_swipe_offset+=dx;
       if(swipe_control == BCS_C) c_swipe_offset+=dx;
       if(swipe_control == BCS_S) s_swipe_offset+=dx;
@@ -1353,35 +1355,29 @@ static void draw_bcs(char* path, uint8_t g2d_node) {
                                                view_ev,0,0);
   if(container_g2d_node){
 
-  uint16_t w=g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN;
+  bcs_slider_width=g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN;
 
   clamp(&b_swipe_offset, 0, w, false);
   clamp(&c_swipe_offset, 0, w, true);
   clamp(&s_swipe_offset, 0, w, false);
 
-  if(true){
-    b_swipe_offset = brightness * w / 256;
-    c_swipe_offset = colour     * w / 256;
-    s_swipe_offset = softness   * w / 256;
-  }
+  int16_t b_so = brightness * bcs_slider_width / 255;
+  int16_t c_so = colour     * bcs_slider_width / 255;
+  int16_t s_so = softness   * bcs_slider_width / 255;
 
   uint8_t y=BCS_TOP_MARGIN;
 
   // Band showing the colour
-  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN,y, w,BCS_SLIDER_HEIGHT, c);
+  g2d_node_rectangle(container_g2d_node, BCS_LEFT_MARGIN,y, bcs_slider_width,BCS_SLIDER_HEIGHT, c);
 
   // Brightness
   y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
   uint8_t b_g2d_node = g2d_node_create(container_g2d_node,
                                        BCS_LEFT_MARGIN, y,
-                                       w, BCS_SLIDER_HEIGHT,
+                                       bcs_slider_width, BCS_SLIDER_HEIGHT,
                                        bcs_ev,BCS_B,0);
-  g2d_node_rectangle(b_g2d_node, 0,0,
-                               g2d_node_width(b_g2d_node), BCS_SLIDER_HEIGHT,
-                               G2D_GREY_3);
-  g2d_node_rectangle(b_g2d_node, 0,0,
-                               b_swipe_offset, BCS_SLIDER_HEIGHT,
-                               G2D_BLUE);
+  g2d_node_rectangle(b_g2d_node, 0,0, g2d_node_width(b_g2d_node), BCS_SLIDER_HEIGHT, G2D_GREY_3);
+  g2d_node_rectangle(b_g2d_node, 0,0, b_so, BCS_SLIDER_HEIGHT, G2D_BLUE);
   g2d_node_text(b_g2d_node, BCS_LEFT_PAD, BCS_TOP_PAD,
                                G2D_WHITE, G2D_GREY_3, 0x0, 2, "Brightness: %d", brightness);
 
@@ -1389,14 +1385,10 @@ static void draw_bcs(char* path, uint8_t g2d_node) {
   y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
   uint8_t c_g2d_node = g2d_node_create(container_g2d_node,
                                        BCS_LEFT_MARGIN, y,
-                                       w, BCS_SLIDER_HEIGHT,
+                                       bcs_slider_width, BCS_SLIDER_HEIGHT,
                                        bcs_ev,BCS_C,0);
-  g2d_node_rectangle(c_g2d_node, 0,0,
-                               g2d_node_width(c_g2d_node), BCS_SLIDER_HEIGHT,
-                               G2D_GREY_3);
-  g2d_node_rectangle(c_g2d_node, 0,0,
-                               c_swipe_offset, BCS_SLIDER_HEIGHT,
-                               G2D_BLUE);
+  g2d_node_rectangle(c_g2d_node, 0,0, g2d_node_width(c_g2d_node), BCS_SLIDER_HEIGHT, G2D_GREY_3);
+  g2d_node_rectangle(c_g2d_node, 0,0, c_so, BCS_SLIDER_HEIGHT, G2D_BLUE);
   g2d_node_text(c_g2d_node, BCS_LEFT_PAD, BCS_TOP_PAD,
                                G2D_WHITE, G2D_GREY_3, 0x0, 2, "Colour: %d", colour);
 
@@ -1404,14 +1396,10 @@ static void draw_bcs(char* path, uint8_t g2d_node) {
   y+=BCS_SLIDER_HEIGHT+BCS_SPACER;
   uint8_t s_g2d_node = g2d_node_create(container_g2d_node,
                                        BCS_LEFT_MARGIN, y,
-                                       w, BCS_SLIDER_HEIGHT,
+                                       bcs_slider_width, BCS_SLIDER_HEIGHT,
                                        bcs_ev,BCS_S,0);
-  g2d_node_rectangle(s_g2d_node, 0,0,
-                               g2d_node_width(s_g2d_node), BCS_SLIDER_HEIGHT,
-                               G2D_GREY_3);
-  g2d_node_rectangle(s_g2d_node, 0,0,
-                               s_swipe_offset, BCS_SLIDER_HEIGHT,
-                               G2D_BLUE);
+  g2d_node_rectangle(s_g2d_node, 0,0, g2d_node_width(s_g2d_node), BCS_SLIDER_HEIGHT, G2D_GREY_3);
+  g2d_node_rectangle(s_g2d_node, 0,0, s_so, BCS_SLIDER_HEIGHT, G2D_BLUE);
   g2d_node_text(s_g2d_node, BCS_LEFT_PAD, BCS_TOP_PAD,
                                G2D_WHITE, G2D_GREY_3, 0x0, 2, "Softness: %d", softness);
 

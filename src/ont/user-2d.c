@@ -1303,7 +1303,7 @@ static void draw_light(char* path, uint8_t g2d_node) {
 
   if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
 
-    char* colour = object_pathpair(user, path, "colour"); // REVISIT: same name as BCS
+    char* colour = object_pathpair(user, path, "colour");
     colours_rgb rgb = colours_parse_string(colour);
     if(rgb.r + rgb.g + rgb.b < 20) rgb = (colours_rgb){128,128,128};
 

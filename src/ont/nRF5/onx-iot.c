@@ -140,13 +140,13 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 #endif
   onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
 
-  button =object_new(0, "evaluate_button", "editable button", 4);
+  button =object_new(0, "evaluate_button",  "editable button", 4);
 #if defined(BOARD_FEATHER_SENSE)
   battery=object_new(0, "evaluate_battery", "battery", 4);
-  bcs    =object_new(0, "evaluate_bcs",     "bcs", 4);
+  bcs    =object_new(0, "evaluate_bcs",     "bcs", 5);
   compass=object_new(0, "evaluate_compass", "compass", 4);
 #endif
-  light  =object_new(0, "evaluate_light",  "editable light", 8);
+  light  =object_new(0, "evaluate_light",   "editable light", 8);
 #if defined(BOARD_FEATHER_SENSE)
   ledmx  =object_new(0, "evaluate_ledmx",   "editable light", 8);
 #endif
@@ -168,7 +168,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_set(light, "light", "off");
 #if defined(BOARD_FEATHER_SENSE)
   object_property_set(ledmx, "light", "on");
-  object_property_set(ledmx, "colour", "%0300ff"); // REVISIT: same name as BCS
+  object_property_set(ledmx, "colour", "%0300ff");
 //object_property_set(ledmx, "device", deviceuid);
 #endif
 
@@ -239,7 +239,7 @@ bool evaluate_light_out(object* light, void* d) {
 #if defined(BOARD_FEATHER_SENSE)
 bool evaluate_ledmx_out(object* ledmx, void* d) {
   if(object_property_is(ledmx, "light", "on")){
-    char* col = object_property(ledmx, "colour"); // REVISIT: same name as BCS
+    char* col = object_property(ledmx, "colour");
     led_matrix_fill_col(col);
     led_strip_fill_col(col);
     led_matrix_show();

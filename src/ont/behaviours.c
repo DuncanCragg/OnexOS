@@ -57,7 +57,7 @@ bool evaluate_light_logic(object* o, void* d){
 
   object_property(o, "button:is"); // REVISIT: "observe the button"?
 
-  bool has_bcs_link     = object_property(o, "bcs:is");
+  bool has_bcs_link     = object_property_contains(o, "bcs:is", "bcs");
   bool has_compass_link = object_property(o, "compass:is");
   bool has_touch_link   = object_property(o, "touch:is");
 

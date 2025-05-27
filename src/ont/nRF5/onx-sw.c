@@ -210,6 +210,7 @@ static void init_onex(properties* config){
 #endif
   object* button;
   object* backlight;
+  object* bcs;
   object* oclock;
   object* watchface;
   object* home;
@@ -228,6 +229,7 @@ static void init_onex(properties* config){
   char* motionuid;
 #endif
   char* backlightuid;
+  char* bcsuid;
   char* watchfaceuid;
   char* watchuid;
   char* note1uid;
@@ -243,6 +245,7 @@ static void init_onex(properties* config){
 #endif
   button    =object_new(0, "button",    "button", 4);
   backlight =object_new(0, "backlight", "light editable", 12);
+  bcs       =object_new(0, "editable",  "bcs editable", 5);
   oclock    =object_new(0, "clock",     "clock event", 12);
   watchface =object_new(0, "editable",  "watchface editable", 9);
   home      =object_new(0, "editable",  "list editable", 4);
@@ -264,6 +267,7 @@ static void init_onex(properties* config){
 #endif
   buttonuid    =object_property(button, "UID");
   backlightuid =object_property(backlight, "UID");
+  bcsuid       =object_property(bcs, "UID");
   clockuid     =object_property(oclock, "UID");
   watchfaceuid =object_property(watchface, "UID");
   homeuid      =object_property(home, "UID");
@@ -286,6 +290,10 @@ static void init_onex(properties* config){
   object_property_set(backlight, "motion", motionuid);
 #endif
   object_property_set(backlight, "button", buttonuid);
+
+  object_property_set(bcs, "brightness", "128");
+  object_property_set(bcs, "colour",     "128");
+  object_property_set(bcs, "softness",   "128");
 
   object_set_persist(oclock, "none");
   object_property_set(oclock, "title", "OnexOS Clock");
@@ -313,6 +321,7 @@ static void init_onex(properties* config){
   object_property_add(notes, "list", note2uid);
 
   object_property_set(home, "title", "Home");
+  object_property_add(home, "list", bcsuid);
   object_property_add(home, "list", allobjectsuid);
   object_property_add(home, "list", notesuid);
 

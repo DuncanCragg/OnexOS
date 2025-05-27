@@ -169,7 +169,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 #if defined(BOARD_FEATHER_SENSE)
   object_property_set(ledmx, "light", "on");
   object_property_set(ledmx, "colour", "%0300ff");
-//object_property_set(ledmx, "device", deviceuid);
+  object_property_set(ledmx, "bcs", bcsuid);
 #endif
 
   object_set_evaluator(onex_device_object, "evaluate_device");

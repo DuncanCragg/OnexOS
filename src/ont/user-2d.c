@@ -320,6 +320,10 @@ static void reset_viewing_state_variables(){
   kbd_y=KBDSTART_Y;
 
   text_scroll_offset=0;
+
+  b_swipe_offset = -1;
+  c_swipe_offset = -1;
+  s_swipe_offset = -1;
   bcs_slider_width = 0;
 }
 
@@ -1311,10 +1315,18 @@ static void clamp(int16_t* n, int16_t lo, int16_t hi, bool wrap){
 static void bcs_ev(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t index){
   if(down){
     if(dx){
-      bcs_set_control=control;
-      if(swipe_control == BCS_B) b_swipe_offset+=dx;
-      if(swipe_control == BCS_C) c_swipe_offset+=dx;
-      if(swipe_control == BCS_S) s_swipe_offset+=dx;
+      if(control == BCS_B && b_swipe_offset != -1){
+        b_swipe_offset+=dx; clamp(&b_swipe_offset, 0, bcs_slider_width, false);
+        bcs_set_control=BCS_B;
+      }
+      if(control == BCS_C && c_swipe_offset != -1){
+        c_swipe_offset+=dx; clamp(&c_swipe_offset, 0, bcs_slider_width, true);
+        bcs_set_control=BCS_C;
+      }
+      if(control == BCS_S && s_swipe_offset != -1){
+        s_swipe_offset+=dx; clamp(&s_swipe_offset, 0, bcs_slider_width, false);
+        bcs_set_control=BCS_S;
+      }
     }
     return;
   }
@@ -1357,13 +1369,15 @@ static void draw_bcs(char* path, uint8_t g2d_node) {
 
   bcs_slider_width=g2d_node_width(container_g2d_node)-2*BCS_LEFT_MARGIN;
 
-  clamp(&b_swipe_offset, 0, w, false);
-  clamp(&c_swipe_offset, 0, w, true);
-  clamp(&s_swipe_offset, 0, w, false);
-
   int16_t b_so = brightness * bcs_slider_width / 255;
   int16_t c_so = colour     * bcs_slider_width / 255;
   int16_t s_so = softness   * bcs_slider_width / 255;
+
+  if(object_pathpair_contains(user, path, "is", "editable")){
+    if(b_swipe_offset == -1) b_swipe_offset = b_so;
+    if(c_swipe_offset == -1) c_swipe_offset = c_so;
+    if(s_swipe_offset == -1) s_swipe_offset = s_so;
+  }
 
   uint8_t y=BCS_TOP_MARGIN;
 

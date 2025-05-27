@@ -178,7 +178,7 @@ void show_keyboard(uint8_t g2d_node){
                          KEY_H_SPACE/2,KEY_V_SPACE/2,
                          KEY_SIZE,KEY_SIZE, key_bg);
 
-      g2d_node_text(key_g2d_node, 13,7, G2D_BLACK, key_bg, 0xff, 4, "%c", key); // REVISIT: transparency!
+      g2d_node_text(key_g2d_node, 13,7, G2D_BLACK, 4, "%c", key);
 
       kx+=KEY_SIZE+KEY_H_SPACE;
     }

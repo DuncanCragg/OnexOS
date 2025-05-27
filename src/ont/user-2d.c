@@ -290,6 +290,10 @@ static int16_t  c_swipe_offset= -1;
 static int16_t  s_swipe_offset= -1;
 static uint16_t bcs_set_control=0;
 static uint16_t bcs_slider_width=0;
+static uint8_t  bcs_set_brightness=0;
+static uint8_t  bcs_set_colour=0;
+static uint8_t  bcs_set_softness=0;
+
 static void reset_viewing_state_variables(){
 
   numlinktypes=0;
@@ -541,6 +545,20 @@ static bool do_evaluate_user_2d(object* usr, uint8_t user_event){
     }
     inv_drop_index=0;
     reset_swipe=true;
+  }
+  else
+  if(bcs_set_control){
+    char* viewing_uid=object_property(user, "viewing");
+    if(bcs_set_control == BCS_B){
+      set_edit_object(viewing_uid, "brightness", 0, "=> %d", bcs_set_brightness);
+    }
+    if(bcs_set_control == BCS_C){
+      set_edit_object(viewing_uid, "colour", 0, "=> %d", bcs_set_colour);
+    }
+    if(bcs_set_control == BCS_S){
+      set_edit_object(viewing_uid, "softness", 0, "=> %d", bcs_set_softness);
+    }
+    bcs_set_control=0;
   }
 
   // -------------------------------------------------
@@ -1318,14 +1336,17 @@ static void bcs_ev(bool down, int16_t dx, int16_t dy, uint16_t control, uint16_t
       if(control == BCS_B && b_swipe_offset != -1){
         b_swipe_offset+=dx; clamp(&b_swipe_offset, 0, bcs_slider_width, false);
         bcs_set_control=BCS_B;
+        bcs_set_brightness = (uint8_t)(b_swipe_offset * 255 / bcs_slider_width);
       }
       if(control == BCS_C && c_swipe_offset != -1){
         c_swipe_offset+=dx; clamp(&c_swipe_offset, 0, bcs_slider_width, true);
         bcs_set_control=BCS_C;
+        bcs_set_colour = (uint8_t)(c_swipe_offset * 255 / bcs_slider_width);
       }
       if(control == BCS_S && s_swipe_offset != -1){
         s_swipe_offset+=dx; clamp(&s_swipe_offset, 0, bcs_slider_width, false);
         bcs_set_control=BCS_S;
+        bcs_set_softness = (uint8_t)(s_swipe_offset * 255 / bcs_slider_width);
       }
     }
     return;

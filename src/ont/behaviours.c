@@ -57,7 +57,7 @@ bool evaluate_light_logic(object* o, void* d){
 
   object_property(o, "button:is"); // REVISIT: "observe the button"?
 
-  bool has_bcs_link     = object_property(o, "bcs:is");
+  bool has_bcs_link     = object_property(o, "bcs:1:is");
   bool has_compass_link = object_property(o, "compass:is");
   bool has_touch_link   = object_property(o, "touch:is");
 
@@ -68,9 +68,9 @@ bool evaluate_light_logic(object* o, void* d){
     uint8_t softness   = 0x00;
 
     if(has_bcs_link){
-      brightness = (uint8_t)object_property_int32(o, "bcs:brightness");
-      colour     = (uint8_t)object_property_int32(o, "bcs:colour");
-      softness   = (uint8_t)object_property_int32(o, "bcs:softness");
+      brightness = (uint8_t)object_property_int32(o, "bcs:1:brightness");
+      colour     = (uint8_t)object_property_int32(o, "bcs:1:colour");
+      softness   = (uint8_t)object_property_int32(o, "bcs:1:softness");
     }
     if(has_compass_link){
       int32_t direction = object_property_int32(o, "compass:direction");

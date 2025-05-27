@@ -112,7 +112,7 @@ void g2d_node_rectangle(uint8_t node_id,
 // ------------- text
 
 void g2d_node_text(uint8_t node_id, int16_t x, int16_t y,
-                   uint16_t colour, uint16_t bg, uint8_t size, char* fmt, ...){
+                   uint16_t colour, uint16_t bg, uint8_t al, uint8_t size, char* fmt, ...){
 
   char text[128]; // XXX
   va_list args;
@@ -130,7 +130,7 @@ void g2d_node_text(uint8_t node_id, int16_t x, int16_t y,
   uint16_t cxbr=scenegraph[node_id].clip_xbr;
   uint16_t cybr=scenegraph[node_id].clip_ybr;
 
-  g2d_internal_text(ox, oy, cxtl, cytl, cxbr, cybr, text, colour, bg, size);
+  g2d_internal_text(ox, oy, cxtl, cytl, cxbr, cybr, text, colour, bg, al, size);
 }
 
 // ---------------------------------------------------

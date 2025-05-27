@@ -61,7 +61,8 @@ void g2d_internal_rectangle(uint16_t cxtl, uint16_t cytl,
 void g2d_internal_text(int16_t ox, int16_t oy,
                        uint16_t cxtl, uint16_t cytl,
                        uint16_t cxbr, uint16_t cybr,
-                       char* text, uint16_t colour, uint16_t bg,
+                       char* text,
+                       uint16_t colour, uint16_t bg, uint8_t al,
                        uint8_t size){
 
   for(uint16_t p = 0; p < strlen(text); p++){
@@ -84,8 +85,13 @@ void g2d_internal_text(int16_t ox, int16_t oy,
         int16_t ry=oy + j * size;
         if(ry<cytl || ry>=cybr) continue;
 
-        uint16_t col=(line & 1)? colour: bg;
-
+        uint16_t col;
+        if((line & 1)){
+          col=colour;
+        } else {
+          if(al==0) continue;
+          col=bg;
+        }
         uint16_t yh=ry+size;
         uint16_t xw=rx+size;
         if(yh > cybr) yh=cybr;

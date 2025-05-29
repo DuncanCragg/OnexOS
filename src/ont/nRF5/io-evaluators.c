@@ -60,13 +60,21 @@ void evaluators_init(){
 #endif
 }
 
+#define ADC_TOP_V        3600 // 6 * 0.6V
+#define ADC_BITS_RANGE   1024 // 10-bit
+#if defined(BOARD_FEATHER_SENSE)
+#define ADC_RESISTOR_DIV    2
+#elif defined(BOARD_MAGIC3)
+#define ADC_RESISTOR_DIV    7 / 4
+#endif
+
 #define BATTERY_ZERO_PERCENT 3400
 #define BATTERY_100_PERCENT 4100
 #define BATTERY_PERCENT_STEPS 2
 bool evaluate_battery_in(object* bat, void* d) {
 
   int32_t bv = gpio_read(BATT_ADC_CHANNEL);
-  int32_t mv = bv*2000/(1024/(33/10));
+  int16_t mv = bv * ADC_TOP_V / ADC_BITS_RANGE * ADC_RESISTOR_DIV;
   int16_t pc = ((mv-BATTERY_ZERO_PERCENT)
                  *100
                  / ((BATTERY_100_PERCENT-BATTERY_ZERO_PERCENT)*BATTERY_PERCENT_STEPS)

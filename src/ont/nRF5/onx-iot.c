@@ -192,7 +192,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
       feeding_time=ct+1000;
     }
 
-    led_matrix_set_scale(gpio_usb_powered()? 4: 9);
+    led_matrix_set_scale(gpio_usb_powered()? 2: 5);
   }
 }
 

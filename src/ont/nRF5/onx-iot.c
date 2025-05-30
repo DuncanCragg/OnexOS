@@ -107,19 +107,6 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   set_up_gpio();
 
-  if(debug_on_serial){
-    if(serial_ready_state() == SERIAL_POWERED_NOT_READY){
-#if defined(BOARD_FEATHER_SENSE)
-      led_strip_fill_col("#700");
-      led_matrix_fill_col("#700");
-      led_matrix_show(); led_strip_show();
-#endif
-      log_flash(1,0,0);
-      time_delay_ms(500);
-      boot_reset(false);
-    }
-  }
-
   // ------------------------------
 
   log_write("Starting Onex.....\n");
@@ -204,6 +191,8 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
       boot_feed_watchdog();
       feeding_time=ct+1000;
     }
+
+    led_matrix_set_scale(gpio_usb_powered()? 4: 9);
   }
 }
 

@@ -104,15 +104,6 @@ int main() {
   gpio_init();
   set_up_gpio();
 
-#if defined(BOARD_FEATHER_SENSE)
-  uint8_t usb_status = serial_ready_state();
-  if(usb_status == SERIAL_POWERED_NOT_READY){
-    log_flash(1,0,0);
-    time_delay_ms(400);
-    boot_reset(false);
-  }
-#endif
-
   while(1){
     if(char_recvd){
       log_write(">%c<----------\n", char_recvd);

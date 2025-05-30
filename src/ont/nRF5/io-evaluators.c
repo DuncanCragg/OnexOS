@@ -87,6 +87,9 @@ bool evaluate_battery_in(object* bat, void* d) {
 #if defined(BOARD_MAGIC3)
   uint8_t batt=gpio_get(CHARGE_SENSE);
   object_property_set(bat, "status", batt? "powering": "charging");
+#elif defined(BOARD_FEATHER_SENSE)
+  bool usb_powered=gpio_usb_powered();
+  object_property_set(bat, "status", usb_powered? "charging": "powering");
 #endif
 
   return true;
@@ -102,7 +105,7 @@ bool evaluate_compass_in(object* compass, void* d){
 bool evaluate_bcs_in(object* bcs, void* d){
 
   if(!do_rotary_encoder){
-    object_property_set(bcs, "brightness", "255");
+    object_property_set(bcs, "brightness", " 63");
     object_property_set(bcs, "colour",      "85"); // green
     object_property_set(bcs, "softness",     "0");
     return true;

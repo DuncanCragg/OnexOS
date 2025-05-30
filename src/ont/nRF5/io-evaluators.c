@@ -114,15 +114,15 @@ bool evaluate_bcs_in(object* bcs, void* d){
   int32_t rot_pos      = seesaw_encoder_position(ROTARY_ENC_ADDRESS);
   bool    rot_pressed = !seesaw_gpio_read(ROTARY_ENC_ADDRESS, ROTARY_ENC_BUTTON);
 
-  int16_t pot1 = gpio_read(POT1_ADC_CHANNEL);
-  int16_t pot2 = gpio_read(POT2_ADC_CHANNEL);
+  int32_t pot1 = gpio_read(POT1_ADC_CHANNEL);
+  int32_t pot2 = gpio_read(POT2_ADC_CHANNEL);
 
   if(pot1<0) pot1=0;
   if(pot2<0) pot2=0;
 
-  uint8_t brightness = pot1/4;                 // 0..1023
+  uint8_t brightness = pot1*255/940;           // 3.3/3.6V * 1023
   uint8_t colour     = (uint8_t)(rot_pos * 4); // lo byte, 4 lsb per click
-  uint8_t softness   = pot2/4;                 // 0..1023
+  uint8_t softness   = pot2*255/940;           // 3.3/3.6V * 1023
 
   object_property_set_fmt(bcs, "brightness", "%d", brightness);
   object_property_set_fmt(bcs, "colour",     "%d", colour);

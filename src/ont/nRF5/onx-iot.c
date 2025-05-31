@@ -174,7 +174,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   onex_run_evaluators(lightuid, 0);
 #if defined(BOARD_FEATHER_SENSE)
-  time_ticker(poll_input_evaluators, 0, 300);
+  time_ticker(poll_input_evaluators, 0, 50);
   onex_run_evaluators(ledmxuid, 0);
 #endif
 

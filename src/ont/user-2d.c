@@ -386,9 +386,13 @@ bool evaluate_user_2d(object* usr, void* user_event_) {
   }
   time_of_last_user_eval=current_time;
 
+#if defined(BOARD_MAGIC3)
   touch_disable();
+#endif
   bool go_on = do_evaluate_user_2d(usr, user_event);
+#if defined(BOARD_MAGIC3)
   touch_enable();
+#endif
 
 #ifdef LOG_USER_WORK
   log_write("%ld %ld\n", current_time, (uint32_t)time_ms()-current_time);

@@ -22,8 +22,10 @@ char* inventoryuid;
 volatile bool         touch_down=false;
 volatile touch_info_t touch_info={ 120, 140 };
 
-bool          button_pending=false;
-volatile bool button_pressed=false;
+volatile bool         button_pressed=false;
+
+volatile uint8_t      pending_user_event;
+volatile uint32_t     pending_user_event_time;
 
 bool display_on=true;
 

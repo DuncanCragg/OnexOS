@@ -410,6 +410,12 @@ device-halt:
 device-reset:
 	openocd -f ../OnexKernel/doc/openocd-stlink.cfg -c init -c "reset halt" -c "reset run" -c exit
 
+device-debug:
+	openocd -f ../OnexKernel/doc/openocd-stlink.cfg
+
+device-gdb:
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gdb -x ./gdb-commands.txt
+
 #-------------------------------------------------------------------------------
 
 DEBUG_FLAGS = -g -O0

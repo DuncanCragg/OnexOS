@@ -353,7 +353,7 @@ static bool do_evaluate_user_2d(object* usr, uint8_t user_event);
 
 bool evaluate_user_2d(object* usr, void* user_event_) {
 
-  uint8_t user_event = (uint8_t)(uint32_t)user_event_;
+  uint8_t user_event = (uint8_t)user_event_;
 
   if(!display_on) return true;
 

@@ -440,6 +440,7 @@ COMPILER_FLAGS += -ffunction-sections -fdata-sections
 COMPILER_FLAGS += -fno-strict-aliasing -fno-builtin -fshort-enums
 COMPILER_FLAGS += -fno-omit-frame-pointer
 COMPILER_FLAGS += -Wall -Werror
+COMPILER_FLAGS += -Wno-pointer-to-int-cast
 COMPILER_FLAGS += -Wno-unused-function
 COMPILER_FLAGS += -Wno-unused-variable
 COMPILER_FLAGS += -Wno-unused-parameter

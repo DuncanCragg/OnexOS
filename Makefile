@@ -179,7 +179,11 @@ x86.light-serial: light.x86
 DOBUG_FLAGS= -g     -O2
 DEBUG_FLAGS= -ggdb3 -O0
 
-CCFLAGS  = $(DEBUG_FLAGS) -std=gnu17 -pthread -Wall -Werror -Wextra -Wno-discarded-qualifiers -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-switch
+CCFLAGS  = $(DEBUG_FLAGS) -std=gnu17 -pthread -fno-strict-aliasing -fno-builtin-memcmp -Wimplicit-fallthrough=0 -fvisibility=hidden
+CCFLAGS += -Wall -Werror -Wextra
+CCFLAGS += -Wno-discarded-qualifiers -Wno-unused-parameter -Wno-missing-field-initializers
+CCFLAGS += -Wno-unused-function -Wno-incompatible-pointer-types -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-switch
+CCFLAGS += -Wno-pointer-to-int-cast
 
 # CCFLAGS = -std=gnu99 -Wno-pointer-sign -Wno-format -Wno-sign-compare -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-write-strings -Wno-old-style-declaration -Wno-strict-aliasing -fno-common -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer
 

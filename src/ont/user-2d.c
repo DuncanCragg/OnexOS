@@ -161,7 +161,7 @@ static void sprintf_propname_from_inv_is(char* propname, uint16_t len){
 static char*    log_lines[LOG_LINES_MAX];
 static uint8_t  log_lines_index=0;
 
-static void scroll_up_one(){
+static void delete_oldest_log_line(){
   if(log_lines_index==0) return;
   free(log_lines[0]);
   for(uint8_t i=0; i<LOG_LINES_MAX-1; i++){
@@ -181,7 +181,7 @@ static void show_gfx_log(uint8_t root_g2d_node){
      do{
        uint8_t nextlinelen=min(remaininglen, LOG_WIDTH);
        log_lines[log_lines_index++]=strndup(nextline, nextlinelen);
-       if(log_lines_index==LOG_LINES_MAX) scroll_up_one();
+       if(log_lines_index==LOG_LINES_MAX) delete_oldest_log_line();
        nextline    +=nextlinelen;
        remaininglen-=nextlinelen;
      } while(remaininglen);
@@ -192,17 +192,23 @@ static void show_gfx_log(uint8_t root_g2d_node){
   else{
     static uint32_t lt=0;
     uint32_t ct=time_ms();
-    if(ct>lt+1000){
+    if(ct>lt+2000){
       lt=ct;
-      scroll_up_one();
+      delete_oldest_log_line();
     }
   }
-  for(uint8_t i=0; i<log_lines_index; i++){
 #if !defined(BIG_LOG)
-    g2d_node_text(root_g2d_node, 20,20+i*8, G2D_RED, 1, "%s", log_lines[i]);
+#define LOG_MARGIN 20
+#define LOG_LINE_HEIGHT 8
+#define LOG_FONT_SIZE 1
 #else
-    g2d_node_text(root_g2d_node, 10,10+i*15, G2D_RED, 2, "%s", log_lines[i]);
+#define LOG_MARGIN 10
+#define LOG_LINE_HEIGHT 15
+#define LOG_FONT_SIZE 2
 #endif
+  uint8_t y_off = LOG_MARGIN + (LOG_LINES_MAX - log_lines_index) * LOG_LINE_HEIGHT;
+  for(uint8_t i=0; i<log_lines_index; i++){
+    g2d_node_text(root_g2d_node, LOG_MARGIN, y_off + i * LOG_LINE_HEIGHT, G2D_RED, LOG_FONT_SIZE, "%s", log_lines[i]);
   }
 }
 #endif

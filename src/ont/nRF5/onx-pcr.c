@@ -13,7 +13,7 @@ int main() {
   properties_set(config, "channels", list_new_from_fixed("radio serial"));
 #define TEST_MODE
 #ifdef  TEST_MODE
-  properties_set(config, "flags", list_new_from_fixed("debug-on-serial log-to-led log-onp"));
+  properties_set(config, "flags", list_new_from_fixed("debug-on-serial log-onp log-to-led"));// debug-on-serial log-onp
   properties_set(config, "test-uid-prefix", value_new("pcr"));
 #endif
 

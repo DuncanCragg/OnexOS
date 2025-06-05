@@ -73,7 +73,12 @@ void evaluators_init(){
 #define BATTERY_PERCENT_STEPS 2
 bool evaluate_battery_in(object* bat, void* d) {
 
+  #define BV_SMOOTHING 8
+  static int32_t bvprev = 0;
   int32_t bv = gpio_read(BATT_ADC_CHANNEL);
+  bv = (bv * (10 - BV_SMOOTHING) + bvprev * BV_SMOOTHING) / 10;
+  bvprev = bv;
+
   int16_t mv = bv * ADC_TOP_V / ADC_BITS_RANGE * ADC_RESISTOR_DIV;
   int16_t pc = ((mv-BATTERY_ZERO_PERCENT)
                  *100
@@ -114,11 +119,17 @@ bool evaluate_bcs_in(object* bcs, void* d){
   int32_t rot_pos      = seesaw_encoder_position(ROTARY_ENC_ADDRESS);
   bool    rot_pressed = !seesaw_gpio_read(ROTARY_ENC_ADDRESS, ROTARY_ENC_BUTTON);
 
+  #define POT_SMOOTHING 8
+  static int32_t pot1prev = 0;
+  static int32_t pot2prev = 0;
   int32_t pot1 = gpio_read(POT1_ADC_CHANNEL);
   int32_t pot2 = gpio_read(POT2_ADC_CHANNEL);
-
   if(pot1<0) pot1=0;
   if(pot2<0) pot2=0;
+  pot1 = (pot1 * (10 - POT_SMOOTHING) + pot1prev * POT_SMOOTHING) / 10;
+  pot2 = (pot2 * (10 - POT_SMOOTHING) + pot2prev * POT_SMOOTHING) / 10;
+  pot1prev = pot1;
+  pot2prev = pot2;
 
   uint8_t brightness = pot1*255/940;           // 3.3/3.6V * 1023
   uint8_t colour     = (uint8_t)(rot_pos * 4); // lo byte, 4 lsb per click

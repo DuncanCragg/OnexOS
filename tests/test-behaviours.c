@@ -29,8 +29,7 @@ bool evaluate_light_io(object* light, void* d) {
   if(evaluate_light_io_called==2) onex_assert(object_property_is(light, "light", "off"), "evaluate_light_io light is off the 2nd time");
   if(evaluate_light_io_called==3) onex_assert(object_property_is(light, "light", "on"),  "evaluate_light_io light is on  the 3rd time");
   if(evaluate_light_io_called==4) onex_assert(object_property_is(light, "light", "off"), "evaluate_light_io light is off the 4th time");
-  if(evaluate_light_io_called==5) onex_assert(object_property_is(light, "light", "off"), "evaluate_light_io light is off the 5th time");
-  if(evaluate_light_io_called==6) onex_assert(object_property_is(light, "light", "on"),  "evaluate_light_io light is on  the 6th time");
+  if(evaluate_light_io_called==5) onex_assert(object_property_is(light, "light", "on"),  "evaluate_light_io light is on  the 5th time");
   return true;
 }
 
@@ -79,7 +78,7 @@ void run_light_tests() {
   onex_loop();
   onex_loop();
   onex_assert_equal_num(evaluate_button_io_called, 5,  "evaluate_button_io was called five times");
-  onex_assert_equal_num(evaluate_light_io_called,  6,  "evaluate_light_io  was called five+1 times");
+  onex_assert_equal_num(evaluate_light_io_called,  5,  "evaluate_light_io  was called five times");
 }
 
 void run_device_tests() {

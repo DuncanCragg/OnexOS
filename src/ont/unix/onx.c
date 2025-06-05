@@ -59,8 +59,8 @@ void init_onex() {
 
   properties* config = properties_new(32);
   properties_set(config, "dbpath", value_new("./onex.ondb"));
-  properties_set(config, "channels", list_new_from_fixed("ipv6"));
-  properties_set(config, "ipv6_groups", list_new_from_fixed("ff12::1234"));
+  properties_set(config, "channels", list_vals_new_from_fixed("ipv6"));
+  properties_set(config, "ipv6_groups", list_vals_new_from_fixed("ff12::1234"));
   onex_init(config);
 
   object* home;

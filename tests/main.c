@@ -80,9 +80,9 @@ int main() {
   properties* config = properties_new(32);
 #if defined(NRF5)
 #if !defined(BOARD_MAGIC3)
-  properties_set(config, "flags", list_new_from_fixed("debug-on-serial log-to-led"));
+  properties_set(config, "flags", list_vals_new_from_fixed("debug-on-serial log-to-led"));
 #else
-  properties_set(config, "flags", list_new_from_fixed("log-to-gfx"));
+  properties_set(config, "flags", list_vals_new_from_fixed("log-to-gfx"));
 #endif
 #else
   properties_set(config, "dbpath", value_new("tests.ondb"));

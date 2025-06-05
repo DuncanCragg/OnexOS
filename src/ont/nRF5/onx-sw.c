@@ -384,8 +384,8 @@ void* x;
 int main() { // REVISIT: needs to be in OK and call up here like ont-vk
 
   properties* config = properties_new(32);
-  properties_set(config, "channels", list_new_from_fixed("radio"));
-  properties_set(config, "flags", list_new_from_fixed("log-to-gfx")); // log-onp
+  properties_set(config, "channels", list_vals_new_from_fixed("radio"));
+  properties_set(config, "flags", list_vals_new_from_fixed("log-to-gfx")); // log-onp
   properties_set(config, "test-uid-prefix", value_new("magic3"));
 
   boot_init();

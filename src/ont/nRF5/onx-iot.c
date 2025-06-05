@@ -86,12 +86,12 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   properties* config = properties_new(32);
 #if defined(BOARD_PCA10059)
-  properties_set(config, "channels", list_new_from_fixed("radio serial"));
+  properties_set(config, "channels", list_vals_new_from_fixed("radio serial"));
 #elif defined(BOARD_FEATHER_SENSE)
-  properties_set(config, "channels", list_new_from_fixed("radio"));
+  properties_set(config, "channels", list_vals_new_from_fixed("radio"));
 #define TEST_MODE
 #ifdef  TEST_MODE
-  properties_set(config, "flags", list_new_from_fixed("debug-on-serial log-to-led log-onp"));
+  properties_set(config, "flags", list_vals_new_from_fixed("debug-on-serial log-to-led log-onp"));
   properties_set(config, "test-uid-prefix", value_new("iot"));
 #endif
 #endif

@@ -192,7 +192,7 @@ static void show_gfx_log(uint8_t root_g2d_node){
   else{
     static uint32_t lt=0;
     uint32_t ct=time_ms();
-    if(ct>lt+2000){
+    if(ct>lt+8000){
       lt=ct;
       delete_oldest_log_line();
     }

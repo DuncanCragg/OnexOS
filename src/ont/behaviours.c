@@ -73,13 +73,13 @@ bool evaluate_light_logic(object* o, void* d){
       softness   = (uint8_t)object_property_int32(o, "bcs:1:softness");
     }
     if(has_compass_link){
-      int32_t direction = object_property_int32(o, "compass:direction");
+      int32_t direction = object_property_int32(o, "compass:1:direction");
       colour = (uint8_t)((direction + 180)*256/360);
     }
     if(has_touch_link){
-      int32_t touch_x = object_property_int32(o, "touch:coords:1");
-      int32_t touch_y = object_property_int32(o, "touch:coords:2");
-      bool    touch_d = object_property_is(   o, "touch:action", "down");
+      int32_t touch_x = object_property_int32(o, "touch:1:coords:1");
+      int32_t touch_y = object_property_int32(o, "touch:1:coords:2");
+      bool    touch_d = object_property_is(   o, "touch:1:action", "down");
       colour   = (255-touch_x) & 0xff;
       softness = (    touch_y) & 0xff;
     }

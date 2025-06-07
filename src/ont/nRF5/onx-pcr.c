@@ -14,7 +14,6 @@ int main() {
 #define TEST_MODE
 #ifdef  TEST_MODE
   properties_set(config, "flags", list_vals_new_from_fixed("debug-on-serial log-onp log-to-led"));// debug-on-serial log-onp
-  properties_set(config, "test-uid-prefix", value_new("pcr"));
 #endif
 
   time_init();

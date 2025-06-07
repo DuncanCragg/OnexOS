@@ -73,10 +73,10 @@ void evaluators_init(){
 #define BATTERY_PERCENT_STEPS 2
 bool evaluate_battery_in(object* bat, void* d) {
 
-  #define BV_SMOOTHING 8
+  #define BV_SMOOTHING 97
   static int32_t bvprev = 0;
   int32_t bv = gpio_read(BATT_ADC_CHANNEL);
-  bv = (bv * (10 - BV_SMOOTHING) + bvprev * BV_SMOOTHING) / 10;
+  bv = (bv * (100 - BV_SMOOTHING) + bvprev * BV_SMOOTHING) / 100;
   bvprev = bv;
 
   int16_t mv = bv * ADC_TOP_V / ADC_BITS_RANGE * ADC_RESISTOR_DIV;

@@ -347,6 +347,7 @@ static void draw_about(char* path, uint8_t g2d_node);
 static void draw_button(char* path, uint8_t g2d_node);
 static void draw_light(char* path, uint8_t g2d_node);
 static void draw_bcs(char* path, uint8_t g2d_node);
+static void draw_device(char* path, uint8_t g2d_node);
 static void draw_raw_offset(char* path, uint8_t g2d_node, int16_t offx);
 static void draw_raw(char* path, uint8_t g2d_node);
 
@@ -625,6 +626,8 @@ static void draw_by_type(char* path, uint8_t g2d_node) {
   if(object_pathpair_contains(user, path, "is", "light"))  draw_light(path, g2d_node);
   else
   if(object_pathpair_contains(user, path, "is", "bcs"))    draw_bcs(path, g2d_node);
+  else
+  if(object_pathpair_contains(user, path, "is", "device")) draw_device(path, g2d_node);
   else
                                                            draw_raw(path, g2d_node);
 }
@@ -1439,6 +1442,23 @@ static void draw_bcs(char* path, uint8_t g2d_node) {
   } // if(container_g2d_node)
 
   if(offx < 0) draw_raw_offset(path, g2d_node, offx);
+}
+
+static void draw_device(char* path, uint8_t g2d_node) {
+
+  if(g2d_node_height(g2d_node) < SCREEN_HEIGHT){
+    g2d_node_rectangle(g2d_node,
+                       0,0,
+                       g2d_node_width(g2d_node),g2d_node_height(g2d_node),
+                       G2D_CYAN/6);
+    uint8_t s=g2d_node_height(g2d_node) < 60? 2: 3;
+    uint8_t m=(g2d_node_height(g2d_node)-8*s)/2;
+    char* t = object_pathpair(user, path, "name");
+    if(!t) t="device";
+    g2d_node_text(g2d_node, m,m, G2D_WHITE, s, "%s", t);
+    return;
+  }
+  draw_raw(path, g2d_node);
 }
 
 static void raw_ev(bool down, int16_t dx, int16_t dy, uint16_t p_index, uint16_t l_index){

@@ -1278,6 +1278,7 @@ static void draw_about(char* path, uint8_t g2d_node) {
 
   g2d_node_text(container_g2d_node, 20,  40, G2D_BLUE, 2, "fps: %d (%d,%d)", fps, touch_info.x, touch_info.y);
   g2d_node_text(container_g2d_node, 10, 110, G2D_BLUE, 3, "cpu: %s",   object_pathpair(user, path, "cpu"));
+  g2d_node_text(container_g2d_node, 10, 140, G2D_BLUE, 2, "mem: %s",   object_pathpair(user, path, "mem"));
   g2d_node_text(container_g2d_node, 10, 190, G2D_BLUE, 1, "build: %s", object_pathpair(user, path, "build-info"));
 
   if(offy < 0) draw_links(path, container_g2d_node);

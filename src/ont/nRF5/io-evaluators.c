@@ -5,6 +5,7 @@
 #include <boards.h>
 
 #include <onex-kernel/boot.h>
+#include <onex-kernel/mem.h>
 #include <onex-kernel/log.h>
 #include <onex-kernel/gpio.h>
 #include <onex-kernel/compass.h>
@@ -162,6 +163,7 @@ bool evaluate_touch_in(object* tch, void* d) {
 bool evaluate_about_in(object* abt, void* d) {
 
   object_property_set_fmt(abt, "cpu",        "%d%%", boot_cpu());
+  object_property_set_fmt(abt, "mem",        "%ld",  mem_used());
   object_property_set_fmt(abt, "build-info", "%lu", (unsigned long)&__BUILD_TIME);
 
   return true;

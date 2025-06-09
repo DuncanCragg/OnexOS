@@ -73,7 +73,7 @@ void evaluators_init(){
 #define BATTERY_PERCENT_STEPS 2
 bool evaluate_battery_in(object* bat, void* d) {
 
-  #define BV_SMOOTHING 97
+  #define BV_SMOOTHING 97 // REVISIT: Magic 3 update rate much much slower!
   static int32_t bvprev = 0;
   int32_t bv = gpio_read(BATT_ADC_CHANNEL);
   bv = (bv * (100 - BV_SMOOTHING) + bvprev * BV_SMOOTHING) / 100;
@@ -161,8 +161,8 @@ bool evaluate_touch_in(object* tch, void* d) {
 
 bool evaluate_about_in(object* abt, void* d) {
 
-  object_property_set_fmt(abt, "build-info", "%lu", (unsigned long)&__BUILD_TIME);
   object_property_set_fmt(abt, "cpu",        "%d%%", boot_cpu());
+  object_property_set_fmt(abt, "build-info", "%lu", (unsigned long)&__BUILD_TIME);
 
   return true;
 }

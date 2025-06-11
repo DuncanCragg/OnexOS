@@ -185,7 +185,7 @@ static void show_gfx_log(uint8_t root_g2d_node){
        nextline    +=nextlinelen;
        remaininglen-=nextlinelen;
      } while(remaininglen);
-     mem_free(msg);
+     free(msg);
     }
     list_clear(gfx_log_buffer, false);
   }

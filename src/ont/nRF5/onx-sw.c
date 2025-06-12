@@ -437,6 +437,7 @@ int main() { // REVISIT: needs to be in OK and call up here like ont-vk
         boot_feed_watchdog();
         feeding_time=ct+1000;
       }
+      // if(mem_fillin_up) mem_show_allocated(false);
     }
 
     // --------------------

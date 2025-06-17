@@ -54,7 +54,6 @@ void run_tests_maybe(properties* config) {
   onex_init(config);
 
   run_light_tests();
-  run_device_tests();
   run_clock_tests();
 
   onex_loop(); time_delay_ms(150);

@@ -124,7 +124,6 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 #if defined(BOARD_FEATHER_SENSE)
   onex_set_evaluators("eval_ledmx",   evaluate_edit_rule, evaluate_light_logic, evaluate_ledmx_out, 0);
 #endif
-  onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
 
   button =object_new(0, "eval_button",  "editable button", 4);
 #if defined(BOARD_FEATHER_SENSE)
@@ -158,7 +157,6 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   object_property_set(ledmx, "bcs", bcsuid);
 #endif
 
-  object_set_evaluator(onex_device_object, "evaluate_device");
   object_property_set(onex_device_object, "name", "IoT");
   object_property_add(onex_device_object, "io", buttonuid);
 #if defined(BOARD_FEATHER_SENSE)

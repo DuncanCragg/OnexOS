@@ -63,7 +63,6 @@ int main(int argc, char *argv[]) {
   log_write("\n------Starting Light Test-----\n");
 #endif
 
-  onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
   onex_set_evaluators("eval_light",  evaluate_edit_rule, evaluate_light_logic, evaluate_light_io, 0);
 #if defined(SYNC_TO_PEER_CLOCK)
   onex_set_evaluators("eval_clock",  evaluate_clock_sync, evaluate_clock, 0);
@@ -71,7 +70,6 @@ int main(int argc, char *argv[]) {
   onex_set_evaluators("eval_clock",  evaluate_clock, 0);
 #endif
 
-  object_set_evaluator(onex_device_object, "evaluate_device");
   object_property_set(onex_device_object, "name", "Light");
   char* deviceuid=object_property(onex_device_object, "UID");
 

@@ -105,18 +105,6 @@ bool evaluate_light_logic(object* o, void* d){
   return true;
 }
 
-bool evaluate_device_logic(object* o, void* d)
-{
-  if(object_property_contains(o, "Alerted:is", "device")){
-    char* devuid=object_property(o, "Alerted");
-    // REVISIT: no notification of local to remote if "already seen" it
-    if(!object_property_contains(o, "peers", devuid)){
-      object_property_add(o, "peers", devuid);
-    }
-  }
-  return true;
-}
-
 bool evaluate_clock_sync(object* o, void* d) {
 
   if(!discover_io_peer(o, "sync-clock", "clock")) return true;

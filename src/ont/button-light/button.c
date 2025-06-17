@@ -67,7 +67,6 @@ int main(int argc, char *argv[]) {
   log_write("\n------Starting Button Test-----\n");
 #endif
 
-  onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
   onex_set_evaluators("eval_button", evaluate_edit_rule, evaluate_button_io, 0);
 #if defined(SYNC_TO_PEER_CLOCK)
   onex_set_evaluators("eval_clock",  evaluate_clock_sync, evaluate_clock, 0);
@@ -75,7 +74,6 @@ int main(int argc, char *argv[]) {
   onex_set_evaluators("eval_clock",  evaluate_clock, 0);
 #endif
 
-  object_set_evaluator(onex_device_object, "evaluate_device");
 #if defined(SYNC_TO_PEER_CLOCK)
   char* deviceuid=object_property(onex_device_object, "UID");
 #endif

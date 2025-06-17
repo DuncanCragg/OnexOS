@@ -29,8 +29,6 @@ int main() {
 
   onex_init(config);
 
-  onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
-  object_set_evaluator(onex_device_object, "evaluate_device");
   object_property_set(onex_device_object, "name", "PCR/dongle");
 
   while(true){

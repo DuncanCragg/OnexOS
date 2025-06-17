@@ -51,7 +51,6 @@ static char note_text[] = "the fat cat sat on me the quick brown fox jumps over 
 
 void init_onex() {
 
-  onex_set_evaluators("device",  evaluate_device_logic, 0);
   onex_set_evaluators("eval_default", evaluate_default, 0);
   onex_set_evaluators("eval_clock",   evaluate_clock, 0);
   onex_set_evaluators("eval_user",    evaluate_user, 0);
@@ -152,7 +151,6 @@ void init_onex() {
 
     // -----------
 
-    object_set_evaluator(onex_device_object, "device");
     char* deviceuid=object_property(onex_device_object, "UID");
 
     object_property_add(onex_device_object, "user", useruid);

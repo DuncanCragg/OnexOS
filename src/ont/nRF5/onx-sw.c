@@ -193,15 +193,12 @@ static void init_onex(properties* config){
   onex_set_evaluators("eval_notes",     evaluate_edit_rule, 0);
   onex_set_evaluators("eval_battery",             evaluate_battery_in, 0);
   onex_set_evaluators("eval_touch",               evaluate_touch_in, 0);
-  onex_set_evaluators("device",                        evaluate_device_logic, 0);
 #if defined(HAS_MOTION)
   onex_set_evaluators("eval_motion",              evaluate_motion_in, 0);
 #endif
   onex_set_evaluators("eval_button",              evaluate_button_in, 0);
   onex_set_evaluators("eval_about",               evaluate_about_in, 0);
   onex_set_evaluators("eval_backlight", evaluate_edit_rule, evaluate_light_logic, evaluate_backlight_out, 0);
-
-  object_set_evaluator(onex_device_object, "device");
 
   object* battery;
   object* touch;

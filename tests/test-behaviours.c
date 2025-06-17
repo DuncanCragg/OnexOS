@@ -81,22 +81,6 @@ void run_light_tests() {
   onex_assert_equal_num(evaluate_light_io_called,  5,  "evaluate_light_io  was called five times");
 }
 
-void run_device_tests() {
-
-  log_write("------device behaviour tests-----\n");
-
-  onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
-  object_set_evaluator(onex_device_object, "evaluate_device");
-
-  object_property_set(onex_device_object, "incoming", "uid-incomingdevice");
-  object_property(onex_device_object, "incoming:UID");
-  object* incomingdevice=onex_get_from_cache("uid-incomingdevice");
-  object_property_set(incomingdevice, "is", "device");
-  onex_loop();
-
-  onex_assert_equal(object_property(onex_device_object, "peers"), "uid-incomingdevice", "device evaluator adds incoming device to peers");
-}
-
 void run_clock_tests() {
 
   log_write("------clock behaviour tests-----\n");

@@ -114,27 +114,27 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
 
   onex_init(config);
 
-  onex_set_evaluators("evaluate_button", evaluate_edit_rule, evaluate_button_in, 0);
+  onex_set_evaluators("eval_button", evaluate_edit_rule, evaluate_button_in, 0);
 #if defined(BOARD_FEATHER_SENSE)
-  onex_set_evaluators("evaluate_battery", evaluate_battery_in, 0);
-  onex_set_evaluators("evaluate_bcs",     evaluate_bcs_in, 0);
-  onex_set_evaluators("evaluate_compass", evaluate_compass_in, 0);
+  onex_set_evaluators("eval_battery", evaluate_battery_in, 0);
+  onex_set_evaluators("eval_bcs",     evaluate_bcs_in, 0);
+  onex_set_evaluators("eval_compass", evaluate_compass_in, 0);
 #endif
-  onex_set_evaluators("evaluate_light",  evaluate_edit_rule, evaluate_light_logic, evaluate_light_out, 0);
+  onex_set_evaluators("eval_light",  evaluate_edit_rule, evaluate_light_logic, evaluate_light_out, 0);
 #if defined(BOARD_FEATHER_SENSE)
-  onex_set_evaluators("evaluate_ledmx",   evaluate_edit_rule, evaluate_light_logic, evaluate_ledmx_out, 0);
+  onex_set_evaluators("eval_ledmx",   evaluate_edit_rule, evaluate_light_logic, evaluate_ledmx_out, 0);
 #endif
   onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
 
-  button =object_new(0, "evaluate_button",  "editable button", 4);
+  button =object_new(0, "eval_button",  "editable button", 4);
 #if defined(BOARD_FEATHER_SENSE)
-  battery=object_new(0, "evaluate_battery", "battery", 4);
-  bcs    =object_new(0, "evaluate_bcs",     "bcs", 5);
-  compass=object_new(0, "evaluate_compass", "compass", 4);
+  battery=object_new(0, "eval_battery", "battery", 4);
+  bcs    =object_new(0, "eval_bcs",     "bcs", 5);
+  compass=object_new(0, "eval_compass", "compass", 4);
 #endif
-  light  =object_new(0, "evaluate_light",   "editable light", 8);
+  light  =object_new(0, "eval_light",   "editable light", 8);
 #if defined(BOARD_FEATHER_SENSE)
-  ledmx  =object_new(0, "evaluate_ledmx",   "editable light", 8);
+  ledmx  =object_new(0, "eval_ledmx",   "editable light", 8);
 #endif
 
   deviceuid=object_property(onex_device_object, "UID");

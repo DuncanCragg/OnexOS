@@ -51,11 +51,12 @@ static char note_text[] = "the fat cat sat on me the quick brown fox jumps over 
 
 void init_onex() {
 
-  onex_set_evaluators("default", evaluate_default, 0);
   onex_set_evaluators("device",  evaluate_device_logic, 0);
-  onex_set_evaluators("clock",   evaluate_clock, 0);
-  onex_set_evaluators("user",    evaluate_user, 0);
-  onex_set_evaluators("notes",   evaluate_edit_rule, 0);
+  onex_set_evaluators("eval_default", evaluate_default, 0);
+  onex_set_evaluators("eval_clock",   evaluate_clock, 0);
+  onex_set_evaluators("eval_user",    evaluate_user, 0);
+  onex_set_evaluators("eval_notes",   evaluate_edit_rule, 0);
+  onex_set_evaluators("eval_editable",evaluate_edit_rule, 0);
 
   properties* config = properties_new(32);
   properties_set(config, "dbpath", value_new("./onex.ondb"));
@@ -73,13 +74,13 @@ void init_onex() {
 
   if(!config){
 
-    user=object_new(0, "user", "user", 8);
+    user=object_new(0, "eval_user", "user", 8);
     useruid=object_property(user, "UID");
 
-    home=object_new(0, "editable",  "list editable", 4);
+    home=object_new(0, "eval_editable",  "list editable", 4);
     homeuid=object_property(home, "UID");
 
-    inventory=object_new(0, "editable",  "list editable", 4);
+    inventory=object_new(0, "eval_editable",  "list editable", 4);
     inventoryuid=object_property(inventory, "UID");
 
     // -----------
@@ -87,7 +88,7 @@ void init_onex() {
     object* floorpanel;
     char* floorpaneluid;
 
-    floorpanel=object_new(0, "editable", "3d cuboid", 4);
+    floorpanel=object_new(0, "eval_editable", "3d cuboid editable", 4);
     floorpaneluid=object_property(floorpanel, "UID");
 
     object_property_add(floorpanel, "shape", "[1.5/0.1/1.5]");
@@ -96,7 +97,7 @@ void init_onex() {
       for(int y=0; y<2; y++){
         for(int z=0; z<2; z++){
 
-          object* p=object_new(0, "editable", "3d cuboid", 4);
+          object* p=object_new(0, "eval_editable", "3d cuboid editable", 4);
           char*   puid=object_property(p, "UID");
 
           object_property_add(p, "shape", "[0.5/0.02/0.5]");
@@ -110,7 +111,7 @@ void init_onex() {
             for(int yy=0; yy<2; yy++){
               for(int zz=0; zz<2; zz++){
 
-                object* pp=object_new(0, "editable", "3d cuboid", 4);
+                object* pp=object_new(0, "eval_editable", "3d cuboid editable", 4);
                 char*   ppuid=object_property(pp, "UID");
 
                 object_property_add(pp, "shape", "[0.05/0.05/0.05]");
@@ -128,7 +129,7 @@ void init_onex() {
 
     // -----------
 
-    note=object_new(0, "notes", "text editable", 4);
+    note=object_new(0, "eval_notes", "text editable", 4);
     noteuid=object_property(note, "UID");
 
     char* strtok_state = 0;
@@ -140,11 +141,11 @@ void init_onex() {
 
     // -----------
 
-    responses=object_new(0, "default",   "user responses", 12);
+    responses=object_new(0, "eval_default",   "user responses", 12);
 
     // -----------
 
-    oclock=object_new(0, "clock", "clock event", 12);
+    oclock=object_new(0, "eval_clock", "clock event", 12);
     object_set_persist(oclock, "none");
     object_property_set(oclock, "title", "OnexOS Clock");
     clockuid=object_property(oclock, "UID");

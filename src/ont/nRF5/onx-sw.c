@@ -185,21 +185,21 @@ static void init_onex(properties* config){
 
   onex_init(config);
 
-  //                               editor    inputs    logic                 outputs
-  onex_set_evaluators("default",   evaluate_edit_rule, evaluate_default, 0);
-  onex_set_evaluators("editable",  evaluate_edit_rule, 0);
-  onex_set_evaluators("clock",               evaluate_clock_sync, evaluate_clock, 0);
+  //                                        editor    inputs    logic                 outputs
+  onex_set_evaluators("eval_default",   evaluate_edit_rule, evaluate_default, 0);
+  onex_set_evaluators("eval_editable",  evaluate_edit_rule, 0);
+  onex_set_evaluators("eval_clock",               evaluate_clock_sync, evaluate_clock, 0);
+  onex_set_evaluators("eval_user",                          evaluate_user, 0);
+  onex_set_evaluators("eval_notes",     evaluate_edit_rule, 0);
+  onex_set_evaluators("eval_battery",             evaluate_battery_in, 0);
+  onex_set_evaluators("eval_touch",               evaluate_touch_in, 0);
   onex_set_evaluators("device",                        evaluate_device_logic, 0);
-  onex_set_evaluators("user",                          evaluate_user, 0);
-  onex_set_evaluators("notes",     evaluate_edit_rule, 0);
-  onex_set_evaluators("battery",             evaluate_battery_in, 0);
-  onex_set_evaluators("touch",               evaluate_touch_in, 0);
 #if defined(HAS_MOTION)
-  onex_set_evaluators("motion",              evaluate_motion_in, 0);
+  onex_set_evaluators("eval_motion",              evaluate_motion_in, 0);
 #endif
-  onex_set_evaluators("button",              evaluate_button_in, 0);
-  onex_set_evaluators("about",               evaluate_about_in, 0);
-  onex_set_evaluators("backlight", evaluate_edit_rule, evaluate_light_logic, evaluate_backlight_out, 0);
+  onex_set_evaluators("eval_button",              evaluate_button_in, 0);
+  onex_set_evaluators("eval_about",               evaluate_about_in, 0);
+  onex_set_evaluators("eval_backlight", evaluate_edit_rule, evaluate_light_logic, evaluate_backlight_out, 0);
 
   object_set_evaluator(onex_device_object, "device");
 
@@ -236,26 +236,26 @@ static void init_onex(properties* config){
   char* note2uid;
   char* notesuid;
 
-  user      =object_new(0, "user",      "user", 8);
-  responses =object_new(0, "default",   "user responses", 12); // REVISIT "editable"?
-  battery   =object_new(0, "battery",   "battery", 4);
-  touch     =object_new(0, "touch",     "touch", 6);
+  user      =object_new(0, "eval_user",      "user", 8);
+  responses =object_new(0, "eval_default",   "user responses", 12); // REVISIT "editable"?
+  battery   =object_new(0, "eval_battery",   "battery", 4);
+  touch     =object_new(0, "eval_touch",     "touch", 6);
 #if defined(HAS_MOTION)
-  motion    =object_new(0, "motion",    "motion", 8);
+  motion    =object_new(0, "eval_motion",    "motion", 8);
 #endif
-  button    =object_new(0, "button",    "button", 4);
-  backlight =object_new(0, "backlight", "light editable", 12);
-  bcs       =object_new(0, "editable",  "bcs editable", 5);
-  oclock    =object_new(0, "clock",     "clock event", 12);
-  watchface =object_new(0, "editable",  "watchface editable", 9);
-  home      =object_new(0, "editable",  "list editable", 4);
-  allobjects=object_new(0, "editable",  "list editable", 4);
-  inventory =object_new(0, "editable",  "list editable", 4);
-  watch     =object_new(0, "default",   "watch", 8);
-  note1     =object_new(0, "notes",     "text editable", 4);
-  note2     =object_new(0, "notes",     "text editable", 4);
-  notes     =object_new(0, "notes",     "text list editable", 4);
-  about     =object_new(0, "about",     "about", 4);
+  button    =object_new(0, "eval_button",    "button", 4);
+  backlight =object_new(0, "eval_backlight", "light editable", 12);
+  bcs       =object_new(0, "eval_editable",  "bcs editable", 5);
+  oclock    =object_new(0, "eval_clock",     "clock event", 12);
+  watchface =object_new(0, "eval_editable",  "watchface editable", 9);
+  home      =object_new(0, "eval_editable",  "list editable", 4);
+  allobjects=object_new(0, "eval_editable",  "list editable", 4);
+  inventory =object_new(0, "eval_editable",  "list editable", 4);
+  watch     =object_new(0, "eval_default",   "watch", 8);
+  note1     =object_new(0, "eval_notes",     "text editable", 4);
+  note2     =object_new(0, "eval_notes",     "text editable", 4);
+  notes     =object_new(0, "eval_notes",     "text list editable", 4);
+  about     =object_new(0, "eval_about",     "about", 4);
 
   deviceuid   =object_property(onex_device_object, "UID");
   useruid     =object_property(user, "UID");

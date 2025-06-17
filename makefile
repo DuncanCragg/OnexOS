@@ -283,6 +283,30 @@ onx-light-fixed-fth: $(LIGHT_SOURCES:.c=.o)
 
 #-------------------------------:
 
+onx-pcr-nor: INCLUDES=$(INCLUDES_DONGLE)
+onx-pcr-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
+onx-pcr-nor: $(PCR_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-pcr-nor.map -o ./onx-pcr-nor.out $^ okolo/*
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-pcr-nor.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-pcr-nor.out ./onx-pcr-nor.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-pcr-nor.out ./onx-pcr-nor.hex
+
+onx-iot-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
+onx-iot-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE)
+onx-iot-fth: $(IOT_SOURCES:.c=.o)
+	rm -rf okolo
+	mkdir okolo
+	ar x ../OnexKernel/libonex-kernel-feather-sense.a --output okolo
+	ar x   ../OnexLang/libonex-lang-nrf.a             --output okolo
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-iot-fth.map -o ./onx-iot-fth.out $^ okolo/* -lm
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-iot-fth.out
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-fth.out ./onx-iot-fth.bin
+	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-fth.out ./onx-iot-fth.hex
+
 onx-sw-magic3: INCLUDES=$(INCLUDES_MAGIC3)
 onx-sw-magic3: COMPILER_DEFINES=$(COMPILER_DEFINES_MAGIC3)
 onx-sw-magic3: $(SW_SOURCES:.c=.o)
@@ -307,18 +331,6 @@ onx-iot-its: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-its.out ./onx-iot-its.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-its.out ./onx-iot-its.hex
 
-onx-iot-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
-onx-iot-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE)
-onx-iot-fth: $(IOT_SOURCES:.c=.o)
-	rm -rf okolo
-	mkdir okolo
-	ar x ../OnexKernel/libonex-kernel-feather-sense.a --output okolo
-	ar x   ../OnexLang/libonex-lang-nrf.a             --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_FEATHER_SENSE) -Wl,-Map=./onx-iot-fth.map -o ./onx-iot-fth.out $^ okolo/* -lm
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-iot-fth.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-fth.out ./onx-iot-fth.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-fth.out ./onx-iot-fth.hex
-
 onx-pcr-fth: INCLUDES=$(INCLUDES_FEATHER_SENSE)
 onx-pcr-fth: COMPILER_DEFINES=$(COMPILER_DEFINES_FEATHER_SENSE)
 onx-pcr-fth: $(PCR_SOURCES:.c=.o)
@@ -342,18 +354,6 @@ onx-iot-nor: $(IOT_SOURCES:.c=.o)
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-iot-nor.out
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-iot-nor.out ./onx-iot-nor.bin
 	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-iot-nor.out ./onx-iot-nor.hex
-
-onx-pcr-nor: INCLUDES=$(INCLUDES_DONGLE)
-onx-pcr-nor: COMPILER_DEFINES=$(COMPILER_DEFINES_DONGLE)
-onx-pcr-nor: $(PCR_SOURCES:.c=.o)
-	rm -rf okolo
-	mkdir okolo
-	ar x ../OnexKernel/libonex-kernel-dongle.a --output okolo
-	ar x   ../OnexLang/libonex-lang-nrf.a      --output okolo
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-gcc $(LINKER_FLAGS) $(LD_FILES_DONGLE) -Wl,-Map=./onx-pcr-nor.map -o ./onx-pcr-nor.out $^ okolo/*
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-size --format=sysv -x ./onx-pcr-nor.out
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O binary ./onx-pcr-nor.out ./onx-pcr-nor.bin
-	$(GCC_ARM_TOOLCHAIN)$(GCC_ARM_PREFIX)-objcopy -O ihex   ./onx-pcr-nor.out ./onx-pcr-nor.hex
 
 #-------------------------------:
 

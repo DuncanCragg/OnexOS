@@ -18,6 +18,7 @@ SOURCES_ONX = \
   ./src/ont/user-3d.c \
   ./src/ont/g2d/g2d.c \
   ./src/ont/keyboard.c \
+  ./src/ont/behaviours.c \
   ./src/ont/unix/g2d-vulkan.c \
   ./src/ont/unix/onx.c \
   ./src/ont/unix/ont-vk.c \

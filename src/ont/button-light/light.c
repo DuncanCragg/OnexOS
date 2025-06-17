@@ -64,18 +64,18 @@ int main(int argc, char *argv[]) {
 #endif
 
   onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
-  onex_set_evaluators("evaluate_light",  evaluate_edit_rule, evaluate_light_logic, evaluate_light_io, 0);
+  onex_set_evaluators("eval_light",  evaluate_edit_rule, evaluate_light_logic, evaluate_light_io, 0);
 #if defined(SYNC_TO_PEER_CLOCK)
-  onex_set_evaluators("evaluate_clock",  evaluate_clock_sync, evaluate_clock, 0);
+  onex_set_evaluators("eval_clock",  evaluate_clock_sync, evaluate_clock, 0);
 #else
-  onex_set_evaluators("evaluate_clock",  evaluate_clock, 0);
+  onex_set_evaluators("eval_clock",  evaluate_clock, 0);
 #endif
 
   object_set_evaluator(onex_device_object, "evaluate_device");
   object_property_set(onex_device_object, "name", "Light");
   char* deviceuid=object_property(onex_device_object, "UID");
 
-  object* light=object_new("uid-light", "evaluate_light", "editable light", 4);
+  object* light=object_new("uid-light", "eval_light", "editable light", 4);
   object_property_set(light, "light", "off");
 #ifdef FIXED_BUTTON
   object_property_set(light, "button", "uid-button");
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 #endif
   lightuid=object_property(light, "UID");
 
-  object* oclock=object_new("uid-light-clock", "evaluate_clock", "clock event", 12);
+  object* oclock=object_new("uid-light-clock", "eval_clock", "clock event", 12);
   object_set_persist(oclock, "none");
   object_property_set(oclock, "title", "OnexOS Light Clock");
   object_property_set(oclock, "ts", "%%unknown");

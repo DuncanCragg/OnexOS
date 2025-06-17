@@ -37,11 +37,11 @@ void run_light_tests() {
 
   log_write("------light behaviour tests-----\n");
 
-  onex_set_evaluators("evaluate_button", evaluate_button_io, 0);
-  onex_set_evaluators("evaluate_light", evaluate_light_logic, evaluate_light_io, 0);
+  onex_set_evaluators("eval_button", evaluate_button_io, 0);
+  onex_set_evaluators("eval_light", evaluate_light_logic, evaluate_light_io, 0);
 
-  object* button=object_new(0, "evaluate_button", "button", 4);
-  object* light =object_new(0, "evaluate_light",  "light", 4);
+  object* button=object_new(0, "eval_button", "button", 4);
+  object* light =object_new(0, "eval_light",  "light", 4);
 
   char* buttonuid=object_property(button, "UID");
   char* lightuid=object_property(light, "UID");
@@ -101,11 +101,11 @@ void run_clock_tests() {
 
   log_write("------clock behaviour tests-----\n");
 
-  onex_set_evaluators("evaluate_clock",                           evaluate_clock, 0);
-  onex_set_evaluators("evaluate_clock_sync", evaluate_clock_sync, evaluate_clock, 0);
+  onex_set_evaluators("eval_clock",                           evaluate_clock, 0);
+  onex_set_evaluators("eval_clock_sync", evaluate_clock_sync, evaluate_clock, 0);
 
-  object* clock_synced_from=object_new(0, "evaluate_clock",      "clock event", 12);
-  object* clock_to_sync    =object_new(0, "evaluate_clock_sync", "clock event", 12);
+  object* clock_synced_from=object_new(0, "eval_clock",      "clock event", 12);
+  object* clock_to_sync    =object_new(0, "eval_clock_sync", "clock event", 12);
 
   char* clock_synced_from_uid=object_property(clock_synced_from, "UID");
   char* clock_to_sync_uid    =object_property(clock_to_sync, "UID");

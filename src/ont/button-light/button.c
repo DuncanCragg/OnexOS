@@ -68,11 +68,11 @@ int main(int argc, char *argv[]) {
 #endif
 
   onex_set_evaluators("evaluate_device", evaluate_device_logic, 0);
-  onex_set_evaluators("evaluate_button", evaluate_edit_rule, evaluate_button_io, 0);
+  onex_set_evaluators("eval_button", evaluate_edit_rule, evaluate_button_io, 0);
 #if defined(SYNC_TO_PEER_CLOCK)
-  onex_set_evaluators("evaluate_clock",  evaluate_clock_sync, evaluate_clock, 0);
+  onex_set_evaluators("eval_clock",  evaluate_clock_sync, evaluate_clock, 0);
 #else
-  onex_set_evaluators("evaluate_clock",  evaluate_clock, 0);
+  onex_set_evaluators("eval_clock",  evaluate_clock, 0);
 #endif
 
   object_set_evaluator(onex_device_object, "evaluate_device");
@@ -80,12 +80,12 @@ int main(int argc, char *argv[]) {
   char* deviceuid=object_property(onex_device_object, "UID");
 #endif
 
-  object* button=object_new("uid-button", "evaluate_button", "editable button", 4);
+  object* button=object_new("uid-button", "eval_button", "editable button", 4);
   object_property_set(button, "name", "£€§");
   object_property_set(button, "state", "up");
   buttonuid=object_property(button, "UID");
 
-  object* oclock=object_new("uid-button-clock", "evaluate_clock", "clock event", 12);
+  object* oclock=object_new("uid-button-clock", "eval_clock", "clock event", 12);
   object_set_persist(oclock, "none");
   object_property_set(oclock, "title", "OnexOS Button Clock");
   object_property_set(oclock, "ts", "%%unknown");

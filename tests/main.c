@@ -116,5 +116,7 @@ int main() {
   run_tests_maybe(config);
   time_end();
 #endif
+
+  properties_free(config, true);
 }
 

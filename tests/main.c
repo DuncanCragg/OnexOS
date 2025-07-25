@@ -84,7 +84,7 @@ int main() {
   properties_set(config, "flags", list_vals_new_from_fixed("log-to-gfx"));
 #endif
 #else
-  properties_set(config, "dbpath", value_new("tests.ondb"));
+  properties_set(config, "db-path", value_new("tests.ondb"));
 #endif
   properties_set(config, "test-uid-prefix", value_new("tests"));
 

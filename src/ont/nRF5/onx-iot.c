@@ -91,7 +91,7 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   properties_set(config, "channels", list_vals_new_from_fixed("radio"));
 #define TEST_MODE
 #ifdef  TEST_MODE
-  properties_set(config, "flags", list_vals_new_from_fixed("debug-on-serial log-to-led log-onp"));
+  properties_set(config, "flags", list_vals_new_from_fixed("debug-on-serial log-to-led log-onp")); // db-format 
 #endif
 #endif
 

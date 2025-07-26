@@ -551,8 +551,8 @@ static VkShaderModule load_c_shader(bool load_frag) {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
         .codeSize = load_frag? src_ont_unix_onx_frag_spv_len:
                                src_ont_unix_onx_vert_spv_len,
-        .pCode = load_frag? src_ont_unix_onx_frag_spv:
-                            src_ont_unix_onx_vert_spv,
+        .pCode = load_frag? (uint32_t*)src_ont_unix_onx_frag_spv:
+                            (uint32_t*)src_ont_unix_onx_vert_spv,
         .flags = 0,
         .pNext = 0,
     };

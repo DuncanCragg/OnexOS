@@ -31,7 +31,7 @@ bool display_on=true;
 
 uint32_t loop_time=0;
 
-static object* config;
+static object* uid_0;
 static object* oclock;
 
 static char* clockuid=0;
@@ -51,17 +51,18 @@ static char note_text[] = "the fat cat sat on me the quick brown fox jumps over 
 
 void init_onex() {
 
+  properties* config = properties_new(32);
+  properties_set(config, "db-path", value_new("./onex.ondb"));
+  properties_set(config, "channels", list_vals_new_from_fixed("ipv6"));
+  properties_set(config, "ipv6_groups", list_vals_new_from_fixed("ff12::1234"));
+
+  onex_init(config);
+
   onex_set_evaluators("eval_default", evaluate_default, 0);
   onex_set_evaluators("eval_clock",   evaluate_clock, 0);
   onex_set_evaluators("eval_user",    evaluate_user, 0);
   onex_set_evaluators("eval_notes",   evaluate_edit_rule, 0);
   onex_set_evaluators("eval_editable",evaluate_edit_rule, 0);
-
-  properties* config = properties_new(32);
-  properties_set(config, "db-path", value_new("./onex.ondb"));
-  properties_set(config, "channels", list_vals_new_from_fixed("ipv6"));
-  properties_set(config, "ipv6_groups", list_vals_new_from_fixed("ff12::1234"));
-  onex_init(config);
 
   object* home;
   object* inventory;
@@ -69,9 +70,9 @@ void init_onex() {
   object* note;
   char* noteuid;
 
-  config=onex_get_from_cache("uid-0");
+  uid_0=onex_get_from_cache("uid-0");
 
-  if(!config){
+  if(!uid_0){
 
     user=object_new(0, "eval_user", "user", 8);
     useruid=object_property(user, "UID");
@@ -158,9 +159,9 @@ void init_onex() {
 
     // -----------
 
-    config=object_new("uid-0", 0, "config", 10);
-    object_property_set(config, "user",      useruid);
-    object_property_set(config, "clock",     clockuid);
+    uid_0=object_new("uid-0", 0, "config", 10);
+    object_property_set(uid_0, "user",      useruid);
+    object_property_set(uid_0, "clock",     clockuid);
 
     // -----------
 
@@ -170,8 +171,8 @@ void init_onex() {
 //  object_property_set(user, "viewing", deviceuid);
   }
   else{
-    useruid=     object_property(config, "user");
-    clockuid=    object_property(config, "clock");
+    useruid=     object_property(uid_0, "user");
+    clockuid=    object_property(uid_0, "clock");
 
     user     =onex_get_from_cache(useruid);
     oclock   =onex_get_from_cache(clockuid);

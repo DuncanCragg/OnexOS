@@ -29,7 +29,7 @@ static inline void dyn_array_grow(void **data, uint32_t *capacity, size_t elemen
 static void add_outline_point(fd_Outline *o, vec2 point)
 {
 	if (o->point_capacity == o->num_of_points)
-		dyn_array_grow(&o->points, &o->point_capacity, sizeof(vec2));
+		dyn_array_grow((void**)&o->points, &o->point_capacity, sizeof(vec2));
 
 	memcpy(o->points[o->num_of_points], point, sizeof(vec2));
 	o->num_of_points++;
@@ -38,7 +38,7 @@ static void add_outline_point(fd_Outline *o, vec2 point)
 static void add_outline_contour(fd_Outline *o, fd_ContourRange *range)
 {
 	if (o->contour_capacity == o->num_of_contours)
-		dyn_array_grow(&o->contours, &o->contour_capacity, sizeof(fd_ContourRange));
+		dyn_array_grow((void**)&o->contours, &o->contour_capacity, sizeof(fd_ContourRange));
 
 	o->contours[o->num_of_contours] = *range;
 	o->num_of_contours++;
@@ -121,10 +121,10 @@ void fd_outline_decompose(FT_Outline *outline, fd_Outline *o)
 
 	FT_Outline_Funcs funcs =
 	{
-		.move_to = move_to_func,
-		.line_to = line_to_func,
-		.conic_to = conic_to_func,
-		.cubic_to = cubic_to_func,
+		.move_to = (int(*)(const FT_Vector*,void*))move_to_func,
+		.line_to = (int(*)(const FT_Vector*,void*))line_to_func,
+		.conic_to = (int(*)(const FT_Vector*,const FT_Vector*,void*))conic_to_func,
+		.cubic_to = (int(*)(const FT_Vector*,const FT_Vector*,const FT_Vector*,void*))cubic_to_func,
 	};
 
 	FT_CHECK(FT_Outline_Decompose(outline, &funcs, o));

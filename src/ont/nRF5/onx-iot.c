@@ -125,49 +125,96 @@ int main(){ // REVISIT: needs to be in OK and call up here like ont-vk
   onex_set_evaluators("eval_ledmx",   evaluate_edit_rule, evaluate_light_logic, evaluate_ledmx_out, 0);
 #endif
 
-  button =object_new(0, "eval_button",  "editable button", 4);
+  object* uid_0=onex_get_from_cache("uid-0");
+
+  if(!uid_0){
+
+    button =object_new(0, "eval_button",  "editable button", 4);
 #if defined(BOARD_FEATHER_SENSE)
-  battery=object_new(0, "eval_battery", "battery", 4);
-  bcs    =object_new(0, "eval_bcs",     "bcs", 5);
-  compass=object_new(0, "eval_compass", "compass", 4);
+    battery=object_new(0, "eval_battery", "battery", 4);
+    bcs    =object_new(0, "eval_bcs",     "bcs", 5);
+    compass=object_new(0, "eval_compass", "compass", 4);
 #endif
-  light  =object_new(0, "eval_light",   "editable light", 8);
+    light  =object_new(0, "eval_light",   "editable light", 8);
 #if defined(BOARD_FEATHER_SENSE)
-  ledmx  =object_new(0, "eval_ledmx",   "editable light", 8);
+    ledmx  =object_new(0, "eval_ledmx",   "editable light", 8);
 #endif
 
-  deviceuid=object_property(onex_device_object, "UID");
-  buttonuid=object_property(button,"UID");
+    deviceuid=object_property(onex_device_object, "UID");
+    buttonuid=object_property(button,"UID");
 #if defined(BOARD_FEATHER_SENSE)
-  batteryuid =object_property(battery, "UID");
-  bcsuid     =object_property(bcs, "UID");
-  compassuid =object_property(compass, "UID");
+    batteryuid =object_property(battery, "UID");
+    bcsuid     =object_property(bcs, "UID");
+    compassuid =object_property(compass, "UID");
 #endif
-  lightuid =object_property(light, "UID");
+    lightuid =object_property(light, "UID");
 #if defined(BOARD_FEATHER_SENSE)
-  ledmxuid   =object_property(ledmx, "UID");
-#endif
-
-  object_property_set(button, "name", "mango");
-
-  object_property_set(light, "light", "off");
-#if defined(BOARD_FEATHER_SENSE)
-  object_property_set(ledmx, "light", "on");
-  object_property_set(ledmx, "colour", "%0300ff");
-  object_property_set(ledmx, "bcs", bcsuid);
+    ledmxuid   =object_property(ledmx, "UID");
 #endif
 
-  object_property_set(onex_device_object, "name", "IoT");
-  object_property_add(onex_device_object, "io", buttonuid);
+    object_property_set(button, "name", "mango");
+
 #if defined(BOARD_FEATHER_SENSE)
-  object_property_add(onex_device_object, "io", batteryuid);
-  object_property_add(onex_device_object, "io", compassuid);
-  object_property_add(onex_device_object, "io", bcsuid);
+    object_set_persist(battery, "none");
+    object_set_persist(compass, "none");
 #endif
-  object_property_add(onex_device_object, "io", lightuid);
+
+    object_property_set(light, "light", "off");
 #if defined(BOARD_FEATHER_SENSE)
-  object_property_add(onex_device_object, "io", ledmxuid);
+    object_property_set(ledmx, "light", "on");
+    object_property_set(ledmx, "colour", "%0300ff");
+    object_property_set(ledmx, "bcs", bcsuid);
 #endif
+
+    object_property_set(onex_device_object, "name", "IoT");
+    object_property_add(onex_device_object, "io", buttonuid);
+#if defined(BOARD_FEATHER_SENSE)
+    object_property_add(onex_device_object, "io", batteryuid);
+    object_property_add(onex_device_object, "io", compassuid);
+    object_property_add(onex_device_object, "io", bcsuid);
+#endif
+    object_property_add(onex_device_object, "io", lightuid);
+#if defined(BOARD_FEATHER_SENSE)
+    object_property_add(onex_device_object, "io", ledmxuid);
+#endif
+
+    uid_0=object_new("uid-0", 0, "config", 10);
+
+    object_property_set(uid_0, "button",  buttonuid);
+#if defined(BOARD_FEATHER_SENSE)
+    object_property_set(uid_0, "battery", batteryuid);
+    object_property_set(uid_0, "compass", compassuid);
+    object_property_set(uid_0, "bcs",     bcsuid);
+#endif
+    object_property_set(uid_0, "light",   lightuid);
+#if defined(BOARD_FEATHER_SENSE)
+    object_property_set(uid_0, "ledmx",   ledmxuid);
+#endif
+
+  } else { // uid-0
+
+    buttonuid =  object_property(uid_0, "button");
+#if defined(BOARD_FEATHER_SENSE)
+    batteryuid = object_property(uid_0, "battery");
+    compassuid = object_property(uid_0, "compass");
+    bcsuid     = object_property(uid_0, "bcs");
+#endif
+    lightuid   = object_property(uid_0, "light");
+#if defined(BOARD_FEATHER_SENSE)
+    ledmxuid   = object_property(uid_0, "ledmx");
+#endif
+
+    button  = onex_get_from_cache(buttonuid);
+#if defined(BOARD_FEATHER_SENSE)
+    battery = onex_get_from_cache(batteryuid);
+    compass = onex_get_from_cache(compassuid);
+    bcs     = onex_get_from_cache(bcsuid);
+#endif
+    light   = onex_get_from_cache(lightuid);
+#if defined(BOARD_FEATHER_SENSE)
+    ledmx   = onex_get_from_cache(ledmxuid);
+#endif
+  }
 
   onex_run_evaluators(lightuid, 0);
 #if defined(BOARD_FEATHER_SENSE)

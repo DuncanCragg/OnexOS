@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 
-#include "outline.h"
+#include <linmath-plus.h>
 
 #include <onl-vk.h>
 

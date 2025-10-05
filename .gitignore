@@ -21,8 +21,6 @@ onx-xcb
 onx-drm
 onx/
 sdk
-external/freetype
-external/lvgl
 
 # never show me: also in .git/info/exclude:
 

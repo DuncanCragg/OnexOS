@@ -22,8 +22,6 @@ SOURCES_ONX = \
   ./src/ont/unix/g2d-vulkan.c \
   ./src/ont/unix/onx.c \
   ./src/ont/unix/ont-vk.c \
-  ./src/ont/unix/outline.c \
-  ./src/ont/unix/geometry.c \
 
 
 
@@ -45,12 +43,6 @@ TESTS_SOURCES = \
 
 #-------------------------------------------------------------------------------
 
-HEADERS_ONX = \
-  ./src/ont/unix/outline.h \
-  ./src/ont/unix/geometry.h \
-
-#-------------------------------------------------------------------------------
-
 SHADERS = \
   src/ont/unix/onx.vert.spv \
   src/ont/unix/onx.frag.spv \
@@ -61,7 +53,6 @@ INC_DIRS = \
  -I./include \
  -I./include/vulkan \
  -I/usr/include \
- -I/usr/include/freetype2 \
  -I./src \
  -I./src/ont/g2d \
  -I../OnexKernel/include \
@@ -83,7 +74,6 @@ LIBS_ONX_XCB = \
  -lvulkan \
  -lxcb \
  -levdev \
- -lfreetype \
  -lm \
 
 
@@ -93,7 +83,6 @@ LIBS_ONX_DRM = \
  -lviture_one_sdk \
  -lvulkan \
  -levdev \
- -lfreetype \
  -lm \
 
 
@@ -103,7 +92,7 @@ onx-xcb: CONFIGFLAGS=-DVK_USE_PLATFORM_XCB_KHR
 onx-xcb: INC_DIR=${INC_DIRS}
 onx-xcb: CC=gcc
 onx-xcb: LD=gcc
-onx-xcb: ${SOURCES_ONX:.c=.o} ${HEADERS_ONX} ${SHADERS:.spv=.o}
+onx-xcb: ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o}
 	@echo ================
 	@echo $@ '<=' ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o}
 	@echo -----
@@ -113,7 +102,7 @@ onx-drm: CONFIGFLAGS=-DVK_USE_PLATFORM_DISPLAY_KHR
 onx-drm: INC_DIR=${INC_DIRS}
 onx-drm: CC=gcc
 onx-drm: LD=gcc
-onx-drm: ${SOURCES_ONX:.c=.o} ${HEADERS_ONX} ${SHADERS:.spv=.o}
+onx-drm: ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o}
 	@echo ================
 	@echo $@ '<=' ${SOURCES_ONX:.c=.o} ${SHADERS:.spv=.o}
 	@echo -----
